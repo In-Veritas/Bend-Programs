@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="470" viewBox="0 0 840 470" font-family="system-ui, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="8" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#444"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="840" height="470" fill="#f5efe1"/>
+  <text x="420" y="34" text-anchor="middle" font-size="22" font-weight="600" fill="#3a2c1a">The app's Elm architecture</text>
+  <text x="420" y="56" text-anchor="middle" font-size="13" fill="#7a6a52">pure state → pure render → DOM → event → pure on_event → new state</text>
+
+  <!-- top row -->
+  <rect x="40"  y="90" width="170" height="70" rx="10" fill="#fffdf7" stroke="#5c3a1a" stroke-width="2"/>
+  <text x="125" y="120" text-anchor="middle" font-size="16" font-weight="600" fill="#5c3a1a">State</text>
+  <text x="125" y="140" text-anchor="middle" font-size="11" fill="#7a6a52">board, tick, rng,</text>
+  <text x="125" y="154" text-anchor="middle" font-size="11" fill="#7a6a52">speed, phase</text>
+
+  <rect x="270" y="90" width="150" height="70" rx="10" fill="#fffdf7" stroke="#8b6f47" stroke-width="2"/>
+  <text x="345" y="125" text-anchor="middle" font-size="15" font-weight="600" fill="#6b4423">render(s)</text>
+  <text x="345" y="145" text-anchor="middle" font-size="11" fill="#7a6a52">pure function</text>
+
+  <rect x="480" y="90" width="150" height="70" rx="10" fill="#fffdf7" stroke="#3fa34d" stroke-width="2"/>
+  <text x="555" y="120" text-anchor="middle" font-size="15" font-weight="600" fill="#2e7d36">HTML(Event)</text>
+  <text x="555" y="140" text-anchor="middle" font-size="11" fill="#7a6a52">virtual tree</text>
+  <text x="555" y="154" text-anchor="middle" font-size="11" fill="#7a6a52">of elements</text>
+
+  <rect x="680" y="90" width="130" height="70" rx="10" fill="#eef3ff" stroke="#3a5a9a" stroke-width="2"/>
+  <text x="745" y="120" text-anchor="middle" font-size="14" font-weight="600" fill="#3a5a9a">Browser</text>
+  <text x="745" y="138" text-anchor="middle" font-size="14" font-weight="600" fill="#3a5a9a">DOM</text>
+
+  <!-- top arrows -->
+  <line x1="210" y1="125" x2="266" y2="125" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="420" y1="125" x2="476" y2="125" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="630" y1="125" x2="676" y2="125" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- init -->
+  <rect x="40" y="300" width="170" height="56" rx="10" fill="#fff7e6" stroke="#a06030" stroke-width="2"/>
+  <text x="125" y="325" text-anchor="middle" font-size="14" font-weight="600" fill="#a06030">init</text>
+  <text x="125" y="343" text-anchor="middle" font-size="11" fill="#7a6a52">initial state (empty board)</text>
+  <line x1="125" y1="300" x2="125" y2="164" stroke="#a06030" stroke-width="2" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+
+  <!-- timer -->
+  <rect x="630" y="190" width="180" height="40" rx="8" fill="#fef0f0" stroke="#c0556a" stroke-width="2"/>
+  <text x="720" y="215" text-anchor="middle" font-size="12" fill="#9a3b4f">every_ms = 400ms → tick_ev</text>
+  <line x1="745" y1="190" x2="745" y2="164" stroke="#c0556a" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- event -->
+  <rect x="600" y="300" width="210" height="110" rx="10" fill="#fffdf7" stroke="#c0556a" stroke-width="2"/>
+  <text x="705" y="324" text-anchor="middle" font-size="15" font-weight="600" fill="#9a3b4f">Event</text>
+  <text x="705" y="346" text-anchor="middle" font-size="11" fill="#7a6a52">click{x, y}</text>
+  <text x="705" y="362" text-anchor="middle" font-size="11" fill="#7a6a52">tick_ev{}</text>
+  <text x="705" y="378" text-anchor="middle" font-size="11" fill="#7a6a52">set_speed{s}</text>
+  <text x="705" y="394" text-anchor="middle" font-size="11" fill="#7a6a52">reset{}</text>
+  <line x1="745" y1="230" x2="745" y2="296" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="760" y="268" font-size="10" fill="#7a6a52">click / timer</text>
+
+  <!-- on_event -->
+  <rect x="300" y="312" width="200" height="86" rx="10" fill="#fffdf7" stroke="#5c3a1a" stroke-width="2"/>
+  <text x="400" y="344" text-anchor="middle" font-size="15" font-weight="600" fill="#5c3a1a">on_event(e, s)</text>
+  <text x="400" y="366" text-anchor="middle" font-size="11" fill="#7a6a52">→ App/Update(State, Event)</text>
+  <text x="400" y="382" text-anchor="middle" font-size="11" fill="#7a6a52">= update{new_state, cmd}</text>
+  <line x1="600" y1="355" x2="504" y2="355" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- feedback to state -->
+  <path d="M300,340 L255,340 L255,164" fill="none" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="262" y="250" font-size="11" fill="#444" font-weight="600">new State</text>
+</svg>

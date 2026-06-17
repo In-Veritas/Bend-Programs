@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="520" viewBox="0 0 860 520" font-family="system-ui, sans-serif">
+  <defs>
+    <marker id="arrow5" markerWidth="11" markerHeight="9" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L9,3 L0,6 Z" fill="#555"/>
+    </marker>
+    <marker id="arrow5g" markerWidth="11" markerHeight="9" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L9,3 L0,6 Z" fill="#2c7837"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="860" height="520" fill="#f5efe1"/>
+  <text x="430" y="32" text-anchor="middle" font-size="22" font-weight="600" fill="#3a2c1a">maybe_mutate: evolution of each type (relative to the soil)</text>
+  <text x="430" y="54" text-anchor="middle" font-size="13" fill="#7a6a52">n_occ = occupied neighbors. above = soil − y (height above the soil). aerial = y &lt; soil. CANOPY_START=10, TRUNK_H=5.</text>
+
+  <!-- edges -->
+  <!-- seed -> bark -->
+  <path d="M192,232 C360,205 540,215 648,238" fill="none" stroke="#555" stroke-width="2" marker-end="url(#arrow5)"/>
+  <text x="372" y="200" font-size="11" fill="#5c3a1a">n_occ ≥ 3  (already sprouted → trunk base)</text>
+  <!-- seed self -->
+  <path d="M118,210 C92,175 128,160 148,188" fill="none" stroke="#999" stroke-width="1.8" marker-end="url(#arrow5)"/>
+  <text x="64" y="168" font-size="10" fill="#888">otherwise: seed</text>
+
+  <!-- branch -> leaf -->
+  <path d="M450,103 C545,80 608,78 638,84" fill="none" stroke="#2c7837" stroke-width="2" marker-end="url(#arrow5g)"/>
+  <text x="448" y="70" font-size="11" fill="#2e7d36">aerial, tip (n_occ ≤ 2), above ≥ 10 or top (y ≤ 1)</text>
+  <!-- branch -> bark -->
+  <path d="M454,142 C562,165 612,200 650,224" fill="none" stroke="#555" stroke-width="2" marker-end="url(#arrow5)"/>
+  <text x="486" y="176" font-size="11" fill="#6b4423">trunk zone (above ≤ 5) &amp; n_occ ≥ 3</text>
+  <!-- branch self -->
+  <path d="M378,95 C353,60 408,55 423,88" fill="none" stroke="#999" stroke-width="1.8" marker-end="url(#arrow5)"/>
+  <text x="318" y="56" font-size="10" fill="#888">otherwise: branch (rises/thickens)</text>
+
+  <!-- root self only — roots never resurface -->
+  <path d="M378,398 C353,435 408,440 428,408" fill="none" stroke="#999" stroke-width="1.8" marker-end="url(#arrow5)"/>
+  <text x="300" y="452" font-size="10" fill="#888">always root (shallow spreads sideways; deep descends — never rises)</text>
+
+  <!-- terminals -->
+  <path d="M722,228 C757,198 760,253 730,263" fill="none" stroke="#999" stroke-width="1.8" marker-end="url(#arrow5)"/>
+  <path d="M722,75 C757,45 760,100 730,108" fill="none" stroke="#999" stroke-width="1.8" marker-end="url(#arrow5)"/>
+
+  <!-- nodes -->
+  <g font-size="15" font-weight="600" text-anchor="middle">
+    <circle cx="150" cy="240" r="42" fill="#a06030" stroke="#7a3f1c" stroke-width="2"/>
+    <text x="150" y="246" fill="#fff">seed</text>
+    <circle cx="410" cy="120" r="42" fill="#8b6f47" stroke="#6b4f2c" stroke-width="2"/>
+    <text x="410" y="126" fill="#fff">branch</text>
+    <circle cx="410" cy="370" r="42" fill="#5c3a1a" stroke="#3e2710" stroke-width="2"/>
+    <text x="410" y="376" fill="#fff">root</text>
+    <circle cx="685" cy="245" r="42" fill="#6b4423" stroke="#4a2e15" stroke-width="2"/>
+    <text x="685" y="251" fill="#fff">bark</text>
+    <circle cx="685" cy="90" r="42" fill="#3fa34d" stroke="#2c7837" stroke-width="2"/>
+    <text x="685" y="96" fill="#fff">leaf</text>
+  </g>
+  <text x="685" y="305" text-anchor="middle" font-size="11" fill="#7a6a52">terminal</text>
+  <text x="685" y="150" text-anchor="middle" font-size="11" fill="#7a6a52">terminal</text>
+
+  <!-- intuition box -->
+  <rect x="40" y="436" width="780" height="64" rx="10" fill="#fff7e6" stroke="#a06030" stroke-width="1.5"/>
+  <text x="56" y="460" font-size="12" fill="#5c3a1a">Everything is measured from the soil line: the canopy leafs out proportional to where you planted (fixes "planting high"),</text>
+  <text x="56" y="480" font-size="12" fill="#5c3a1a">the trunk zone thickens/darkens; roots stay below the soil (shallow widen the base, deep descend). The rising tip never becomes trunk midway.</text>
+</svg>

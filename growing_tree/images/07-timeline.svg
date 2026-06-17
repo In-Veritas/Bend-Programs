@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="320" viewBox="0 0 840 320" font-family="system-ui, sans-serif">
+  <defs>
+    <marker id="arrow7" markerWidth="10" markerHeight="8" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#a06030"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="840" height="320" fill="#f5efe1"/>
+  <text x="420" y="30" text-anchor="middle" font-size="22" font-weight="600" fill="#3a2c1a">A typical run (illustrative)</text>
+
+  <!-- four mini-grids 9 wide x 9 tall, cell 14px, at x offsets -->
+  <!-- helper: each grid 9x9 starting at gx,gy -->
+
+  <!-- Tick 0: single seed -->
+  <g transform="translate(40,70)">
+    <rect x="0" y="0" width="126" height="126" fill="#fffdf7" stroke="#c8bda6"/>
+    <rect x="56" y="42" width="14" height="14" fill="#a06030"/>
+    <text x="63" y="150" text-anchor="middle" font-size="13" font-weight="600" fill="#5c3a1a">tick 0</text>
+    <text x="63" y="168" text-anchor="middle" font-size="11" fill="#7a6a52">1 seed</text>
+  </g>
+
+  <!-- Tick ~5: seed split into branch (up) + root (down) -->
+  <g transform="translate(240,70)">
+    <rect x="0" y="0" width="126" height="126" fill="#fffdf7" stroke="#c8bda6"/>
+    <rect x="56" y="28" width="14" height="14" fill="#8b6f47"/>
+    <rect x="56" y="42" width="14" height="14" fill="#a06030"/>
+    <rect x="56" y="56" width="14" height="14" fill="#5c3a1a"/>
+    <rect x="56" y="70" width="14" height="14" fill="#5c3a1a"/>
+    <text x="63" y="150" text-anchor="middle" font-size="13" font-weight="600" fill="#5c3a1a">tick ~5</text>
+    <text x="63" y="168" text-anchor="middle" font-size="11" fill="#7a6a52">branch rises, root descends</text>
+  </g>
+
+  <!-- Tick ~20: trunk of bark, branching, roots spread -->
+  <g transform="translate(440,70)">
+    <rect x="0" y="0" width="126" height="126" fill="#fffdf7" stroke="#c8bda6"/>
+    <!-- canopy branches -->
+    <rect x="42" y="14" width="14" height="14" fill="#8b6f47"/>
+    <rect x="56" y="14" width="14" height="14" fill="#8b6f47"/>
+    <rect x="70" y="14" width="14" height="14" fill="#8b6f47"/>
+    <rect x="56" y="28" width="14" height="14" fill="#6b4423"/>
+    <rect x="56" y="42" width="14" height="14" fill="#6b4423"/>
+    <rect x="56" y="56" width="14" height="14" fill="#6b4423"/>
+    <!-- roots -->
+    <rect x="56" y="70" width="14" height="14" fill="#5c3a1a"/>
+    <rect x="42" y="84" width="14" height="14" fill="#5c3a1a"/>
+    <rect x="70" y="84" width="14" height="14" fill="#5c3a1a"/>
+    <rect x="56" y="98" width="14" height="14" fill="#5c3a1a"/>
+    <text x="63" y="150" text-anchor="middle" font-size="13" font-weight="600" fill="#5c3a1a">tick ~20</text>
+    <text x="63" y="168" text-anchor="middle" font-size="11" fill="#7a6a52">trunk (bark) + roots</text>
+  </g>
+
+  <!-- Tick ~50: leaves in canopy -->
+  <g transform="translate(640,70)">
+    <rect x="0" y="0" width="126" height="126" fill="#fffdf7" stroke="#c8bda6"/>
+    <rect x="28" y="14" width="14" height="14" fill="#3fa34d"/>
+    <rect x="42" y="0"  width="14" height="14" fill="#3fa34d"/>
+    <rect x="56" y="0"  width="14" height="14" fill="#3fa34d"/>
+    <rect x="70" y="0"  width="14" height="14" fill="#3fa34d"/>
+    <rect x="84" y="14" width="14" height="14" fill="#3fa34d"/>
+    <rect x="42" y="14" width="14" height="14" fill="#8b6f47"/>
+    <rect x="56" y="14" width="14" height="14" fill="#8b6f47"/>
+    <rect x="70" y="14" width="14" height="14" fill="#8b6f47"/>
+    <rect x="56" y="28" width="14" height="14" fill="#6b4423"/>
+    <rect x="56" y="42" width="14" height="14" fill="#6b4423"/>
+    <rect x="56" y="56" width="14" height="14" fill="#6b4423"/>
+    <rect x="56" y="70" width="14" height="14" fill="#5c3a1a"/>
+    <rect x="42" y="84" width="14" height="14" fill="#5c3a1a"/>
+    <rect x="70" y="84" width="14" height="14" fill="#5c3a1a"/>
+    <rect x="28" y="98" width="14" height="14" fill="#5c3a1a"/>
+    <rect x="84" y="98" width="14" height="14" fill="#5c3a1a"/>
+    <text x="63" y="150" text-anchor="middle" font-size="13" font-weight="600" fill="#5c3a1a">tick ~50</text>
+    <text x="63" y="168" text-anchor="middle" font-size="11" fill="#7a6a52">leaves in the canopy</text>
+  </g>
+
+  <!-- arrows between -->
+  <line x1="172" y1="133" x2="234" y2="133" stroke="#a06030" stroke-width="2" marker-end="url(#arrow7)"/>
+  <line x1="372" y1="133" x2="434" y2="133" stroke="#a06030" stroke-width="2" marker-end="url(#arrow7)"/>
+  <line x1="572" y1="133" x2="634" y2="133" stroke="#a06030" stroke-width="2" marker-end="url(#arrow7)"/>
+
+  <!-- legend -->
+  <g font-size="12" transform="translate(40,210)">
+    <rect x="0"   y="60" width="14" height="14" fill="#a06030"/><text x="20" y="72" fill="#3a2c1a">seed</text>
+    <rect x="90"  y="60" width="14" height="14" fill="#5c3a1a"/><text x="110" y="72" fill="#3a2c1a">root</text>
+    <rect x="180" y="60" width="14" height="14" fill="#6b4423"/><text x="200" y="72" fill="#3a2c1a">bark</text>
+    <rect x="270" y="60" width="14" height="14" fill="#8b6f47"/><text x="290" y="72" fill="#3a2c1a">branch</text>
+    <rect x="380" y="60" width="14" height="14" fill="#3fa34d"/><text x="400" y="72" fill="#3a2c1a">leaf</text>
+    <text x="0" y="32" font-size="11" fill="#7a6a52">The exact shape varies each run: everything depends on the rng sequence and the clicks.</text>
+  </g>
+</svg>
