@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="440" viewBox="0 0 900 440" font-family="system-ui, sans-serif">
+  <defs>
+    <marker id="lc" markerWidth="11" markerHeight="9" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#7fdfff"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="900" height="440" fill="#06121b"/>
+  <text x="450" y="34" text-anchor="middle" font-size="22" font-weight="700" fill="#7fdfff">Life cycle &amp; growth</text>
+  <text x="450" y="58" text-anchor="middle" font-size="12.5" fill="#9fc7d8">Every meal adds a little size; a stage only advances after several meals (and keeps the size it grew into).</text>
+
+  <!-- Egg -->
+  <rect x="30" y="120" width="170" height="150" rx="12" fill="#0b2233" stroke="#16465e" stroke-width="2"/>
+  <circle cx="115" cy="160" r="7" fill="#ff9a44"/>
+  <text x="115" y="196" text-anchor="middle" font-size="15" font-weight="700" fill="#ffb066">Egg</text>
+  <text x="115" y="220" text-anchor="middle" font-size="11.5" fill="#9fc7d8">falls, then sinks</text>
+  <text x="115" y="238" text-anchor="middle" font-size="11.5" fill="#9fc7d8">size 1</text>
+  <text x="115" y="256" text-anchor="middle" font-size="11" fill="#7aa9bd">eaten, or it hatches</text>
+
+  <!-- Fry -->
+  <rect x="248" y="120" width="170" height="150" rx="12" fill="#0b2233" stroke="#16465e" stroke-width="2"/>
+  <text x="333" y="168" text-anchor="middle" font-size="26" font-weight="800" fill="#c98a4a" font-family="monospace">o&lt;</text>
+  <text x="333" y="196" text-anchor="middle" font-size="15" font-weight="700" fill="#c98a4a">Fry</text>
+  <text x="333" y="220" text-anchor="middle" font-size="11.5" fill="#9fc7d8">eats eggs only</text>
+  <text x="333" y="238" text-anchor="middle" font-size="11.5" fill="#9fc7d8">+1.3 size / egg</text>
+  <text x="333" y="256" text-anchor="middle" font-size="11" fill="#7aa9bd">near the surface</text>
+
+  <!-- Juvenile -->
+  <rect x="466" y="120" width="170" height="150" rx="12" fill="#0b2233" stroke="#16465e" stroke-width="2"/>
+  <text x="551" y="168" text-anchor="middle" font-size="24" font-weight="800" font-family="monospace" fill="#1f9a4d">(O&lt;</text>
+  <text x="551" y="196" text-anchor="middle" font-size="15" font-weight="700" fill="#1f9a4d">Juvenile</text>
+  <text x="551" y="220" text-anchor="middle" font-size="11.5" fill="#9fc7d8">eats eggs + fry</text>
+  <text x="551" y="238" text-anchor="middle" font-size="11.5" fill="#9fc7d8">+2.0 / fry · eggs: no growth</text>
+  <text x="551" y="256" text-anchor="middle" font-size="11" fill="#7aa9bd">mid water</text>
+
+  <!-- Adult -->
+  <rect x="684" y="120" width="186" height="150" rx="12" fill="#0b2233" stroke="#16465e" stroke-width="2"/>
+  <text x="777" y="168" text-anchor="middle" font-size="20" font-weight="800" font-family="monospace" fill="#3f78d6">(.* )&lt;3</text>
+  <text x="777" y="196" text-anchor="middle" font-size="15" font-weight="700" fill="#3f78d6">Adult</text>
+  <text x="777" y="220" text-anchor="middle" font-size="11.5" fill="#9fc7d8">any fish ≤ ½ size</text>
+  <text x="777" y="238" text-anchor="middle" font-size="11.5" fill="#9fc7d8">×1.10 / fish · eats adults too</text>
+  <text x="777" y="256" text-anchor="middle" font-size="11" fill="#7aa9bd">near the floor</text>
+
+  <!-- transitions -->
+  <line x1="200" y1="180" x2="246" y2="180" stroke="#7fdfff" stroke-width="2.5" marker-end="url(#lc)"/>
+  <text x="223" y="172" text-anchor="middle" font-size="10" fill="#7fdfff">hatch</text>
+  <text x="223" y="300" text-anchor="middle" font-size="9.5" fill="#5f8294">untouched</text>
+  <text x="223" y="313" text-anchor="middle" font-size="9.5" fill="#5f8294">~150 frames</text>
+
+  <line x1="418" y1="180" x2="464" y2="180" stroke="#7fdfff" stroke-width="2.5" marker-end="url(#lc)"/>
+  <text x="441" y="172" text-anchor="middle" font-size="10" fill="#7fdfff">12 eggs</text>
+
+  <line x1="636" y1="180" x2="682" y2="180" stroke="#7fdfff" stroke-width="2.5" marker-end="url(#lc)"/>
+  <text x="659" y="172" text-anchor="middle" font-size="10" fill="#7fdfff">5 fry</text>
+
+  <!-- break -->
+  <rect x="540" y="332" width="330" height="74" rx="12" fill="#2a0d12" stroke="#7a2330" stroke-width="2"/>
+  <text x="705" y="360" text-anchor="middle" font-size="15" font-weight="800" fill="#ff8a99">💥 size ≥ 135 → tank shatters</text>
+  <text x="705" y="384" text-anchor="middle" font-size="12" fill="#e6a9b2">Game over · score = ADULT fish at that moment</text>
+  <line x1="777" y1="270" x2="740" y2="330" stroke="#7a2330" stroke-width="2.5" marker-end="url(#lc)"/>
+
+  <text x="270" y="356" font-size="12" fill="#7aa9bd">Prey must be ≤ ½ the predator's size. Eats once/sec;</text>
+  <text x="270" y="373" font-size="12" fill="#7aa9bd">hunts on a 10s clock. An adult feeds a whole cycle —</text>
+  <text x="270" y="390" font-size="12" fill="#7aa9bd">5 fry / 2 juveniles / 1 adult — then waits 10s.</text>
+  <circle cx="40" cy="372" r="6" fill="#ff9a44"/>
+  <text x="55" y="377" font-size="12" fill="#9fc7d8">= a tap drops 4 eggs · hold to pour</text>
+</svg>

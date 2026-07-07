@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="470" viewBox="0 0 900 470" font-family="system-ui, sans-serif">
+  <defs>
+    <marker id="f" markerWidth="10" markerHeight="8" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#ffd27f"/>
+    </marker>
+    <marker id="fb" markerWidth="10" markerHeight="8" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#7fdfff"/>
+    </marker>
+    <marker id="fr" markerWidth="10" markerHeight="8" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#ff9aa6"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="900" height="470" fill="#06121b"/>
+  <text x="450" y="34" text-anchor="middle" font-size="22" font-weight="700" fill="#7fdfff">How a fish swims — a sum of small forces</text>
+
+  <!-- water panel -->
+  <rect x="40" y="60" width="430" height="380" rx="10" fill="#0c2a3a" stroke="#1d5b75" stroke-width="2"/>
+  <line x1="40" y1="92" x2="470" y2="92" stroke="#bfe9ff" stroke-width="2" stroke-dasharray="6,5" opacity="0.6"/>
+  <text x="56" y="84" font-size="11" fill="#9fd6ec">surface</text>
+
+  <!-- fish -->
+  <text x="250" y="270" text-anchor="middle" font-size="26" font-weight="800" fill="#dfe7ea" font-family="monospace">(O&lt;</text>
+
+  <!-- target steer -->
+  <circle cx="380" cy="180" r="6" fill="#ff9a44"/>
+  <line x1="260" y1="258" x2="368" y2="190" stroke="#ffd27f" stroke-width="3" marker-end="url(#f)"/>
+  <text x="330" y="232" font-size="12" fill="#ffd27f" font-weight="600">1 steer → target</text>
+
+  <!-- wander -->
+  <line x1="240" y1="262" x2="190" y2="240" stroke="#ffd27f" stroke-width="1.6" stroke-dasharray="3,3" marker-end="url(#f)"/>
+  <text x="120" y="238" font-size="11" fill="#e9c98a">2 wander (rng)</text>
+
+  <!-- depth bias -->
+  <line x1="250" y1="285" x2="250" y2="340" stroke="#7fdfff" stroke-width="2" marker-end="url(#fb)"/>
+  <text x="258" y="332" font-size="11" fill="#7fdfff">3 depth band (only when idle)</text>
+
+  <!-- collision -->
+  <text x="150" y="330" text-anchor="middle" font-size="20" font-weight="800" fill="#c98a4a" font-family="monospace">o&lt;</text>
+  <line x1="170" y1="320" x2="225" y2="290" stroke="#ff9aa6" stroke-width="2" marker-end="url(#fr)"/>
+  <text x="84" y="356" font-size="11" fill="#ff9aa6">4 collision: push + smaller veers</text>
+
+  <!-- swarm + bob -->
+  <text x="84" y="300" font-size="11" fill="#9fe8a8">+ fry school together (swarm)</text>
+  <path d="M250 360 q 12 -10 24 0 q 12 10 24 0" fill="none" stroke="#9fe8d8" stroke-width="2"/>
+  <text x="306" y="366" font-size="11" fill="#9fe8d8">5 gentle bob (v.y capped)</text>
+
+  <!-- walls -->
+  <text x="430" y="420" text-anchor="end" font-size="11" fill="#9fd6ec">6 bounce off walls / floor / surface</text>
+
+  <!-- right: pipeline -->
+  <rect x="500" y="60" width="370" height="380" rx="10" fill="#0b2233" stroke="#16465e" stroke-width="2"/>
+  <text x="685" y="86" text-anchor="middle" font-size="14" font-weight="700" fill="#bfe0ef">fish_update — per frame</text>
+
+  <g font-size="12" font-family="monospace" fill="#a9d2e2">
+    <text x="518" y="112">v = velocity last frame</text>
+    <text x="518" y="138">tg = target_of(self, world)</text>
+    <text x="518" y="164">v += STEER · (toward(tg) − v)</text>
+    <text x="518" y="190">v.y += depth_bias  (idle only)</text>
+    <text x="518" y="216">v += WANDER · rand(self.rng)</text>
+    <text x="518" y="242">v.y += BOB · sin(phase)</text>
+    <text x="518" y="268">v += swarm(self)     [fry]</text>
+    <text x="518" y="294">v += collision(self, world)</text>
+    <text x="518" y="320">v = cap_speed(v, max[stage])</text>
+    <text x="518" y="346">v.y = clamp(v.y, ±MAX_VY)</text>
+    <text x="518" y="372">pos += v ; bounce at walls</text>
+    <text x="518" y="398">face = v.x &gt; 0</text>
+  </g>
+  <text x="685" y="426" text-anchor="middle" font-size="11" fill="#5f8294">Per-fish rng makes every path unique and breaks chase loops.</text>
+</svg>

@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="450" viewBox="0 0 900 450" font-family="system-ui, sans-serif">
+  <defs>
+    <marker id="e" markerWidth="10" markerHeight="8" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#7fdfff"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="900" height="450" fill="#06121b"/>
+  <text x="450" y="34" text-anchor="middle" font-size="22" font-weight="700" fill="#7fdfff">Eating: one mouth, one meal (the claim pass)</text>
+
+  <text x="450" y="60" text-anchor="middle" font-size="12.5" fill="#9fc7d8">Each frame, predators are walked in list order. Each claims its nearest in-range, edible, still-unclaimed prey.</text>
+
+  <!-- step boxes -->
+  <rect x="40" y="86" width="250" height="150" rx="10" fill="#0b2233" stroke="#16465e" stroke-width="2"/>
+  <text x="165" y="110" text-anchor="middle" font-size="13" font-weight="700" fill="#bfe0ef">1. enumerate</text>
+  <text x="56" y="134" font-size="12" font-family="monospace" fill="#a9d2e2">[ient{0, o&lt;}, </text>
+  <text x="56" y="154" font-size="12" font-family="monospace" fill="#a9d2e2">  ient{1, •egg},</text>
+  <text x="56" y="174" font-size="12" font-family="monospace" fill="#a9d2e2">  ient{2, o&lt;},</text>
+  <text x="56" y="194" font-size="12" font-family="monospace" fill="#a9d2e2">  ient{3, •egg}]</text>
+  <text x="56" y="220" font-size="11" fill="#7aa9bd">stable indices for this frame</text>
+
+  <rect x="325" y="86" width="270" height="150" rx="10" fill="#0b2233" stroke="#16465e" stroke-width="2"/>
+  <text x="460" y="110" text-anchor="middle" font-size="13" font-weight="700" fill="#bfe0ef">2. claim (fold, in order)</text>
+  <text x="341" y="136" font-size="11.5" font-family="monospace" fill="#a9d2e2">pred 0 → nearest egg = 1</text>
+  <text x="341" y="156" font-size="11.5" font-family="monospace" fill="#9fe8c8">      consumed={1} grant{0}</text>
+  <text x="341" y="178" font-size="11.5" font-family="monospace" fill="#a9d2e2">pred 2 → egg 1 taken → egg 3</text>
+  <text x="341" y="198" font-size="11.5" font-family="monospace" fill="#9fe8c8">      consumed={1,3} grant{2}</text>
+  <text x="341" y="222" font-size="11" fill="#7aa9bd">a prey index is never claimed twice</text>
+
+  <rect x="630" y="86" width="240" height="150" rx="10" fill="#0b2233" stroke="#16465e" stroke-width="2"/>
+  <text x="750" y="110" text-anchor="middle" font-size="13" font-weight="700" fill="#bfe0ef">3. rebuild</text>
+  <text x="646" y="136" font-size="11.5" font-family="monospace" fill="#ff9aa6">drop consumed {1,3}</text>
+  <text x="646" y="158" font-size="11.5" font-family="monospace" fill="#9fe8c8">grow granted {0,2}</text>
+  <text x="646" y="182" font-size="11.5" font-family="monospace" fill="#a9d2e2">→ [o&lt;⁺, o&lt;⁺]</text>
+  <text x="646" y="208" font-size="11" fill="#7aa9bd">fry+egg → bigger fry;</text>
+  <text x="646" y="224" font-size="11" fill="#7aa9bd">juv+5 fish → adult; etc.</text>
+
+  <line x1="290" y1="161" x2="323" y2="161" stroke="#7fdfff" stroke-width="2.5" marker-end="url(#e)"/>
+  <line x1="595" y1="161" x2="628" y2="161" stroke="#7fdfff" stroke-width="2.5" marker-end="url(#e)"/>
+
+  <!-- eligibility rules -->
+  <rect x="40" y="270" width="400" height="150" rx="10" fill="#10212b" stroke="#1d4a5e" stroke-width="2"/>
+  <text x="240" y="294" text-anchor="middle" font-size="13" font-weight="700" fill="#9fe8d8">Who can eat what (≤ ½ size)</text>
+  <text x="58" y="320" font-size="12" fill="#bcd9e6">• Fry    → eggs only</text>
+  <text x="58" y="342" font-size="12" fill="#bcd9e6">• Juvenile → eggs + fry (grows from fry)</text>
+  <text x="58" y="364" font-size="12" fill="#bcd9e6">• Adult    → ANY fish ≤ ½ size (incl. adults)</text>
+  <text x="58" y="392" font-size="11.5" fill="#7aa9bd">eats once/sec; hunts fish on a 10s clock</text>
+  <text x="58" y="410" font-size="11.5" fill="#7aa9bd">adult cycle: 5 fry / 2 juv / 1 adult, then 10s</text>
+
+  <!-- growth effects -->
+  <rect x="470" y="270" width="400" height="150" rx="10" fill="#10212b" stroke="#1d4a5e" stroke-width="2"/>
+  <text x="670" y="294" text-anchor="middle" font-size="13" font-weight="700" fill="#9fe8d8">Effect of a meal (grow_ent)</text>
+  <text x="488" y="320" font-size="12" fill="#bcd9e6">• Fry + egg  : size += 1.3 → juvenile after 12</text>
+  <text x="488" y="342" font-size="12" fill="#bcd9e6">• Juv + fry  : size += 2.0 → adult after 5  (egg: 0)</text>
+  <text x="488" y="364" font-size="12" fill="#bcd9e6">• Adult + fish : size ×= 1.10, +cost to cycle</text>
+  <text x="488" y="386" font-size="12" fill="#bcd9e6">  cycle full (cap 10) → 10s cooldown</text>
+  <text x="488" y="410" font-size="11.5" fill="#7aa9bd">size grows on EVERY meal</text>
+</svg>
