@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#183f2a">
+<title>Balloon Defense · BendJogos.com.br</title>
+<style>
+  :root { color-scheme: dark; --panel:#173724; --line:rgba(255,255,255,.18); --text:#fffdf3; --muted:#bfd1c2; }
+  * { box-sizing: border-box; }
+  body { min-height:100vh; margin:0; background:#10291c; color:var(--text); font-family:Inter,system-ui,sans-serif; }
+  header { display:flex; align-items:center; justify-content:space-between; gap:16px; width:min(1080px,calc(100% - 24px)); margin:auto; padding:14px 0; }
+  a { color:var(--muted); text-decoration:none; }
+  h1 { margin:0; font-size:20px; }
+  .game { width:min(1080px,calc(100% - 16px)); margin:auto; }
+  .stage { position:relative; overflow:hidden; border:1px solid var(--line); border-radius:12px; background:#79b85d; }
+  canvas { display:block; width:100%; aspect-ratio:16/10; touch-action:none; }
+  .hud { display:flex; flex-wrap:wrap; align-items:center; gap:9px; padding:11px 0 max(16px,env(safe-area-inset-bottom)); }
+  .stat { padding:8px 11px; border:1px solid var(--line); border-radius:8px; background:var(--panel); color:var(--muted); font-size:13px; }
+  .stat strong { color:var(--text); }
+  button { padding:9px 13px; border:1px solid var(--line); border-radius:8px; color:var(--text); background:#245638; font:inherit; cursor:pointer; }
+  button.primary { background:#f0c44c; color:#342906; border-color:#f0c44c; font-weight:750; }
+  button:disabled { opacity:.45; cursor:default; }
+  .help { margin-left:auto; color:var(--muted); font-size:13px; }
+  .message { position:absolute; left:50%; top:50%; width:min(330px,calc(100% - 32px)); padding:22px; border:1px solid var(--line); border-radius:12px; background:rgba(16,41,28,.94); text-align:center; transform:translate(-50%,-50%); }
+  .message h2 { margin:0 0 8px; }
+  .message p { margin:0 0 16px; color:var(--muted); line-height:1.45; }
+  .hidden { display:none!important; }
+  @media(max-width:640px){ header{padding:10px 0}.game{width:100%}.stage{border-radius:0;border-left:0;border-right:0}.hud{padding-left:10px;padding-right:10px}.help{width:100%;margin:0} }
+</style>
+</head>
+<body>
+<header><h1>Balloon Defense</h1><a href="/">← BendJogos.com.br</a></header>
+<main class="game">
+  <div class="stage">
+    <canvas id="game" width="960" height="600" aria-label="Balloon defense game"></canvas>
+    <div id="message" class="message hidden"><h2 id="message-title">Game over</h2><p id="message-copy"></p><button id="restart" class="primary" type="button">Play again</button></div>
+  </div>
+  <div class="hud">
+    <div class="stat">Wave <strong id="wave">1</strong></div>
+    <div class="stat">Lives <strong id="lives">30</strong></div>
+    <div class="stat">Coins <strong id="coins">300</strong></div>
+    <button id="tower" type="button">Dart tower · 100</button>
+    <button id="start" class="primary" type="button">Start wave</button>
+    <div id="help" class="help">Select a tower, then tap an open grass area.</div>
+  </div>
+</main>
+<script>
+const canvas = document.getElementById('game');
+const context = canvas.getContext('2d');
+const WIDTH = 960;
+const HEIGHT = 600;
+const PATH = [[-30,105],[150,105],[150,265],[370,265],[370,95],[600,95],[600,360],[805,360],[805,505],[990,505]];
+const segments = [];
+let pathLength = 0;
+for (let index = 1; index < PATH.length; index++) {
+  const [ax, ay] = PATH[index - 1];
+  const [bx, by] = PATH[index];
+  const length = Math.hypot(bx - ax, by - ay);
+  segments.push({ax, ay, bx, by, length, start:pathLength});
+  pathLength += length;
+}
+
+let towers = [];
+let balloons = [];
+let darts = [];
+let coins = 300;
+let lives = 30;
+let wave = 1;
+let waveActive = false;
+let spawnLeft = 0;
+let spawnClock = 0;
+let selected = true;
+let gameOver = false;
+let lastTime = performance.now();
+let hover = null;
+
+function path_point(distance) {
+  const value = Math.max(0, Math.min(pathLength, distance));
+  const segment = segments.find(item => value <= item.start + item.length) || segments[segments.length - 1];
+  const amount = Math.max(0, Math.min(1, (value - segment.start) / segment.length));
+  return [segment.ax + ((segment.bx - segment.ax) * amount), segment.ay + ((segment.by - segment.ay) * amount)];
+}
+
+function point_segment_distance(x, y, segment) {
+  const dx = segment.bx - segment.ax;
+  const dy = segment.by - segment.ay;
+  const amount = Math.max(0, Math.min(1, (((x - segment.ax) * dx) + ((y - segment.ay) * dy)) / ((dx * dx) + (dy * dy))));
+  return Math.hypot(x - (segment.ax + dx * amount), y - (segment.ay + dy * amount));
+}
+
+function point_open(x, y) {
+  if (x < 35 || x > WIDTH - 35 || y < 35 || y > HEIGHT - 35) return false;
+  if (segments.some(segment => point_segment_distance(x, y, segment) < 58)) return false;
+  return !towers.some(tower => Math.hypot(x - tower.x, y - tower.y) < 52);
+}
+
+function balloon_spawn() {
+  const level = 1 + Math.floor((wave - 1) / 3);
+  const hp = Math.min(6, level + (Math.random() < Math.min(.55, wave * .035) ? 1 : 0));
+  balloons.push({distance:0, hp, maxHp:hp, speed:43 + (wave * 2.2) + (hp * 4), reward:7 + hp * 3, dead:false});
+}
+
+function wave_start() {
+  if (waveActive || gameOver) return;
+  waveActive = true;
+  spawnLeft = 7 + wave * 3;
+  spawnClock = 0;
+  document.getElementById('start').disabled = true;
+}
+
+function tower_place(x, y) {
+  if (!selected || coins < 100 || !point_open(x, y) || gameOver) return;
+  towers.push({x, y, angle:0, cooldown:Math.random() * .3});
+  coins -= 100;
+  selected = false;
+  document.getElementById('tower').classList.remove('primary');
+  hud_update();
+}
+
+function tower_target(tower) {
+  let target = null;
+  for (const balloon of balloons) {
+    if (balloon.dead) continue;
+    const [x, y] = path_point(balloon.distance);
+    if (Math.hypot(x - tower.x, y - tower.y) <= 138 && (!target || balloon.distance > target.distance)) target = balloon;
+  }
+  return target;
+}
+
+function game_update(delta) {
+  if (gameOver) return;
+  if (waveActive && spawnLeft > 0) {
+    spawnClock -= delta;
+    if (spawnClock <= 0) {
+      balloon_spawn();
+      spawnLeft--;
+      spawnClock = Math.max(.25, .78 - wave * .018);
+    }
+  }
+
+  for (const balloon of balloons) {
+    balloon.distance += balloon.speed * delta;
+    if (balloon.distance >= pathLength && !balloon.dead) {
+      balloon.dead = true;
+      lives -= balloon.hp;
+    }
+  }
+
+  for (const tower of towers) {
+    tower.cooldown -= delta;
+    const target = tower_target(tower);
+    if (target) {
+      const [tx, ty] = path_point(target.distance);
+      tower.angle = Math.atan2(ty - tower.y, tx - tower.x);
+      if (tower.cooldown <= 0) {
+        darts.push({x:tower.x,y:tower.y,target,speed:430,dead:false});
+        tower.cooldown = .58;
+      }
+    }
+  }
+
+  for (const dart of darts) {
+    if (dart.target.dead) { dart.dead = true; continue; }
+    const [tx, ty] = path_point(dart.target.distance);
+    const dx = tx - dart.x;
+    const dy = ty - dart.y;
+    const length = Math.hypot(dx, dy) || 1;
+    const travel = dart.speed * delta;
+    if (length <= travel + 9) {
+      dart.dead = true;
+      dart.target.hp--;
+      if (dart.target.hp <= 0) {
+        dart.target.dead = true;
+        coins += dart.target.reward;
+      }
+    } else {
+      dart.x += (dx / length) * travel;
+      dart.y += (dy / length) * travel;
+    }
+  }
+
+  balloons = balloons.filter(balloon => !balloon.dead);
+  darts = darts.filter(dart => !dart.dead);
+  if (lives <= 0) game_finish();
+  if (waveActive && spawnLeft === 0 && balloons.length === 0) {
+    waveActive = false;
+    coins += 35 + wave * 4;
+    wave++;
+    document.getElementById('start').disabled = false;
+  }
+  hud_update();
+}
+
+function game_finish() {
+  gameOver = true;
+  document.getElementById('message-title').textContent = 'Game over';
+  document.getElementById('message-copy').textContent = `You reached wave ${wave}.`;
+  document.getElementById('message').classList.remove('hidden');
+}
+
+function game_reset() {
+  towers=[]; balloons=[]; darts=[]; coins=300; lives=30; wave=1; waveActive=false; spawnLeft=0; selected=true; gameOver=false;
+  document.getElementById('message').classList.add('hidden');
+  document.getElementById('start').disabled=false;
+  document.getElementById('tower').classList.add('primary');
+  hud_update();
+}
+
+function hud_update() {
+  document.getElementById('wave').textContent = wave;
+  document.getElementById('lives').textContent = Math.max(0, lives);
+  document.getElementById('coins').textContent = coins;
+  document.getElementById('tower').disabled = coins < 100 || gameOver;
+}
+
+function canvas_path() {
+  context.lineCap='round'; context.lineJoin='round';
+  context.beginPath(); context.moveTo(PATH[0][0],PATH[0][1]);
+  for(let index=1;index<PATH.length;index++) context.lineTo(PATH[index][0],PATH[index][1]);
+  context.strokeStyle='#6c4d34'; context.lineWidth=78; context.stroke();
+  context.strokeStyle='#bd9164'; context.lineWidth=64; context.stroke();
+  context.setLineDash([12,14]); context.strokeStyle='rgba(255,255,255,.22)'; context.lineWidth=2; context.stroke(); context.setLineDash([]);
+}
+
+function canvas_tower(tower) {
+  context.save(); context.translate(tower.x,tower.y);
+  context.fillStyle='rgba(0,0,0,.18)'; context.beginPath(); context.ellipse(3,19,26,10,0,0,Math.PI*2); context.fill();
+  context.fillStyle='#66513d'; context.beginPath(); context.arc(0,0,24,0,Math.PI*2); context.fill();
+  context.rotate(tower.angle); context.fillStyle='#d6bd8b'; context.fillRect(5,-4,30,8);
+  context.fillStyle='#f0d4a0'; context.beginPath(); context.arc(0,0,17,0,Math.PI*2); context.fill();
+  context.fillStyle='#1e2a1e'; context.beginPath(); context.arc(7,-5,2.5,0,Math.PI*2); context.fill(); context.beginPath(); context.arc(7,5,2.5,0,Math.PI*2); context.fill();
+  context.restore();
+}
+
+function canvas_draw() {
+  context.fillStyle='#76b85c'; context.fillRect(0,0,WIDTH,HEIGHT);
+  context.fillStyle='rgba(255,255,255,.055)';
+  for(let y=20;y<HEIGHT;y+=40) for(let x=(y%80?20:40);x<WIDTH;x+=80){context.beginPath();context.arc(x,y,2,0,Math.PI*2);context.fill();}
+  canvas_path();
+  for(const tower of towers) canvas_tower(tower);
+  if(selected&&hover){context.beginPath();context.arc(hover.x,hover.y,138,0,Math.PI*2);context.fillStyle=point_open(hover.x,hover.y)?'rgba(255,255,255,.08)':'rgba(255,80,80,.10)';context.fill();context.strokeStyle=point_open(hover.x,hover.y)?'rgba(255,255,255,.34)':'rgba(255,90,90,.5)';context.lineWidth=2;context.stroke();}
+  for(const balloon of balloons){const [x,y]=path_point(balloon.distance);const colors=['','#ef5f5f','#5d8ff0','#5dcc76','#f0d85d','#bb70dc','#333'];context.fillStyle='rgba(0,0,0,.18)';context.beginPath();context.ellipse(x+3,y+15,13,5,0,0,Math.PI*2);context.fill();context.fillStyle=colors[balloon.hp]||'#222';context.beginPath();context.ellipse(x,y,12,16,0,0,Math.PI*2);context.fill();context.strokeStyle='rgba(255,255,255,.45)';context.lineWidth=2;context.stroke();context.beginPath();context.moveTo(x,y+16);context.lineTo(x-4,y+26);context.strokeStyle='#4e4137';context.lineWidth=1;context.stroke();}
+  context.fillStyle='#f4e1b4';
+  for(const dart of darts){context.save();context.translate(dart.x,dart.y);context.beginPath();context.arc(0,0,4,0,Math.PI*2);context.fill();context.restore();}
+}
+
+function frame_run(now) {
+  const delta=Math.min(.04,(now-lastTime)/1000); lastTime=now; game_update(delta); canvas_draw(); requestAnimationFrame(frame_run);
+}
+
+function pointer_position(event) {
+  const rect=canvas.getBoundingClientRect();
+  return {x:(event.clientX-rect.left)*(WIDTH/rect.width),y:(event.clientY-rect.top)*(HEIGHT/rect.height)};
+}
+
+canvas.addEventListener('pointermove',event=>{hover=pointer_position(event);});
+canvas.addEventListener('pointerdown',event=>{event.preventDefault();const point=pointer_position(event);hover=point;tower_place(point.x,point.y);});
+document.getElementById('tower').onclick=()=>{if(coins>=100&&!gameOver){selected=true;document.getElementById('tower').classList.add('primary');}};
+document.getElementById('start').onclick=wave_start;
+document.getElementById('restart').onclick=game_reset;
+game_reset(); requestAnimationFrame(frame_run);
+</script>
+<script>const socialPresence=()=>{const t=localStorage.bendToken;if(t)fetch('/api/presence',{method:'POST',body:t+'\nBalloon Defense',cache:'no-store'}).catch(()=>{})};socialPresence();setInterval(socialPresence,5000);</script>
+</body>
+</html>

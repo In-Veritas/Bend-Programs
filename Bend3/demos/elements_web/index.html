@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Bend! — the four elements</title>
+<style>
+  body { background:#0e1216; color:#e8ecf0; font-family: ui-monospace, Menlo, monospace;
+         display:flex; flex-direction:column; align-items:center; gap:14px; padding:24px; }
+  canvas { border:1px solid #2a3038; image-rendering: pixelated; touch-action:none; }
+  p { color:#5a6470; max-width:640px; }
+</style>
+</head>
+<body>
+<canvas id="cv" width="640" height="400"></canvas>
+<p>Click anywhere in a panel to apply a force there: earth bursts away from
+the impact, water follows the pull, fire flares around the hotspot, and air
+gusts in the clicked direction. Every frame is
+computed by the Bend3 server (traveling sines over a Bhāskara-approximated
+sin) and served as draw commands from <code>/frame/&lt;i&gt;</code>; this
+page only rasterizes — the browser twin of <code>effs/window.c</code>.</p>
+<script>
+const canvas = document.getElementById('cv');
+const ctx = canvas.getContext('2d');
+const FONT = {10:[6,5,6,5,6],11:[7,4,6,4,7],12:[7,5,5,5,5],13:[6,5,5,5,6],14:[2,2,2,0,2],
+  0:[7,5,5,5,7],1:[2,6,2,2,7],2:[7,1,7,4,7],3:[7,1,7,1,7],4:[5,5,7,1,1],
+  5:[7,4,7,1,7],6:[7,4,7,5,7],7:[7,1,1,1,1],8:[7,5,7,5,7],9:[7,5,7,1,7]};
+const rgb = n => '#' + n.toString(16).padStart(6, '0');
+function drawCmds(a) {
+  let i = 0;
+  while (i < a.length) {
+    const op = a[i++];
+    if (op === 0) { ctx.fillStyle = rgb(a[i++]); ctx.fillRect(0, 0, 640, 400); }
+    else if (op === 1) { ctx.fillStyle = rgb(a[i+4]); ctx.fillRect(a[i], a[i+1]-1000, a[i+2], a[i+3]); i += 5; }
+    else if (op === 2) {
+      const [x, y, s, g, c] = [a[i], a[i+1]-1000, a[i+2], a[i+3], a[i+4]]; i += 5;
+      ctx.fillStyle = rgb(c);
+      (FONT[g] || FONT[9]).forEach((row, r) => {
+        for (let col = 0; col < 3; col++) if (row & (1 << (2 - col))) ctx.fillRect(x + col*s, y + r*s, s, s);
+      });
+    } else break;
+  }
+}
+const durations = [48, 60, 45, 60];
+const reactions = [0, 0, 0, 0];
+function hitAt(clientX, clientY) {
+  const box = canvas.getBoundingClientRect();
+  const x = (clientX - box.left) * canvas.width / box.width;
+  const y = (clientY - box.top) * canvas.height / box.height;
+  const col = x >= 12 && x < 312 ? 0 : (x >= 328 && x < 628 ? 1 : -1);
+  const row = y >= 76 && y < 228 ? 0 : (y >= 240 && y < 392 ? 1 : -1);
+  if (col < 0 || row < 0) return null;
+  const originX = col === 0 ? 12 : 328;
+  const originY = row === 0 ? 76 : 240;
+  return {panel: row * 2 + col, x: Math.floor(x - originX), y: Math.floor(y - originY)};
+}
+canvas.addEventListener('pointerdown', event => {
+  const hit = hitAt(event.clientX, event.clientY);
+  if (hit) reactions[hit.panel] = durations[hit.panel] + hit.x * 64 + hit.y * 19200;
+});
+canvas.addEventListener('pointermove', event => {
+  canvas.style.cursor = hitAt(event.clientX, event.clientY) ? 'pointer' : 'default';
+});
+(async () => {
+  for (let i = 0; ; i++) {
+    const t0 = performance.now();
+    try {
+      const j = await (await fetch(`/elements/frame/${i}/${reactions.join('/')}`)).json();
+      drawCmds(j.cmds);
+      for (let panel = 0; panel < reactions.length; panel++) {
+        reactions[panel] = reactions[panel] % 64 > 1 ? reactions[panel] - 1 : 0;
+      }
+    } catch (e) { break; }
+    await new Promise(r => setTimeout(r, Math.max(0, 33 - (performance.now() - t0))));
+  }
+})();
+</script>
+</body>
+</html>

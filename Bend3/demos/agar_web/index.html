@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#f2f3f7">
+<title>Cell Arena · BendJogos.com.br</title>
+<style>
+  :root { color-scheme:light; --panel:rgba(255,255,255,.9); --line:rgba(18,26,42,.15); --text:#182033; --muted:#687086; --danger:#b42318; }
+  * { box-sizing:border-box; }
+  html,body { width:100%; height:100%; margin:0; overflow:hidden; background:#eef0f5; color:var(--text); font-family:Inter,system-ui,sans-serif; }
+  button { font:inherit; }
+  #arena { position:fixed; inset:0; width:100%; height:100%; touch-action:none; }
+  .hud { position:fixed; inset:0 0 auto 0; z-index:2; display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) 10px max(12px,env(safe-area-inset-left)); pointer-events:none; }
+  .panel { padding:9px 11px; border:1px solid var(--line); border-radius:10px; background:var(--panel); box-shadow:0 5px 22px rgba(28,35,55,.08); backdrop-filter:blur(9px); }
+  .title { margin:0 0 3px; font-size:17px; }
+  .hub-link { color:var(--muted); font-size:12px; text-decoration:none; pointer-events:auto; }
+  .connection { display:flex; align-items:center; gap:6px; margin-top:5px; color:var(--muted); font-size:11px; }
+  .dot { width:7px; height:7px; border-radius:50%; background:#8d93a0; }
+  .connection.online .dot { background:#35ad64; }
+  .connection.offline { color:var(--danger); }.connection.offline .dot{background:var(--danger)}
+  .scores { min-width:145px; color:var(--muted); font-size:12px; }
+  .scores strong { display:block; margin-bottom:4px; color:var(--text); }
+  .score-row { display:flex; justify-content:space-between; gap:14px; line-height:1.65; }
+  .bottom { position:fixed; left:50%; bottom:max(12px,env(safe-area-inset-bottom)); z-index:2; display:flex; gap:9px; transform:translateX(-50%); }
+  .status,.leave { padding:9px 12px; border:1px solid var(--line); border-radius:999px; background:var(--panel); color:var(--muted); font-size:13px; box-shadow:0 5px 22px rgba(28,35,55,.08); }
+  .leave { cursor:pointer; }
+  .join-layer { position:fixed; inset:0; z-index:3; display:grid; place-items:center; padding:20px; background:rgba(228,231,239,.62); }
+  .join-card { width:min(380px,100%); padding:25px; border:1px solid var(--line); border-radius:14px; background:#fff; box-shadow:0 20px 70px rgba(28,35,55,.16); text-align:center; }
+  .join-card h1 { margin:0 0 9px; font-size:28px; }.join-card p{margin:0;color:var(--muted);font-size:14px;line-height:1.5}
+  .join { width:100%; margin:21px 0 16px; padding:12px; border:0; border-radius:9px; color:#fff; background:#315ee8; font-weight:750; cursor:pointer; }.join:disabled{background:#c2c6d0;cursor:default}
+  .instructions { padding-top:15px; border-top:1px solid var(--line); text-align:left; }
+  .joystick { position:fixed; z-index:4; width:88px; height:88px; margin:-44px 0 0 -44px; border:2px solid rgba(30,40,65,.2); border-radius:50%; background:rgba(255,255,255,.35); pointer-events:none; }
+  .knob { position:absolute; left:50%; top:50%; width:34px; height:34px; margin:-17px; border-radius:50%; background:rgba(41,61,105,.5); }
+  .toast { position:fixed; left:50%; top:86px; z-index:5; padding:9px 13px; border:1px solid #f2b7b2; border-radius:8px; color:var(--danger); background:#fff4f2; transform:translate(-50%,-8px); opacity:0; transition:.15s; pointer-events:none; }.toast.show{opacity:1;transform:translate(-50%,0)}
+  .hidden { display:none!important; }
+  @media(max-width:520px){.scores{min-width:125px}.panel{padding:8px 9px}.title{font-size:15px}.join-card{padding:21px}}
+</style>
+</head>
+<body>
+<canvas id="arena" aria-label="Multiplayer cell arena"></canvas>
+<div class="hud">
+  <div class="panel"><h1 class="title">Cell Arena</h1><a id="hub" class="hub-link" href="#">BendJogos.com.br</a><div id="connection" class="connection"><span class="dot"></span><span>Connecting…</span></div></div>
+  <div class="panel scores"><strong>Players</strong><div id="scores">Waiting…</div></div>
+</div>
+<div class="bottom"><div id="status" class="status">Connecting…</div><button id="leave" class="leave hidden" type="button">Leave</button></div>
+<div id="join-layer" class="join-layer"><div class="join-card"><h1>Cell Arena</h1><p>Eat food to gain mass. A larger player can absorb a smaller one. Up to four people can play on the same local network.</p><button id="join" class="join" type="button" disabled>Connecting…</button><p class="instructions"><strong>Desktop:</strong> move the pointer or use arrow keys.<br><strong>Mobile:</strong> drag anywhere to move.</p></div></div>
+<div id="joystick" class="joystick hidden"><div id="knob" class="knob"></div></div>
+<div id="toast" class="toast" role="status"></div>
+<script>
+const COLORS=['#000','#38b978','#4187ee','#f1aa35','#e653a3'];
+const FOOD=['#e45555','#efb938','#4ab978','#568ee8','#ad67d5'];
+const canvas=document.getElementById('arena'),context=canvas.getContext('2d');
+const joinLayer=document.getElementById('join-layer'),joinButton=document.getElementById('join'),leaveButton=document.getElementById('leave');
+const joystick=document.getElementById('joystick'),knob=document.getElementById('knob');
+document.getElementById('hub').href=`${location.protocol}//${location.hostname}:8090`;
+const key='bend3.cell-arena.player';let playerId=Number(sessionStorage.getItem(key));if(!Number.isInteger(playerId)||playerId<=0||playerId>0xffffffff){playerId=crypto.getRandomValues(new Uint32Array(1))[0]||1;sessionStorage.setItem(key,String(playerId));}
+let current=null,previous=null,receivedAt=performance.now(),heading=0,busy=false,lastNote='',toastTimer=0;
+let width=innerWidth,height=innerHeight,scale=.8,cameraX=600,cameraY=600,cameraReady=false,touchId=null,startX=0,startY=0;
+
+function connection_set(mode,text){const el=document.getElementById('connection');el.className=`connection ${mode}`;el.lastElementChild.textContent=text;}
+function toast_show(message){if(!message||message===lastNote)return;lastNote=message;const el=document.getElementById('toast');el.textContent=message;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>{el.classList.remove('show');lastNote='';},2400);}
+function state_player(state,slot){return state?.players?.[slot-1]||null;}
+function state_apply(next){if(current&&next.tick!==current.tick)previous=current;current=next;receivedAt=performance.now();if(next.you){const own=state_player(next,next.you);if(own&&previous===null)heading=own.dir;}if(!next.ok)toast_show(next.note);state_dom(next);}
+function state_dom(state){const joined=state.you>0,own=state_player(state,state.you);joinLayer.classList.toggle('hidden',joined);leaveButton.classList.toggle('hidden',!joined);joinButton.disabled=busy||state.full;joinButton.textContent=state.full?'Arena full':'Join game';document.getElementById('status').textContent=!joined?(state.full?'Watching · arena full':'Choose Join game to play'):!own?.alive?`Player ${state.you} · respawning…`:`Player ${state.you} · mass ${own.mass}`;const box=document.getElementById('scores');box.replaceChildren();const players=state.players.filter(p=>p.joined).sort((a,b)=>b.mass-a.mass||a.slot-b.slot);if(!players.length){box.textContent='No players yet';return;}for(const p of players){const row=document.createElement('div');row.className='score-row';const name=document.createElement('span');name.textContent=`● Player ${p.slot}${p.slot===state.you?' · you':''}`;name.style.color=COLORS[p.slot];const mass=document.createElement('span');mass.textContent=p.mass;row.append(name,mass);box.append(row);}}
+async function path_fetch(path,quiet=false){const response=await fetch('/cells'+path,{cache:'no-store'});if(!response.ok)throw new Error(`HTTP ${response.status}`);const next=await response.json();connection_set('online','Connected');state_apply(next);if(!quiet&&!next.ok)toast_show(next.note);return next;}
+async function player_join(){if(busy||current?.full)return;busy=true;joinButton.disabled=true;joinButton.textContent='Joining…';try{await path_fetch(`/join/${playerId}`);}catch(error){connection_set('offline','Server unavailable');toast_show('Cannot reach the server.');}finally{busy=false;if(current)state_dom(current);}}
+async function player_leave(){if(busy||!current?.you)return;busy=true;try{await path_fetch(`/leave/${playerId}`);}catch(error){connection_set('offline','Server unavailable');}finally{busy=false;if(current)state_dom(current);}}
+async function page_poll(){if(!busy&&!document.hidden){busy=true;try{await path_fetch(current?.you?`/input/${playerId}/${heading}`:`/state/${playerId}`,true);}catch(error){connection_set('offline','Server unavailable');}finally{busy=false;if(current)state_dom(current);}}setTimeout(page_poll,65);}
+function number_lerp(a,b,t){return a+(b-a)*t;}
+function player_position(player,before,t){if(!player)return[600,600];if(!before||!before.alive)return[player.x,player.y];return[number_lerp(before.x,player.x,t),number_lerp(before.y,player.y,t)];}
+function point_screen(point){return{x:(point[0]-cameraX)*scale+width/2,y:(point[1]-cameraY)*scale+height/2};}
+function canvas_resize(){const ratio=Math.min(devicePixelRatio||1,2);width=innerWidth;height=innerHeight;canvas.width=Math.round(width*ratio);canvas.height=Math.round(height*ratio);context.setTransform(ratio,0,0,ratio,0,0);scale=Math.max(.5,Math.min(1,Math.min(width,height)/720));}
+function canvas_grid(){context.fillStyle='#eef0f5';context.fillRect(0,0,width,height);const a=point_screen([0,0]),b=point_screen([1200,1200]);context.fillStyle='#f9fafc';context.fillRect(a.x,a.y,b.x-a.x,b.y-a.y);context.save();context.beginPath();context.rect(a.x,a.y,b.x-a.x,b.y-a.y);context.clip();context.strokeStyle='rgba(42,53,76,.07)';context.lineWidth=1;for(let n=0;n<=1200;n+=80){const x=point_screen([n,0]).x,y=point_screen([0,n]).y;context.beginPath();context.moveTo(x,a.y);context.lineTo(x,b.y);context.stroke();context.beginPath();context.moveTo(a.x,y);context.lineTo(b.x,y);context.stroke();}context.restore();context.strokeStyle='rgba(42,53,76,.25)';context.lineWidth=3;context.strokeRect(a.x,a.y,b.x-a.x,b.y-a.y);}
+function canvas_food(points){points.forEach((point,index)=>{const p=point_screen(point);if(p.x<-8||p.x>width+8||p.y<-8||p.y>height+8)return;context.beginPath();context.arc(p.x,p.y,5*scale+1.5,0,Math.PI*2);context.fillStyle=FOOD[index%FOOD.length];context.fill();});}
+function canvas_cell(player,before,t,mine){if(!player.alive)return;const pos=point_screen(player_position(player,before,t));const radius=(18+Math.min(player.mass,34))*scale;context.beginPath();context.arc(pos.x+2,pos.y+3,radius+2,0,Math.PI*2);context.fillStyle='rgba(27,35,54,.18)';context.fill();context.beginPath();context.arc(pos.x,pos.y,radius,0,Math.PI*2);context.fillStyle=COLORS[player.slot];context.fill();context.strokeStyle=mine?'#17203a':'rgba(255,255,255,.7)';context.lineWidth=mine?3:2;context.stroke();context.fillStyle='#fff';context.font=`700 ${Math.max(10,radius*.48)}px system-ui`;context.textAlign='center';context.textBaseline='middle';context.fillText(String(player.mass),pos.x,pos.y);}
+function canvas_draw(now){const t=Math.min(1,(now-receivedAt)/85);if(current){const own=state_player(current,current.you),old=state_player(previous,current.you),pos=player_position(own,old,t);if(own?.alive){if(!cameraReady){cameraX=pos[0];cameraY=pos[1];cameraReady=true;}else{cameraX=number_lerp(cameraX,pos[0],.13);cameraY=number_lerp(cameraY,pos[1],.13);}}else if(!current.you){cameraX=number_lerp(cameraX,600,.04);cameraY=number_lerp(cameraY,600,.04);}canvas_grid();canvas_food(current.food||[]);for(const player of current.players)canvas_cell(player,state_player(previous,player.slot),t,player.slot===current.you);}else canvas_grid();requestAnimationFrame(canvas_draw);}
+function vector_heading(dx,dy){if(dx*dx+dy*dy<36)return;heading=(Math.round((Math.atan2(dy,dx)/(Math.PI*2))*16)+16)%16;}
+function pointer_start(event){if(!current?.you)return;if(event.pointerType==='touch'){touchId=event.pointerId;startX=event.clientX;startY=event.clientY;canvas.setPointerCapture(event.pointerId);joystick.style.left=`${startX}px`;joystick.style.top=`${startY}px`;joystick.classList.remove('hidden');knob.style.transform='translate(0,0)';}else vector_heading(event.clientX-width/2,event.clientY-height/2);}
+function pointer_move(event){if(!current?.you)return;if(event.pointerType==='touch'){if(event.pointerId!==touchId)return;const dx=event.clientX-startX,dy=event.clientY-startY,length=Math.hypot(dx,dy)||1,limit=Math.min(30,length);knob.style.transform=`translate(${dx/length*limit}px,${dy/length*limit}px)`;vector_heading(dx,dy);}else vector_heading(event.clientX-width/2,event.clientY-height/2);}
+function pointer_end(event){if(event.pointerId!==touchId)return;touchId=null;joystick.classList.add('hidden');}
+function keyboard_control(event){const map={ArrowRight:0,d:0,D:0,ArrowDown:4,s:4,S:4,ArrowLeft:8,a:8,A:8,ArrowUp:12,w:12,W:12};if(!(event.key in map))return;event.preventDefault();heading=map[event.key];}
+joinButton.addEventListener('click',player_join);leaveButton.addEventListener('click',player_leave);canvas.addEventListener('pointerdown',pointer_start);canvas.addEventListener('pointermove',pointer_move);canvas.addEventListener('pointerup',pointer_end);canvas.addEventListener('pointercancel',pointer_end);window.addEventListener('keydown',keyboard_control);window.addEventListener('resize',canvas_resize);window.addEventListener('pagehide',()=>{if(current?.you)fetch(`/leave/${playerId}`,{cache:'no-store',keepalive:true}).catch(()=>{});});
+canvas_resize();requestAnimationFrame(canvas_draw);page_poll();
+</script>
+<script>const socialPresence=()=>{const t=localStorage.bendToken;if(t)fetch('/api/presence',{method:'POST',body:t+'\nCell Arena',cache:'no-store'}).catch(()=>{})};socialPresence();setInterval(socialPresence,5000);</script>
+</body>
+</html>

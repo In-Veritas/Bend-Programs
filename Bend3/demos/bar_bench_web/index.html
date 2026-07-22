@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Bend! — bar bench</title>
+<style>
+  body { background:#0e1216; color:#e8ecf0; font-family: ui-monospace, Menlo, monospace;
+         display:flex; flex-direction:column; align-items:center; gap:14px; padding:24px; }
+  h1 { margin:0; letter-spacing:2px; }
+  canvas { border:1px solid #2a3038; image-rendering: pixelated; }
+  #btns { display:flex; gap:10px; }
+  button { font:inherit; padding:8px 18px; border:1px solid #3a4048; border-radius:6px;
+           background:#1a2026; color:#e8ecf0; cursor:pointer; }
+  button.sel { outline:2px solid #fff; }
+  button:disabled { opacity:.45; cursor:default; }
+  #bend { background:#2e9e44; border-color:#2e9e44; font-weight:bold; }
+  #st { min-height:1.2em; color:#9aa4b4; }
+</style>
+</head>
+<body>
+<h1>Bend!</h1>
+<canvas id="cv" width="640" height="400"></canvas>
+<div id="btns">
+  <button id="m1" class="sel">Steel</button>
+  <button id="m2">Rubber</button>
+  <button id="m3">Carbon Fiber</button>
+  <button id="bend">Bend!</button>
+</div>
+<div id="st">READY — pick a material, then Bend!</div>
+<p style="color:#5a6470;max-width:640px">Every frame is computed by the Bend3 server
+(Euler–Bernoulli cantilever physics, real material data) and served as draw
+commands from <code>/frame/&lt;mat&gt;/&lt;i&gt;</code>; this page is only a
+rasterizer — the browser twin of <code>effs/window.c</code>.</p>
+<script>
+const ctx = document.getElementById('cv').getContext('2d');
+const st = document.getElementById('st');
+// 3x5 font, 3 bits per row (same table as effs/window.c)
+const FONT = {10:[6,5,6,5,6],11:[7,4,6,4,7],12:[7,5,5,5,5],13:[6,5,5,5,6],14:[2,2,2,0,2],
+  0:[7,5,5,5,7],1:[2,6,2,2,7],2:[7,1,7,4,7],3:[7,1,7,1,7],4:[5,5,7,1,1],
+  5:[7,4,7,1,7],6:[7,4,7,5,7],7:[7,1,1,1,1],8:[7,5,7,5,7],9:[7,5,7,1,7]};
+const rgb = n => '#' + n.toString(16).padStart(6, '0');
+function drawCmds(a) {
+  let i = 0;
+  while (i < a.length) {
+    const op = a[i++];
+    if (op === 0) { ctx.fillStyle = rgb(a[i++]); ctx.fillRect(0, 0, 640, 400); }
+    else if (op === 1) { ctx.fillStyle = rgb(a[i+4]); ctx.fillRect(a[i], a[i+1]-1000, a[i+2], a[i+3]); i += 5; }
+    else if (op === 2) {
+      const [x, y, s, g, c] = [a[i], a[i+1]-1000, a[i+2], a[i+3], a[i+4]]; i += 5;
+      ctx.fillStyle = rgb(c);
+      (FONT[g] || FONT[9]).forEach((row, r) => {
+        for (let col = 0; col < 3; col++) if (row & (1 << (2 - col))) ctx.fillRect(x + col*s, y + r*s, s, s);
+      });
+    } else break;
+  }
+}
+let mat = 1, running = false;
+const mbtns = [1, 2, 3].map(n => document.getElementById('m' + n));
+async function frame(i) {
+  const r = await fetch(`/bar/frame/${mat}/${i}`);
+  return r.json();
+}
+async function preview() {
+  const j = await frame(0);
+  drawCmds(j.cmds);
+  st.textContent = 'READY — a fresh ' + ['', 'steel', 'rubber', 'carbon fiber'][mat] + ' specimen. Bend!';
+}
+mbtns.forEach((b, k) => b.onclick = () => {
+  if (running) return;
+  mat = k + 1;
+  mbtns.forEach((x, j) => x.classList.toggle('sel', j === k));
+  preview();
+});
+document.getElementById('bend').onclick = async () => {
+  if (running) return;
+  running = true;
+  document.querySelectorAll('button').forEach(b => b.disabled = true);
+  for (let i = 0; ; i++) {
+    const t0 = performance.now();
+    const j = await frame(i);
+    drawCmds(j.cmds);
+    st.textContent = j.st;
+    if (j.done) break;
+    await new Promise(r => setTimeout(r, Math.max(0, 33 - (performance.now() - t0))));
+  }
+  document.querySelectorAll('button').forEach(b => b.disabled = false);
+  running = false;
+};
+preview();
+</script>
+</body>
+</html>

@@ -1,0 +1,724 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#090d18">
+<title>Snake Arena</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --panel: rgba(12, 18, 32, .88);
+    --line: rgba(255, 255, 255, .14);
+    --text: #f7f8fb;
+    --muted: #a9b0c0;
+    --danger: #ff7b7b;
+  }
+
+  * { box-sizing: border-box; }
+
+  html,
+  body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: #090d18;
+    color: var(--text);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+
+  button { font: inherit; }
+
+  #arena {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+  }
+
+  .hud {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: max(14px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) 10px max(14px, env(safe-area-inset-left));
+    pointer-events: none;
+  }
+
+  .hud-panel {
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--panel);
+    backdrop-filter: blur(10px);
+  }
+
+  .title {
+    margin: 0 0 4px;
+    font-size: 18px;
+    line-height: 1.1;
+  }
+
+  .connection {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .connection-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #858b98;
+  }
+
+  .connection.online .connection-dot { background: #52d681; }
+  .connection.offline { color: var(--danger); }
+  .connection.offline .connection-dot { background: var(--danger); }
+
+  .scoreboard {
+    min-width: 150px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .scoreboard-title {
+    margin-bottom: 5px;
+    color: var(--text);
+    font-weight: 700;
+  }
+
+  .score-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    min-height: 20px;
+  }
+
+  .score-name {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .score-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  .bottom-bar {
+    position: fixed;
+    left: 50%;
+    bottom: max(14px, env(safe-area-inset-bottom));
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+
+  .game-status {
+    min-width: 170px;
+    padding: 9px 12px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--muted);
+    background: var(--panel);
+    font-size: 13px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+  }
+
+  .leave {
+    padding: 9px 12px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--muted);
+    background: var(--panel);
+    cursor: pointer;
+    pointer-events: auto;
+  }
+
+  .leave:hover { color: var(--text); }
+
+  .join-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 3;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    background: rgba(5, 8, 15, .48);
+  }
+
+  .join-card {
+    width: min(380px, 100%);
+    padding: 26px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: rgba(12, 18, 32, .96);
+    box-shadow: 0 18px 70px rgba(0, 0, 0, .4);
+    text-align: center;
+  }
+
+  .join-card h1 {
+    margin: 0 0 10px;
+    font-size: 28px;
+  }
+
+  .join-card p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .join-button {
+    width: 100%;
+    margin: 22px 0 18px;
+    padding: 12px 16px;
+    border: 0;
+    border-radius: 9px;
+    color: #08110b;
+    background: #69e896;
+    font-weight: 750;
+    cursor: pointer;
+  }
+
+  .join-button:disabled {
+    color: var(--muted);
+    background: #2a3040;
+    cursor: default;
+  }
+
+  .controls-copy {
+    display: grid;
+    gap: 5px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+    text-align: left;
+  }
+
+  .controls-copy strong { color: var(--text); }
+
+  .joystick {
+    position: fixed;
+    z-index: 4;
+    width: 88px;
+    height: 88px;
+    margin: -44px 0 0 -44px;
+    border: 2px solid rgba(255, 255, 255, .28);
+    border-radius: 50%;
+    background: rgba(10, 15, 27, .38);
+    pointer-events: none;
+  }
+
+  .joystick-knob {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 34px;
+    height: 34px;
+    margin: -17px 0 0 -17px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .72);
+    transform: translate(0, 0);
+  }
+
+  .toast {
+    position: fixed;
+    left: 50%;
+    top: max(84px, calc(env(safe-area-inset-top) + 70px));
+    z-index: 5;
+    max-width: calc(100% - 32px);
+    padding: 9px 13px;
+    border: 1px solid rgba(255, 123, 123, .48);
+    border-radius: 8px;
+    color: #ffd0d0;
+    background: rgba(65, 18, 25, .94);
+    transform: translate(-50%, -10px);
+    opacity: 0;
+    pointer-events: none;
+    transition: .15s ease;
+  }
+
+  .toast.show { transform: translate(-50%, 0); opacity: 1; }
+  .hidden { display: none !important; }
+
+  @media (max-width: 560px) {
+    .hud { padding-left: 10px; padding-right: 10px; }
+    .hud-panel { padding: 8px 9px; }
+    .title { font-size: 16px; }
+    .scoreboard { min-width: 128px; }
+    .score-row { gap: 10px; }
+    .join-card { padding: 22px; }
+    .bottom-bar { bottom: max(10px, env(safe-area-inset-bottom)); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .toast { transition-duration: .01ms; }
+  }
+</style>
+</head>
+<body>
+<canvas id="arena" aria-label="Multiplayer snake arena"></canvas>
+
+<div class="hud">
+  <div class="hud-panel">
+    <h1 class="title">Snake Arena</h1>
+    <div id="connection" class="connection"><span class="connection-dot"></span><span>Connecting…</span></div>
+  </div>
+  <div class="hud-panel scoreboard">
+    <div class="scoreboard-title">Players</div>
+    <div id="scores">Waiting…</div>
+  </div>
+</div>
+
+<div class="bottom-bar">
+  <div id="game-status" class="game-status">Connecting…</div>
+  <button id="leave" class="leave hidden" type="button">Leave</button>
+</div>
+
+<div id="join-layer" class="join-layer">
+  <div class="join-card">
+    <h1>Snake Arena</h1>
+    <p>Collect food, grow longer, and avoid the walls and other snakes. Up to four people can play on the same local network.</p>
+    <button id="join" class="join-button" type="button" disabled>Connecting…</button>
+    <div class="controls-copy">
+      <p><strong>Desktop:</strong> move the pointer or use the arrow keys.</p>
+      <p><strong>Mobile:</strong> drag anywhere in the arena.</p>
+    </div>
+  </div>
+</div>
+
+<div id="joystick" class="joystick hidden"><div id="joystick-knob" class="joystick-knob"></div></div>
+<div id="toast" class="toast" role="status"></div>
+
+<script>
+const COLORS = ['#000000', '#56e39f', '#62a8ff', '#ffcc66', '#ef75d8'];
+const FOOD_COLORS = ['#8ef0b7', '#80bbff', '#ffd77c', '#f49de2', '#ff8f8f'];
+const POLL_MS = 65;
+const INTERPOLATE_MS = 85;
+
+const canvas = document.getElementById('arena');
+const context = canvas.getContext('2d');
+const joinLayer = document.getElementById('join-layer');
+const joinButton = document.getElementById('join');
+const leaveButton = document.getElementById('leave');
+const joystick = document.getElementById('joystick');
+const joystickKnob = document.getElementById('joystick-knob');
+
+const playerKey = 'bend3.snake-arena.player';
+let playerId = Number(sessionStorage.getItem(playerKey));
+if (!Number.isInteger(playerId) || playerId <= 0 || playerId > 0xffffffff) {
+  playerId = crypto.getRandomValues(new Uint32Array(1))[0] || 1;
+  sessionStorage.setItem(playerKey, String(playerId));
+}
+
+let currentState = null;
+let previousState = null;
+let receivedAt = performance.now();
+let desiredHeading = 0;
+let headingReady = false;
+let requestBusy = false;
+let toastTimer = 0;
+let lastNote = '';
+let viewWidth = innerWidth;
+let viewHeight = innerHeight;
+let viewScale = .8;
+let cameraX = 500;
+let cameraY = 500;
+let cameraReady = false;
+let touchId = null;
+let touchStartX = 0;
+let touchStartY = 0;
+
+function connection_set(mode, text) {
+  const element = document.getElementById('connection');
+  element.className = `connection ${mode}`;
+  element.lastElementChild.textContent = text;
+}
+
+function toast_show(message) {
+  if (!message || message === lastNote) return;
+  lastNote = message;
+  const element = document.getElementById('toast');
+  element.textContent = message;
+  element.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    element.classList.remove('show');
+    lastNote = '';
+  }, 2600);
+}
+
+function state_player(state, slot) {
+  return state?.players?.[slot - 1] || null;
+}
+
+function state_apply(next) {
+  if (currentState && next.tick !== currentState.tick) previousState = currentState;
+  currentState = next;
+  receivedAt = performance.now();
+
+  const own = state_player(next, next.you);
+  if (own && !headingReady) {
+    desiredHeading = own.dir;
+    headingReady = true;
+  }
+  if (!next.you) headingReady = false;
+  if (!next.ok) toast_show(next.note);
+  state_dom(next);
+}
+
+function state_dom(state) {
+  const joined = state.you > 0;
+  const own = state_player(state, state.you);
+
+  joinLayer.classList.toggle('hidden', joined);
+  leaveButton.classList.toggle('hidden', !joined);
+  joinButton.disabled = requestBusy || state.full;
+  joinButton.textContent = state.full ? 'Arena full' : 'Join game';
+
+  const status = document.getElementById('game-status');
+  if (!joined) {
+    status.textContent = state.full ? 'Watching · arena full' : 'Choose Join game to play';
+  } else if (!own?.alive) {
+    status.textContent = `Player ${state.you} · respawning…`;
+  } else {
+    status.textContent = `Player ${state.you} · score ${own.score}`;
+  }
+
+  const scores = document.getElementById('scores');
+  scores.replaceChildren();
+  const players = state.players.filter(player => player.joined).sort((a, b) => b.score - a.score || a.slot - b.slot);
+  if (!players.length) {
+    scores.textContent = 'No players yet';
+  } else {
+    for (const player of players) {
+      const row = document.createElement('div');
+      row.className = 'score-row';
+      const name = document.createElement('span');
+      name.className = 'score-name';
+      const dot = document.createElement('span');
+      dot.className = 'score-dot';
+      dot.style.background = COLORS[player.slot];
+      const label = document.createElement('span');
+      label.textContent = `Player ${player.slot}${player.slot === state.you ? ' · you' : ''}`;
+      const score = document.createElement('span');
+      score.textContent = String(player.score);
+      name.append(dot, label);
+      row.append(name, score);
+      scores.appendChild(row);
+    }
+  }
+}
+
+async function path_fetch(path, quiet = false) {
+  path = '/snake' + path;
+  const response = await fetch(path, {cache: 'no-store'});
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const next = await response.json();
+  connection_set('online', 'Connected');
+  state_apply(next);
+  if (!quiet && !next.ok) toast_show(next.note);
+  return next;
+}
+
+async function player_join() {
+  if (requestBusy || currentState?.full) return;
+  requestBusy = true;
+  joinButton.disabled = true;
+  joinButton.textContent = 'Joining…';
+  try {
+    await path_fetch(`/join/${playerId}`);
+  } catch (error) {
+    connection_set('offline', 'Server unavailable');
+    toast_show('Cannot reach the server.');
+  } finally {
+    requestBusy = false;
+    if (currentState) state_dom(currentState);
+  }
+}
+
+async function player_leave() {
+  if (requestBusy || !currentState?.you) return;
+  requestBusy = true;
+  try {
+    await path_fetch(`/leave/${playerId}`);
+  } catch (error) {
+    connection_set('offline', 'Server unavailable');
+  } finally {
+    requestBusy = false;
+    if (currentState) state_dom(currentState);
+  }
+}
+
+async function page_poll() {
+  if (!requestBusy && !document.hidden) {
+    requestBusy = true;
+    try {
+      const path = currentState?.you
+        ? `/input/${playerId}/${desiredHeading}`
+        : `/state/${playerId}`;
+      await path_fetch(path, true);
+    } catch (error) {
+      connection_set('offline', 'Server unavailable');
+    } finally {
+      requestBusy = false;
+      if (currentState) state_dom(currentState);
+    }
+  }
+  setTimeout(page_poll, POLL_MS);
+}
+
+function number_lerp(a, b, amount) {
+  return a + ((b - a) * amount);
+}
+
+function player_body(player, before, amount) {
+  if (!player?.body?.length) return [];
+  if (!before?.body?.length) return player.body;
+  return player.body.map((point, index) => {
+    const old = before.body[Math.min(index, before.body.length - 1)] || point;
+    return [number_lerp(old[0], point[0], amount), number_lerp(old[1], point[1], amount)];
+  });
+}
+
+function point_screen(point) {
+  return {
+    x: ((point[0] - cameraX) * viewScale) + (viewWidth / 2),
+    y: ((point[1] - cameraY) * viewScale) + (viewHeight / 2)
+  };
+}
+
+function canvas_resize() {
+  const ratio = Math.min(devicePixelRatio || 1, 2);
+  viewWidth = innerWidth;
+  viewHeight = innerHeight;
+  canvas.width = Math.round(viewWidth * ratio);
+  canvas.height = Math.round(viewHeight * ratio);
+  context.setTransform(ratio, 0, 0, ratio, 0, 0);
+  viewScale = Math.max(.55, Math.min(1, Math.min(viewWidth, viewHeight) / 700));
+}
+
+function canvas_grid() {
+  context.fillStyle = '#090d18';
+  context.fillRect(0, 0, viewWidth, viewHeight);
+
+  const topLeft = point_screen([0, 0]);
+  const bottomRight = point_screen([1000, 1000]);
+  context.fillStyle = '#101827';
+  context.fillRect(topLeft.x, topLeft.y, bottomRight.x - topLeft.x, bottomRight.y - topLeft.y);
+
+  context.save();
+  context.beginPath();
+  context.rect(topLeft.x, topLeft.y, bottomRight.x - topLeft.x, bottomRight.y - topLeft.y);
+  context.clip();
+  context.strokeStyle = 'rgba(255,255,255,.045)';
+  context.lineWidth = 1;
+  for (let value = 0; value <= 1000; value += 100) {
+    const vertical = point_screen([value, 0]);
+    const horizontal = point_screen([0, value]);
+    context.beginPath();
+    context.moveTo(vertical.x, topLeft.y);
+    context.lineTo(vertical.x, bottomRight.y);
+    context.stroke();
+    context.beginPath();
+    context.moveTo(topLeft.x, horizontal.y);
+    context.lineTo(bottomRight.x, horizontal.y);
+    context.stroke();
+  }
+  context.restore();
+
+  context.strokeStyle = 'rgba(255,255,255,.28)';
+  context.lineWidth = 3;
+  context.strokeRect(topLeft.x, topLeft.y, bottomRight.x - topLeft.x, bottomRight.y - topLeft.y);
+}
+
+function canvas_food(food) {
+  food.forEach((point, index) => {
+    const screen = point_screen(point);
+    if (screen.x < -12 || screen.x > viewWidth + 12 || screen.y < -12 || screen.y > viewHeight + 12) return;
+    const radius = 4.5 * viewScale + 1.5;
+    context.beginPath();
+    context.arc(screen.x, screen.y, radius + 3, 0, Math.PI * 2);
+    context.fillStyle = `${FOOD_COLORS[index % FOOD_COLORS.length]}28`;
+    context.fill();
+    context.beginPath();
+    context.arc(screen.x, screen.y, radius, 0, Math.PI * 2);
+    context.fillStyle = FOOD_COLORS[index % FOOD_COLORS.length];
+    context.fill();
+  });
+}
+
+function canvas_snake(player, before, amount, mine) {
+  if (!player.alive) return;
+  const body = player_body(player, before, amount);
+  if (!body.length) return;
+  const color = COLORS[player.slot];
+  const width = (15 + Math.min(player.score * .35, 7)) * viewScale;
+
+  context.lineCap = 'round';
+  context.lineJoin = 'round';
+  context.beginPath();
+  for (let index = body.length - 1; index >= 0; index--) {
+    const screen = point_screen(body[index]);
+    if (index === body.length - 1) context.moveTo(screen.x, screen.y);
+    else context.lineTo(screen.x, screen.y);
+  }
+  context.strokeStyle = 'rgba(0,0,0,.4)';
+  context.lineWidth = width + 5;
+  context.stroke();
+  context.strokeStyle = color;
+  context.lineWidth = width;
+  context.stroke();
+
+  const head = point_screen(body[0]);
+  const angle = (player.dir / 16) * Math.PI * 2;
+  const forwardX = Math.cos(angle);
+  const forwardY = Math.sin(angle);
+  const sideX = -forwardY;
+  const sideY = forwardX;
+  const eyeForward = width * .22;
+  const eyeSide = width * .24;
+  const eyeRadius = Math.max(2.2, width * .16);
+
+  for (const side of [-1, 1]) {
+    const eyeX = head.x + (forwardX * eyeForward) + (sideX * eyeSide * side);
+    const eyeY = head.y + (forwardY * eyeForward) + (sideY * eyeSide * side);
+    context.beginPath();
+    context.arc(eyeX, eyeY, eyeRadius, 0, Math.PI * 2);
+    context.fillStyle = '#ffffff';
+    context.fill();
+    context.beginPath();
+    context.arc(eyeX + (forwardX * eyeRadius * .45), eyeY + (forwardY * eyeRadius * .45), eyeRadius * .48, 0, Math.PI * 2);
+    context.fillStyle = '#111522';
+    context.fill();
+  }
+
+  if (mine) {
+    context.beginPath();
+    context.arc(head.x, head.y, width * .8, 0, Math.PI * 2);
+    context.strokeStyle = 'rgba(255,255,255,.72)';
+    context.lineWidth = 1.5;
+    context.stroke();
+  }
+}
+
+function canvas_draw(now) {
+  const state = currentState;
+  if (state) {
+    const amount = Math.min(1, (now - receivedAt) / INTERPOLATE_MS);
+    const own = state_player(state, state.you);
+    const oldOwn = state_player(previousState, state.you);
+    const ownBody = player_body(own, oldOwn, amount);
+    if (ownBody.length) {
+      const target = ownBody[0];
+      if (!cameraReady) {
+        cameraX = target[0];
+        cameraY = target[1];
+        cameraReady = true;
+      } else {
+        cameraX = number_lerp(cameraX, target[0], .13);
+        cameraY = number_lerp(cameraY, target[1], .13);
+      }
+    } else if (!state.you) {
+      cameraX = number_lerp(cameraX, 500, .04);
+      cameraY = number_lerp(cameraY, 500, .04);
+    }
+
+    canvas_grid();
+    canvas_food(state.food || []);
+    for (const player of state.players) {
+      canvas_snake(player, state_player(previousState, player.slot), amount, player.slot === state.you);
+    }
+  } else {
+    canvas_grid();
+  }
+  requestAnimationFrame(canvas_draw);
+}
+
+function vector_heading(dx, dy) {
+  if ((dx * dx) + (dy * dy) < 36) return;
+  const turns = Math.atan2(dy, dx) / (Math.PI * 2);
+  desiredHeading = (Math.round(turns * 16) + 16) % 16;
+  headingReady = true;
+}
+
+function pointer_start(event) {
+  if (!currentState?.you) return;
+  if (event.pointerType === 'touch') {
+    touchId = event.pointerId;
+    touchStartX = event.clientX;
+    touchStartY = event.clientY;
+    canvas.setPointerCapture(event.pointerId);
+    joystick.style.left = `${touchStartX}px`;
+    joystick.style.top = `${touchStartY}px`;
+    joystick.classList.remove('hidden');
+    joystickKnob.style.transform = 'translate(0, 0)';
+  } else {
+    vector_heading(event.clientX - (viewWidth / 2), event.clientY - (viewHeight / 2));
+  }
+}
+
+function pointer_move(event) {
+  if (!currentState?.you) return;
+  if (event.pointerType === 'touch') {
+    if (event.pointerId !== touchId) return;
+    const dx = event.clientX - touchStartX;
+    const dy = event.clientY - touchStartY;
+    const length = Math.hypot(dx, dy) || 1;
+    const limit = Math.min(30, length);
+    joystickKnob.style.transform = `translate(${(dx / length) * limit}px, ${(dy / length) * limit}px)`;
+    vector_heading(dx, dy);
+  } else {
+    vector_heading(event.clientX - (viewWidth / 2), event.clientY - (viewHeight / 2));
+  }
+}
+
+function pointer_end(event) {
+  if (event.pointerId !== touchId) return;
+  touchId = null;
+  joystick.classList.add('hidden');
+}
+
+function keyboard_control(event) {
+  const headings = {ArrowRight: 0, d: 0, D: 0, ArrowDown: 4, s: 4, S: 4, ArrowLeft: 8, a: 8, A: 8, ArrowUp: 12, w: 12, W: 12};
+  if (!(event.key in headings)) return;
+  event.preventDefault();
+  desiredHeading = headings[event.key];
+  headingReady = true;
+}
+
+joinButton.addEventListener('click', player_join);
+leaveButton.addEventListener('click', player_leave);
+canvas.addEventListener('pointerdown', pointer_start);
+canvas.addEventListener('pointermove', pointer_move);
+canvas.addEventListener('pointerup', pointer_end);
+canvas.addEventListener('pointercancel', pointer_end);
+window.addEventListener('keydown', keyboard_control);
+window.addEventListener('resize', canvas_resize);
+window.addEventListener('pagehide', () => {
+  if (currentState?.you) fetch(`/snake/leave/${playerId}`, {cache: 'no-store', keepalive: true}).catch(() => {});
+});
+
+canvas_resize();
+requestAnimationFrame(canvas_draw);
+page_poll();
+</script>
+<script>const socialPresence=()=>{const t=localStorage.bendToken;if(t)fetch('/api/presence',{method:'POST',body:t+'\nSnake Arena',cache:'no-store'}).catch(()=>{})};socialPresence();setInterval(socialPresence,5000);</script>
+</body>
+</html>

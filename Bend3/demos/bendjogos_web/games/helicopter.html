@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#07121a">
+<title>Helicopter · BendJogos.com.br</title>
+<style>
+  :root { color-scheme:dark; --text:#f5fbff; --muted:#9db4c2; --line:rgba(255,255,255,.16); }
+  * { box-sizing:border-box; }
+  html,body { width:100%; min-height:100%; margin:0; background:#07121a; color:var(--text); font-family:Inter,system-ui,sans-serif; }
+  body { display:flex; flex-direction:column; }
+  header { display:flex; align-items:center; justify-content:space-between; width:min(1080px,calc(100% - 24px)); margin:auto; padding:14px 0; }
+  h1 { margin:0; font-size:20px; }
+  a { color:var(--muted); text-decoration:none; }
+  main { width:min(1080px,100%); margin:auto; }
+  .stage { position:relative; overflow:hidden; border:1px solid var(--line); border-radius:12px; background:#0b2733; }
+  canvas { display:block; width:100%; aspect-ratio:16/9; touch-action:none; }
+  .hud { position:absolute; inset:12px 12px auto 12px; display:flex; justify-content:space-between; gap:10px; pointer-events:none; }
+  .pill { padding:8px 11px; border:1px solid var(--line); border-radius:999px; background:rgba(7,18,26,.72); color:var(--muted); font-size:13px; backdrop-filter:blur(8px); }
+  .pill strong { color:var(--text); }
+  .message { position:absolute; left:50%; top:50%; width:min(360px,calc(100% - 32px)); padding:22px; border:1px solid var(--line); border-radius:12px; background:rgba(7,18,26,.92); text-align:center; transform:translate(-50%,-50%); }
+  .message h2 { margin:0 0 8px; }
+  .message p { margin:0; color:var(--muted); line-height:1.5; }
+  .help { padding:12px max(12px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left)); color:var(--muted); font-size:13px; text-align:center; }
+  @media(max-width:640px){header{padding:10px 12px}.stage{border-radius:0;border-left:0;border-right:0}canvas{min-height:58vh;object-fit:cover}.message{padding:18px}}
+</style>
+</head>
+<body>
+<header><h1>Helicopter</h1><a href="/">← BendJogos.com.br</a></header>
+<main>
+  <div class="stage">
+    <canvas id="game" width="960" height="540" aria-label="Helicopter cave game"></canvas>
+    <div class="hud"><div class="pill">Distance <strong id="score">0</strong></div><div class="pill">Best <strong id="best">0</strong></div></div>
+    <div id="message" class="message"><h2 id="message-title">Ready?</h2><p id="message-copy">Hold the screen, mouse, or Space key to rise. Release to fall.</p></div>
+  </div>
+  <div class="help">Avoid the cave walls and barriers. Tap once to start.</div>
+</main>
+<script>
+const canvas=document.getElementById('game');
+const context=canvas.getContext('2d');
+const WIDTH=960, HEIGHT=540, HELI_X=190;
+let terrain=[];
+let nextTerrainX=0;
+let terrainCenter=270;
+let heliY=270;
+let heliVelocity=0;
+let distance=0;
+let speed=185;
+let holding=false;
+let running=false;
+let crashed=false;
+let lastTime=performance.now();
+let rotor=0;
+let best=Number(localStorage.getItem('bendjogos.helicopter.best'))||0;
+document.getElementById('best').textContent=best;
+
+function number_clamp(value,min,max){return Math.max(min,Math.min(max,value));}
+
+function terrain_add() {
+  const difficulty=Math.min(1,distance/9000);
+  terrainCenter=number_clamp(terrainCenter+(Math.random()-.5)*(95+45*difficulty),155,385);
+  const gap=number_clamp(286-(difficulty*94)+(Math.random()-.5)*35,170,310);
+  const top=number_clamp(terrainCenter-gap/2,45,330);
+  const bottom=number_clamp(terrainCenter+gap/2,210,495);
+  let block=null;
+  if(nextTerrainX>700&&Math.random()<.22+difficulty*.18){
+    const fromTop=Math.random()<.5;
+    const size=45+Math.random()*60;
+    block=fromTop?{top,bottom:top+size}:{top:bottom-size,bottom};
+  }
+  terrain.push({x:nextTerrainX,top,bottom,block});
+  nextTerrainX+=90;
+}
+
+function terrain_fill() {
+  while(nextTerrainX<distance+WIDTH+260) terrain_add();
+  while(terrain.length>3&&terrain[1].x<distance-200) terrain.shift();
+}
+
+function terrain_sample(worldX) {
+  terrain_fill();
+  let index=0;
+  while(index<terrain.length-2&&terrain[index+1].x<worldX) index++;
+  const left=terrain[index],right=terrain[Math.min(index+1,terrain.length-1)];
+  const amount=number_clamp((worldX-left.x)/(right.x-left.x||1),0,1);
+  return {top:left.top+(right.top-left.top)*amount,bottom:left.bottom+(right.bottom-left.bottom)*amount,block:left.block,left,right};
+}
+
+function game_reset() {
+  terrain=[];nextTerrainX=0;terrainCenter=270;heliY=270;heliVelocity=0;distance=0;speed=185;holding=false;running=false;crashed=false;rotor=0;
+  terrain_fill();
+  document.getElementById('score').textContent='0';
+  document.getElementById('message-title').textContent='Ready?';
+  document.getElementById('message-copy').textContent='Hold the screen, mouse, or Space key to rise. Release to fall.';
+  document.getElementById('message').style.display='block';
+}
+
+function game_start() {
+  if(crashed){game_reset();running=true;}else if(!running){running=true;}
+  document.getElementById('message').style.display='none';
+}
+
+function game_crash() {
+  if(crashed)return;
+  crashed=true;running=false;holding=false;
+  const score=Math.floor(distance/10);
+  if(score>best){best=score;localStorage.setItem('bendjogos.helicopter.best',String(best));document.getElementById('best').textContent=best;}
+  document.getElementById('message-title').textContent='Crashed';
+  document.getElementById('message-copy').textContent=`Distance ${score}. Tap to try again.`;
+  document.getElementById('message').style.display='block';
+}
+
+function game_collision() {
+  const radius=17;
+  const sample=terrain_sample(distance+HELI_X);
+  if(heliY-radius<sample.top||heliY+radius>sample.bottom)return true;
+  for(const item of terrain){
+    if(!item.block)continue;
+    const screenX=item.x-distance;
+    if(screenX+42<HELI_X-radius||screenX>HELI_X+radius)continue;
+    if(heliY+radius>item.block.top&&heliY-radius<item.block.bottom)return true;
+  }
+  return false;
+}
+
+function game_update(delta) {
+  rotor+=delta*18;
+  if(!running)return;
+  speed=Math.min(330,185+distance/65);
+  distance+=speed*delta;
+  const acceleration=holding?-690:520;
+  heliVelocity=number_clamp(heliVelocity+acceleration*delta,-285,315);
+  heliY+=heliVelocity*delta;
+  terrain_fill();
+  if(game_collision())game_crash();
+  document.getElementById('score').textContent=String(Math.floor(distance/10));
+}
+
+function canvas_cave() {
+  context.fillStyle='#0a2632';context.fillRect(0,0,WIDTH,HEIGHT);
+  context.fillStyle='rgba(90,190,210,.055)';
+  for(let x=-(distance%55);x<WIDTH;x+=55){context.fillRect(x,0,1,HEIGHT);}
+  context.beginPath();context.moveTo(0,0);
+  for(const item of terrain)context.lineTo(item.x-distance,item.top);
+  context.lineTo(WIDTH,0);context.closePath();context.fillStyle='#263b38';context.fill();
+  context.beginPath();context.moveTo(0,HEIGHT);
+  for(const item of terrain)context.lineTo(item.x-distance,item.bottom);
+  context.lineTo(WIDTH,HEIGHT);context.closePath();context.fill();
+  context.strokeStyle='#55715e';context.lineWidth=4;
+  context.beginPath();for(let i=0;i<terrain.length;i++){const item=terrain[i];if(i===0)context.moveTo(item.x-distance,item.top);else context.lineTo(item.x-distance,item.top);}context.stroke();
+  context.beginPath();for(let i=0;i<terrain.length;i++){const item=terrain[i];if(i===0)context.moveTo(item.x-distance,item.bottom);else context.lineTo(item.x-distance,item.bottom);}context.stroke();
+  for(const item of terrain){if(!item.block)continue;const x=item.x-distance;context.fillStyle='#394f45';context.fillRect(x,item.block.top,42,item.block.bottom-item.block.top);context.strokeStyle='#76927e';context.lineWidth=3;context.strokeRect(x,item.block.top,42,item.block.bottom-item.block.top);}
+}
+
+function canvas_helicopter() {
+  context.save();context.translate(HELI_X,heliY);context.rotate(number_clamp(heliVelocity/900,-.22,.22));
+  context.fillStyle='rgba(0,0,0,.25)';context.beginPath();context.ellipse(4,22,34,7,0,0,Math.PI*2);context.fill();
+  context.fillStyle='#f3bb3f';context.beginPath();context.ellipse(0,0,30,17,0,0,Math.PI*2);context.fill();
+  context.fillStyle='#79cbe2';context.beginPath();context.ellipse(8,-3,13,10,0,0,Math.PI*2);context.fill();
+  context.fillStyle='#e49b2f';context.fillRect(-48,-5,27,9);context.beginPath();context.moveTo(-48,-9);context.lineTo(-58,-22);context.lineTo(-53,1);context.fill();
+  context.strokeStyle='#dce8ea';context.lineWidth=3;context.beginPath();context.moveTo(-38,19);context.lineTo(28,19);context.stroke();
+  context.strokeStyle='#eef7f7';context.lineWidth=3;context.beginPath();context.moveTo(-36,-20);context.lineTo(36,-20);context.stroke();
+  context.strokeStyle='rgba(255,255,255,.35)';context.lineWidth=2;context.beginPath();context.moveTo(Math.cos(rotor)*42,-20);context.lineTo(-Math.cos(rotor)*42,-20);context.stroke();
+  context.restore();
+}
+
+function canvas_draw() {canvas_cave();canvas_helicopter();}
+
+function frame_run(now){const delta=Math.min(.035,(now-lastTime)/1000);lastTime=now;game_update(delta);canvas_draw();requestAnimationFrame(frame_run);}
+
+function input_start(event){event.preventDefault();game_start();holding=true;}
+function input_end(event){event.preventDefault();holding=false;}
+function keyboard_down(event){if(event.code!=='Space'&&event.code!=='ArrowUp')return;event.preventDefault();game_start();holding=true;}
+function keyboard_up(event){if(event.code!=='Space'&&event.code!=='ArrowUp')return;event.preventDefault();holding=false;}
+
+canvas.addEventListener('pointerdown',input_start);canvas.addEventListener('pointerup',input_end);canvas.addEventListener('pointercancel',input_end);canvas.addEventListener('pointerleave',event=>{if(event.pointerType==='mouse')input_end(event);});
+window.addEventListener('keydown',keyboard_down);window.addEventListener('keyup',keyboard_up);
+game_reset();requestAnimationFrame(frame_run);
+</script>
+<script>const socialPresence=()=>{const t=localStorage.bendToken;if(t)fetch('/api/presence',{method:'POST',body:t+'\nHelicopter',cache:'no-store'}).catch(()=>{})};socialPresence();setInterval(socialPresence,5000);</script>
+</body>
+</html>

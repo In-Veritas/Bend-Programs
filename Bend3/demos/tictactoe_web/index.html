@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tic-Tac-Toe</title>
+<style>
+  :root {
+    color-scheme: light;
+    --background: #f6f6f3;
+    --surface: #ffffff;
+    --text: #202124;
+    --muted: #6e706f;
+    --line: #d9dad6;
+    --line-strong: #a9aaa6;
+    --x: #167864;
+    --o: #7455b8;
+    --error: #b42318;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    min-height: 100vh;
+    margin: 0;
+    color: var(--text);
+    background: var(--background);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+
+  button { font: inherit; }
+
+  .page {
+    width: min(640px, calc(100% - 32px));
+    margin: 0 auto;
+    padding: 28px 0 48px;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  h1,
+  h2,
+  p { margin-top: 0; }
+
+  h1 {
+    margin-bottom: 0;
+    font-size: 28px;
+    line-height: 1.2;
+  }
+
+  h2 {
+    margin-bottom: 8px;
+    font-size: 21px;
+  }
+
+  .connection {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .connection-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--line-strong);
+  }
+
+  .connection.online .connection-dot { background: #2f855a; }
+  .connection.offline { color: var(--error); }
+  .connection.offline .connection-dot { background: var(--error); }
+
+  .intro {
+    padding: 28px 0;
+    color: var(--muted);
+    line-height: 1.55;
+  }
+
+  .intro p { margin-bottom: 12px; }
+
+  .intro ol {
+    margin: 0;
+    padding-left: 22px;
+  }
+
+  .intro li + li { margin-top: 4px; }
+
+  .panel {
+    padding: clamp(20px, 5vw, 32px);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+  }
+
+  .note {
+    margin-bottom: 22px;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .choice {
+    min-height: 180px;
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--surface);
+    cursor: pointer;
+  }
+
+  .choice:hover:not(:disabled) { border-color: var(--line-strong); }
+  .choice:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
+  .choice:disabled { cursor: not-allowed; opacity: .35; }
+  .choice-x { color: var(--x); }
+  .choice-o { color: var(--o); }
+  .choice .token { width: 108px; height: 108px; }
+
+  .choice-state {
+    display: block;
+    margin-top: 10px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .game-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .game-head h2 { margin: 0; }
+
+  .turn {
+    padding: 5px 9px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .players {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 20px 0;
+  }
+
+  .player {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    opacity: .35;
+  }
+
+  .player.ready { opacity: 1; }
+  .player.mine { border-color: var(--line-strong); }
+  .player-x { color: var(--x); }
+  .player-o { color: var(--o); }
+  .player .token { flex: 0 0 34px; width: 34px; height: 34px; }
+
+  .player-state {
+    overflow: hidden;
+    color: var(--muted);
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .board {
+    width: min(100%, 390px);
+    aspect-ratio: 1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin: 0 auto;
+    padding: 6px;
+    border-radius: 10px;
+    background: var(--line);
+  }
+
+  .cell {
+    display: grid;
+    place-items: center;
+    min-width: 0;
+    border: 0;
+    border-radius: 6px;
+    background: var(--surface);
+    cursor: pointer;
+  }
+
+  .cell:hover:not(:disabled) { background: #f1f1ee; }
+  .cell:focus-visible { outline: 2px solid var(--text); outline-offset: -4px; }
+  .cell:disabled { cursor: default; }
+  .cell .token { width: 76%; height: 76%; }
+  .cell.mark-x { color: var(--x); }
+  .cell.mark-o { color: var(--o); }
+  .cell.win { background: #eeeeea; }
+
+  .token { display: block; margin: 0 auto; }
+  .token .edge {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: .72;
+  }
+
+  .token .node {
+    fill: var(--surface);
+    stroke: currentColor;
+    stroke-width: 4;
+  }
+
+  .status-area {
+    padding: 24px 0 4px;
+    text-align: center;
+  }
+
+  .status {
+    margin-bottom: 6px;
+    font-size: 22px;
+    font-weight: 650;
+  }
+
+  .substatus {
+    min-height: 1.5em;
+    margin-bottom: 0;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .controls {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding-top: 20px;
+  }
+
+  .control {
+    padding: 9px 14px;
+    border: 1px solid var(--line-strong);
+    border-radius: 7px;
+    color: var(--text);
+    background: var(--surface);
+    cursor: pointer;
+  }
+
+  .control:hover:not(:disabled) { background: #f1f1ee; }
+  .control:disabled { color: var(--muted); cursor: default; }
+  .control.secondary { border-color: transparent; color: var(--muted); }
+
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    z-index: 10;
+    max-width: calc(100% - 32px);
+    padding: 10px 14px;
+    border: 1px solid #f3b8b3;
+    border-radius: 7px;
+    color: var(--error);
+    background: #fff4f2;
+    transform: translate(-50%, 16px);
+    opacity: 0;
+    pointer-events: none;
+    transition: .15s ease;
+  }
+
+  .toast.show { transform: translate(-50%, 0); opacity: 1; }
+  .hidden { display: none !important; }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  @media (max-width: 480px) {
+    .page { width: min(100% - 20px, 640px); padding-top: 20px; }
+    .panel { padding: 18px; }
+    .choice { min-height: 150px; padding: 14px; }
+    .choice .token { width: 88px; height: 88px; }
+    .player { padding: 8px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition-duration: .01ms !important; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <h1>Tic-tac-toe</h1>
+    <div id="connection" class="connection"><span class="connection-dot"></span><span class="connection-copy">Connecting…</span></div>
+  </header>
+
+  <section class="intro" aria-label="How to play">
+    <p>Play with someone on another device connected to the same local network.</p>
+    <ol>
+      <li>Choose X or O.</li>
+      <li>Open this page on the second device.</li>
+      <li>X goes first.</li>
+    </ol>
+  </section>
+
+  <main>
+    <section id="chooser" class="panel">
+      <h2>Choose a symbol</h2>
+      <p id="chooser-note" class="note">Each player chooses one symbol.</p>
+      <div class="choices">
+        <button id="pick-x" class="choice choice-x" type="button" aria-label="Choose X">
+          <span class="pick-token" aria-hidden="true"></span>
+          <span id="pick-x-state" class="choice-state">Available</span>
+        </button>
+        <button id="pick-o" class="choice choice-o" type="button" aria-label="Choose O">
+          <span class="pick-token" aria-hidden="true"></span>
+          <span id="pick-o-state" class="choice-state">Available</span>
+        </button>
+      </div>
+    </section>
+
+    <section id="game" class="panel hidden">
+      <div class="game-head">
+        <h2 id="round">Round 1</h2>
+        <div id="turn" class="turn">Waiting</div>
+      </div>
+
+      <div class="players" aria-label="Players">
+        <div id="player-x" class="player player-x"><span class="player-token" aria-hidden="true"></span><span class="sr-only">X: </span><span class="player-state">Available</span></div>
+        <div id="player-o" class="player player-o"><span class="player-token" aria-hidden="true"></span><span class="sr-only">O: </span><span class="player-state">Available</span></div>
+      </div>
+
+      <div id="board" class="board" role="grid" aria-label="Tic-tac-toe board"></div>
+
+      <div class="status-area">
+        <p id="status" class="status">Waiting for another player.</p>
+        <p id="substatus" class="substatus"></p>
+      </div>
+
+      <div class="controls">
+        <button id="again" class="control hidden" type="button">Rematch</button>
+        <button id="leave" class="control secondary hidden" type="button">Leave game</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div id="toast" class="toast" role="status"></div>
+
+<script>
+const symbols = {
+  1: `<svg class="token" viewBox="0 0 100 100" aria-hidden="true"><path class="edge" d="M17 17L50 50L83 83M83 17L50 50L17 83"/><g class="node"><circle cx="17" cy="17" r="7"/><circle cx="83" cy="17" r="7"/><circle cx="50" cy="50" r="8"/><circle cx="17" cy="83" r="7"/><circle cx="83" cy="83" r="7"/></g></svg>`,
+  2: `<svg class="token" viewBox="0 0 100 100" aria-hidden="true"><path class="edge" d="M50 10L78 22L90 50L78 78L50 90L22 78L10 50L22 22Z"/><g class="node"><circle cx="50" cy="10" r="6"/><circle cx="78" cy="22" r="6"/><circle cx="90" cy="50" r="6"/><circle cx="78" cy="78" r="6"/><circle cx="50" cy="90" r="6"/><circle cx="22" cy="78" r="6"/><circle cx="10" cy="50" r="6"/><circle cx="22" cy="22" r="6"/></g></svg>`
+};
+
+document.querySelector('.choice-x .pick-token').innerHTML = symbols[1];
+document.querySelector('.choice-o .pick-token').innerHTML = symbols[2];
+document.querySelector('#player-x .player-token').innerHTML = symbols[1];
+document.querySelector('#player-o .player-token').innerHTML = symbols[2];
+
+const board = document.getElementById('board');
+for (let square = 0; square < 9; square++) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'cell';
+  button.setAttribute('role', 'gridcell');
+  button.dataset.square = square;
+  button.onclick = () => square_move(square);
+  board.appendChild(button);
+}
+
+const key = 'bend3.tictactoe.player';
+const previousKey = 'bend3.graph-tictactoe.player';
+let player = Number(sessionStorage.getItem(key) || sessionStorage.getItem(previousKey));
+if (!Number.isInteger(player) || player <= 0 || player > 0xffffffff) {
+  player = crypto.getRandomValues(new Uint32Array(1))[0] || 1;
+}
+sessionStorage.setItem(key, String(player));
+sessionStorage.removeItem(previousKey);
+
+let state = null;
+let busy = false;
+let toastTimer = 0;
+
+function connection_set(mode, text) {
+  const element = document.getElementById('connection');
+  element.className = `connection ${mode}`;
+  element.querySelector('.connection-copy').textContent = text;
+}
+
+function toast_show(message) {
+  if (!message) return;
+  const element = document.getElementById('toast');
+  element.textContent = message;
+  element.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => element.classList.remove('show'), 2800);
+}
+
+async function api_fetch(path, quiet = false) {
+  try {
+    const response = await fetch('/tic' + path, {cache: 'no-store'});
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const next = await response.json();
+    state = next;
+    connection_set('online', 'Connected');
+    state_render(next);
+    if (!quiet && !next.ok) toast_show(next.note);
+    return next;
+  } catch (error) {
+    connection_set('offline', 'Server unavailable');
+    if (!quiet) toast_show('Cannot reach the server.');
+    throw error;
+  }
+}
+
+async function path_act(path) {
+  if (busy) return;
+  busy = true;
+  try { await api_fetch(path); } catch (_) {} finally {
+    busy = false;
+    if (state) state_render(state);
+  }
+}
+
+function mark_join(mark) { path_act(`/join/${mark}/${player}`); }
+
+function square_move(square) {
+  if (!state || !state.you || !state.started || state.winner || state.turn !== state.you || state.board[square]) return;
+  path_act(`/move/${player}/${square}`);
+}
+
+function state_winning_squares(current) {
+  if (current.winner !== 1 && current.winner !== 2) return [];
+  const lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+  return lines.find(line => line.every(square => current.board[square] === current.winner)) || [];
+}
+
+function state_status(current) {
+  if (!current.started) {
+    if (current.you) {
+      const yours = current.you === 1 ? 'X' : 'O';
+      const other = current.you === 1 ? 'O' : 'X';
+      return [`You are ${yours}.`, `Waiting for another player to choose ${other}.`];
+    }
+    return ['Waiting for two players.', 'Choose an available symbol.'];
+  }
+
+  if (current.winner === 3) return ["It's a draw.", 'Choose Rematch when you are ready.'];
+
+  if (current.winner) {
+    const winner = current.winner === 1 ? 'X' : 'O';
+    if (!current.you) return [`${winner} won.`, 'You are watching this game.'];
+    return current.winner === current.you
+      ? ['You won.', 'Choose Rematch if you want to play again.']
+      : [`${winner} won.`, 'Choose Rematch if you want to play again.'];
+  }
+
+  const turn = current.turn === 1 ? 'X' : 'O';
+  if (!current.you) return [`${turn}'s turn.`, 'This game already has two players.'];
+  return current.turn === current.you
+    ? ['Your turn.', 'Choose an empty square.']
+    : [`${turn}'s turn.`, 'Waiting for the other player.'];
+}
+
+function state_render(current) {
+  const choosing = !current.you && !current.started;
+  document.getElementById('chooser').classList.toggle('hidden', !choosing);
+  document.getElementById('game').classList.toggle('hidden', choosing);
+
+  const pickX = document.getElementById('pick-x');
+  const pickO = document.getElementById('pick-o');
+  pickX.disabled = busy || !!current.x;
+  pickO.disabled = busy || !!current.o;
+  document.getElementById('pick-x-state').textContent = current.x ? 'Taken' : 'Available';
+  document.getElementById('pick-o-state').textContent = current.o ? 'Taken' : 'Available';
+  document.getElementById('chooser-note').textContent = current.x || current.o
+    ? 'One symbol is taken. Choose the other one to start the game.'
+    : 'Each player chooses one symbol.';
+
+  document.getElementById('round').textContent = `Round ${current.round}`;
+  document.getElementById('turn').textContent = !current.started
+    ? 'Waiting'
+    : current.winner
+      ? 'Finished'
+      : `${current.turn === 1 ? 'X' : 'O'}'s turn`;
+
+  for (const mark of [1, 2]) {
+    const occupied = mark === 1 ? current.x : current.o;
+    const element = document.getElementById(mark === 1 ? 'player-x' : 'player-o');
+    element.classList.toggle('ready', !!occupied);
+    element.classList.toggle('mine', current.you === mark);
+    element.querySelector('.player-state').textContent = !occupied ? 'Available' : current.you === mark ? 'You' : 'Ready';
+  }
+
+  const wins = state_winning_squares(current);
+  [...board.children].forEach((cell, index) => {
+    const mark = current.board[index];
+    cell.innerHTML = mark ? symbols[mark] : '';
+    cell.className = `cell${mark ? ` mark-${mark === 1 ? 'x' : 'o'}` : ''}${wins.includes(index) ? ' win' : ''}`;
+    cell.disabled = busy || !current.you || !current.started || !!current.winner || current.turn !== current.you || !!mark;
+    cell.setAttribute('aria-label', mark ? `Square ${index + 1}: ${mark === 1 ? 'X' : 'O'}` : `Square ${index + 1}: empty`);
+  });
+
+  const [headline, detail] = state_status(current);
+  document.getElementById('status').textContent = headline;
+  document.getElementById('substatus').textContent = detail;
+
+  const again = document.getElementById('again');
+  const ready = current.you === 1 ? current.xAgain : current.oAgain;
+  again.classList.toggle('hidden', !current.you || !current.winner);
+  again.disabled = busy || !!ready;
+  again.textContent = ready ? 'Waiting for other player…' : 'Rematch';
+  document.getElementById('leave').classList.toggle('hidden', !current.you);
+}
+
+document.getElementById('pick-x').onclick = () => mark_join('x');
+document.getElementById('pick-o').onclick = () => mark_join('o');
+document.getElementById('again').onclick = () => path_act(`/again/${player}`);
+document.getElementById('leave').onclick = () => path_act(`/leave/${player}`);
+
+async function page_sync() {
+  if (busy || document.hidden) return;
+  busy = true;
+  try { await api_fetch(`/state/${player}`, true); } catch (_) {} finally {
+    busy = false;
+    if (state) state_render(state);
+  }
+}
+
+document.addEventListener('visibilitychange', () => { if (!document.hidden) page_sync(); });
+page_sync();
+setInterval(page_sync, 650);
+</script>
+<script>const socialPresence=()=>{const t=localStorage.bendToken;if(t)fetch('/api/presence',{method:'POST',body:t+'\nTic-tac-toe',cache:'no-store'}).catch(()=>{})};socialPresence();setInterval(socialPresence,5000);</script>
+</body>
+</html>
