@@ -30,27 +30,3 @@ used by the demo has no sine primitive.
 The demo uses Bhaskara I's approximation plus explicit range reduction. Time
 wraps at `1000 * 2π` so the approximation never receives an unbounded phase.
 
-## Issue: Metal compute does not provide window-system integration
-
-### Summary
-
-The GPU target can compute frames but does not create a Cocoa surface or pump
-input events.
-
-### Resolution
-
-Pure Bend emits a draw-command list and the C-bodied window effect performs
-only presentation and event handling, mirroring the Bar Bench design.
-
-## Issue: one effect source is built in two language modes
-
-### Summary
-
-The CPU build treats `effs/window.c` as C while the Metal build uses
-Objective-C and ARC.
-
-### Resolution
-
-The bridge macros and runtime-created Cocoa identifiers keep the single effect
-source valid in both modes.
-

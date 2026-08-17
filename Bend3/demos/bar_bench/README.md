@@ -62,9 +62,7 @@ pure flat command stream while adapting it to the standard `IO/GFX` module:
 
 The adapter builds a depth-9 quadtree image (2×2 display pixels) and maps the
 standard key/close events back to the demo's U32 controls. The old
-`effs/window.c` remains as historical source but is not imported. Both native
-window binaries built and stayed live through bounded launch/render smoke
-tests on the verification Mac.
+`effs/window.c` remains as historical source but is not imported.
 
 ## Bend3 issues and unexpected behavior
 

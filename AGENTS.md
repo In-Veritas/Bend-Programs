@@ -207,6 +207,13 @@ clang -O2 /tmp/chip8.c -o /tmp/chip8 && /tmp/chip8
 
 ## Editing discipline
 
+- Keep `unexpected_behavior/` logs strictly about behavior attributable to the
+  Bend parser, checker, compiler, Base/runtime, backend, or documented language
+  modes. Do not record macOS/Metal/Chromium sandbox incidents, browser policy,
+  firewall/LAN/port/process problems, network timing, test-harness state leaks,
+  ordinary application bugs, UX gaps, or demo security/feature limitations as
+  Bend issues. Operational instructions may remain in ordinary READMEs when
+  users need them to run a program.
 - Preserve every `unexpected_behavior/` log when syncing demos; they are part
   of the purpose of this repository.
 - Do not copy a stale checked-in native binary over a newly verified source.

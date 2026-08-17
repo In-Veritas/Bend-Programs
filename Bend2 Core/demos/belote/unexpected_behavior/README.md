@@ -11,5 +11,3 @@
   JavaScript is the practical execution path for the browser.
 - A custom-ADT `main` works with the JavaScript backend but is outside the C
   driver's primitive result printer. This demo intentionally targets JS.
-- The hand demonstrates classic play rules and contract scoring without optional
-  announcements such as tierce, carré, or belote-rebelote.

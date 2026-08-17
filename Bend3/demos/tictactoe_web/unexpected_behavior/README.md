@@ -30,20 +30,3 @@ a termination proof.
 
 Compile with `--no-halt`, as shown in the demo README.
 
-## Issue: HTTP keep-alive blocked the second player
-
-### Summary
-
-One browser could retain the only connection while the sequential accept loop
-waited for another request on it, preventing the other player from polling.
-
-### Details
-
-This is an interaction between HTTP/1.1 keep-alive and a deliberately
-sequential Bend server, rather than a game-state bug.
-
-### Resolution
-
-Each polling response explicitly uses `Connection: close`, so the loop returns
-to `TCP::accept` after every request.
-

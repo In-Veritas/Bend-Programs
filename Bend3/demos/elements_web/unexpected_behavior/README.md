@@ -30,27 +30,3 @@ There is no Bend-to-JavaScript browser target in this checkout.
 The Bend executable is the HTTP and simulation server. The browser page is a
 thin canvas presenter for the returned draw commands.
 
-## Issue: the static page requires the repository-root working directory
-
-### Summary
-
-The route reads `gabriel_demos/elements_web/index.html` at request time. Running
-the binary from another directory makes that relative path fail.
-
-### Resolution
-
-Launch it from the repository root. A future standalone package would embed or
-resolve assets relative to the executable.
-
-## Issue: long-running phase values reduce approximation reliability
-
-### Summary
-
-The scene's hand-written sine approximation expects a bounded phase. Allowing
-the frame counter to grow forever eventually violates that assumption.
-
-### Resolution
-
-The frame index wraps at `190400`, corresponding to approximately
-`1000 * 2π` seconds.
-
