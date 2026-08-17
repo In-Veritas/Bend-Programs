@@ -1,7 +1,7 @@
 # elements_web — the four bending arts as a webapp
 
 ```
-node bend-ts/src/main.ts gabriel_demos/elements_web/web_elements.bend --no-halt -o gabriel_demos/elements_web/web_elements
+bun bend-ts/src/bend.ts gabriel_demos/elements_web/web_elements.bend --no-halt -o gabriel_demos/elements_web/web_elements
 ./gabriel_demos/elements_web/web_elements     # run from the repo root
 # on this machine: http://localhost:8081
 # on the LAN:      http://<server-lan-ip>:8081

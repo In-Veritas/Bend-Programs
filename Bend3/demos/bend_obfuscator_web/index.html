@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#15190f">
+  <title>Bend3 Obfuscation Workshop</title>
+  <style>
+    :root{--ink:#f3f0df;--dim:#aeb09f;--panel:#20251b;--deep:#11140d;--line:#424a37;--acid:#c9f064;--amber:#f2be55;--red:#ff7e72;--blue:#79b9d3}
+    *{box-sizing:border-box}html{background:var(--deep);color:var(--ink);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}body{margin:0;min-height:100vh;background:radial-gradient(circle at 12% 0,#33411e 0,transparent 31rem),radial-gradient(circle at 95% 12%,#173847 0,transparent 28rem),var(--deep)}
+    button,textarea,input{font:inherit}.shell{width:min(1540px,calc(100% - 32px));margin:auto;padding:24px 0 36px}
+    header{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:17px;padding:0 2px 18px;border-bottom:1px solid var(--line)}
+    .eyebrow{margin-bottom:8px;color:var(--acid);font-size:11px;font-weight:900;letter-spacing:.16em;text-transform:uppercase}h1{margin:0;font-size:clamp(29px,4vw,52px);letter-spacing:-.07em}h1 span{color:var(--acid)}
+    header p{max-width:720px;margin:9px 0 0;color:var(--dim);font:14px/1.55 system-ui,sans-serif}.local{display:flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid #61743b;border-radius:999px;color:var(--acid);font-size:11px;white-space:nowrap}.local i{width:8px;height:8px;border-radius:50%;background:var(--acid);box-shadow:0 0 0 4px #c9f0641d}
+    .workbench{overflow:hidden;border:1px solid var(--line);border-radius:14px;background:#171a13;box-shadow:0 24px 70px #0006}.toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:11px;border-bottom:1px solid var(--line);background:#24291e}
+    .button{padding:10px 14px;border:1px solid #708844;border-radius:8px;background:var(--acid);color:#17200d;font-weight:900;cursor:pointer}.button:hover{filter:brightness(1.07);transform:translateY(-1px)}.button.secondary{border-color:var(--line);background:#30362a;color:var(--ink)}.button.ghost{border-color:transparent;background:transparent;color:var(--dim)}.button:disabled{cursor:not-allowed;opacity:.42;transform:none}
+    .toolbar .spacer{flex:1}.toggle{display:flex;align-items:center;gap:7px;color:var(--dim);font-size:11px}.toggle input{accent-color:var(--acid)}#file{display:none}
+    .workspace{display:grid;grid-template-columns:1fr 1fr;min-height:570px}.editor{position:relative;min-width:0;background:#151812}.editor+ .editor{border-left:1px solid var(--line)}
+    .editor-head{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-bottom:1px solid var(--line);color:var(--dim);font-size:11px}.editor-head b{color:var(--ink);font-size:12px}.editor-meta{display:flex;gap:10px}
+    textarea{display:block;width:100%;height:62vh;min-height:520px;padding:18px;border:0;outline:0;resize:vertical;background:#151812;color:#edf0dd;font:14px/1.58 ui-monospace,SFMono-Regular,Menlo,monospace;tab-size:2}
+    textarea:focus{box-shadow:inset 0 0 0 1px var(--acid)}#output{background:#13170f;color:#dff2af}.drop{position:absolute;z-index:3;inset:50px 12px 12px;display:none;place-items:center;border:2px dashed var(--acid);border-radius:12px;background:#18200eee;color:var(--acid);font-weight:900}.editor.drag .drop{display:grid}
+    .results{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(300px,.65fr);gap:12px;margin-top:12px}.card{padding:15px;border:1px solid var(--line);border-radius:12px;background:var(--panel);box-shadow:0 12px 35px #0003}.card h2{margin:0 0 7px;font-size:13px}.card p{margin:0;color:var(--dim);font:12px/1.55 system-ui,sans-serif}
+    .map-tools{display:flex;align-items:center;justify-content:space-between;gap:10px}.map-search{width:190px;padding:7px 9px;border:1px solid var(--line);border-radius:7px;background:#151812;color:var(--ink);font-size:11px}
+    #mapping{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;max-height:142px;overflow:auto;margin-top:10px}.map-row{display:flex;justify-content:space-between;gap:8px;padding:6px 8px;border-radius:5px;background:#151812;color:var(--dim);font-size:11px}.map-row code{color:var(--amber)}
+    .checks{display:grid;gap:7px;margin-top:11px}.check{display:flex;align-items:flex-start;gap:8px;padding:8px 9px;border:1px solid var(--line);border-radius:7px;background:#171a13;color:var(--dim);font:11px/1.4 system-ui,sans-serif}.check i{color:var(--acid);font-style:normal;font-weight:900}.check.warn i{color:var(--amber)}.check.error i{color:var(--red)}
+    .metrics{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}.metric{padding:7px 9px;border:1px solid var(--line);border-radius:6px;background:#151812;color:var(--dim);font-size:10px}.metric b{color:var(--acid)}
+    #notice{min-height:18px;margin-top:10px;color:var(--acid);font-size:11px}.warning{color:var(--amber)!important}.error-text{color:var(--red)!important}
+    @media(max-width:960px){header{align-items:flex-start;flex-direction:column}.workspace{grid-template-columns:1fr}.editor+.editor{border-left:0;border-top:1px solid var(--line)}textarea{height:43vh;min-height:330px}.results{grid-template-columns:1fr}.toolbar .spacer{display:none}.toggle{width:100%;order:3}#mapping{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:560px){.shell{width:min(100% - 16px,1540px);padding-top:15px}.local{display:none}.toolbar .button{flex:1;padding:9px 8px;font-size:11px}.button.ghost{flex:0}.map-tools{align-items:flex-start;flex-direction:column}.map-search{width:100%}#mapping{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div><div class="eyebrow">BendJogos creator workshop</div><h1>BEND<span>3</span> OBFUSCATOR</h1><p>Transform readable Bend3 into a much harder-to-follow equivalent: keyword-lookalike or random mixed-case identifiers, layered arithmetic identities, scattered call indirection, harmless decoys, removed comments, and wide but syntax-aware spacing. Imported names, constructor fields, quoted literals, directives, and C-effect ABI names stay protected. Your source never leaves this browser tab.</p></div>
+      <div class="local"><i></i> LOCAL-ONLY TRANSFORM</div>
+    </header>
+    <div class="workbench">
+      <div class="toolbar">
+        <button id="transform" class="button">Obfuscate source</button>
+        <button id="example" class="button secondary">Load example</button>
+        <label for="file" class="button secondary">Open .bend</label><input id="file" type="file" accept=".bend,text/plain">
+        <button id="copy" class="button secondary" disabled>Copy output</button>
+        <button id="download" class="button secondary" disabled>Download</button>
+        <button id="clear" class="button ghost">Clear</button>
+        <span class="spacer"></span><label class="toggle"><input id="comments" type="checkbox" checked> Remove comments</label><label class="toggle"><input id="numbers" type="checkbox" checked> Encode constants</label><label class="toggle"><input id="functions" type="checkbox" checked> Call indirection</label><label class="toggle"><input id="decoys" type="checkbox" checked> Decoy helpers</label><label class="toggle"><input id="shuffle" type="checkbox" checked> Scatter helpers</label><label class="toggle"><input id="spacing" type="checkbox" checked> Wide spacing</label>
+      </div>
+      <main class="workspace">
+        <section class="editor" id="inputEditor">
+          <div class="editor-head"><b>Readable Bend3</b><div class="editor-meta"><span id="filename">untitled.bend</span><span id="inputSize">0 bytes</span></div></div>
+          <textarea id="input" spellcheck="false" autocomplete="off" aria-label="Readable Bend3 source" placeholder="Paste Bend3 source here, open a file, or drop a .bend file…"></textarea>
+          <div class="drop">Drop the .bend file here</div>
+        </section>
+        <section class="editor"><div class="editor-head"><b>Obfuscated Bend3</b><div class="editor-meta"><span id="safety">Not checked</span><span id="outputSize">0 bytes</span></div></div><textarea id="output" spellcheck="false" readonly aria-label="Obfuscated Bend3 source" placeholder="The transformed source will appear here."></textarea></section>
+      </main>
+    </div>
+    <div class="results">
+      <section class="card"><div class="map-tools"><div><h2>Symbol map</h2><p>Only locally safe identifiers are renamed. Search the exact deterministic map below.</p></div><input class="map-search" id="mapSearch" placeholder="Filter symbols…" aria-label="Filter symbol map"></div><div id="mapping"><span class="map-row">No transform yet</span></div></section>
+      <section class="card"><h2>Safety report</h2><p>This structural transform is not encryption and is not the Bend3 checker. Run the downloaded result with the same Bend3 revision and flags as its source.</p><div class="checks" id="checks"><div class="check"><i>·</i><span>Waiting for source.</span></div></div><div class="metrics"><span class="metric">renamed <b id="renamed">0</b></span><span class="metric">constants encoded <b id="exploded">0</b></span><span class="metric">functions split <b id="split">0</b></span><span class="metric">call layers <b id="layers">0</b></span><span class="metric">decoys <b id="decoyCount">0</b></span><span class="metric">protected fields <b id="protected">0</b></span><span class="metric">comments removed <b id="removed">0</b></span><span class="metric">size change <b id="change">0%</b></span></div><div id="notice" role="status">Ready.</div></section>
+    </div>
+  </div>
+
+  <script>
+  (() => {
+    'use strict';
+    const KEYWORDS=new Set(`def type match case switch return do import as with bend open use let in if then elif else assert forall exists where Type Data Set U32 U64 F32 F64 String Char List Array IO Result Bytes true false`.split(/\s+/));
+    const KEYLIKE=['iffy','ifif','endd','endend','elsee','elselse','addd','addadd','casey','casecase','matchh','matchmatch','returnn','retreturn','deff','defdef','lett','letlet','innn','inin','fory','forfor','switchh','switchswitch','typey','typetype','withh','withwith','doo','dodo','bendd','bendbend','openn','openopen','usee','useuse'];
+    const DIRECTIVES=/^#\s*(no-halt|skip-native|interp-only)\b/;
+    const idStart=character=>/[A-Za-z_$]/.test(character),idPart=character=>/[A-Za-z0-9_$~]/.test(character);
+    function tokenize(source){
+      const tokens=[],diagnostics=[];let index=0,line=1;
+      const push=(type,value,startLine=line)=>tokens.push({type,value,line:startLine});
+      while(index<source.length){
+        const start=line,character=source[index];
+        if(/\s/.test(character)){let end=index;while(end<source.length&&/\s/.test(source[end])){if(source[end]==='\n')line++;end++}push('space',source.slice(index,end),start);index=end;continue}
+        if(character==='#'){let end=index;while(end<source.length&&source[end]!=='\n')end++;push('comment',source.slice(index,end),start);index=end;continue}
+        if(character==='"'||character==="'"){
+          const quote=character;let end=index+1,escaped=false,closed=false;
+          while(end<source.length){const next=source[end++];if(next==='\n')line++;if(escaped){escaped=false;continue}if(next==='\\'){escaped=true;continue}if(next===quote){closed=true;break}}
+          if(!closed)diagnostics.push({severity:'error',line:start,message:`Unterminated ${quote==='"'?'string':'character'} literal.`});
+          push('literal',source.slice(index,end),start);index=end;continue;
+        }
+        if(idStart(character)){let end=index+1;while(end<source.length&&idPart(source[end]))end++;push('id',source.slice(index,end),start);index=end;continue}
+        if(/[0-9]/.test(character)){
+          let end=index+1,kind='number';
+          if(character==='0'&&/[box]/i.test(source[end]||'')){end++;while(end<source.length&&/[A-Za-z0-9_]/.test(source[end]))end++;kind='number-other'}else{
+            while(end<source.length&&/[0-9_]/.test(source[end]))end++;
+            if(source[end]==='.'&&/[0-9]/.test(source[end+1]||'')){kind='number-other';end++;while(end<source.length&&/[0-9_]/.test(source[end]))end++}
+            if(/[eE]/.test(source[end]||'')&&/[+\-0-9]/.test(source[end+1]||'')){kind='number-other';end++;if(/[+\-]/.test(source[end]||''))end++;while(end<source.length&&/[0-9_]/.test(source[end]))end++}
+          }
+          push(kind,source.slice(index,end),start);index=end;continue;
+        }
+        push('punct',character,start);index++;
+      }
+      return{tokens,diagnostics};
+    }
+    function makeRng(seed){let state=(seed>>>0)||0x9e3779b9;return()=>{state^=state<<13;state^=state>>>17;state^=state<<5;return state>>>0}}
+    function randomSeed(){return ((Date.now()>>>0)^Math.floor(Math.random()*0xffffffff))>>>0}
+    function pick(rng,values){return values[rng()%values.length]}
+    function shuffle(rng,values){for(let index=values.length-1;index>0;index--){const other=rng()%(index+1),held=values[index];values[index]=values[other];values[other]=held}return values}
+    function mixedCaps(rng,value){const letters=value.split('');let changed=false;for(let index=1;index<letters.length;index++)if(/[a-z]/.test(letters[index])&&(rng()%4===0)){letters[index]=letters[index].toUpperCase();changed=true}if(!changed){const eligible=[];for(let index=1;index<letters.length;index++)if(/[a-z]/.test(letters[index]))eligible.push(index);if(eligible.length){const index=pick(rng,eligible);letters[index]=letters[index].toUpperCase()}}return letters.join('')}
+    function randomRun(rng,length){const letters=[];for(let index=0;index<length;index++){const code=97+(rng()%26);letters.push(String.fromCharCode(index>0&&rng()%3===0?code-32:code))}return letters.join('')}
+    function rawName(rng,label='ifif'){return `__${mixedCaps(rng,label)}_${(rng()>>>0).toString(36)}_${(rng()>>>0).toString(36)}`}
+    function regexEscape(value){return value.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}
+    function splitTopLevel(text){const result=[];let start=0,depth=0,quote='';for(let index=0;index<text.length;index++){const character=text[index];if(quote){if(character==='\\')index++;else if(character===quote)quote='';continue}if(character==='"'||character==="'"){quote=character;continue}if('([{<'.includes(character))depth++;else if(')]}>'.includes(character))depth--;else if(character===','&&depth===0){result.push(text.slice(start,index));start=index+1}}result.push(text.slice(start));return result}
+    function opaqueZero(rng){const left=3+(rng()%17),right=2+(rng()%11),tail=2+(rng()%23),same=`((${left} * ${right}) + ${tail})`;return `(${same} - ${same})`}
+    function wrapperBlock(name,target,parameters,arguments_,returns,rng){
+      const selector=opaqueZero(rng),unused=rawName(rng,'elsee');
+      return `def ${name}(${parameters}) -> ${returns}:\n  match ${selector}:\n    case 0:\n      ${target}(${arguments_.join(', ')})\n    case ${unused}:\n      ${target}(${arguments_.join(', ')})`;
+    }
+    function splitFunctions(source,rng){
+      const lines=source.split('\n'),generated=[];let splitCount=0,callLayers=0;
+      for(let line=0;line<lines.length;line++){
+        const header=lines[line].match(/^def\s+([a-z_][A-Za-z0-9_$~]*)\((.*)\)\s*->\s*(.+):\s*$/);if(!header||header[1]==='main')continue;
+        let end=line+1;while(end<lines.length&&!/^(?:def|type|import)\s/.test(lines[end]))end++;
+        const body=lines.slice(line+1,end).join('\n'),name=header[1];
+        if(/^\s+import\s/m.test(body)||new RegExp(`\\b${regexEscape(name)}\\s*\\(`).test(body))continue;
+        const parameters=splitTopLevel(header[2]).map(part=>part.match(/^\s*~?([a-z_][A-Za-z0-9_$~]*)\s*:/)?.[1]);
+        if(parameters.some(name=>!name))continue;
+        const hidden=rawName(rng,pick(rng,KEYLIKE)),bridges=[];for(let index=0,count=1+(rng()%3);index<count;index++)bridges.push(rawName(rng,pick(rng,KEYLIKE)));
+        lines[line]=lines[line].replace(new RegExp(`^(def\\s+)${regexEscape(name)}(?=\\()`),`$1${hidden}`);
+        const chain=[name,...bridges,hidden];for(let index=0;index<chain.length-1;index++)generated.push(wrapperBlock(chain[index],chain[index+1],header[2],parameters,header[3],rng));
+        callLayers+=chain.length-1;
+        splitCount++;line=end-1;
+      }
+      return{source:lines.join('\n'),generated,splitCount,callLayers};
+    }
+    function decoyBlocks(rng,original,count){const blocks=[],names=new Set(original.match(/[A-Za-z_$][A-Za-z0-9_$~]*/g)||[]);for(let index=0;index<count;index++){let name;do{name=rawName(rng,pick(rng,KEYLIKE))}while(names.has(name));names.add(name);const value=rawName(rng,'addd'),unused=rawName(rng,'casey');blocks.push(`def ${name}(${value}: U32) -> U32:\n  match ${opaqueZero(rng)}:\n    case 0:\n      ${value}\n    case ${unused}:\n      ${value}`)}return blocks}
+    function generateStructure(source,rng,{splitEligibleFunctions,insertDecoys,shuffleGenerated}){
+      const split=splitEligibleFunctions?splitFunctions(source,rng):{source,generated:[],splitCount:0,callLayers:0},decoys=insertDecoys?decoyBlocks(rng,source,2+(rng()%4)):[],generated=[...split.generated,...decoys];if(shuffleGenerated)shuffle(rng,generated);
+      const suffix=generated.map(block=>`${'\n'.repeat(3+(rng()%7))}${block}`).join('');return{source:split.source+suffix,splitCount:split.splitCount,callLayers:split.callLayers,decoyCount:decoys.length};
+    }
+    function numberIsPattern(tokens,index,previous){const line=tokens[index].line;let cursor=previous[index];while(cursor>=0&&tokens[cursor].line===line){if(tokens[cursor].value===':')return false;if(tokens[cursor].type==='id'&&tokens[cursor].value==='case')return true;cursor=previous[cursor]}return false}
+    function encodedAtom(number,rng,forbidden){let key=31+(rng()%67);while(key===forbidden)key++;if(number<=0xffffffff-key)return `((${number+key} - ${key}))`;return `((${number-key} + ${key}))`}
+    function explodeNumber(value,rng){
+      if(!/^\d[\d_]*$/.test(value))return value;const number=Number(value.replaceAll('_',''));if(!Number.isSafeInteger(number)||number>0xffffffff)return value;
+      const atom=n=>encodedAtom(n,rng,number);let expression;
+      if(number>3&&rng()%2===0){const divisor=2+(rng()%8),quotient=Math.floor(number/divisor),remainder=number%divisor;expression=`((${atom(quotient)} * ${atom(divisor)}) + ${atom(remainder)})`}else{const first=Math.floor(number/2),second=number-first;expression=`(${atom(first)} + ${atom(second)})`}
+      for(let depth=0,count=2+(rng()%3);depth<count;depth++){
+        const noise=2+(rng()%29),identity=atom(noise);
+        if(number<=0xffffffff-noise&&rng()%2===0)expression=`((${expression} + ${identity}) - ${identity})`;
+        else if(number>=noise)expression=`((${expression} - ${identity}) + ${identity})`;
+        else expression=`(${expression} * ${atom(1)})`;
+      }
+      return expression;
+    }
+    function coherentSpace(value,rng){if(value.includes('\n'))return value;const wide=rng()%5===0;return ' '.repeat((wide?38:3)+(rng()%(wide?35:29)))}
+    function obfuscateBend(source,{stripComments=true,explodeNumbers=true,splitEligibleFunctions=true,insertDecoys=true,shuffleGenerated=true,chaoticSpacing=true,seed=randomSeed()}={}){
+      const rng=makeRng(seed),structure=generateStructure(source,rng,{splitEligibleFunctions,insertDecoys,shuffleGenerated});
+      const scanned=tokenize(structure.source),tokens=scanned.tokens,significant=token=>token.type!=='space'&&token.type!=='comment',previous=[],next=[];
+      let last=-1;for(let index=0;index<tokens.length;index++){previous[index]=last;if(significant(tokens[index]))last=index}
+      last=-1;for(let index=tokens.length-1;index>=0;index--){next[index]=last;if(significant(tokens[index]))last=index}
+      const original=new Set(tokens.filter(token=>token.type==='id').map(token=>token.value)),effectNames=new Set(),importLines=new Set(),fieldNames=new Set(),braceStack=[];
+      for(let index=0;index<tokens.length;index++)if(tokens[index].type==='id'&&tokens[index].value==='import')importLines.add(tokens[index].line);
+      for(let index=0;index<tokens.length;index++){
+        const token=tokens[index];if(token.value==='{'){const before=previous[index]>=0?tokens[previous[index]]:null;braceStack.push(!!before&&before.type==='id'&&(/^[A-Z]/.test(before.value)||before.value.includes('~')));continue}
+        if(token.value==='}'){braceStack.pop();continue}
+        if(token.type!=='id'||!braceStack.at(-1))continue;
+        const before=previous[index]>=0?tokens[previous[index]]:null,after=next[index]>=0?tokens[next[index]]:null,atFieldStart=!before||before.value==='{'||before.value===',';
+        if(atFieldStart&&after&&(after.value===':'||after.value===','||after.value==='}'))fieldNames.add(token.value);
+      }
+      for(let index=0;index<tokens.length;index++){
+        if(tokens[index].type!=='id'||tokens[index].value!=='def')continue;const nameIndex=next[index];if(nameIndex<0||tokens[nameIndex].type!=='id')continue;
+        let cursor=next[nameIndex],effect=false;while(cursor>=0){const token=tokens[cursor];if(token.type==='id'&&(token.value==='def'||token.value==='type'))break;if(token.type==='id'&&token.value==='import'){effect=true;break}cursor=next[cursor]}
+        if(effect)effectNames.add(tokens[nameIndex].value);
+      }
+      const mapping=new Map();let aliasNumber=0;
+      function fresh(){for(;;){const mode=aliasNumber++%3;let alias;if(mode===0){const parts=[];for(let index=0,count=5+(rng()%5);index<count;index++)parts.push(pick(rng,KEYLIKE));alias=mixedCaps(rng,parts.join('_'))}else if(mode===1)alias=randomRun(rng,34+(rng()%51));else alias=mixedCaps(rng,`${pick(rng,KEYLIKE)}_${randomRun(rng,18+(rng()%29))}_${pick(rng,KEYLIKE)}_${(rng()>>>0).toString(36)}`);if(!original.has(alias)&&!KEYWORDS.has(alias))return alias}}
+      function scoped(index){const prior=previous[index],priorPrior=prior>=0?previous[prior]:-1,following=next[index],followingNext=following>=0?next[following]:-1;return(prior>=0&&((tokens[prior].value==='.'&&priorPrior>=0&&tokens[priorPrior].type==='id')||(priorPrior>=0&&tokens[prior].value===':'&&tokens[priorPrior].value===':')))||(following>=0&&((tokens[following].value==='.'&&followingNext>=0&&tokens[followingNext].type==='id')||(followingNext>=0&&tokens[following].value===':'&&tokens[followingNext].value===':')))}
+      function protectedToken(token,index){const word=token.value;return KEYWORDS.has(word)||word==='main'||/^[A-Z]/.test(word)||word.includes('$')||word.includes('~')||importLines.has(token.line)||effectNames.has(word)||fieldNames.has(word)||scoped(index)}
+      let removed=0,exploded=0;
+      const text=tokens.map((token,index)=>{
+        if(token.type==='comment'&&stripComments&&!DIRECTIVES.test(token.value)){removed++;return''}
+        if(token.type==='number'&&explodeNumbers&&!numberIsPattern(tokens,index,previous)&&/^\d[\d_]*$/.test(token.value)){exploded++;return explodeNumber(token.value,rng)}
+        if(token.type==='space'&&chaoticSpacing)return coherentSpace(token.value,rng)
+        if(token.type!=='id'||protectedToken(token,index))return token.value;
+        if(!mapping.has(token.value))mapping.set(token.value,fresh());return mapping.get(token.value);
+      }).join('');
+      const outputScan=tokenize(text),inputLiterals=tokens.filter(token=>token.type==='literal').map(token=>token.value),outputLiterals=outputScan.tokens.filter(token=>token.type==='literal').map(token=>token.value);
+      const diagnostics=[...scanned.diagnostics,...outputScan.diagnostics];
+      if(JSON.stringify(inputLiterals)!==JSON.stringify(outputLiterals))diagnostics.push({severity:'error',line:0,message:'Literal preservation check failed.'});
+      if(!tokens.some(token=>token.type==='id'&&token.value==='main'))diagnostics.push({severity:'warning',line:0,message:'No `main` definition was detected; this may be a library module.'});
+      return{text,mapping:[...mapping],removed,protectedFields:fieldNames.size,explodedNumbers:exploded,splitFunctions:structure.splitCount,callLayers:structure.callLayers,decoyFunctions:structure.decoyCount,seed:seed>>>0,diagnostics,tokens:tokens.length};
+    }
+    window.BendObfuscator={tokenize,obfuscateBend};
+  })();
+  </script>
+  <script>
+  (() => {
+    'use strict';
+    const $=id=>document.getElementById(id);
+    const example=`# no-halt\n# A small source-equivalence example.\nimport String\n\ntype Point:\n  Point{x: U32, y: U32}\n\ndef point_sum(point: Point) -> U32:\n  match point:\n    case Point{x, y}:\n      x + y\n\ndef main() -> U32:\n  point_sum(Point{x: 20, y: 22})\n`;
+    let currentMap=[],currentName='untitled.bend';
+    function bytes(text){return new TextEncoder().encode(text).length}
+    function updateSizes(){$('inputSize').textContent=bytes($('input').value)+' bytes';$('outputSize').textContent=bytes($('output').value)+' bytes'}
+    function setNotice(text,className=''){$('notice').textContent=text;$('notice').className=className}
+    function renderMap(filter=''){
+      const needle=filter.trim().toLowerCase(),rows=currentMap.filter(([from,to])=>!needle||from.toLowerCase().includes(needle)||to.includes(needle));$('mapping').innerHTML='';
+      for(const [from,to] of rows){const row=document.createElement('span');row.className='map-row';const left=document.createElement('span'),right=document.createElement('code');left.textContent=from;right.textContent='→ '+to;row.append(left,right);$('mapping').append(row)}
+      if(!rows.length)$('mapping').innerHTML='<span class="map-row">'+(currentMap.length?'No matching symbols.':'No eligible symbols were renamed.')+'</span>';
+    }
+    function renderChecks(result){
+      const checks=[{severity:'ok',message:'String, character, floating-point, and based-number literals remain byte-identical.'},{severity:'ok',message:'Imported names, dot/colon-qualified members, directives, effects, and constructor fields are protected.'},{severity:'warning',message:'Call indirection applies only to simple, non-recursive, single-line signatures; generated decoys are unreachable top-level helpers.'},...result.diagnostics];
+      $('checks').innerHTML=checks.map(check=>`<div class="check ${check.severity==='warning'?'warn':check.severity==='error'?'error':''}"><i>${check.severity==='error'?'×':check.severity==='warning'?'!':'✓'}</i><span>${check.line?`Line ${check.line}: `:''}${escapeHtml(check.message)}</span></div>`).join('');
+    }
+    function escapeHtml(value){const node=document.createElement('div');node.textContent=value;return node.innerHTML}
+    function run(){
+      const source=$('input').value;if(!source.trim()){setNotice('Paste, open, or drop a Bend3 program first.','warning');return}
+      const result=BendObfuscator.obfuscateBend(source,{stripComments:$('comments').checked,explodeNumbers:$('numbers').checked,splitEligibleFunctions:$('functions').checked,insertDecoys:$('decoys').checked,shuffleGenerated:$('shuffle').checked,chaoticSpacing:$('spacing').checked});$('output').value=result.text;currentMap=result.mapping;renderMap($('mapSearch').value);
+      $('renamed').textContent=result.mapping.length;$('exploded').textContent=result.explodedNumbers;$('split').textContent=result.splitFunctions;$('layers').textContent=result.callLayers;$('decoyCount').textContent=result.decoyFunctions;$('protected').textContent=result.protectedFields;$('removed').textContent=result.removed;
+      const before=Math.max(1,bytes(source)),after=bytes(result.text),change=Math.round((after-before)*100/before);$('change').textContent=(change>0?'+':'')+change+'%';renderChecks(result);
+      const errors=result.diagnostics.filter(item=>item.severity==='error').length;$('safety').textContent=errors?'Needs attention':'Lexically consistent';$('safety').style.color=errors?'var(--red)':'var(--acid)';
+      $('copy').disabled=errors;$('download').disabled=errors;setNotice(errors?'Transform completed with blocking lexical diagnostics.':`Transform complete · seed ${result.seed}. Check the output with the same Bend3 revision.`,errors?'error-text':'');updateSizes();
+    }
+    function loadSource(text,name='untitled.bend'){$('input').value=text;currentName=name;$('filename').textContent=name;sessionStorage.setItem('bendObfuscatorSource',text);updateSizes();run()}
+    async function loadFile(file){if(!file)return;if(file.size>2_000_000){setNotice('Choose a source file smaller than 2 MB.','warning');return}loadSource(await file.text(),file.name||'source.bend')}
+    async function copyOutput(){
+      const text=$('output').value;
+      try{await navigator.clipboard.writeText(text)}catch(error){$('output').readOnly=false;$('output').select();document.execCommand('copy');$('output').readOnly=true;window.getSelection()?.removeAllRanges()}
+      setNotice('Obfuscated source copied.');
+    }
+    $('transform').onclick=run;$('example').onclick=()=>loadSource(example,'example.bend');$('copy').onclick=copyOutput;
+    $('download').onclick=()=>{const blob=new Blob([$('output').value],{type:'text/plain'}),link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download=currentName.replace(/\.bend$/i,'')+'.obfuscated.bend';link.click();setTimeout(()=>URL.revokeObjectURL(link.href),500)};
+    $('clear').onclick=()=>{$('input').value='';$('output').value='';currentMap=[];sessionStorage.removeItem('bendObfuscatorSource');$('filename').textContent='untitled.bend';$('safety').textContent='Not checked';$('checks').innerHTML='<div class="check"><i>·</i><span>Waiting for source.</span></div>';renderMap();updateSizes();setNotice('Cleared.')};
+    $('file').onchange=event=>loadFile(event.target.files[0]);$('mapSearch').oninput=event=>renderMap(event.target.value);
+    $('input').addEventListener('input',()=>{sessionStorage.setItem('bendObfuscatorSource',$('input').value);updateSizes();$('safety').textContent='Source changed';$('copy').disabled=true;$('download').disabled=true});
+    $('input').addEventListener('keydown',event=>{if(event.key==='Tab'){event.preventDefault();const input=event.currentTarget,start=input.selectionStart;input.setRangeText('  ',start,input.selectionEnd,'end');updateSizes()}if((event.ctrlKey||event.metaKey)&&event.key==='Enter'){event.preventDefault();run()}});
+    const editor=$('inputEditor');for(const type of ['dragenter','dragover'])editor.addEventListener(type,event=>{event.preventDefault();editor.classList.add('drag')});for(const type of ['dragleave','drop'])editor.addEventListener(type,event=>{event.preventDefault();editor.classList.remove('drag')});editor.addEventListener('drop',event=>loadFile(event.dataTransfer.files[0]));
+    const saved=sessionStorage.getItem('bendObfuscatorSource');if(saved)$('input').value=saved;updateSizes();
+  })();
+  </script>
+  <script>function publishSocialPresence(){const token=localStorage.bendToken;if(token)fetch('/api/presence',{method:'POST',body:token+'\nBend3 Obfuscator',cache:'no-store'}).catch(()=>{})}publishSocialPresence();setInterval(publishSocialPresence,5000);</script>
+</body>
+</html>

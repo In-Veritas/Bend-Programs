@@ -4,17 +4,13 @@ Interactive Bend3 demos. Everything here runs as a **compiled native
 binary** — the interpreter deliberately performs no IO (it prints the
 pending effect tree instead), so build with `-o`.
 
-> **Requires the `io_main` fix.** As of upstream `81fd6dc` the compiled
-> IO event loop never engages: the checker rebuilds application heads as
-> `Ann(x, T)` and `io_main` (bend-ts/src/prep.ts) misses the `IO::IO`
-> ref behind the wrapper, so every IO main dies with
-> `error: main: expected a word`. This checkout carries a local patch in
-> `bend-ts/src/prep.ts` that unwraps `Ann` before the identity test.
+Verified against upstream Bend3 `1ebc1acc` on 2026-08-17; that revision
+contains the earlier `io_main` fix.
 
 ## bend_bar — the bar-bending bench
 
 ```
-node bend-ts/src/main.ts gabriel_demos/bar_bench/bend_bar.bend --no-halt -o gabriel_demos/bar_bench/bend_bar
+bun bend-ts/src/bend.ts gabriel_demos/bar_bench/bend_bar.bend --no-halt -o gabriel_demos/bar_bench/bend_bar
 ./gabriel_demos/bar_bench/bend_bar     # needs a real terminal (ANSI + line input)
 ```
 
@@ -47,34 +43,28 @@ formula.
 ## window_bar — the same bench, in a real OS window
 
 ```
-node bend-ts/src/main.ts gabriel_demos/bar_bench/window_bar.bend --no-halt -o gabriel_demos/bar_bench/window_bar
+bun bend-ts/src/bend.ts gabriel_demos/bar_bench/window_bar.bend --no-halt -o gabriel_demos/bar_bench/window_bar
 ./gabriel_demos/bar_bench/window_bar           # keys go to the window: 1 2 3, 4/space/enter bends, q quits
 ./gabriel_demos/bar_bench/window_bar --demo    # unattended: steel, rubber, carbon, exit
 ```
 
-The GPU does not create windows — on every platform the OS window
-server does, and the GPU only fills surfaces the window system hands
-it. Bend3's Metal/CUDA backend allocates headless *compute* contexts;
-its one sanctioned door to the OS is the C-bodied IO effect protocol.
-So the window comes from a custom effect, `effs/window.c` (~250 lines
-of dependency-free C: Cocoa through `objc_msgSend`, CoreGraphics for
-the canvas), exposing three ops:
+Current Bend3's install `IO.Op` is fixed: a user C-bodied effect must have a
+matching installed constructor. The old `win_open`/`win_frame`/`win_close`
+effect therefore no longer compiles. `CommandGFX.bend` preserves the demo's
+pure flat command stream while adapting it to the standard `IO/GFX` module:
 
-- `win_open(w, h, title) -> IO<U32>`
-- `win_frame(cmds: List<U32>) -> IO<U32>` — rasterize a flat command
+- `win_open(w, h, title) -> IO(U32)` opens the standard GFX window;
+- `win_frame(cmds: List(U32)) -> IO(U32)` rasterizes a flat command
   stream (clear / rect / 3×5 digit; y carries a +1000 bias so the pure
   side never builds a negative), present, pump events, return the key
   pressed (0 none, `'q'` if the window was closed)
-- `win_close() -> IO<U32>`
+- `win_close() -> IO(U32)` lets process teardown close the window.
 
-The division of labor is the language's own: the pure fragment computes
-every frame's F32 physics and geometry and emits draw commands; the
-effect only blits them. Debug: `BEND_WIN_DUMP=<prefix>` writes every
-40th frame as `<prefix>NNNN.ppm` so the canvas can be verified without
-screen-capture permissions. The effect file compiles both as ObjC+ARC
-(the Metal recipe's `-x objective-c -fobjc-arc`) and as plain C (the
-CPU recipe) — hence the `WIN_ID` bridge macro and the runtime-built
-run-loop-mode string.
+The adapter builds a depth-9 quadtree image (2×2 display pixels) and maps the
+standard key/close events back to the demo's U32 controls. The old
+`effs/window.c` remains as historical source but is not imported. Both native
+window binaries built and stayed live through bounded launch/render smoke
+tests on the verification Mac.
 
 ## Bend3 issues and unexpected behavior
 

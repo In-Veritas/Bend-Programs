@@ -3,7 +3,7 @@
 Build and start the Bend server from the repository root:
 
 ```sh
-node bend-ts/src/main.ts gabriel_demos/tictactoe_web/web_tictactoe.bend --no-halt -o gabriel_demos/tictactoe_web/web_tictactoe
+bun bend-ts/src/bend.ts gabriel_demos/tictactoe_web/web_tictactoe.bend --no-halt -o gabriel_demos/tictactoe_web/web_tictactoe
 ./gabriel_demos/tictactoe_web/web_tictactoe
 ```
 

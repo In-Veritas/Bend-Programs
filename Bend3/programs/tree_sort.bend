@@ -4,36 +4,43 @@
 # inorder threads an accumulator, so the whole readback is one right fold
 # with no appends.
 #
-# $ bend tree_sort.bend
+# $ bun bend-ts/src/bend.ts tree_sort.bend --eval
 
-List(t: Data) : Data {
-  Cons{head: t, tail: List(t)}
-  Nil{}
-}
+import ../bend-base/Base
 
-Tree : Data {
+type Tree:
   Leaf{}
   Node{lft: Tree, val: U32, rgt: Tree}
-}
 
-insert : U32 -> Tree -> Tree
-| n Leaf{}        = Node{Leaf{}, n, Leaf{}}
-| n Node{l, v, r} = ! +nn +vv = &n &v;
-  match *nn <= *vv:
-    case 0:
-      Node{l, *vv, insert(*nn, r)}
-    case k:
-      Node{insert(*nn, l), *vv, r}
+def insert(n: U32, t: Tree) -> Tree:
+  match t:
+    case Tree.Leaf{}:
+      Tree.Node{Tree.Leaf{}, n, Tree.Leaf{}}
+    case Tree.Node{l, v, r}:
+      nn = n
+      vv = v
+      match (nn <= vv):
+        case 0:
+          Tree.Node{l, vv, insert(nn, r)}
+        case k:
+          Tree.Node{insert(nn, l), vv, r}
 
-from_list : List(U32) -> Tree
-| Nil{}      = Leaf{}
-| Cons{h, t} = insert(h, from_list(t))
+def from_list(l: List(U32)) -> Tree:
+  match l:
+    case List.Nil{}:
+      Tree.Leaf{}
+    case List.Cons{h, t}:
+      insert(h, from_list(t))
 
-inorder : Tree -> List(U32) -> List(U32)
-| Leaf{}        acc = acc
-| Node{l, v, r} acc = inorder(l, Cons{v, inorder(r, acc)})
+def inorder(t: Tree, acc: List(U32)) -> List(U32):
+  match t:
+    case Tree.Leaf{}:
+      acc
+    case Tree.Node{l, v, r}:
+      inorder(l, List.Cons{v, inorder(r, acc)})
 
-tsort : List(U32) -> List(U32)
-= λxs. inorder(from_list(xs), Nil{})
+def tsort(xs: List(U32)) -> List(U32):
+  inorder(from_list(xs), List.Nil{})
 
-main : List(U32) = tsort([42, 7, 19, 3, 88, 1, 56, 24, 61, 10])
+def main() -> List(U32):
+  tsort([42, 7, 19, 3, 88, 1, 56, 24, 61, 10])

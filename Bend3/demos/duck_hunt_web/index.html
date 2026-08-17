@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="theme-color" content="#17120e">
+<title>Duck Hunt · BendJogos</title>
+<style>
+:root{--ink:#21170f;--cream:#fff1c2;--orange:#e55229;--gold:#f2bd3e;--green:#3f7d3e;--dark:#17120e;--sky:#6dcbd3;--pixel:4px}
+*{box-sizing:border-box}html,body{min-height:100%;margin:0}body{overflow-x:hidden;background:#17120e;color:var(--cream);font-family:"Courier New",ui-monospace,monospace;font-weight:800;image-rendering:pixelated}
+body:before{content:"";position:fixed;inset:0;z-index:-1;background:repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 2px,transparent 2px 5px),linear-gradient(#251b13,#17120e)}
+button,a{font:inherit}.page{width:min(1080px,calc(100% - 24px));margin:auto;padding:18px 0 34px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px}.brand{display:flex;align-items:center;gap:12px;color:var(--cream);text-decoration:none;text-transform:uppercase;letter-spacing:.08em}.brand-mark{position:relative;width:37px;height:29px;background:var(--gold);box-shadow:8px 0 var(--gold),4px -4px var(--gold),-4px 4px #9d3b25,12px 8px #9d3b25}.brand-mark:before{content:"";position:absolute;right:-6px;top:7px;border:5px solid transparent;border-left:8px solid var(--orange)}.brand small{display:block;color:#bdac82;font-size:10px;letter-spacing:.16em}
+.actions{display:flex;gap:8px}.pixel-button{min-height:38px;padding:8px 13px;border:0;border-radius:0;background:var(--cream);color:var(--ink);box-shadow:inset -4px -4px #b89f69,inset 4px 4px #fff8d9,4px 4px #050403;cursor:pointer;text-transform:uppercase;letter-spacing:.06em}.pixel-button:hover{transform:translate(-1px,-1px);box-shadow:inset -4px -4px #b89f69,inset 4px 4px #fff8d9,5px 5px #050403}.pixel-button:active{transform:translate(3px,3px);box-shadow:inset 3px 3px #b89f69}.pixel-button.orange{background:var(--orange);color:#fff5d6;box-shadow:inset -4px -4px #8e2c1c,inset 4px 4px #ff8c50,4px 4px #050403}.pixel-button:focus-visible{outline:4px solid var(--gold);outline-offset:4px}
+.cabinet{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:18px;padding:14px;background:#34251a;border:4px solid #0b0806;box-shadow:0 0 0 4px #67452a,12px 14px 0 #080605}.screen-wrap{position:relative;min-width:0;padding:8px;background:#0b0806;box-shadow:inset 4px 4px #000,inset -4px -4px #765034}.screen{position:relative;aspect-ratio:3/2;overflow:hidden;background:var(--sky);touch-action:none;cursor:none}.screen canvas{display:block;width:100%;height:100%;image-rendering:pixelated}.scanlines{pointer-events:none;position:absolute;inset:8px;background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(14,15,11,.08) 3px 4px);mix-blend-mode:multiply}
+.flash{pointer-events:none;position:absolute;inset:8px;background:#fff;opacity:0}.flash.fire{animation:flash .1s steps(2)}@keyframes flash{50%{opacity:.42}}
+.side{display:flex;flex-direction:column;gap:12px}.panel{padding:13px;background:#19130e;border:4px solid #080604;box-shadow:inset 3px 3px #493424}.panel-title{margin:0 0 10px;color:#c6b78d;font-size:10px;text-transform:uppercase;letter-spacing:.16em}.score{color:var(--gold);font-size:clamp(24px,4vw,38px);line-height:1;text-shadow:3px 3px #7d321f}.score small{display:block;margin-top:8px;color:#efe2b6;font-size:10px;text-shadow:none}.stats{display:grid;grid-template-columns:1fr 1fr;gap:6px}.stat{padding:9px 7px;background:#2e2117;color:#cdbd91;font-size:9px;text-transform:uppercase}.stat strong{display:block;margin-top:5px;color:#fff3c7;font-size:18px}.shells{display:flex;gap:7px;min-height:25px}.shell{width:8px;height:17px;margin:2px 4px;background:#f3cb4c;box-shadow:4px 0 #d55a2a,0 -3px #f7efa3,4px -3px #f7efa3}.shell.spent{opacity:.18;filter:grayscale(1)}.duck-row{display:grid;grid-template-columns:repeat(10,1fr);gap:3px}.duck-mark{height:11px;background:#403025;box-shadow:inset 0 -3px #21170f}.duck-mark.hit{background:#e54c27;box-shadow:inset 0 -3px #8c2b1b}.duck-mark.miss{background:#8e876f;box-shadow:inset 0 -3px #4e493c}.duck-mark.now{outline:2px solid var(--gold);outline-offset:1px}
+.message{min-height:54px;margin:0;color:#f3e5b8;font-size:12px;line-height:1.5}.hint{color:#a99b77;font-size:10px;line-height:1.55}.fire-button{display:none;width:100%;min-height:54px;margin-top:auto;background:var(--orange);color:#fff4d1;font-size:15px}
+.legend{display:flex;justify-content:space-between;gap:14px;margin-top:18px;color:#ab9b76;font-size:10px;line-height:1.5}.legend strong{color:#eee0b5}.status-dot{display:inline-block;width:8px;height:8px;margin-right:7px;background:#bc4c36;box-shadow:2px 2px #421a13}.status-dot.online{background:#6ea845;box-shadow:2px 2px #264b26}
+.overlay{position:absolute;inset:0;display:grid;place-items:center;padding:20px;background:rgba(19,14,10,.66);cursor:default}.overlay.hidden{display:none}.title-card{width:min(420px,92%);padding:22px;text-align:center;background:#20170f;border:4px solid #f0d88f;box-shadow:0 0 0 4px #6e3c25,8px 8px #080604}.title-card h1{margin:0;color:#fff1c2;font-size:clamp(27px,6vw,52px);line-height:.92;letter-spacing:-.06em;text-shadow:4px 0 #d64b27,0 4px #d64b27,4px 4px #6d281d}.title-card h1 span{display:block;color:#f0bd3f;font-size:.45em;letter-spacing:.18em;text-shadow:2px 2px #6d281d}.title-card p{margin:18px auto;color:#caba8d;font-size:11px;line-height:1.55}.title-card .pixel-button{min-width:170px}.tiny{margin-top:13px!important;font-size:8px!important;text-transform:uppercase;letter-spacing:.1em}
+@media(max-width:820px){.cabinet{grid-template-columns:1fr}.side{display:grid;grid-template-columns:1fr 1fr}.side .panel:first-child,.side .panel:last-child{grid-column:1/-1}.fire-button{display:block}.legend{flex-direction:column}.screen{aspect-ratio:4/3}}
+@media(max-width:520px){.page{width:min(100% - 12px,1080px);padding-top:9px}.topbar{align-items:flex-start}.brand strong{font-size:13px}.brand small{font-size:8px}.actions .pixel-button{min-height:32px;padding:6px 9px;font-size:10px}.cabinet{gap:10px;padding:8px;border-width:3px;box-shadow:0 0 0 3px #67452a,6px 8px #080605}.side{grid-template-columns:1fr 1fr;gap:8px}.panel{padding:10px;border-width:3px}.score{font-size:27px}.stat strong{font-size:15px}.legend{margin-top:13px}.title-card{padding:16px}.message{font-size:10px}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.001ms!important}.scanlines{display:none}}
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="topbar">
+    <a class="brand" href="/"><span class="brand-mark"></span><span><strong>BendJogos Field Unit</strong><small>Pixel hunting division</small></span></a>
+    <div class="actions"><button class="pixel-button" id="soundButton" aria-pressed="false">Sound: on</button><a class="pixel-button" href="/" style="text-decoration:none">Hub</a></div>
+  </header>
+
+  <main class="cabinet">
+    <section class="screen-wrap" aria-label="Duck Hunt game field">
+      <div class="screen" id="screen">
+        <canvas id="game" width="384" height="256"></canvas>
+        <div class="overlay" id="overlay">
+          <div class="title-card">
+            <h1>Duck Hunt<span>Bend Field Trial</span></h1>
+            <p>Ten ducks per round. Three shells per bird.<br>Land enough hits to follow the flock.</p>
+            <button class="pixel-button orange" id="startButton">Start hunt</button>
+            <p class="tiny">Click or tap to aim · sound starts with your first input</p>
+          </div>
+        </div>
+      </div>
+      <div class="scanlines"></div><div class="flash" id="flash"></div>
+    </section>
+
+    <aside class="side">
+      <section class="panel">
+        <h2 class="panel-title">Field score</h2>
+        <div class="score" id="score">000000<small id="highScore">LAN HIGH 000000</small></div>
+      </section>
+      <section class="panel stats">
+        <div class="stat">Round<strong id="round">1</strong></div>
+        <div class="stat">Target<strong id="target">1/10</strong></div>
+        <div class="stat">Hits<strong id="hits">0/6</strong></div>
+        <div class="stat">Shells<div class="shells" id="shells"></div></div>
+      </section>
+      <section class="panel">
+        <h2 class="panel-title">Flock report</h2>
+        <div class="duck-row" id="duckRow"></div>
+      </section>
+      <section class="panel">
+        <p class="message" id="message" role="status" aria-live="polite">The marsh is quiet. Start when ready.</p>
+        <p class="hint"><strong>Mouse:</strong> aim and click<br><strong>Keyboard:</strong> arrows/WASD + Space<br><strong>Touch:</strong> tap the duck or use Fire</p>
+      </section>
+      <button class="pixel-button fire-button" id="fireButton">Fire</button>
+    </aside>
+  </main>
+
+  <footer class="legend"><span><i class="status-dot" id="statusDot"></i><strong id="connection">Connecting to Bend…</strong></span><span>All scenery, sprites, animation, and audio are generated locally. Hunt state and scores live in Bend3.</span></footer>
+</div>
+
+<script>
+(()=>{
+  'use strict';
+  const $=id=>document.getElementById(id),canvas=$('game'),ctx=canvas.getContext('2d'),screen=$('screen');
+  ctx.imageSmoothingEnabled=false;
+  const base=location.pathname.startsWith('/duck-hunt')?'/duck-hunt':'';
+  let id=Number(localStorage.duckHunterId)||0;
+  if(!id){id=(crypto.getRandomValues(new Uint32Array(1))[0]%900000000)+100000;localStorage.duckHunterId=String(id)}
+  let state={ok:1,high:0,player:{score:0,best:0,round:1,duck:1,ammo:3,roundHits:0,totalHits:0,status:0,seed:id,required:6}};
+  let phase='title',duck=null,aim={x:192,y:110,visible:false},busy=false,last=performance.now(),roundMarks=Array(10).fill(0),messageTimer=0,flapTimer=0;
+  let audio=null,master=null,soundOn=localStorage.duckSound!=='off';
+  let keys=new Set(),introAt=0,resolveAt=0,roundAt=0,shake=0;
+
+  async function api(path){
+    const response=await fetch(base+path,{cache:'no-store'});
+    if(!response.ok)throw new Error('HTTP '+response.status);
+    return response.json();
+  }
+  function apply(data){
+    if(!data||!data.player)return false;
+    const before=state.player||{};
+    state=data;
+    if(data.player.round!==before.round)roundMarks=Array(10).fill(0);
+    renderPanel();
+    return !!data.ok;
+  }
+  function note(text,time=1700){$('message').textContent=text;clearTimeout(messageTimer);if(time)messageTimer=setTimeout(()=>{if(phase==='flying')$('message').textContent='Lead the duck. Fire when the sight is steady.'},time)}
+  function connected(ok){$('statusDot').classList.toggle('online',ok);$('connection').textContent=ok?'Bend field link online':'Field link interrupted'}
+  function padded(value){return String(value||0).padStart(6,'0')}
+  function renderPanel(){
+    const p=state.player;
+    $('score').firstChild.nodeValue=padded(p.score);
+    $('highScore').textContent='LAN HIGH '+padded(state.high);
+    $('round').textContent=p.round;$('target').textContent=p.duck+'/10';$('hits').textContent=p.roundHits+'/'+p.required;
+    $('shells').innerHTML=[0,1,2].map(i=>`<i class="shell ${i<p.ammo?'':'spent'}"></i>`).join('');
+    $('duckRow').innerHTML=roundMarks.map((mark,i)=>`<i class="duck-mark ${mark===1?'hit':mark===2?'miss':''} ${i===p.duck-1&&p.status>0&&p.status<3?'now':''}"></i>`).join('');
+  }
+
+  function unlockAudio(){
+    if(!soundOn)return;
+    if(!audio){audio=new (window.AudioContext||window.webkitAudioContext)();master=audio.createGain();master.gain.value=.22;master.connect(audio.destination)}
+    if(audio.state==='suspended')audio.resume();
+  }
+  function tone(freq,duration,type='square',volume=.2,delay=0,end=freq){
+    if(!soundOn||!audio)return;
+    const start=audio.currentTime+delay,o=audio.createOscillator(),g=audio.createGain();
+    o.type=type;o.frequency.setValueAtTime(freq,start);o.frequency.exponentialRampToValueAtTime(Math.max(20,end),start+duration);
+    g.gain.setValueAtTime(volume,start);g.gain.exponentialRampToValueAtTime(.001,start+duration);
+    o.connect(g);g.connect(master);o.start(start);o.stop(start+duration);
+  }
+  function noise(duration=.1,volume=.35){
+    if(!soundOn||!audio)return;
+    const length=Math.ceil(audio.sampleRate*duration),buffer=audio.createBuffer(1,length,audio.sampleRate),data=buffer.getChannelData(0);
+    for(let i=0;i<length;i++)data[i]=(Math.random()*2-1)*(1-i/length);
+    const source=audio.createBufferSource(),gain=audio.createGain();source.buffer=buffer;gain.gain.value=volume;source.connect(gain);gain.connect(master);source.start();
+  }
+  const sfx={
+    shot(){noise(.12,.7);tone(95,.12,'square',.4,0,42);shake=5},
+    flap(){tone(180,.035,'square',.07,0,125)},
+    hit(){tone(440,.08,'square',.3);tone(660,.12,'square',.25,.08);tone(880,.16,'square',.2,.18)},
+    escape(){tone(300,.1,'sawtooth',.18,0,160);tone(220,.16,'square',.13,.12,90)},
+    bark(){tone(150,.08,'square',.28);tone(105,.12,'square',.24,.1);noise(.06,.08)},
+    start(){[262,330,392,523].forEach((n,i)=>tone(n,.11,'square',.18,i*.1))},
+    clear(){[392,494,587,784].forEach((n,i)=>tone(n,.16,'square',.2,i*.12))},
+    over(){[330,294,262,196].forEach((n,i)=>tone(n,.22,'square',.18,i*.17))}
+  };
+  $('soundButton').textContent='Sound: '+(soundOn?'on':'off');
+  $('soundButton').setAttribute('aria-pressed',String(soundOn));
+  $('soundButton').addEventListener('click',()=>{soundOn=!soundOn;localStorage.duckSound=soundOn?'on':'off';$('soundButton').textContent='Sound: '+(soundOn?'on':'off');$('soundButton').setAttribute('aria-pressed',String(soundOn));if(soundOn){unlockAudio();sfx.start()}});
+
+  function rng(seed){let n=(seed||1)>>>0;return()=>{n=(Math.imul(n,1664525)+1013904223)>>>0;return n/4294967296}}
+  function launchDuck(){
+    const p=state.player,r=rng((p.seed^Math.imul(p.duck,7919)^Math.imul(p.round,104729))>>>0),fromLeft=r()>.5;
+    const speed=42+Math.min(46,p.round*4)+r()*16;
+    duck={x:fromLeft?-28:412,y:80+r()*82,vx:(fromLeft?1:-1)*speed,vy:(r()-.5)*25,face:fromLeft?1:-1,kind:Math.floor(r()*3),wing:0,alive:true,escaped:false,turn:r()*2+1};
+    phase='flying';aim.visible=true;note('Duck '+p.duck+' is up. Three shells.',1200);flapTimer=0;
+  }
+  async function startGame(){
+    if(busy)return;unlockAudio();busy=true;$('startButton').disabled=true;
+    try{
+      const data=await api('/start/'+id);apply(data);connected(true);roundMarks=Array(10).fill(0);phase='intro';introAt=performance.now();$('overlay').classList.add('hidden');note(data.note);sfx.start();setTimeout(sfx.bark,520);setTimeout(()=>{if(phase==='intro')launchDuck()},1250);
+      publishPresence();
+    }catch(error){connected(false);note('The Bend field link could not be reached.')}
+    finally{busy=false;$('startButton').disabled=false}
+  }
+  function hitTest(x,y){
+    if(!duck||phase!=='flying')return {hit:false,band:0};
+    const dx=Math.abs(x-duck.x),dy=Math.abs(y-duck.y),body=(dx<18&&dy<10),head=(dx<25&&dx>10&&dy<8),wing=(dx<10&&dy<17);
+    if(!(body||head||wing))return {hit:false,band:0};
+    const distance=Math.hypot(x-duck.x,y-duck.y);
+    return {hit:true,band:distance<7?3:distance<14?2:1};
+  }
+  async function shoot(){
+    unlockAudio();
+    if(phase!=='flying'||busy||state.player.ammo<1)return;
+    busy=true;sfx.shot();$('flash').classList.remove('fire');void $('flash').offsetWidth;$('flash').classList.add('fire');
+    const result=hitTest(aim.x,aim.y);
+    try{
+      const data=await api(`/shoot/${id}/${result.hit?1:0}/${result.band}`);apply(data);connected(true);
+      if(!data.ok){note(data.note);return}
+      if(result.hit){
+        roundMarks[state.player.duck-1]=1;duck.alive=false;duck.vx=0;duck.vy=12;phase='falling';resolveAt=performance.now()+1050;sfx.hit();note('Direct hit! '+(450+result.band*250+state.player.round*50)+' points.');
+      }else if(state.player.ammo===0){
+        roundMarks[state.player.duck-1]=2;duck.escaped=true;phase='escaped';resolveAt=performance.now()+1150;sfx.escape();note('The duck escaped. The dog noticed.');
+      }else note(data.note);
+    }catch(error){connected(false);note('Shot lost—the field link dropped. Try again.')}
+    finally{busy=false}
+  }
+  async function resolveDuck(){
+    if(busy)return;busy=true;resolveAt=0;
+    const oldRound=state.player.round;
+    try{
+      const data=await api('/next/'+id);apply(data);connected(true);
+      if(!data.ok){note(data.note);return}
+      if(data.player.status===3){
+        phase='gameover';aim.visible=false;sfx.over();showOverlay('Hunt over',`You scored ${padded(data.player.score)} and landed ${data.player.totalHits} hit${data.player.totalHits===1?'':'s'}.`,'Hunt again');
+      }else if(data.player.round!==oldRound){
+        phase='round';roundAt=performance.now()+2100;aim.visible=false;sfx.clear();note(`Round ${oldRound} clear! The flock returns faster.`);
+      }else{
+        phase='intro';introAt=performance.now();setTimeout(()=>{if(phase==='intro')launchDuck()},720);
+      }
+    }catch(error){connected(false);note('Could not advance the hunt. Retrying…');resolveAt=performance.now()+900}
+    finally{busy=false}
+  }
+  function showOverlay(title,text,button){
+    const card=$('overlay').querySelector('.title-card');card.querySelector('h1').innerHTML=title+'<span>Bend Field Trial</span>';card.querySelector('p').innerHTML=text;card.querySelector('#startButton').textContent=button;$('overlay').classList.remove('hidden');
+  }
+
+  function px(color,x,y,w,h){ctx.fillStyle=color;ctx.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h))}
+  const palettes=[
+    {sky:'#67c9d2',cloud:'#d9f3d4',far:'#679b52',grass:'#3d7b39',dark:'#245431'},
+    {sky:'#f0a35d',cloud:'#ffe3ae',far:'#947446',grass:'#476f37',dark:'#2a4c2e'},
+    {sky:'#3975a0',cloud:'#a8c5bd',far:'#415f50',grass:'#345b35',dark:'#1d3d2b'}
+  ];
+  function drawCloud(x,y){px(palettes[(state.player.round-1)%3].cloud,x,y,28,6);px(palettes[(state.player.round-1)%3].cloud,x+7,y-6,17,6);px(palettes[(state.player.round-1)%3].cloud,x+13,y-10,8,4)}
+  function drawBackground(now){
+    const p=palettes[(state.player.round-1)%3];px(p.sky,0,0,384,256);
+    drawCloud(34,38);drawCloud(240,28);drawCloud(328,60);
+    px(p.far,0,158,384,50);for(let x=0;x<384;x+=32){px(p.dark,x,151+(x%64?4:0),24,22);px(p.dark,x+8,145+(x%64?4:0),10,10)}
+    px('#69452a',31,82,19,113);px('#8d5b30',35,82,8,113);px('#315f34',5,58,75,25);px('#3f7c3e',0,68,88,30);px('#4d9147',16,48,50,26);px('#315f34',4,47,18,20);px('#315f34',57,52,27,18);
+    px(p.grass,0,181,384,75);px(p.dark,0,202,384,54);
+    for(let x=0;x<384;x+=8){const h=4+((x*7)%11);px(x%16?p.grass:'#5a9344',x,181-h,4,h+6)}
+    px('#4d843f',71,174,126,39);px('#315f34',80,163,29,28);px('#315f34',111,158,38,34);px('#315f34',153,166,47,31);
+    px('#4d843f',252,171,144,43);px('#315f34',272,159,43,31);px('#315f34',326,154,35,37);px('#315f34',365,166,30,31);
+    px('#18201a',0,237,384,19);
+  }
+  function drawDuckSprite(d){
+    const x=Math.round(d.x),y=Math.round(d.y),f=d.face,k=d.kind,body=['#7b4e2f','#3b7049','#825d3b'][k],wing=['#c08d4f','#6a9b70','#d5b068'][k],head=['#287450','#315f45','#2c7752'][k];
+    ctx.save();ctx.translate(x,y);ctx.scale(f,1);
+    px(body,-14,-7,24,15);px(body,-9,8,16,5);px('#f0e4b5',-7,-3,10,8);
+    const up=Math.sin(d.wing)<0;px(wing,-8,up?-18:1,13,up?13:12);px('#2a241d',-4,up?-19:10,8,4);
+    px(head,8,-12,12,13);px(head,13,-16,9,7);px('#fff1c2',15,-13,4,4);px('#14110e',17,-12,2,2);
+    px('#e5a72e',20,-8,9,4);px('#d6672d',20,-4,7,3);
+    px('#33271e',-15,8,6,3);px('#33271e',-12,11,4,4);
+    ctx.restore();
+  }
+  function drawDog(x,y,mode){
+    ctx.save();ctx.translate(Math.round(x),Math.round(y));
+    const bounce=mode==='laugh'&&Math.floor(performance.now()/180)%2?2:0;
+    px('#8a5632',-14,-19+bounce,26,22);px('#b87942',-8,-23+bounce,20,19);px('#5a341f',7,-28+bounce,10,15);px('#5a341f',-13,-26+bounce,8,14);
+    px('#f0d4a1',-4,-18+bounce,15,10);px('#20160f',6,-20+bounce,3,3);px('#20160f',13,-17+bounce,4,4);
+    px('#8a5632',-10,2,6,13);px('#8a5632',7,1,6,14);px('#332117',-12,13,10,4);px('#332117',7,13,10,4);
+    if(mode==='laugh'){px('#f4e2b8',-1,-11+bounce,7,3);px('#d95733',1,-8+bounce,5,5)}
+    if(mode==='retrieve'&&duck){ctx.save();ctx.translate(2,-32);ctx.scale(.7,.7);drawDuckSprite({x:0,y:0,face:1,kind:duck.kind,wing:0});ctx.restore()}
+    ctx.restore();
+  }
+  function drawCrosshair(){
+    if(!aim.visible)return;const x=Math.round(aim.x),y=Math.round(aim.y),color=phase==='flying'?'#f7f0c0':'#aaa';
+    px('#24140f',x-12,y-1,8,3);px('#24140f',x+5,y-1,8,3);px('#24140f',x-1,y-12,3,8);px('#24140f',x-1,y+5,3,8);
+    px(color,x-11,y,7,1);px(color,x+5,y,7,1);px(color,x,y-11,1,7);px(color,x,y+5,1,7);px('#e54f2d',x-1,y-1,3,3);
+  }
+  function drawBanner(title,sub){
+    px('#17120e',67,87,250,60);px('#f1d78c',71,91,242,52);px('#6f3b25',75,95,234,44);
+    ctx.fillStyle='#fff0bd';ctx.textAlign='center';ctx.font='bold 18px monospace';ctx.fillText(title,192,115);ctx.fillStyle='#f1cc69';ctx.font='bold 8px monospace';ctx.fillText(sub,192,132);ctx.textAlign='left';
+  }
+  function update(dt,now){
+    const p=state.player;
+    if(keys.size&&phase==='flying'){const speed=90*dt;if(keys.has('ArrowLeft')||keys.has('KeyA'))aim.x-=speed;if(keys.has('ArrowRight')||keys.has('KeyD'))aim.x+=speed;if(keys.has('ArrowUp')||keys.has('KeyW'))aim.y-=speed;if(keys.has('ArrowDown')||keys.has('KeyS'))aim.y+=speed;aim.x=Math.max(8,Math.min(376,aim.x));aim.y=Math.max(24,Math.min(220,aim.y))}
+    if(phase==='flying'&&duck){
+      duck.turn-=dt;if(duck.turn<0){duck.turn=.7+((p.seed+Math.floor(now))%120)/100;duck.vy=((p.seed+Math.floor(now/13))%51)-25;if((p.seed+Math.floor(now/31))%4===0)duck.vx*=-1}
+      duck.x+=duck.vx*dt;duck.y+=duck.vy*dt;duck.wing+=dt*17;flapTimer-=dt;if(flapTimer<=0){sfx.flap();flapTimer=.28}
+      if(duck.x<14){duck.x=14;duck.vx=Math.abs(duck.vx);duck.face=1}if(duck.x>370){duck.x=370;duck.vx=-Math.abs(duck.vx);duck.face=-1}
+      if(duck.y<33){duck.y=33;duck.vy=Math.abs(duck.vy)}if(duck.y>170){duck.y=170;duck.vy=-Math.abs(duck.vy)}
+    }
+    if(phase==='falling'&&duck){duck.y+=duck.vy*dt;duck.vy+=65*dt;duck.wing+=dt*5}
+    if(phase==='escaped'&&duck){duck.y-=75*dt;duck.x+=duck.face*38*dt;duck.wing+=dt*20}
+    if(resolveAt&&now>=resolveAt)resolveDuck();
+    if(phase==='round'&&roundAt&&now>=roundAt){roundAt=0;roundMarks=Array(10).fill(0);phase='intro';introAt=now;setTimeout(()=>{if(phase==='intro')launchDuck()},1100)}
+    shake*=.75;
+  }
+  function draw(now){
+    ctx.save();if(shake>0)ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);drawBackground(now);
+    if((phase==='flying'||phase==='falling'||phase==='escaped')&&duck)drawDuckSprite(duck);
+    if(phase==='intro'){const t=Math.min(1,(now-introAt)/800);drawDog(78+t*60,205-Math.sin(t*Math.PI)*30,'search')}
+    if(phase==='falling'&&duck&&duck.y>178)drawDog(duck.x,218,'retrieve');
+    if(phase==='escaped')drawDog(192,219,'laugh');
+    if(phase==='gameover')drawDog(192,219,'laugh');
+    if(phase==='round')drawBanner('ROUND CLEAR','THE NEXT FLOCK FLIES FASTER');
+    if(phase==='title')drawDog(192,219,'search');
+    drawCrosshair();ctx.restore();
+  }
+  function loop(now){const dt=Math.min(.035,(now-last)/1000);last=now;update(dt,now);draw(now);requestAnimationFrame(loop)}
+
+  function point(event){const rect=canvas.getBoundingClientRect();return{x:(event.clientX-rect.left)*canvas.width/rect.width,y:(event.clientY-rect.top)*canvas.height/rect.height}}
+  screen.addEventListener('pointermove',event=>{const p=point(event);aim.x=p.x;aim.y=p.y;aim.visible=true});
+  screen.addEventListener('pointerdown',event=>{if(event.target.closest('.overlay'))return;event.preventDefault();const p=point(event);aim.x=p.x;aim.y=p.y;shoot()});
+  screen.addEventListener('pointerleave',()=>{if(phase!=='flying')aim.visible=false});
+  $('fireButton').addEventListener('click',shoot);$('startButton').addEventListener('click',startGame);
+  addEventListener('keydown',event=>{if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Space','KeyW','KeyA','KeyS','KeyD'].includes(event.code))event.preventDefault();keys.add(event.code);if(event.code==='Space'&&!event.repeat)shoot()});
+  addEventListener('keyup',event=>keys.delete(event.code));
+  addEventListener('pagehide',()=>{if(state.player.status)fetch(base+'/leave/'+id,{keepalive:true}).catch(()=>{})});
+  function publishPresence(){const token=localStorage.bendToken;if(token)fetch('/api/presence',{method:'POST',body:token+'\nDuck Hunt',cache:'no-store'}).catch(()=>{})}
+  publishPresence();setInterval(publishPresence,5000);
+
+  async function boot(){
+    renderPanel();requestAnimationFrame(loop);
+    try{
+      const data=await api('/state/'+id);apply(data);connected(true);
+      if(data.player.status===1){$('overlay').classList.add('hidden');phase='intro';introAt=performance.now();setTimeout(launchDuck,700)}
+      else if(data.player.status===2){$('overlay').classList.add('hidden');phase='intro';await resolveDuck()}
+      else if(data.player.status===3){phase='gameover';showOverlay('Hunt over',`Field score ${padded(data.player.score)}. The marsh is ready for another run.`,'Hunt again')}
+    }catch(error){connected(false);note('Start the BendJogos server to enter the marsh.')}
+  }
+  window.__duckHuntTest={hitTest,apply,get phase(){return phase},get state(){return state},get audioReady(){return !!audio}};
+  boot();
+})();
+</script>
+</body>
+</html>

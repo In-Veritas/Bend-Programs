@@ -1,51 +1,54 @@
-# binary search: build a search tree once, probe it many times. The tree is
-# a shared value (+Tree), so main can hand the SAME tree to four searches --
-# no rebuilding, no copies; each probe owns one node layer at a time (match
-# on *t) and descends left or right, discarding the half it ruled out.
-#
-# $ bend binary_search.bend
+import ../bend-base/Base
 
-List(t: Data) : Data {
-  Cons{head: t, tail: List(t)}
-  Nil{}
-}
-
-Tree : Data {
+type Tree:
   Leaf{}
   Node{lft: Tree, val: U32, rgt: Tree}
-}
 
-insert : U32 -> Tree -> Tree
-| n Leaf{}        = Node{Leaf{}, n, Leaf{}}
-| n Node{l, v, r} = ! +nn +vv = &n &v;
-  match *nn <= *vv:
-    case 0:
-      Node{l, *vv, insert(*nn, r)}
-    case k:
-      Node{insert(*nn, l), *vv, r}
-
-from_list : List(U32) -> Tree
-| Nil{}      = Leaf{}
-| Cons{h, t} = insert(h, from_list(t))
-
-# three-way descent: hit, or recurse into the surviving half
-member : +U32 +> +Tree +> U32
-| n t =
-  match *t:
-    case Leaf{}:
-      0
-    case Node{l, v, r}:
-      ! +vv = &v;
-      match *n == *vv:
+def insert(n: U32, t: Tree) -> Tree:
+  match t:
+    case Tree.Leaf{}:
+      Tree.Node{Tree.Leaf{}, n, Tree.Leaf{}}
+    case Tree.Node{l, v, r}:
+      nn = n
+      vv = v
+      match (nn <= vv):
         case 0:
-          match *n < *vv:
+          Tree.Node{l, vv, insert(nn, r)}
+        case k:
+          Tree.Node{insert(nn, l), vv, r}
+
+def from_list(l: List(U32)) -> Tree:
+  match l:
+    case List.Nil{}:
+      Tree.Leaf{}
+    case List.Cons{h, t}:
+      insert(h, from_list(t))
+
+def member_go(n: U32, t: Tree) -> U32:
+  match t:
+    case Tree.Leaf{}:
+      0
+    case Tree.Node{l, v, r}:
+      vv = v
+      match (n == vv):
+        case 0:
+          match (n < vv):
             case 0:
-              ! +rr = &r; member(n, rr)
+              rr = r
+              member_go(n, rr)
             case k:
-              ! +ll = &l; member(n, ll)
+              ll = l
+              member_go(n, ll)
         case k:
           1
 
-main : List(U32) =
-  ! +t = &from_list([8, 3, 10, 1, 6, 14, 4, 7, 13]);
-  [member(&6, t), member(&5, t), member(&13, t), member(&2, t)]
+def member(n: +U32, t: +Tree) -> U32:
+  member_go(n, t)
+
+def main() -> List(U32):
+  t = from_list([8, 3, 10, 1, 6, 14, 4, 7, 13])
+  six = 6
+  five = 5
+  thirteen = 13
+  two = 2
+  [member(six, t), member(five, t), member(thirteen, t), member(two, t)]

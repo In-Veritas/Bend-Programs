@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Core Poker Observatory</title>
+  <style>
+    :root { color-scheme: dark; --gold:#f3ca66; --felt:#093c32; --ink:#f6f1df; --muted:#a7b9ae; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; color:var(--ink); font:15px/1.4 system-ui,sans-serif; background:#071c1a; }
+    button,select,input { font:inherit; }
+    header { display:flex; align-items:center; gap:14px; padding:13px 18px; background:#0b2925; border-bottom:1px solid #315249; }
+    h1 { margin:0; font:700 20px Georgia,serif; color:var(--gold); }
+    .core-badge { padding:4px 8px; border:1px solid #a88b48; border-radius:999px; color:var(--gold); font-size:12px; }
+    header label { margin-left:auto; color:var(--muted); }
+    select,button { color:var(--ink); background:#153d36; border:1px solid #52746a; border-radius:7px; padding:7px 10px; cursor:pointer; }
+    main { max-width:1250px; margin:auto; padding:16px; }
+    .table { min-height:350px; padding:20px; border:10px solid #4f2f1e; border-radius:48% / 18%; background:radial-gradient(ellipse,#176957,var(--felt) 68%); box-shadow:inset 0 0 45px #001d17,0 15px 35px #0008; }
+    .table-head { display:flex; justify-content:space-between; align-items:start; gap:20px; }
+    .phase { text-transform:uppercase; letter-spacing:.12em; color:var(--gold); font-weight:800; }
+    .pot { padding:8px 13px; border-radius:16px; background:#001d18aa; color:var(--gold); font-weight:800; }
+    .board { min-height:105px; display:flex; justify-content:center; gap:9px; margin:25px 0 16px; }
+    .card { width:67px; height:94px; padding:7px; border-radius:8px; background:#faf6e9; color:#17211e; box-shadow:0 3px 8px #0008; font:700 20px Georgia,serif; }
+    .card.red { color:#b72b37; }
+    .players { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
+    .player { min-height:104px; padding:10px; border:1px solid #ffffff35; border-radius:10px; background:#001d18b8; }
+    .player.actor { border-color:var(--gold); box-shadow:0 0 12px #f3ca6666; }
+    .player.folded { opacity:.54; }
+    .player strong { display:block; color:var(--gold); }
+    .personality { color:var(--muted); font-size:12px; }
+    .hand { display:flex; gap:4px; margin-top:7px; }
+    .hand .card { width:38px; height:53px; padding:4px; font-size:13px; }
+    .event { margin:17px auto 4px; max-width:720px; padding:12px 16px; text-align:center; border-radius:10px; background:#001d18cc; }
+    .event b { color:var(--gold); text-transform:capitalize; }
+    .controls { display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:9px; margin:16px; }
+    .controls input { width:130px; }
+    .step-count { min-width:95px; text-align:center; color:var(--muted); }
+    .odds-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
+    .odds { padding:12px; border:1px solid #315249; border-radius:10px; background:#0b2925; }
+    .odds h3 { margin:0 0 3px; color:var(--gold); }
+    .best { min-height:34px; color:var(--muted); font-size:12px; }
+    .win { margin:8px 0; font-size:23px; font-weight:900; }
+    .meter { height:7px; margin-bottom:10px; overflow:hidden; border-radius:99px; background:#061512; }
+    .meter i { display:block; height:100%; background:linear-gradient(90deg,#db9d3e,#ffde76); }
+    .categories { display:grid; grid-template-columns:1fr auto; gap:2px 8px; font-size:12px; }
+    footer { margin:14px 0 4px; color:var(--muted); text-align:center; font-size:12px; }.runtime-toggle{position:fixed;right:14px;bottom:14px;z-index:20;padding:9px 12px;border:1px solid #a88b48;border-radius:10px;background:#0b2925ee;box-shadow:0 8px 24px #0008;color:var(--gold);font-weight:800;text-decoration:none}
+    @media (max-width:800px) { .players,.odds-grid { grid-template-columns:repeat(2,1fr); } .table { border-radius:30px; } }
+    @media (max-width:480px) { .players,.odds-grid { grid-template-columns:1fr; } header { flex-wrap:wrap; } header label { margin-left:0; } }
+  </style>
+</head>
+<body>
+  <a class="runtime-toggle" href="/poker">Play the Bend3 version →</a>
+  <header>
+    <h1>Core Poker Observatory</h1><span class="core-badge">Bend2 Core · pure simulation</span>
+    <label>Variant <select id="variant"><option value="texas">Texas Hold'em</option><option value="omaha">Omaha</option></select></label>
+  </header>
+  <main>
+    <section class="table">
+      <div class="table-head"><div><div class="phase" id="phase"></div><div id="seed"></div></div><div class="pot" id="pot"></div></div>
+      <div class="board" id="board"></div>
+      <div class="players" id="players"></div>
+      <div class="event" id="event"></div>
+    </section>
+    <div class="controls">
+      <button id="first" title="First step">↺</button><button id="prev">← Previous</button><button id="play">▶ Play</button><button id="next">Next →</button>
+      <span class="step-count" id="counter"></span><label>Speed <input id="speed" type="range" min="350" max="2600" value="1200" step="50"></label>
+    </div>
+    <section class="odds-grid" id="odds"></section>
+    <footer>All deals, actions, stacks, pots and estimates above are returned by <code>poker.bend</code>. JavaScript only decodes, schedules and renders that immutable report.</footer>
+  </main>
+  <script src="poker_data.js"></script>
+  <script>
+    (() => {
+      "use strict";
+      const $ = id => document.getElementById(id);
+      const list = xs => { const out=[]; while (xs && xs.$ === "Con") { out.push(xs.$0); xs=xs.$1; } return out; };
+      const odds = o => ({ win:o.$0, high:o.$1, pair:o.$2, twoPair:o.$3, trips:o.$4, straight:o.$5, flush:o.$6, fullHouse:o.$7, quads:o.$8 });
+      const player = p => ({ seat:p.$0,name:p.$1,personality:p.$2,active:p.$3,stack:p.$4,cards:list(p.$5),best:p.$6,odds:odds(p.$7) });
+      const step = s => ({ phase:s.$0,note:s.$1,actor:s.$2,action:s.$3,amount:s.$4,pot:s.$5,board:list(s.$6),players:list(s.$7).map(player) });
+      const timeline = t => ({ variant:t.$0,seed:t.$1,dealer:t.$2,winner:t.$3,steps:list(t.$4).map(step) });
+      if (!globalThis.BEND2_POKER_DATA || globalThis.BEND2_POKER_DATA.$ !== "PokerReport") throw new Error("Bend2 Core poker artifact missing");
+      const games={texas:timeline(BEND2_POKER_DATA.$0),omaha:timeline(BEND2_POKER_DATA.$1)};
+      const ranks="23456789TJQKA", suits=["♣","♦","♥","♠"];
+      let mode="texas", at=0, timer=0;
+      const card = id => { const rank=ranks[id%13], suit=suits[Math.floor(id/13)], red=suit==="♦"||suit==="♥"; return `<div class="card ${red?"red":""}">${rank}<br>${suit}</div>`; };
+      const categories = o => [["High card",o.high],["Pair",o.pair],["Two pair",o.twoPair],["Trips",o.trips],["Straight",o.straight],["Flush",o.flush],["Full house",o.fullHouse],["Quads",o.quads]];
+      function render(){
+        const game=games[mode], s=game.steps[at];
+        $("phase").textContent=s.phase; $("seed").textContent=`${game.variant} · deterministic seed ${game.seed} · dealer ${game.dealer+1}`; $("pot").textContent=`Pot ${s.pot}`;
+        $("board").innerHTML=s.board.length?s.board.map(card).join(""):"<span>Community cards have not been dealt</span>";
+        $("players").innerHTML=s.players.map(p=>`<article class="player ${p.seat===s.actor?"actor":""} ${p.active?"":"folded"}"><strong>${p.name} · ${p.stack}</strong><div class="personality">${p.personality}${p.active?"":" · folded"}</div><div class="hand">${p.cards.map(card).join("")}</div></article>`).join("");
+        const actor=s.actor<4?s.players[s.actor].name:"Dealer"; $("event").innerHTML=`<b>${actor}: ${s.action}${s.amount?` ${s.amount}`:""}</b><br>${s.note}`;
+        $("odds").innerHTML=s.players.map(p=>`<article class="odds"><h3>${p.name}</h3><div class="best">${p.best}</div><div class="win">${p.odds.win}% win</div><div class="meter"><i style="width:${p.odds.win}%"></i></div><div class="categories">${categories(p.odds).map(([k,v])=>`<span>${k}</span><b>${v}%</b>`).join("")}</div></article>`).join("");
+        $("counter").textContent=`${at+1} / ${game.steps.length}`; $("prev").disabled=at===0; $("next").disabled=at===game.steps.length-1;
+      }
+      function stop(){clearInterval(timer);timer=0;$("play").textContent="▶ Play";}
+      function play(){ if(timer){stop();return;} $("play").textContent="Ⅱ Pause"; timer=setInterval(()=>{const n=games[mode].steps.length;if(at+1>=n){stop();return;}at++;render();},Number($("speed").value)); }
+      $("variant").onchange=e=>{stop();mode=e.target.value;at=0;render();}; $("first").onclick=()=>{stop();at=0;render();}; $("prev").onclick=()=>{stop();at=Math.max(0,at-1);render();}; $("next").onclick=()=>{stop();at=Math.min(games[mode].steps.length-1,at+1);render();}; $("play").onclick=play; $("speed").onchange=()=>{if(timer){stop();play();}};
+      render();
+      globalThis.BEND2_POKER_VIEWER={games,render,select(value){mode=value;at=0;$("variant").value=value;render();}};
+    })();
+  </script>
+</body>
+</html>

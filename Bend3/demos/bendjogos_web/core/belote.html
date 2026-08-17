@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Core Belote Observatory</title>
+  <style>
+    :root { color-scheme:dark; --cream:#fff8e8; --wine:#75273b; --gold:#f0c872; --felt:#155846; --ink:#f9f3e5; --muted:#b8c8c1; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; color:var(--ink); font:15px/1.4 system-ui,sans-serif; background:#071d19; }
+    button,input { font:inherit; }
+    header { display:flex; align-items:center; gap:12px; padding:13px 18px; border-bottom:1px solid #46665e; background:#0b2924; }
+    h1 { margin:0; color:var(--gold); font:700 21px Georgia,serif; }
+    .badge { padding:4px 8px; border:1px solid #a4874c; border-radius:999px; color:var(--gold); font-size:12px; }
+    .score { margin-left:auto; display:flex; gap:15px; font-weight:800; }
+    .notice { padding:8px 16px; color:#ddcfa9; text-align:center; background:#2a2217; font-size:12px; }
+    main { max-width:1240px; margin:auto; padding:16px; }
+    .table { min-height:520px; padding:18px; border:10px solid #513020; border-radius:44px; background:radial-gradient(ellipse,#1f7a62,var(--felt) 69%); box-shadow:inset 0 0 50px #001d17,0 14px 34px #0008; }
+    .table-head { display:flex; justify-content:space-between; gap:16px; }
+    .phase { color:var(--gold); font-weight:900; text-transform:uppercase; letter-spacing:.11em; }
+    .meta { color:#d3e0da; font-size:12px; }
+    .trump { padding:7px 12px; border-radius:18px; background:#001b16aa; color:var(--gold); font-weight:800; }
+    .players { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin:20px 0; }
+    .player { padding:10px; border:1px solid #ffffff38; border-radius:11px; background:#001d18bd; }
+    .player.actor { border-color:var(--gold); box-shadow:0 0 15px #f0c87266; }
+    .player strong { display:block; color:var(--gold); }
+    .personality { min-height:32px; color:var(--muted); font-size:12px; }
+    .hand,.trick { display:flex; flex-wrap:wrap; justify-content:center; gap:6px; }
+    .hand { justify-content:flex-start; margin-top:7px; }
+    .card { position:relative; width:57px; height:78px; overflow:hidden; border:1px solid #d9d0bb; border-radius:8px; background:var(--cream); color:#171b19; box-shadow:0 3px 7px #0007; }
+    .card.red { color:#b42c3b; }
+    .card.trump-card { outline:2px solid #ffd66b; }
+    .card.played { opacity:.24; filter:grayscale(.7); transform:scale(.94); }
+    .corner { position:absolute; top:4px; left:6px; font:800 15px/1 Georgia,serif; text-align:center; }
+    .pip { position:absolute; inset:17px 4px 3px; display:grid; place-items:center; font:30px/1 Georgia,serif; }
+    .trick { min-height:105px; align-items:center; margin:14px auto; }
+    .played-card { text-align:center; }
+    .played-card small { display:block; max-width:70px; color:#dbe5e0; }
+    .event { max-width:760px; margin:12px auto 0; padding:12px 16px; border-radius:10px; text-align:center; background:#001d18d6; }
+    .event b { color:var(--gold); text-transform:capitalize; }
+    .controls { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:9px; margin:15px; }
+    button { padding:7px 11px; border:1px solid #637e75; border-radius:7px; color:var(--ink); background:#153d35; cursor:pointer; }
+    button:disabled { opacity:.42; cursor:default; }
+    input { width:140px; }
+    #counter { min-width:90px; color:var(--muted); text-align:center; }
+    .summary { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+    .summary article { padding:12px; border:1px solid #38564e; border-radius:10px; background:#0b2924; }
+    .summary h2 { margin:0 0 5px; color:var(--gold); font-size:15px; }
+    .summary strong { font-size:22px; }
+    footer { margin:15px 0 3px; color:var(--muted); text-align:center; font-size:12px; }
+    .runtime-link { position:fixed; right:14px; bottom:14px; z-index:10; padding:9px 12px; border:1px solid #a4874c; border-radius:10px; color:var(--gold); background:#0b2924ee; box-shadow:0 8px 28px #0008; text-decoration:none; font-size:12px; font-weight:800; }
+    @media(max-width:850px){.players{grid-template-columns:repeat(2,1fr)}.summary{grid-template-columns:1fr}.score{font-size:12px}.card{width:49px;height:69px}}
+    @media(max-width:500px){header{flex-wrap:wrap}.score{margin-left:0}.players{grid-template-columns:1fr}.table{padding:11px;border-radius:25px}}
+  </style>
+</head>
+<body>
+  <a class="runtime-link" href="/belote" aria-label="Switch to interactive Bend3 Belote">Bend3 interactive Belote →</a>
+  <header><h1>Core Belote Observatory</h1><span class="badge">Bend2 Core · four AIs</span><div class="score"><span id="ns"></span><span id="ew"></span></div></header>
+  <div class="notice">Bend2 Core has no implemented IO, clock, or host randomness. Seed 1 and the full legal hand are embedded in Bend; browser JavaScript only advances and draws its immutable report.</div>
+  <main>
+    <section class="table">
+      <div class="table-head"><div><div class="phase" id="phase"></div><div class="meta" id="meta"></div></div><div class="trump">Trump ♥</div></div>
+      <div class="players" id="players"></div>
+      <div class="trick" id="trick"></div>
+      <div class="event" id="event"></div>
+    </section>
+    <div class="controls"><button id="first">↺</button><button id="prev">← Previous</button><button id="play">▶ Play</button><button id="next">Next →</button><span id="counter"></span><label>Speed <input id="speed" type="range" min="350" max="3000" value="1300" step="50"></label></div>
+    <section class="summary"><article><h2>Contract</h2><strong>Mireille · Hearts</strong><div>East-West are takers.</div></article><article><h2>Card points</h2><strong>NS 47 · EW 115</strong><div>The final trick includes dix de der.</div></article><article><h2>Rule showcase</h2><strong>Trick 3</strong><div>Mandatory cut followed by a mandatory overtrump.</div></article></section>
+    <footer>Deal, bidding, hands, legal plays, trick tables, points and contract result are returned by <code>belote.bend</code>. All 32 cards remain visible; faded cards have already been played.</footer>
+  </main>
+  <script src="belote_data.js"></script>
+  <script>
+    (() => {
+      "use strict";
+      const $=id=>document.getElementById(id);
+      const list=xs=>{const out=[];while(xs&&xs.$==="Con"){out.push(xs.$0);xs=xs.$1;}return out;};
+      const player=p=>({seat:p.$0,name:p.$1,personality:p.$2,hand:list(p.$3)});
+      const played=p=>({seat:p.$0,card:p.$1});
+      const step=s=>({phase:s.$0,note:s.$1,actor:s.$2,action:s.$3,card:s.$4,trick:s.$5,ns:s.$6,ew:s.$7,players:list(s.$8).map(player),table:list(s.$9).map(played)});
+      if(!globalThis.BEND2_BELOTE_DATA||BEND2_BELOTE_DATA.$!=="BeloteReport")throw new Error("Bend2 Core Belote artifact missing");
+      const report={seed:BEND2_BELOTE_DATA.$0,dealer:BEND2_BELOTE_DATA.$1,taker:BEND2_BELOTE_DATA.$2,trump:BEND2_BELOTE_DATA.$3,valid:BEND2_BELOTE_DATA.$4,outcome:BEND2_BELOTE_DATA.$9,steps:list(BEND2_BELOTE_DATA.$10).map(step)};
+      if(!report.valid)throw new Error("Bend Belote self-check failed");
+      const full=report.steps[0].players.map(p=>p.hand), ranks=["7","8","9","J","Q","K","10","A"], suits=["♣","♦","♥","♠"], names=report.steps[0].players.map(p=>p.name);
+      let at=0,timer=0;
+      const card=(id,classes="")=>{const suit=suits[Math.floor(id/8)],red=suit==="♦"||suit==="♥",trump=Math.floor(id/8)===report.trump;return `<div class="card ${red?"red":""} ${trump?"trump-card":""} ${classes}"><span class="corner">${ranks[id%8]}<br>${suit}</span><span class="pip">${suit}</span></div>`;};
+      function render(){const s=report.steps[at];$("phase").textContent=s.phase;$("meta").textContent=`Embedded seed ${report.seed} · dealer ${names[report.dealer]} · step ${at+1}`;$("ns").textContent=`North-South ${s.ns}`;$("ew").textContent=`East-West ${s.ew}`;
+        $("players").innerHTML=s.players.map((p,i)=>{const remaining=new Set(p.hand);return `<article class="player ${p.seat===s.actor?"actor":""}"><strong>${p.name} · ${i%2?"East-West":"North-South"}</strong><div class="personality">${p.personality}</div><div class="hand">${full[i].map(id=>card(id,remaining.has(id)?"":"played")).join("")}</div></article>`;}).join("");
+        $("trick").innerHTML=s.table.length?s.table.map(p=>`<div class="played-card">${card(p.card)}<small>${names[p.seat]}</small></div>`).join(""):"<span>No cards on the current trick</span>";
+        const actor=s.actor<4?names[s.actor]:"Dealer";$("event").innerHTML=`<b>${actor}: ${s.action}${s.card<32?` · ${ranks[s.card%8]}${suits[Math.floor(s.card/8)]}`:""}</b><br>${s.note}`;$("counter").textContent=`${at+1} / ${report.steps.length}`;$("prev").disabled=at===0;$("next").disabled=at===report.steps.length-1;}
+      function stop(){clearInterval(timer);timer=0;$("play").textContent="▶ Play";}function play(){if(timer){stop();return;}$("play").textContent="Ⅱ Pause";timer=setInterval(()=>{if(at+1>=report.steps.length){stop();return;}at++;render();},Number($("speed").value));}
+      $("first").onclick=()=>{stop();at=0;render();};$("prev").onclick=()=>{stop();at=Math.max(0,at-1);render();};$("next").onclick=()=>{stop();at=Math.min(report.steps.length-1,at+1);render();};$("play").onclick=play;$("speed").onchange=()=>{if(timer){stop();play();}};render();globalThis.BEND2_BELOTE_VIEWER={report,render};
+    })();
+  </script>
+</body>
+</html>

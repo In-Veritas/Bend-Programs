@@ -8,7 +8,7 @@ for smooth rendering.
 Build and run it from the repository root:
 
 ```sh
-node bend-ts/src/main.ts gabriel_demos/slither_web/web_slither.bend --no-halt -o gabriel_demos/slither_web/web_slither
+bun bend-ts/src/bend.ts gabriel_demos/slither_web/web_slither.bend --no-halt -o gabriel_demos/slither_web/web_slither
 ./gabriel_demos/slither_web/web_slither
 ```
 

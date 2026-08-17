@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#5da8df">
+  <title>CubeWorld 2</title>
+  <style>
+    :root{--ink:#f7f2df;--panel:#152333e8;--edge:#7f94a7;--gold:#ffc857;--danger:#e8504f;--good:#5bd27d}
+    *{box-sizing:border-box}html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#79bce7;color:var(--ink);font-family:Inter,system-ui,sans-serif}
+    button{font:inherit;color:inherit}#view{position:fixed;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair}
+    .hud{position:fixed;inset:0;pointer-events:none}.panel{border:2px solid #ffffff2c;border-radius:10px;background:var(--panel);box-shadow:0 8px 30px #0006;backdrop-filter:blur(8px);pointer-events:auto}
+    .brand{position:absolute;left:14px;top:14px;padding:11px 14px}.brand h1{margin:0;font:1000 22px/1 ui-monospace,monospace;letter-spacing:-1.5px}.brand h1 span{color:var(--gold)}
+    .brand small{display:block;margin-top:5px;color:#b8c8d7}.connection{display:flex;align-items:center;gap:6px;margin-top:7px;color:#c8d7e4;font-size:11px}.dot{width:8px;height:8px;border-radius:50%;background:#f3ae4a}.online .dot{background:var(--good)}.offline .dot{background:var(--danger)}
+    .stats{position:absolute;right:14px;top:14px;width:220px;padding:12px}.health-line{display:flex;justify-content:space-between;font-size:12px;font-weight:900}.health{height:13px;margin:6px 0 10px;border:2px solid #080d12;background:#360f15}.health span{display:block;height:100%;background:linear-gradient(90deg,#d92f45,#ff6b4d);transition:width .2s}
+    .roster{color:#c7d4df;font-size:11px;line-height:1.6}.roster-row{display:flex;justify-content:space-between}.crosshair{position:absolute;left:50%;top:50%;width:26px;height:26px;transform:translate(-50%,-50%);filter:drop-shadow(0 1px 1px #000)}
+    .crosshair:before,.crosshair:after{content:"";position:absolute;background:#fff;transition:.12s}.crosshair:before{left:12px;top:2px;width:2px;height:22px}.crosshair:after{left:2px;top:12px;width:22px;height:2px}.crosshair.locked:before,.crosshair.locked:after{background:var(--gold)}
+    .target{position:absolute;left:50%;top:calc(50% + 27px);padding:5px 9px;border-radius:6px;background:#101923cc;font:800 11px ui-monospace,monospace;transform:translateX(-50%);white-space:nowrap}
+    .mouse-state{position:absolute;left:50%;top:14px;padding:8px 12px;border-radius:8px;background:#111d2bd9;color:#d8e5ef;font-size:11px;transform:translateX(-50%);transition:.18s}.mouse-state b{color:var(--gold)}
+    .mouse-state.captured{opacity:.22}.hotbar-wrap{position:absolute;left:50%;bottom:14px;width:min(870px,calc(100vw - 28px));transform:translateX(-50%);pointer-events:auto}
+    .hotbar{display:flex;gap:5px;padding:7px;overflow-x:auto;border:2px solid #ffffff2e;border-radius:10px;background:#172332e8;box-shadow:0 8px 28px #0007;scrollbar-width:none}.hotbar::-webkit-scrollbar{display:none}
+    .block{position:relative;flex:0 0 60px;height:60px;padding:4px;border:2px solid #ffffff30;border-radius:7px;background:#0d1722;cursor:pointer}.block:hover{background:#17283a}.block.selected{border-color:var(--gold);box-shadow:0 0 0 2px #ffc85755}
+    .swatch{display:block;width:29px;height:29px;margin:auto;border:2px solid #0007;background:linear-gradient(135deg,var(--top) 0 48%,var(--side) 49%);box-shadow:inset -7px -7px #0002}.block small{display:block;margin-top:4px;overflow:hidden;color:#d9e3ea;font-size:8px;white-space:nowrap;text-overflow:ellipsis}.key{position:absolute;left:3px;top:2px;color:#fff9;font:700 8px ui-monospace,monospace}
+    .actions{position:absolute;right:14px;bottom:94px;display:flex;gap:8px;pointer-events:auto}.actions button,.mobile button,.join-card button{padding:11px 15px;border:2px solid #ffffff35;border-radius:8px;background:#172332ed;box-shadow:0 5px 12px #0005;font-weight:900;cursor:pointer}.actions .attack{background:#8e2731}.actions .build{background:#315d38}.actions button:active,.mobile button:active{transform:translateY(2px)}
+    .hint{position:absolute;left:14px;bottom:96px;max-width:330px;padding:10px 12px;color:#c3d2de;font-size:10px;line-height:1.5}.hint b{color:#fff}
+    .mobile{display:none;position:absolute;inset:0;pointer-events:none}.move-pad{position:absolute;left:16px;bottom:103px;display:grid;grid-template:repeat(2,46px)/repeat(3,46px);gap:4px;pointer-events:auto}.move-pad .forward{grid-column:2}.move-pad .left{grid-column:1}.move-pad .back{grid-column:2}.move-pad .right{grid-column:3}
+    .look-pad{position:absolute;right:16px;bottom:158px;display:flex;gap:6px;pointer-events:auto}.look-pad button{padding:9px 11px}.join-layer{position:fixed;z-index:9;inset:0;display:grid;place-items:center;padding:20px;background:linear-gradient(#67afe0e8,#a5d57ce8);backdrop-filter:blur(7px)}
+    .join-card{width:min(560px,100%);padding:32px;border:3px solid #14202d;border-radius:15px;background:#172332f4;box-shadow:12px 14px 0 #0e192686;text-align:center}.join-card h1{margin:0;font:1000 48px/.9 ui-monospace,monospace;letter-spacing:-4px}.join-card h1 span{color:var(--gold)}.join-card p{color:#c9d8e5;line-height:1.58}.join-card button{width:100%;margin:10px 0;background:#315d38;font-size:17px}.join-card small{color:#91a6b7}
+    .toast{position:absolute;left:50%;top:70px;padding:9px 13px;border:2px solid #ffffff35;border-radius:8px;background:#172332ef;box-shadow:0 6px 18px #0007;opacity:0;transform:translate(-50%,-8px);transition:.15s}.toast.show{opacity:1;transform:translate(-50%,0)}
+    .damage{position:fixed;inset:0;pointer-events:none;background:#e92c3544;opacity:0;transition:opacity .2s}.damage.hit{opacity:1}.swing{position:absolute;right:18%;bottom:-60px;width:72px;height:190px;border:5px solid #251c17;border-radius:12px 12px 0 0;background:linear-gradient(90deg,#a87242,#d59a5d 55%,#80532d);transform:rotate(-24deg);transform-origin:bottom;opacity:.82}.swing.hit{animation:swing .24s ease-out}
+    .hidden{display:none!important}@keyframes swing{45%{transform:rotate(-64deg) translateY(-20px)}}
+    @media(max-width:760px),(pointer:coarse){
+      .hint,.mouse-state{display:none}.brand h1{font-size:17px}.stats{top:82px;width:158px}.hotbar-wrap{bottom:9px}.block{flex-basis:52px;height:54px}.swatch{width:24px;height:24px}
+      .actions{right:13px;bottom:105px}.actions .build{display:none}.mobile{display:block}.join-card h1{font-size:38px}.swing{right:9%;height:150px}
+    }
+  </style>
+</head>
+<body>
+  <canvas id="view" aria-label="CubeWorld 2 first-person view"></canvas>
+  <div class="hud">
+    <div class="panel brand"><h1>CUBEWORLD <span>2</span></h1><small>First-person Bend survival</small><div class="connection" id="connection"><i class="dot"></i><span>Connecting…</span></div></div>
+    <div class="panel stats"><div class="health-line"><span>HEALTH</span><span id="hpText">100 / 100</span></div><div class="health"><span id="hp"></span></div><div class="roster" id="roster">Waiting for the world…</div></div>
+    <div class="mouse-state" id="mouseState"><b>CLICK THE WORLD</b> to capture your mouse and aim</div>
+    <div class="crosshair" id="crosshair"></div><div class="target" id="target">Looking for terrain…</div>
+    <div class="panel hint"><b>WASD</b> hold to walk · <b>mouse</b> aim in every direction · <b>left click</b> attack/mine · <b>right click</b> place · <b>wheel / 1–0</b> choose blocks · <b>Esc</b> release mouse</div>
+    <div class="actions"><button class="attack" id="attack">⚔ ATTACK / MINE</button><button class="build" id="build">▣ PLACE BLOCK</button></div>
+    <div class="mobile"><div class="move-pad"><button class="forward" data-move="forward">▲</button><button class="left" data-move="left">◀</button><button class="back" data-move="back">▼</button><button class="right" data-move="right">▶</button></div><div class="look-pad"><button data-turn="-1">↶</button><button data-turn="1">↷</button><button id="mobileBuild">▣ BUILD</button></div></div>
+    <div class="hotbar-wrap"><div class="hotbar" id="hotbar"></div></div><div class="toast" id="toast"></div><div class="swing" id="swing"></div>
+  </div>
+  <div class="damage" id="damage"></div>
+  <div class="join-layer" id="joinLayer"><div class="join-card"><h1>CUBEWORLD <span>2</span></h1><p>Explore a large voxel frontier in true first person. Aim freely, mine and build with twelve materials, survive hostile raiders, or challenge another player.</p><button id="join" disabled>Connecting…</button><small>48×48 shared world · 4 players · server-authoritative combat · mouse + touch</small></div></div>
+
+  <script>
+  (() => {
+    'use strict';
+    const BASE=location.pathname.startsWith('/cubeworld2')?'/cubeworld2':'';
+    const MATERIALS={
+      1:{name:'Grass',top:'#6ca849',side:'#5d783d'},2:{name:'Dirt',top:'#966847',side:'#765038'},3:{name:'Stone',top:'#90959a',side:'#70757a'},
+      4:{name:'Oak',top:'#a67a45',side:'#7c5633'},5:{name:'Leaves',top:'#43864b',side:'#32693d'},6:{name:'Sand',top:'#dec77e',side:'#bea963'},
+      7:{name:'Water',top:'#438dce',side:'#3372ae'},8:{name:'Brick',top:'#b65c49',side:'#914438'},9:{name:'Coal',top:'#343940',side:'#24282d'},
+      10:{name:'Snow',top:'#eef7f9',side:'#cbdde3'},11:{name:'Obsidian',top:'#302845',side:'#201b31'},12:{name:'Gold',top:'#efc84a',side:'#bc9430'}
+    };
+    const PLAYER_COLORS=['','#54a8ff','#ff7c63','#8be06f','#d78cff'];
+    const canvas=document.getElementById('view'),ctx=canvas.getContext('2d'),joinLayer=document.getElementById('joinLayer'),joinButton=document.getElementById('join');
+    const toast=document.getElementById('toast'),targetLabel=document.getElementById('target'),crosshair=document.getElementById('crosshair'),mouseState=document.getElementById('mouseState');
+    const playerKey='bend3.cubeworld2.player';let playerId=Number(sessionStorage.getItem(playerKey));
+    if(!Number.isInteger(playerId)||playerId<=0||playerId>0xffffffff){playerId=crypto.getRandomValues(new Uint32Array(1))[0]||1;sessionStorage.setItem(playerKey,String(playerId))}
+    let state=null,actionBusy=false,polling=false,selected=1,yaw=0,pitch=0,width=innerWidth,height=innerHeight,focal=700,targetTile=null,targetEntity=null,targetFace=null,lastHp=100,toastTimer,pointerDown=null,lastAction=0;
+    const heldMoves=new Set(),hotbar=document.getElementById('hotbar');
+    for(let number=1;number<=12;number++){
+      const material=MATERIALS[number],button=document.createElement('button');button.className='block'+(number===1?' selected':'');button.dataset.block=number;button.title=`${number}. ${material.name}`;
+      button.innerHTML=`<span class="key">${number<10?number:number===10?'0':''}</span><span class="swatch" style="--top:${material.top};--side:${material.side}"></span><small>${material.name}</small>`;button.onclick=()=>selectBlock(number);hotbar.append(button);
+    }
+    function connection(kind,text){const element=document.getElementById('connection');element.className='connection '+kind;element.querySelector('span').textContent=text}
+    function message(text){if(!text)return;toast.textContent=text;toast.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove('show'),1800)}
+    function own(){return state?.players.find(player=>player.slot===state.you)}
+    function applyState(next){
+      const previous=own()?.hp??lastHp;state=next;connection('online','World synchronized');joinLayer.classList.toggle('hidden',next.you>0);joinButton.disabled=!!next.full;joinButton.textContent=next.full?'World full':'Join the world';
+      const me=own(),hp=me?.hp??100;document.getElementById('hp').style.width=hp+'%';document.getElementById('hpText').textContent=`${hp} / 100`;
+      if(hp<previous){const damage=document.getElementById('damage');damage.classList.add('hit');setTimeout(()=>damage.classList.remove('hit'),130)}lastHp=hp;
+      const players=next.players.filter(player=>player.joined);document.getElementById('roster').innerHTML=`<b>${players.length}/4 SURVIVORS</b>`+players.map(player=>`<div class="roster-row"><span style="color:${PLAYER_COLORS[player.slot]}">■ P${player.slot}${player.slot===next.you?' · YOU':''}</span><span>${player.hp} HP</span></div>`).join('')+`<div style="margin-top:4px;color:#ef9b85">◆ ${next.mobs.filter(mob=>mob.alive).length} raiders remain</div>`;
+      if(!next.ok)message(next.note);
+    }
+    async function request(path,silent=false){
+      const response=await fetch(BASE+path,{cache:'no-store'});if(!response.ok)throw new Error(`HTTP ${response.status}`);const data=await response.json();applyState(data);if(!silent&&!data.ok)message(data.note);return data;
+    }
+    async function act(path){
+      if(actionBusy)return null;actionBusy=true;
+      try{return await request(path)}catch(error){connection('offline','Reconnecting…');message('The world did not answer.')}finally{actionBusy=false}
+    }
+    async function join(){
+      joinButton.disabled=true;joinButton.textContent='Joining…';
+      try{await request(`/join/${playerId}`);message('Joined. Click the world to capture your mouse and aim.')}catch(error){connection('offline','Server unavailable');message('Could not join the world.')}
+      finally{joinButton.disabled=!!state?.full;joinButton.textContent=state?.full?'World full':'Join the world'}
+    }
+    async function leave(){if(state?.you)await act(`/leave/${playerId}`)}
+    function cardinal(offset){const quarter=((Math.round(yaw/(Math.PI/2))%4)+4)%4;return(quarter+offset)%4}
+    function move(kind){const offsets={forward:0,right:1,back:2,left:3};return act(`/move/${playerId}/${cardinal(offsets[kind])}`)}
+    function selectBlock(number){selected=Math.max(1,Math.min(12,number));document.querySelectorAll('.block').forEach(button=>button.classList.toggle('selected',Number(button.dataset.block)===selected));document.querySelector(`[data-block="${selected}"]`)?.scrollIntoView({block:'nearest',inline:'nearest'})}
+    function swing(){const hand=document.getElementById('swing');hand.classList.remove('hit');void hand.offsetWidth;hand.classList.add('hit')}
+    function attackOrMine(){
+      const now=performance.now();if(now-lastAction<230)return;lastAction=now;swing();
+      if(targetEntity?.reach)act(`/${targetEntity.type==='mob'?'attack-mob':'attack-player'}/${playerId}/${targetEntity.slot}`);
+      else if(targetTile)act(`/mine/${playerId}/${targetTile.x}/${targetTile.z}`);
+      else message('Put the crosshair on a nearby block or enemy.');
+    }
+    function place(){
+      const now=performance.now();if(now-lastAction<180)return;lastAction=now;swing();
+      if(targetTile)act(`/place/${playerId}/${targetTile.x}/${targetTile.z}/${selected}`);else message('Put the crosshair on a nearby block face.');
+    }
+    async function poll(){if(!polling&&!document.hidden){polling=true;try{await request(`/state/${playerId}`,true)}catch(error){connection('offline','Reconnecting…')}finally{polling=false}}setTimeout(poll,520)}
+    function resize(){const density=Math.min(devicePixelRatio||1,2);width=innerWidth;height=innerHeight;canvas.width=Math.round(width*density);canvas.height=Math.round(height*density);ctx.setTransform(density,0,0,density,0,0);focal=Math.min(width,height)*.93}
+    function cameraPoint(x,y,z,cam){
+      const dx=x-cam.x,dz=z-cam.z,vertical=y-cam.y,cosYaw=Math.cos(yaw),sinYaw=Math.sin(yaw),side=dx*cosYaw+dz*sinYaw,forward=dx*sinYaw-dz*cosYaw,cosPitch=Math.cos(pitch),sinPitch=Math.sin(pitch);
+      return{x:side,y:vertical*cosPitch+forward*sinPitch,d:forward*cosPitch-vertical*sinPitch};
+    }
+    function projected(point){if(point.d<.1)return null;return{x:width/2+point.x/point.d*focal,y:height/2-point.y/point.d*focal,d:point.d}}
+    function polygonContains(points,x,y){
+      let inside=false;for(let i=0,j=points.length-1;i<points.length;j=i++){const a=points[i],b=points[j],cross=(a.y>y)!==(b.y>y)&&x<(b.x-a.x)*(y-a.y)/(b.y-a.y)+a.x;if(cross)inside=!inside}return inside;
+    }
+    function face(vertices,color,cam,faces,target){
+      const projectedPoints=vertices.map(vertex=>{const camera=cameraPoint(vertex[0],vertex[1],vertex[2],cam);return{camera,screen:projected(camera)}});
+      if(projectedPoints.some(point=>!point.screen))return;const screen=projectedPoints.map(point=>point.screen),area=screen.reduce((sum,point,index)=>{const next=screen[(index+1)%screen.length];return sum+point.x*next.y-next.x*point.y},0);
+      if(area<=0)return;faces.push({points:screen,color,depth:projectedPoints.reduce((sum,point)=>sum+point.camera.d,0)/projectedPoints.length,target,aim:polygonContains(screen,width/2,height/2)});
+    }
+    function cubeFaces(x,y,z,kind,cam,faces,target){
+      const material=MATERIALS[kind]||MATERIALS[3],a=[x,y,z],b=[x+1,y,z],c=[x+1,y,z+1],d=[x,y,z+1],e=[x,y+1,z],f=[x+1,y+1,z],g=[x+1,y+1,z+1],h=[x,y+1,z+1];
+      face([e,f,g,h],material.top,cam,faces,target);face([a,e,f,b],shade(material.side,1.08),cam,faces,target);face([b,f,g,c],material.side,cam,faces,target);face([c,g,h,d],shade(material.side,.82),cam,faces,target);face([d,h,e,a],shade(material.side,.92),cam,faces,target);
+    }
+    function shade(hex,factor){const value=parseInt(hex.slice(1),16),red=Math.min(255,((value>>16)&255)*factor),green=Math.min(255,((value>>8)&255)*factor),blue=Math.min(255,(value&255)*factor);return`rgb(${red|0},${green|0},${blue|0})`}
+    function drawSky(){
+      const horizon=height/2+Math.tan(pitch)*focal,sky=ctx.createLinearGradient(0,0,0,height);sky.addColorStop(0,'#4b97d4');sky.addColorStop(Math.max(.15,Math.min(.75,horizon/height)),'#b9e2f5');sky.addColorStop(Math.max(.16,Math.min(.76,horizon/height+.01)),'#91bb70');sky.addColorStop(1,'#425638');ctx.fillStyle=sky;ctx.fillRect(0,0,width,height);
+      ctx.fillStyle='#fff0a3';ctx.beginPath();ctx.arc(width*.78,height*.17,30,0,Math.PI*2);ctx.fill();ctx.fillStyle='#ffffff9c';for(const cloud of [[.14,.16,1],[.52,.1,.7]]){ctx.beginPath();ctx.ellipse(width*cloud[0],height*cloud[1],55*cloud[2],16*cloud[2],0,0,Math.PI*2);ctx.fill()}
+    }
+    function billboard(entity,type,cam,draws){
+      const column=state.world[entity.z*state.size+entity.x],base=(column?.[0]||0)+.03,camera=cameraPoint(entity.x+.5,base,entity.z+.5,cam),screen=projected(camera);if(!screen||camera.d>state.renderDistance+2)return null;
+      const scale=Math.min(height*.7,focal/camera.d),entityWidth=scale*(type==='mob'?.72:.48),entityHeight=scale*(type==='mob'?1.08:1.45),bounds={left:screen.x-entityWidth*.6,right:screen.x+entityWidth*.6,top:screen.y-entityHeight*1.18,bottom:screen.y+entityWidth*.15};
+      draws.push({depth:camera.d,run(){
+        ctx.fillStyle='#0005';ctx.beginPath();ctx.ellipse(screen.x,screen.y,entityWidth*.48,entityWidth*.15,0,0,Math.PI*2);ctx.fill();
+        if(type==='mob'){ctx.fillStyle='#171d27';ctx.fillRect(screen.x-entityWidth/2,screen.y-entityHeight,entityWidth,entityHeight*.74);ctx.fillStyle='#293547';ctx.beginPath();ctx.arc(screen.x,screen.y-entityHeight*.78,entityWidth*.52,0,Math.PI*2);ctx.fill();ctx.fillStyle='#ffc857';ctx.beginPath();ctx.moveTo(screen.x-entityWidth*.08,screen.y-entityHeight*.76);ctx.lineTo(screen.x+entityWidth*.48,screen.y-entityHeight*.66);ctx.lineTo(screen.x-entityWidth*.06,screen.y-entityHeight*.59);ctx.fill();ctx.fillStyle='#ed4b55';ctx.fillRect(screen.x-entityWidth*.22,screen.y-entityHeight*.84,entityWidth*.1,entityWidth*.1)}
+        else{ctx.fillStyle=PLAYER_COLORS[entity.slot];ctx.fillRect(screen.x-entityWidth/2,screen.y-entityHeight,entityWidth,entityHeight*.72);ctx.fillStyle='#e7bc96';ctx.fillRect(screen.x-entityWidth*.42,screen.y-entityHeight*1.08,entityWidth*.84,entityHeight*.3)}
+        ctx.fillStyle='#141820';ctx.fillRect(screen.x-entityWidth/2,screen.y-entityHeight-10,entityWidth,5);ctx.fillStyle=type==='mob'?'#e8504f':'#55d879';ctx.fillRect(screen.x-entityWidth/2,screen.y-entityHeight-10,entityWidth*(entity.hp/(type==='mob'?60:100)),5);
+        ctx.fillStyle='#fff';ctx.textAlign='center';ctx.font='800 11px system-ui';ctx.fillText(type==='mob'?`RAIDER ${entity.slot}`:`PLAYER ${entity.slot}`,screen.x,screen.y-entityHeight-15);
+      }});
+      return{camera,bounds,aim:width/2>=bounds.left&&width/2<=bounds.right&&height/2>=bounds.top&&height/2<=bounds.bottom};
+    }
+    function render(){
+      drawSky();targetTile=null;targetEntity=null;targetFace=null;let aimDepth=Infinity;const me=own();
+      if(state&&me){
+        const ownColumn=state.world[me.z*state.size+me.x],cam={x:me.x+.5,z:me.z+.5,y:(ownColumn?.[0]||0)+1.65},faces=[],draws=[],distance=state.renderDistance;
+        for(let z=Math.max(0,me.z-distance);z<=Math.min(state.size-1,me.z+distance);z++)for(let x=Math.max(0,me.x-distance);x<=Math.min(state.size-1,me.x+distance);x++){
+          const groundDistance=Math.hypot(x+.5-cam.x,z+.5-cam.z);if(groundDistance>distance+.5)continue;const column=state.world[z*state.size+x],top=column[0],topKind=column[1],target={x,z,kind:topKind,reach:groundDistance<=3.25};
+          for(let y=Math.max(0,top-3);y<top;y++){const kind=y===top-1?topKind:(y>=top-2?2:3);cubeFaces(x,y,z,kind,cam,faces,target)}
+        }
+        faces.sort((a,b)=>b.depth-a.depth);
+        for(const item of faces){
+          ctx.beginPath();ctx.moveTo(item.points[0].x,item.points[0].y);for(let index=1;index<item.points.length;index++)ctx.lineTo(item.points[index].x,item.points[index].y);ctx.closePath();ctx.fillStyle=item.color;ctx.fill();ctx.strokeStyle='#0000003d';ctx.lineWidth=1;ctx.stroke();
+          if(item.aim&&item.target.reach&&item.depth<aimDepth){aimDepth=item.depth;targetTile=item.target;targetFace=item}
+        }
+        for(const mob of state.mobs)if(mob.alive){const mark=billboard(mob,'mob',cam,draws);if(mark?.aim&&mark.camera.d<aimDepth){aimDepth=mark.camera.d;targetEntity={type:'mob',slot:mob.slot,reach:Math.abs(mob.x-me.x)+Math.abs(mob.z-me.z)<=2}}}
+        for(const player of state.players)if(player.joined&&player.slot!==state.you){const mark=billboard(player,'player',cam,draws);if(mark?.aim&&mark.camera.d<aimDepth){aimDepth=mark.camera.d;targetEntity={type:'player',slot:player.slot,reach:Math.abs(player.x-me.x)+Math.abs(player.z-me.z)<=2}}}
+        draws.sort((a,b)=>b.depth-a.depth).forEach(item=>item.run());
+        if(targetFace&&!targetEntity){ctx.beginPath();ctx.moveTo(targetFace.points[0].x,targetFace.points[0].y);for(let index=1;index<targetFace.points.length;index++)ctx.lineTo(targetFace.points[index].x,targetFace.points[index].y);ctx.closePath();ctx.strokeStyle='#ffc857';ctx.lineWidth=3;ctx.stroke()}
+      }
+      crosshair.classList.toggle('locked',!!(targetEntity?.reach||targetTile));
+      if(targetEntity)targetLabel.textContent=`${targetEntity.reach?'IN RANGE · ':'TOO FAR · '}${targetEntity.type==='mob'?'Raider':'Player'} ${targetEntity.slot}`;
+      else if(targetTile)targetLabel.textContent=`${MATERIALS[targetTile.kind]?.name||'Air'} · ${targetTile.x}, ${targetTile.z}`;
+      else targetLabel.textContent=`Aim at a nearby face · ${MATERIALS[selected].name} selected`;
+      requestAnimationFrame(render);
+    }
+    const movementOrder=['forward','left','back','right'];setInterval(()=>{if(!actionBusy&&state?.you){const direction=movementOrder.find(kind=>heldMoves.has(kind));if(direction)move(direction)}},145);
+    const keyMoves={w:'forward',arrowup:'forward',a:'left',arrowleft:'left',s:'back',arrowdown:'back',d:'right',arrowright:'right'};
+    window.addEventListener('keydown',event=>{
+      const key=event.key.toLowerCase();if(keyMoves[key]){event.preventDefault();if(!heldMoves.has(keyMoves[key]))move(keyMoves[key]);heldMoves.add(keyMoves[key])}
+      else if(key==='q')yaw-=Math.PI/16;else if(key==='e')yaw+=Math.PI/16;else if(key==='f'||key===' '){event.preventDefault();attackOrMine()}else if(key==='r')place();else if(/^[1-9]$/.test(key))selectBlock(Number(key));else if(key==='0')selectBlock(10);
+    });
+    window.addEventListener('keyup',event=>{const moveKey=keyMoves[event.key.toLowerCase()];if(moveKey)heldMoves.delete(moveKey)});window.addEventListener('blur',()=>heldMoves.clear());
+    canvas.addEventListener('click',()=>{if(!matchMedia('(pointer:fine)').matches)return;if(document.pointerLockElement!==canvas){canvas.requestPointerLock?.();return}attackOrMine()});
+    canvas.addEventListener('contextmenu',event=>{event.preventDefault();place()});
+    document.addEventListener('pointerlockchange',()=>{const captured=document.pointerLockElement===canvas;mouseState.classList.toggle('captured',captured);mouseState.innerHTML=captured?'<b>MOUSE CAPTURED</b> · Esc releases it':'<b>CLICK THE WORLD</b> to capture your mouse and aim'});
+    document.addEventListener('mousemove',event=>{if(document.pointerLockElement===canvas){yaw+=event.movementX*.0026;pitch=Math.max(-1.05,Math.min(1.05,pitch-event.movementY*.0024))}});
+    canvas.addEventListener('pointerdown',event=>{if(event.pointerType==='touch')pointerDown={x:event.clientX,y:event.clientY,yaw,pitch,moved:false}});
+    canvas.addEventListener('pointermove',event=>{if(pointerDown&&event.pointerType==='touch'){const dx=event.clientX-pointerDown.x,dy=event.clientY-pointerDown.y;if(Math.hypot(dx,dy)>7)pointerDown.moved=true;yaw=pointerDown.yaw+dx*.008;pitch=Math.max(-1.05,Math.min(1.05,pointerDown.pitch-dy*.006))}});
+    canvas.addEventListener('pointerup',event=>{if(pointerDown&&event.pointerType==='touch'&&!pointerDown.moved)attackOrMine();pointerDown=null});
+    canvas.addEventListener('wheel',event=>{event.preventDefault();selectBlock(((selected-1+(event.deltaY>0?1:-1)+12)%12)+1)},{passive:false});
+    document.querySelectorAll('[data-move]').forEach(button=>{button.onpointerdown=()=>{heldMoves.add(button.dataset.move);move(button.dataset.move)};button.onpointerup=button.onpointercancel=()=>heldMoves.delete(button.dataset.move)});
+    document.querySelectorAll('[data-turn]').forEach(button=>button.onclick=()=>yaw+=Number(button.dataset.turn)*Math.PI/12);
+    joinButton.onclick=join;document.getElementById('attack').onclick=attackOrMine;document.getElementById('build').onclick=place;document.getElementById('mobileBuild').onclick=place;
+    window.addEventListener('resize',resize);window.addEventListener('pagehide',()=>{if(state?.you)fetch(BASE+`/leave/${playerId}`,{cache:'no-store',keepalive:true}).catch(()=>{})});
+    resize();requestAnimationFrame(render);poll();
+  })();
+  </script>
+  <script>function publishSocialPresence(){const token=localStorage.bendToken;if(token)fetch('/api/presence',{method:'POST',body:token+'\nCubeWorld 2',cache:'no-store'}).catch(()=>{})}publishSocialPresence();setInterval(publishSocialPresence,5000);</script>
+</body>
+</html>

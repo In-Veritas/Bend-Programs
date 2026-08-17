@@ -1,7 +1,7 @@
 # bar_bench_web — the bar-bending bench as a webapp
 
 ```
-node bend-ts/src/main.ts gabriel_demos/bar_bench_web/web_bar.bend --no-halt -o gabriel_demos/bar_bench_web/web_bar
+bun bend-ts/src/bend.ts gabriel_demos/bar_bench_web/web_bar.bend --no-halt -o gabriel_demos/bar_bench_web/web_bar
 ./gabriel_demos/bar_bench_web/web_bar     # run from the repo root
 # on this machine: http://localhost:8080
 # on the LAN:      http://<server-lan-ip>:8080

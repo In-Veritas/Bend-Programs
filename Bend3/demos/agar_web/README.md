@@ -7,7 +7,7 @@ and four browser sessions.
 Build and run it from the repository root:
 
 ```sh
-node bend-ts/src/main.ts gabriel_demos/agar_web/web_agar.bend --no-halt -o gabriel_demos/agar_web/web_agar
+bun bend-ts/src/bend.ts gabriel_demos/agar_web/web_agar.bend --no-halt -o gabriel_demos/agar_web/web_agar
 ./gabriel_demos/agar_web/web_agar
 ```
 

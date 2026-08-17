@@ -3,24 +3,29 @@
 # comparison is a computed match: `n <= h` becomes a 0/nonzero switch, and the
 # halt checker certifies the recursion right through it (t shrinks each step).
 #
-# $ bend insertion_sort.bend
+# $ bun bend-ts/src/bend.ts insertion_sort.bend --eval
 
-List(t: Data) : Data {
-  Cons{head: t, tail: List(t)}
-  Nil{}
-}
+import ../bend-base/Base
 
-insert : U32 -> List(U32) -> List(U32)
-| n Nil{}      = Cons{n, Nil{}}
-| n Cons{h, t} = ! +nn +hh = &n &h;
-  match *nn <= *hh:
-    case 0:
-      Cons{*hh, insert(*nn, t)}
-    case k:
-      Cons{*nn, Cons{*hh, t}}
+def insert(n: U32, l: List(U32)) -> List(U32):
+  match l:
+    case List.Nil{}:
+      List.Cons{n, List.Nil{}}
+    case List.Cons{h, t}:
+      nn = n
+      hh = h
+      match (nn <= hh):
+        case 0:
+          List.Cons{hh, insert(nn, t)}
+        case k:
+          List.Cons{nn, List.Cons{hh, t}}
 
-isort : List(U32) -> List(U32)
-| Nil{}      = Nil{}
-| Cons{h, t} = insert(h, isort(t))
+def isort(l: List(U32)) -> List(U32):
+  match l:
+    case List.Nil{}:
+      List.Nil{}
+    case List.Cons{h, t}:
+      insert(h, isort(t))
 
-main : List(U32) = isort([4, 2, 7, 1, 9, 3, 8, 5, 6])
+def main() -> List(U32):
+  isort([4, 2, 7, 1, 9, 3, 8, 5, 6])

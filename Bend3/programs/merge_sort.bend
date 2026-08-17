@@ -6,47 +6,59 @@
 # carry takes the shrinking Runs argument FIRST: halt compares call arguments
 # lexicographically left to right.
 #
-# $ bend merge_sort.bend
+# $ bun bend-ts/src/bend.ts merge_sort.bend --eval
 
-List(t: Data) : Data {
-  Cons{head: t, tail: List(t)}
-  Nil{}
-}
+import ../bend-base/Base
 
-Runs : Data {
+type Runs:
   Rnil{}
   Rcons{run: List(U32), rest: Runs}
-}
 
 # the classic merge: keeps whichever head is smaller, recurses on the rest
-merge : List(U32) -> List(U32) -> List(U32)
-| Nil{}        ys           = ys
-| Cons{x, xt}  Nil{}        = Cons{x, xt}
-| Cons{x, xt}  Cons{y, yt}  = ! +xx +yy = &x &y;
-  match *xx <= *yy:
-    case 0:
-      Cons{*yy, merge(Cons{*xx, xt}, yt)}
-    case k:
-      Cons{*xx, merge(xt, Cons{*yy, yt})}
+def merge(xs: List(U32), ys: List(U32)) -> List(U32):
+  match xs, ys:
+    case List.Nil{}, ys:
+      ys
+    case List.Cons{x, xt}, List.Nil{}:
+      List.Cons{x, xt}
+    case List.Cons{x, xt}, List.Cons{y, yt}:
+      xx = x
+      yy = y
+      match xx <= yy:
+        case 0:
+          List.Cons{yy, merge(List.Cons{xx, xt}, yt)}
+        case k:
+          List.Cons{xx, merge(xt, List.Cons{yy, yt})}
 
 # increment: drop the run into the first vacant digit, merging on carry
 # (a vacant digit is Nil{} -- a run is never empty, so there is no clash)
-carry : Runs -> List(U32) -> Runs
-| Rnil{}                  r = Rcons{r, Rnil{}}
-| Rcons{Nil{}, rest}      r = Rcons{r, rest}
-| Rcons{Cons{h, t}, rest} r = Rcons{Nil{}, carry(rest, merge(Cons{h, t}, r))}
+def carry(rs: Runs, r: List(U32)) -> Runs:
+  match rs:
+    case Runs.Rnil{}:
+      Runs.Rcons{r, Runs.Rnil{}}
+    case Runs.Rcons{List.Nil{}, rest}:
+      Runs.Rcons{r, rest}
+    case Runs.Rcons{List.Cons{h, t}, rest}:
+      Runs.Rcons{List.Nil{}, carry(rest, merge(List.Cons{h, t}, r))}
 
 # count every element into the register, one singleton run at a time
-to_runs : List(U32) -> Runs
-| Nil{}      = Rnil{}
-| Cons{x, t} = carry(to_runs(t), Cons{x, Nil{}})
+def to_runs(xs: List(U32)) -> Runs:
+  match xs:
+    case List.Nil{}:
+      Runs.Rnil{}
+    case List.Cons{x, t}:
+      carry(to_runs(t), List.Cons{x, List.Nil{}})
 
 # cash out: fold the surviving digits into one sorted list
-collapse : Runs -> List(U32)
-| Rnil{}           = Nil{}
-| Rcons{run, rest} = merge(run, collapse(rest))
+def collapse(rs: Runs) -> List(U32):
+  match rs:
+    case Runs.Rnil{}:
+      List.Nil{}
+    case Runs.Rcons{run, rest}:
+      merge(run, collapse(rest))
 
-msort : List(U32) -> List(U32)
-= λxs. collapse(to_runs(xs))
+def msort(xs: List(U32)) -> List(U32):
+  collapse(to_runs(xs))
 
-main : List(U32) = msort([5, 3, 8, 1, 9, 2, 7, 6, 4])
+def main() -> List(U32):
+  msort([5, 3, 8, 1, 9, 2, 7, 6, 4])

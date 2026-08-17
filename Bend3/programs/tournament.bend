@@ -1,34 +1,41 @@
 # tournament maximum: seed a single-elimination bracket of 2^d players with
 # scrambled numbers, then crown the champion. Every Match resolves its two
-# halves with a fork/join let (! a b = f g;), so the whole bracket plays out
+# halves with a fork/join let (a, b = f, g), so the whole bracket plays out
 # in parallel on the compiled runtime -- finding a maximum in log(n) rounds.
 # winner is branchless: the two comparison bits pick exactly one operand.
 #
 # $ bend tournament.bend
 
-Bracket : Data {
+type Bracket:
   Player{seed: U32}
   Match{lft: Bracket, rgt: Bracket}
-}
 
 # a little LCG scramble so the bracket looks like a real draw
-scramble : U32 -> U32
-= λs. ! +ss = &(* s 1664525); (^ (+ *ss 1013904223) (>> *ss 7))
+def scramble(s: U32) -> U32:
+  ss = s * 1664525
+  (ss + 1013904223) .^. (ss >> 7)
 
-seed : U32 -> U32 -> Bracket
-| 0 s = Player{(% s 1000)}
-| d s = ! +dd +ss = &d &s;
-  ! l r = seed((- *dd 1), scramble((* *ss 2))) seed((- *dd 1), scramble((+ (* *ss 2) 1)));
-  Match{l, r}
+def seed(d: U32, s: U32) -> Bracket:
+  match d:
+    case 0:
+      Bracket.Player{s % 1000}
+    case 1+d:
+      l & r = seed(d, scramble(s * 2)) & seed(d, scramble((s * 2) + 1))
+      Bracket.Match{l, r}
 
-winner : U32 -> U32 -> U32
-| a b = ! +aa +bb = &a &b;
-  (+ (* (>= *aa *bb) *aa) (* (< *aa *bb) *bb))
+def winner(a: U32, b: U32) -> U32:
+  ((a >= b) * a) +
+  ((a < b) * b)
 
-champion : Bracket -> U32
-| Player{s}   = s
-| Match{l, r} = ! a b = champion(l) champion(r); winner(a, b)
+def champion(t: Bracket) -> U32:
+  match t:
+    case Bracket.Player{s}:
+      s
+    case Bracket.Match{l, r}:
+      a & b = champion(l) & champion(r)
+      winner(a, b)
 
 # 64 scrambled players enter, one number leaves
 # (the interpreter is fine up to here; compiled, crank d way up)
-main : U32 = champion(seed(6, 42))
+def main() -> U32:
+  champion(seed(6, 42))
