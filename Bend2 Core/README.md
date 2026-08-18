@@ -39,3 +39,15 @@ The CHIP-8 emulator interprets a hexadecimal ROM string imported from its own
 `rom.bend`, and its Core-generated C compiles to a native executable. See its
 [README](programs/chip8/README.md) for the temporary no-IO input bridge and the
 explicit removal note for when Core gains an effect runtime.
+
+The Poker observer in `demos/poker/` also exercises Core's dependent proof
+surface. It carries hand-written existential witnesses for outcome sensitivity
+and seat reachability plus exhaustive finite equality proofs for its published
+odds rows. The generated viewer exposes a proof audit while the JS backend
+erases the proof payloads.
+
+`demos/bend_a_beet/` is a 3D seeded farm simulation built from separate
+physics, graphics, and ray-tracing Core libraries. Its generated 1,086-frame
+report covers five seconds of growth, simultaneous uprooting, and individual
+break, spring, or recovery responses. The libraries carry 28 erased, explicit
+Core theorems; see its README for their exact scope and the browser boundary.

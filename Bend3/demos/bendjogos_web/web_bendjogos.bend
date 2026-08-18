@@ -223,6 +223,21 @@ def core_belote_data(platform: Platform) -> IO(Outcome):
     response <- script_file("gabriel_demos/bendjogos_web/core/belote_data.js")
     return Outcome.Outcome{platform, response}
 
+def core_bend_a_beet(platform: Platform) -> IO(Outcome):
+  do IO(Outcome):
+    response <- page("gabriel_demos/bendjogos_web/core/bend-a-beet.html")
+    return Outcome.Outcome{platform, response}
+
+def core_bend_a_beet_data(platform: Platform) -> IO(Outcome):
+  do IO(Outcome):
+    response <- script_file("gabriel_demos/bendjogos_web/core/bend_a_beet_data.js")
+    return Outcome.Outcome{platform, response}
+
+def core_bend_a_beet_camera(platform: Platform) -> IO(Outcome):
+  do IO(Outcome):
+    response <- script_file("gabriel_demos/bendjogos_web/core/bend_a_beet_camera.js")
+    return Outcome.Outcome{platform, response}
+
 def core_route(args: List(String), platform: Platform) -> IO(Outcome):
   match args:
     case List.Nil{}: core_index(platform)
@@ -233,6 +248,10 @@ def core_route(args: List(String), platform: Platform) -> IO(Outcome):
     case List.Cons{"belote", List.Nil{}}: core_belote(platform)
     case List.Cons{"belote", List.Cons{"", List.Nil{}}}: core_belote(platform)
     case List.Cons{"belote_data.js", List.Nil{}}: core_belote_data(platform)
+    case List.Cons{"bend-a-beet", List.Nil{}}: core_bend_a_beet(platform)
+    case List.Cons{"bend-a-beet", List.Cons{"", List.Nil{}}}: core_bend_a_beet(platform)
+    case List.Cons{"bend_a_beet_data.js", List.Nil{}}: core_bend_a_beet_data(platform)
+    case List.Cons{"bend_a_beet_camera.js", List.Nil{}}: core_bend_a_beet_camera(platform)
     case other: IO.pure(Outcome, Outcome.Outcome{platform, HTTP.not_found()})
 
 def static_route(name: String, args: List(String), request: HTTP.Request, platform: Platform, now: U32) -> IO(Outcome):

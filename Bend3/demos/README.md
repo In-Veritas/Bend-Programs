@@ -79,10 +79,24 @@ to the selected binary/port.
   three Bend-controlled seats. Bend owns the deal, bidding, legal-play rules,
   tricks, scoring, and match state. Standalone on
   `http://<server-lan-ip>:8091`, or through the one-port hub at `/belote`.
+- **[farmhands_web/](farmhands_web/)** — a persistent LAN farming game with
+  accounts, a 2×6 plot grid, short test crops, visits, harvesting and bounded
+  25% crop theft. Bend3 owns the rules, clock, CSV persistence and sessions;
+  the pure rules include 12 checked proofs. Standalone on
+  `http://<server-lan-ip>:8093`.
 - **[bendjogos_web/](bendjogos_web/)** — the BendJogos.com.br hub. One native
   Bend process serves every browser demo and all shared multiplayer state on
   `http://<server-lan-ip>:8090`; a fixed runtime switch opens the Bend2 Core
-  Poker and Belote observers on that same origin.
+  Poker, Belote and high-quality 3D Bend-a-Beet observers on that same origin.
+
+## 2026-08-18 additions
+
+Farmhands was checked with the sibling worktree's current
+`bun bend-ts/src/main.ts` entry, built natively, and exercised through an HTTP
+test that includes a process restart and CSV reload. Bend-a-Beet now exposes 33
+Core-checked library theorems and a true depth-tested WebGL renderer with
+high-poly procedural beets, seeded shine, absorption, camera-dependent
+specular light, sun shafts and reprojected world-space shadows.
 
 ## Current verification
 

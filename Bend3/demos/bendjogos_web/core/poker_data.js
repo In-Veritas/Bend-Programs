@@ -1279,6 +1279,28 @@ const $String$append = (a$0) => (b$0) => string_append(a$0, b$0);
 
 const $Array$swap = (a$0) => (i$0) => (v$0) => array_swap(a$0, i$0, v$0);
 
+const $$SeatAda = {$: "SeatAda"};
+const $$SeatBeak = {$: "SeatBeak"};
+const $$SeatCora = {$: "SeatCora"};
+const $$SeatRook = {$: "SeatRook"};
+const $$DryRunout = {$: "DryRunout"};
+const $$WetRunout = {$: "WetRunout"};
+const $$PairedRunout = {$: "PairedRunout"};
+const $$BroadwayRunout = {$: "BroadwayRunout"};
+const $$CallingStation = {$: "CallingStation"};
+const $$ValueDiscipline = {$: "ValueDiscipline"};
+const $$TexasDeal = {$: "TexasDeal"};
+const $$TexasFlop = {$: "TexasFlop"};
+const $$TexasTurn = {$: "TexasTurn"};
+const $$TexasAfterFold = {$: "TexasAfterFold"};
+const $$TexasShowdown = {$: "TexasShowdown"};
+const $$OmahaDeal = {$: "OmahaDeal"};
+const $$OmahaFlop = {$: "OmahaFlop"};
+const $$OmahaFoldedFlop = {$: "OmahaFoldedFlop"};
+const $$OmahaTurn = {$: "OmahaTurn"};
+const $$OmahaRiverPressure = {$: "OmahaRiverPressure"};
+const $$OmahaAfterFold = {$: "OmahaAfterFold"};
+const $$OmahaShowdown = {$: "OmahaShowdown"};
 function $u32_pair$(value$0) {
   const $t$0 = u32_copy(value$0);
   const $t$1 = $t$0.$0;
@@ -1659,13 +1681,13 @@ function $omaha_odds$(stage$0, seat$0) {
         } else {
           const $t$6 = (seat$0 - 1n);
           if ($t$6 === 0n) {
-            return {$: "Odds", $0: $u32$(31n), $1: $u32$(0n), $2: $u32$(78n), $3: $u32$(14n), $4: $u32$(4n), $5: $u32$(1n), $6: $u32$(1n), $7: $u32$(1n), $8: $u32$(0n)};
+            return {$: "Odds", $0: $u32$(31n), $1: $u32$(0n), $2: $u32$(79n), $3: $u32$(14n), $4: $u32$(4n), $5: $u32$(1n), $6: $u32$(1n), $7: $u32$(1n), $8: $u32$(0n)};
           } else {
             const $t$7 = ($t$6 - 1n);
             if ($t$7 === 0n) {
-              return {$: "Odds", $0: $u32$(19n), $1: $u32$(0n), $2: $u32$(71n), $3: $u32$(17n), $4: $u32$(5n), $5: $u32$(3n), $6: $u32$(2n), $7: $u32$(2n), $8: $u32$(0n)};
+              return {$: "Odds", $0: $u32$(0n), $1: $u32$(0n), $2: $u32$(71n), $3: $u32$(17n), $4: $u32$(5n), $5: $u32$(3n), $6: $u32$(2n), $7: $u32$(2n), $8: $u32$(0n)};
             } else {
-              return {$: "Odds", $0: $u32$(26n), $1: $u32$(0n), $2: $u32$(73n), $3: $u32$(16n), $4: $u32$(4n), $5: $u32$(3n), $6: $u32$(2n), $7: $u32$(2n), $8: $u32$(0n)};
+              return {$: "Odds", $0: $u32$(45n), $1: $u32$(0n), $2: $u32$(73n), $3: $u32$(16n), $4: $u32$(4n), $5: $u32$(3n), $6: $u32$(2n), $7: $u32$(2n), $8: $u32$(0n)};
             }
           }
         }
@@ -1713,13 +1735,13 @@ function $omaha_odds$(stage$0, seat$0) {
               } else {
                 const $t$15 = (seat$0 - 1n);
                 if ($t$15 === 0n) {
-                  return {$: "Odds", $0: $u32$(35n), $1: $u32$(0n), $2: $u32$(100n), $3: $u32$(0n), $4: $u32$(0n), $5: $u32$(0n), $6: $u32$(0n), $7: $u32$(0n), $8: $u32$(0n)};
+                  return {$: "Odds", $0: $u32$(0n), $1: $u32$(0n), $2: $u32$(100n), $3: $u32$(0n), $4: $u32$(0n), $5: $u32$(0n), $6: $u32$(0n), $7: $u32$(0n), $8: $u32$(0n)};
                 } else {
                   const $t$16 = ($t$15 - 1n);
                   if ($t$16 === 0n) {
                     return {$: "Odds", $0: $u32$(0n), $1: $u32$(0n), $2: $u32$(100n), $3: $u32$(0n), $4: $u32$(0n), $5: $u32$(0n), $6: $u32$(0n), $7: $u32$(0n), $8: $u32$(0n)};
                   } else {
-                    return {$: "Odds", $0: $u32$(65n), $1: $u32$(0n), $2: $u32$(0n), $3: $u32$(100n), $4: $u32$(0n), $5: $u32$(0n), $6: $u32$(0n), $7: $u32$(0n), $8: $u32$(0n)};
+                    return {$: "Odds", $0: $u32$(100n), $1: $u32$(0n), $2: $u32$(0n), $3: $u32$(100n), $4: $u32$(0n), $5: $u32$(0n), $6: $u32$(0n), $7: $u32$(0n), $8: $u32$(0n)};
                   }
                 }
               }
@@ -1747,6 +1769,463 @@ function $omaha_odds$(stage$0, seat$0) {
   }
 }
 const $omaha_odds = (stage$0) => (seat$0) => $omaha_odds$(stage$0, seat$0);
+
+function $proof_winner$(runout$0, strategy$0) {
+  if (runout$0.$ === "DryRunout") {
+    if (strategy$0.$ === "CallingStation") {
+      return $$SeatAda;
+    } else {
+      return $$SeatRook;
+    }
+  } else if (runout$0.$ === "WetRunout") {
+    return $$SeatRook;
+  } else if (runout$0.$ === "PairedRunout") {
+    return $$SeatBeak;
+  } else {
+    return $$SeatCora;
+  }
+}
+const $proof_winner = (runout$0) => (strategy$0) => $proof_winner$(runout$0, strategy$0);
+
+function $AdaOnly$(seat$0) {
+  if (seat$0.$ === "SeatAda") {
+    return null;
+  } else if (seat$0.$ === "SeatBeak") {
+    return null;
+  } else if (seat$0.$ === "SeatCora") {
+    return null;
+  } else {
+    return null;
+  }
+}
+const $AdaOnly = (seat$0) => $AdaOnly$(seat$0);
+
+function $SeatNotEqual$() {
+  return null;
+}
+
+function $ada_not_rook$(equal$0) {
+  return $$Unit;
+}
+const $ada_not_rook = (equal$0) => $ada_not_rook$(equal$0);
+
+function $RandomnessChangesWinner$() {
+  return null;
+}
+
+function $randomness_changes_winner$() {
+  return {$: "Tuple", $0: $$DryRunout, $1: {$: "Tuple", $0: $$WetRunout, $1: {$: "Tuple", $0: $$CallingStation, $1: $ada_not_rook}}};
+}
+
+function $SkillChangesWinner$() {
+  return null;
+}
+
+function $skill_changes_winner$() {
+  return {$: "Tuple", $0: $$DryRunout, $1: {$: "Tuple", $0: $$CallingStation, $1: {$: "Tuple", $0: $$ValueDiscipline, $1: $ada_not_rook}}};
+}
+
+function $FairModel$() {
+  return $Pair$();
+}
+
+function $fair_model$() {
+  return {$: "Tuple", $0: $randomness_changes_winner$(), $1: $skill_changes_winner$()};
+}
+
+function $SeatReachable$() {
+  return null;
+}
+
+function $ada_reachable$() {
+  return {$: "Tuple", $0: $$DryRunout, $1: {$: "Tuple", $0: $$CallingStation, $1: null}};
+}
+
+function $beak_reachable$() {
+  return {$: "Tuple", $0: $$PairedRunout, $1: {$: "Tuple", $0: $$CallingStation, $1: null}};
+}
+
+function $cora_reachable$() {
+  return {$: "Tuple", $0: $$BroadwayRunout, $1: {$: "Tuple", $0: $$CallingStation, $1: null}};
+}
+
+function $rook_reachable$() {
+  return {$: "Tuple", $0: $$DryRunout, $1: {$: "Tuple", $0: $$ValueDiscipline, $1: null}};
+}
+
+function $NotRigged$() {
+  return $Pair$();
+}
+
+function $not_rigged$() {
+  return {$: "Tuple", $0: $ada_reachable$(), $1: {$: "Tuple", $0: $beak_reachable$(), $1: {$: "Tuple", $0: $cora_reachable$(), $1: $rook_reachable$()}}};
+}
+
+function $proof_seat_code$(seat$0) {
+  if (seat$0.$ === "SeatAda") {
+    return 0n;
+  } else if (seat$0.$ === "SeatBeak") {
+    return 1n;
+  } else if (seat$0.$ === "SeatCora") {
+    return 2n;
+  } else {
+    return 3n;
+  }
+}
+const $proof_seat_code = (seat$0) => $proof_seat_code$(seat$0);
+
+function $texas_stage_code$(stage$0) {
+  if (stage$0.$ === "TexasDeal") {
+    return 0n;
+  } else if (stage$0.$ === "TexasFlop") {
+    return 1n;
+  } else if (stage$0.$ === "TexasTurn") {
+    return 2n;
+  } else if (stage$0.$ === "TexasAfterFold") {
+    return 4n;
+  } else {
+    return 3n;
+  }
+}
+const $texas_stage_code = (stage$0) => $texas_stage_code$(stage$0);
+
+function $omaha_stage_code$(stage$0) {
+  if (stage$0.$ === "OmahaDeal") {
+    return 0n;
+  } else if (stage$0.$ === "OmahaFlop") {
+    return 1n;
+  } else if (stage$0.$ === "OmahaFoldedFlop") {
+    return 4n;
+  } else if (stage$0.$ === "OmahaTurn") {
+    return 2n;
+  } else if (stage$0.$ === "OmahaRiverPressure") {
+    return 5n;
+  } else if (stage$0.$ === "OmahaAfterFold") {
+    return 3n;
+  } else {
+    return 6n;
+  }
+}
+const $omaha_stage_code = (stage$0) => $omaha_stage_code$(stage$0);
+
+function $odds_win$(odds$0) {
+  const win$0 = odds$0.$0;
+  const high$0 = odds$0.$1;
+  const pair$0 = odds$0.$2;
+  const two_pair$0 = odds$0.$3;
+  const trips$0 = odds$0.$4;
+  const straight$0 = odds$0.$5;
+  const flush$0 = odds$0.$6;
+  const full_house$0 = odds$0.$7;
+  const quads$0 = odds$0.$8;
+  return win$0;
+}
+const $odds_win = (odds$0) => $odds_win$(odds$0);
+
+function $odds_category_total$(odds$0) {
+  const win$0 = odds$0.$0;
+  const high$0 = odds$0.$1;
+  const pair$0 = odds$0.$2;
+  const two_pair$0 = odds$0.$3;
+  const trips$0 = odds$0.$4;
+  const straight$0 = odds$0.$5;
+  const flush$0 = odds$0.$6;
+  const full_house$0 = odds$0.$7;
+  const quads$0 = odds$0.$8;
+  return u32_add(high$0, u32_add(pair$0, u32_add(two_pair$0, u32_add(trips$0, u32_add(straight$0, u32_add(flush$0, u32_add(full_house$0, quads$0)))))));
+}
+const $odds_category_total = (odds$0) => $odds_category_total$(odds$0);
+
+function $texas_deal_categories$(seat$0) {
+  if (seat$0.$ === "SeatAda") {
+    return null;
+  } else if (seat$0.$ === "SeatBeak") {
+    return null;
+  } else if (seat$0.$ === "SeatCora") {
+    return null;
+  } else {
+    return null;
+  }
+}
+const $texas_deal_categories = (seat$0) => $texas_deal_categories$(seat$0);
+
+function $texas_flop_categories$(seat$0) {
+  if (seat$0.$ === "SeatAda") {
+    return null;
+  } else if (seat$0.$ === "SeatBeak") {
+    return null;
+  } else if (seat$0.$ === "SeatCora") {
+    return null;
+  } else {
+    return null;
+  }
+}
+const $texas_flop_categories = (seat$0) => $texas_flop_categories$(seat$0);
+
+function $texas_turn_categories$(seat$0) {
+  if (seat$0.$ === "SeatAda") {
+    return null;
+  } else if (seat$0.$ === "SeatBeak") {
+    return null;
+  } else if (seat$0.$ === "SeatCora") {
+    return null;
+  } else {
+    return null;
+  }
+}
+const $texas_turn_categories = (seat$0) => $texas_turn_categories$(seat$0);
+
+function $texas_fold_categories$(seat$0) {
+  if (seat$0.$ === "SeatAda") {
+    return null;
+  } else if (seat$0.$ === "SeatBeak") {
+    return null;
+  } else if (seat$0.$ === "SeatCora") {
+    return null;
+  } else {
+    return null;
+  }
+}
+const $texas_fold_categories = (seat$0) => $texas_fold_categories$(seat$0);
+
+function $texas_showdown_categories$(seat$0) {
+  if (seat$0.$ === "SeatAda") {
+    return null;
+  } else if (seat$0.$ === "SeatBeak") {
+    return null;
+  } else if (seat$0.$ === "SeatCora") {
+    return null;
+  } else {
+    return null;
+  }
+}
+const $texas_showdown_categories = (seat$0) => $texas_showdown_categories$(seat$0);
+
+function $texas_categories_normalized$(stage$0, seat$0) {
+  if (stage$0.$ === "TexasDeal") {
+    return $texas_deal_categories$(seat$0);
+  } else if (stage$0.$ === "TexasFlop") {
+    return $texas_flop_categories$(seat$0);
+  } else if (stage$0.$ === "TexasTurn") {
+    return $texas_turn_categories$(seat$0);
+  } else if (stage$0.$ === "TexasAfterFold") {
+    return $texas_fold_categories$(seat$0);
+  } else {
+    return $texas_showdown_categories$(seat$0);
+  }
+}
+const $texas_categories_normalized = (stage$0) => (seat$0) => $texas_categories_normalized$(stage$0, seat$0);
+
+function $omaha_deal_categories$(seat$0) {
+  if (seat$0.$ === "SeatAda") {
+    return null;
+  } else if (seat$0.$ === "SeatBeak") {
+    return null;
+  } else if (seat$0.$ === "SeatCora") {
+    return null;
+  } else {
+    return null;
+  }
+}
+const $omaha_deal_categories = (seat$0) => $omaha_deal_categories$(seat$0);
+
+function $omaha_flop_categories$(seat$0) {
+  if (seat$0.$ === "SeatAda") {
+    return null;
+  } else if (seat$0.$ === "SeatBeak") {
+    return null;
+  } else if (seat$0.$ === "SeatCora") {
+    return null;
+  } else {
+    return null;
+  }
+}
+const $omaha_flop_categories = (seat$0) => $omaha_flop_categories$(seat$0);
+
+function $omaha_folded_flop_categories$(seat$0) {
+  if (seat$0.$ === "SeatAda") {
+    return null;
+  } else if (seat$0.$ === "SeatBeak") {
+    return null;
+  } else if (seat$0.$ === "SeatCora") {
+    return null;
+  } else {
+    return null;
+  }
+}
+const $omaha_folded_flop_categories = (seat$0) => $omaha_folded_flop_categories$(seat$0);
+
+function $omaha_turn_categories$(seat$0) {
+  if (seat$0.$ === "SeatAda") {
+    return null;
+  } else if (seat$0.$ === "SeatBeak") {
+    return null;
+  } else if (seat$0.$ === "SeatCora") {
+    return null;
+  } else {
+    return null;
+  }
+}
+const $omaha_turn_categories = (seat$0) => $omaha_turn_categories$(seat$0);
+
+function $omaha_pressure_categories$(seat$0) {
+  if (seat$0.$ === "SeatAda") {
+    return null;
+  } else if (seat$0.$ === "SeatBeak") {
+    return null;
+  } else if (seat$0.$ === "SeatCora") {
+    return null;
+  } else {
+    return null;
+  }
+}
+const $omaha_pressure_categories = (seat$0) => $omaha_pressure_categories$(seat$0);
+
+function $omaha_after_fold_categories$(seat$0) {
+  if (seat$0.$ === "SeatAda") {
+    return null;
+  } else if (seat$0.$ === "SeatBeak") {
+    return null;
+  } else if (seat$0.$ === "SeatCora") {
+    return null;
+  } else {
+    return null;
+  }
+}
+const $omaha_after_fold_categories = (seat$0) => $omaha_after_fold_categories$(seat$0);
+
+function $omaha_showdown_categories$(seat$0) {
+  if (seat$0.$ === "SeatAda") {
+    return null;
+  } else if (seat$0.$ === "SeatBeak") {
+    return null;
+  } else if (seat$0.$ === "SeatCora") {
+    return null;
+  } else {
+    return null;
+  }
+}
+const $omaha_showdown_categories = (seat$0) => $omaha_showdown_categories$(seat$0);
+
+function $omaha_categories_normalized$(stage$0, seat$0) {
+  if (stage$0.$ === "OmahaDeal") {
+    return $omaha_deal_categories$(seat$0);
+  } else if (stage$0.$ === "OmahaFlop") {
+    return $omaha_flop_categories$(seat$0);
+  } else if (stage$0.$ === "OmahaFoldedFlop") {
+    return $omaha_folded_flop_categories$(seat$0);
+  } else if (stage$0.$ === "OmahaTurn") {
+    return $omaha_turn_categories$(seat$0);
+  } else if (stage$0.$ === "OmahaRiverPressure") {
+    return $omaha_pressure_categories$(seat$0);
+  } else if (stage$0.$ === "OmahaAfterFold") {
+    return $omaha_after_fold_categories$(seat$0);
+  } else {
+    return $omaha_showdown_categories$(seat$0);
+  }
+}
+const $omaha_categories_normalized = (stage$0) => (seat$0) => $omaha_categories_normalized$(stage$0, seat$0);
+
+function $odds_win_total$(a$0, b$0, c$0, d$0) {
+  return u32_add(u32_add($odds_win$(a$0), $odds_win$(b$0)), u32_add($odds_win$(c$0), $odds_win$(d$0)));
+}
+const $odds_win_total = (a$0) => (b$0) => (c$0) => (d$0) => $odds_win_total$(a$0, b$0, c$0, d$0);
+
+function $texas_win_total$(stage$0) {
+  if (stage$0.$ === "TexasDeal") {
+    return $odds_win_total$($texas_odds$(0n, 0n), $texas_odds$(0n, 1n), $texas_odds$(0n, 2n), $texas_odds$(0n, 3n));
+  } else if (stage$0.$ === "TexasFlop") {
+    return $odds_win_total$($texas_odds$(1n, 0n), $texas_odds$(1n, 1n), $texas_odds$(1n, 2n), $texas_odds$(1n, 3n));
+  } else if (stage$0.$ === "TexasTurn") {
+    return $odds_win_total$($texas_odds$(2n, 0n), $texas_odds$(2n, 1n), $texas_odds$(2n, 2n), $texas_odds$(2n, 3n));
+  } else if (stage$0.$ === "TexasAfterFold") {
+    return $odds_win_total$($texas_odds$(4n, 0n), $texas_odds$(4n, 1n), $texas_odds$(4n, 2n), $texas_odds$(4n, 3n));
+  } else {
+    return $odds_win_total$($texas_odds$(3n, 0n), $texas_odds$(3n, 1n), $texas_odds$(3n, 2n), $texas_odds$(3n, 3n));
+  }
+}
+const $texas_win_total = (stage$0) => $texas_win_total$(stage$0);
+
+function $texas_wins_normalized$(stage$0) {
+  if (stage$0.$ === "TexasDeal") {
+    return null;
+  } else if (stage$0.$ === "TexasFlop") {
+    return null;
+  } else if (stage$0.$ === "TexasTurn") {
+    return null;
+  } else if (stage$0.$ === "TexasAfterFold") {
+    return null;
+  } else {
+    return null;
+  }
+}
+const $texas_wins_normalized = (stage$0) => $texas_wins_normalized$(stage$0);
+
+function $omaha_win_total$(stage$0) {
+  if (stage$0.$ === "OmahaDeal") {
+    return $odds_win_total$($omaha_odds$(0n, 0n), $omaha_odds$(0n, 1n), $omaha_odds$(0n, 2n), $omaha_odds$(0n, 3n));
+  } else if (stage$0.$ === "OmahaFlop") {
+    return $odds_win_total$($omaha_odds$(1n, 0n), $omaha_odds$(1n, 1n), $omaha_odds$(1n, 2n), $omaha_odds$(1n, 3n));
+  } else if (stage$0.$ === "OmahaFoldedFlop") {
+    return $odds_win_total$($omaha_odds$(4n, 0n), $omaha_odds$(4n, 1n), $omaha_odds$(4n, 2n), $omaha_odds$(4n, 3n));
+  } else if (stage$0.$ === "OmahaTurn") {
+    return $odds_win_total$($omaha_odds$(2n, 0n), $omaha_odds$(2n, 1n), $omaha_odds$(2n, 2n), $omaha_odds$(2n, 3n));
+  } else if (stage$0.$ === "OmahaRiverPressure") {
+    return $odds_win_total$($omaha_odds$(5n, 0n), $omaha_odds$(5n, 1n), $omaha_odds$(5n, 2n), $omaha_odds$(5n, 3n));
+  } else if (stage$0.$ === "OmahaAfterFold") {
+    return $odds_win_total$($omaha_odds$(3n, 0n), $omaha_odds$(3n, 1n), $omaha_odds$(3n, 2n), $omaha_odds$(3n, 3n));
+  } else {
+    return $odds_win_total$($omaha_odds$(6n, 0n), $omaha_odds$(6n, 1n), $omaha_odds$(6n, 2n), $omaha_odds$(6n, 3n));
+  }
+}
+const $omaha_win_total = (stage$0) => $omaha_win_total$(stage$0);
+
+function $omaha_wins_normalized$(stage$0) {
+  if (stage$0.$ === "OmahaDeal") {
+    return null;
+  } else if (stage$0.$ === "OmahaFlop") {
+    return null;
+  } else if (stage$0.$ === "OmahaFoldedFlop") {
+    return null;
+  } else if (stage$0.$ === "OmahaTurn") {
+    return null;
+  } else if (stage$0.$ === "OmahaRiverPressure") {
+    return null;
+  } else if (stage$0.$ === "OmahaAfterFold") {
+    return null;
+  } else {
+    return null;
+  }
+}
+const $omaha_wins_normalized = (stage$0) => $omaha_wins_normalized$(stage$0);
+
+function $texas_showdown_matches_winner$() {
+  return null;
+}
+
+function $omaha_showdown_matches_winner$() {
+  return null;
+}
+
+function $TexasFoldedEquityZero$() {
+  return $Pair$();
+}
+
+function $texas_folded_equity_zero$() {
+  return {$: "Tuple", $0: null, $1: {$: "Tuple", $0: null, $1: null}};
+}
+
+function $OmahaFoldedEquityZero$() {
+  return $Pair$();
+}
+
+function $omaha_folded_equity_zero$() {
+  return {$: "Tuple", $0: null, $1: {$: "Tuple", $0: null, $1: {$: "Tuple", $0: null, $1: {$: "Tuple", $0: null, $1: {$: "Tuple", $0: null, $1: {$: "Tuple", $0: null, $1: null}}}}}};
+}
+
+function $proof_audit$() {
+  return {$: "ProofAudit", $0: "Machine-checked proof audit", $1: "All 5 Texas and 7 Omaha published stages, across all four seats.", $2: "Witnesses show that changing only the runout or only the strategy can change the winner.", $3: "Each seat has a concrete runout and strategy for which it wins.", $4: "Every category row sums to 100; every four-seat win row sums to 100; folded seats are zero; showdown winners are 100.", $5: "These are normalization and consistency proofs, not a claim that authored estimates equal real-world probabilities.", $6: $u32$(78n)};
+}
 
 function $texas_best$(stage$0, seat$0) {
   if (stage$0 === 0n) {
@@ -2252,7 +2731,7 @@ function $texas_steps$() {
 }
 
 function $omaha_steps$() {
-  return {$: "Con", $0: $omaha_step$(0n, 0n, "Deal", "Omaha: four private cards each; exactly two must play.", 4n, "deal", 0n, 30n, 990n, 980n, 1000n, 1000n), $1: {$: "Con", $0: $omaha_step$(0n, 0n, "Pre-flop", "Ada opens a connected four-card hand.", 0n, "raise", 50n, 80n, 940n, 980n, 1000n, 1000n), $1: {$: "Con", $0: $omaha_step$(0n, 0n, "Pre-flop", "Beak calls wide.", 1n, "call", 30n, 110n, 940n, 950n, 1000n, 1000n), $1: {$: "Con", $0: $omaha_step$(0n, 0n, "Pre-flop", "Cora calls after a conservative calculation.", 2n, "call", 50n, 160n, 940n, 950n, 950n, 1000n), $1: {$: "Con", $0: $omaha_step$(0n, 0n, "Pre-flop", "Rook raises the drawing hand.", 3n, "raise", 110n, 270n, 940n, 950n, 950n, 890n), $1: {$: "Con", $0: $omaha_step$(0n, 0n, "Pre-flop", "Ada calls the re-raise.", 0n, "call", 60n, 330n, 880n, 950n, 950n, 890n), $1: {$: "Con", $0: $omaha_step$(0n, 0n, "Pre-flop", "Beak calls.", 1n, "call", 60n, 390n, 880n, 890n, 950n, 890n), $1: {$: "Con", $0: $omaha_step$(0n, 0n, "Pre-flop", "Cora completes.", 2n, "call", 60n, 450n, 880n, 890n, 890n, 890n), $1: {$: "Con", $0: $omaha_step$(1n, 3n, "Flop", "The flop gives Ada eights and Beak queens.", 4n, "reveal", 0n, 450n, 880n, 890n, 890n, 890n), $1: {$: "Con", $0: $omaha_step$(1n, 3n, "Flop", "Ada checks.", 0n, "check", 0n, 450n, 880n, 890n, 890n, 890n), $1: {$: "Con", $0: $omaha_step$(1n, 3n, "Flop", "Beak bets top pair.", 1n, "raise", 90n, 540n, 880n, 800n, 890n, 890n), $1: {$: "Con", $0: $omaha_step$(1n, 3n, "Flop", "Cora folds the unmade holding.", 2n, "fold", 0n, 540n, 880n, 800n, 890n, 890n), $1: {$: "Con", $0: $omaha_step$(4n, 3n, "Flop", "Rook calls with back-door two-pair routes.", 3n, "call", 90n, 630n, 880n, 800n, 890n, 800n), $1: {$: "Con", $0: $omaha_step$(4n, 3n, "Flop", "Ada calls with middle pair.", 0n, "call", 90n, 720n, 790n, 800n, 890n, 800n), $1: {$: "Con", $0: $omaha_step$(2n, 4n, "Turn", "The turn pairs one of Cora's folded hole ranks.", 4n, "reveal", 0n, 720n, 790n, 800n, 890n, 800n), $1: {$: "Con", $0: $omaha_step$(2n, 4n, "Turn", "Ada checks.", 0n, "check", 0n, 720n, 790n, 800n, 890n, 800n), $1: {$: "Con", $0: $omaha_step$(2n, 4n, "Turn", "Beak checks behind.", 1n, "check", 0n, 720n, 790n, 800n, 890n, 800n), $1: {$: "Con", $0: $omaha_step$(2n, 4n, "Turn", "Rook makes a delayed bet.", 3n, "raise", 130n, 850n, 790n, 800n, 890n, 670n), $1: {$: "Con", $0: $omaha_step$(2n, 4n, "Turn", "Ada calls once more.", 0n, "call", 130n, 980n, 660n, 800n, 890n, 670n), $1: {$: "Con", $0: $omaha_step$(2n, 4n, "Turn", "Beak calls with queens.", 1n, "call", 130n, 1110n, 660n, 670n, 890n, 670n), $1: {$: "Con", $0: $omaha_step$(5n, 5n, "River", "The seven gives Rook two pair under Omaha rules.", 4n, "reveal", 0n, 1110n, 660n, 670n, 890n, 670n), $1: {$: "Con", $0: $omaha_step$(5n, 5n, "River", "Ada folds to the river pressure.", 0n, "fold", 0n, 1110n, 660n, 670n, 890n, 670n), $1: {$: "Con", $0: $omaha_step$(3n, 5n, "River", "Beak checks.", 1n, "check", 0n, 1110n, 660n, 670n, 890n, 670n), $1: {$: "Con", $0: $omaha_step$(3n, 5n, "River", "Rook value-bets two pair.", 3n, "raise", 180n, 1290n, 660n, 670n, 890n, 490n), $1: {$: "Con", $0: $omaha_step$(3n, 5n, "River", "Beak calls with queens.", 1n, "call", 180n, 1470n, 660n, 490n, 890n, 490n), $1: {$: "Con", $0: $omaha_step$(3n, 5n, "Showdown", "River Rook wins 1470 with sevens and fours.", 3n, "win", 1470n, 0n, 660n, 490n, 890n, 1960n), $1: $$Nil}}}}}}}}}}}}}}}}}}}}}}}}}};
+  return {$: "Con", $0: $omaha_step$(0n, 0n, "Deal", "Omaha: four private cards each; exactly two must play.", 4n, "deal", 0n, 30n, 990n, 980n, 1000n, 1000n), $1: {$: "Con", $0: $omaha_step$(0n, 0n, "Pre-flop", "Ada opens a connected four-card hand.", 0n, "raise", 50n, 80n, 940n, 980n, 1000n, 1000n), $1: {$: "Con", $0: $omaha_step$(0n, 0n, "Pre-flop", "Beak calls wide.", 1n, "call", 30n, 110n, 940n, 950n, 1000n, 1000n), $1: {$: "Con", $0: $omaha_step$(0n, 0n, "Pre-flop", "Cora calls after a conservative calculation.", 2n, "call", 50n, 160n, 940n, 950n, 950n, 1000n), $1: {$: "Con", $0: $omaha_step$(0n, 0n, "Pre-flop", "Rook raises the drawing hand.", 3n, "raise", 110n, 270n, 940n, 950n, 950n, 890n), $1: {$: "Con", $0: $omaha_step$(0n, 0n, "Pre-flop", "Ada calls the re-raise.", 0n, "call", 60n, 330n, 880n, 950n, 950n, 890n), $1: {$: "Con", $0: $omaha_step$(0n, 0n, "Pre-flop", "Beak calls.", 1n, "call", 60n, 390n, 880n, 890n, 950n, 890n), $1: {$: "Con", $0: $omaha_step$(0n, 0n, "Pre-flop", "Cora completes.", 2n, "call", 60n, 450n, 880n, 890n, 890n, 890n), $1: {$: "Con", $0: $omaha_step$(1n, 3n, "Flop", "The flop gives Ada eights and Beak queens.", 4n, "reveal", 0n, 450n, 880n, 890n, 890n, 890n), $1: {$: "Con", $0: $omaha_step$(1n, 3n, "Flop", "Ada checks.", 0n, "check", 0n, 450n, 880n, 890n, 890n, 890n), $1: {$: "Con", $0: $omaha_step$(1n, 3n, "Flop", "Beak bets top pair.", 1n, "raise", 90n, 540n, 880n, 800n, 890n, 890n), $1: {$: "Con", $0: $omaha_step$(1n, 3n, "Flop", "Cora folds the unmade holding.", 2n, "fold", 0n, 540n, 880n, 800n, 890n, 890n), $1: {$: "Con", $0: $omaha_step$(4n, 3n, "Flop", "Rook calls with back-door two-pair routes.", 3n, "call", 90n, 630n, 880n, 800n, 890n, 800n), $1: {$: "Con", $0: $omaha_step$(4n, 3n, "Flop", "Ada calls with middle pair.", 0n, "call", 90n, 720n, 790n, 800n, 890n, 800n), $1: {$: "Con", $0: $omaha_step$(2n, 4n, "Turn", "The turn pairs one of Cora's folded hole ranks.", 4n, "reveal", 0n, 720n, 790n, 800n, 890n, 800n), $1: {$: "Con", $0: $omaha_step$(2n, 4n, "Turn", "Ada checks.", 0n, "check", 0n, 720n, 790n, 800n, 890n, 800n), $1: {$: "Con", $0: $omaha_step$(2n, 4n, "Turn", "Beak checks behind.", 1n, "check", 0n, 720n, 790n, 800n, 890n, 800n), $1: {$: "Con", $0: $omaha_step$(2n, 4n, "Turn", "Rook makes a delayed bet.", 3n, "raise", 130n, 850n, 790n, 800n, 890n, 670n), $1: {$: "Con", $0: $omaha_step$(2n, 4n, "Turn", "Ada calls once more.", 0n, "call", 130n, 980n, 660n, 800n, 890n, 670n), $1: {$: "Con", $0: $omaha_step$(2n, 4n, "Turn", "Beak calls with queens.", 1n, "call", 130n, 1110n, 660n, 670n, 890n, 670n), $1: {$: "Con", $0: $omaha_step$(5n, 5n, "River", "The seven gives Rook two pair under Omaha rules.", 4n, "reveal", 0n, 1110n, 660n, 670n, 890n, 670n), $1: {$: "Con", $0: $omaha_step$(5n, 5n, "River", "Ada folds to the river pressure.", 0n, "fold", 0n, 1110n, 660n, 670n, 890n, 670n), $1: {$: "Con", $0: $omaha_step$(3n, 5n, "River", "Beak checks.", 1n, "check", 0n, 1110n, 660n, 670n, 890n, 670n), $1: {$: "Con", $0: $omaha_step$(3n, 5n, "River", "Rook value-bets two pair.", 3n, "raise", 180n, 1290n, 660n, 670n, 890n, 490n), $1: {$: "Con", $0: $omaha_step$(3n, 5n, "River", "Beak calls with queens.", 1n, "call", 180n, 1470n, 660n, 490n, 890n, 490n), $1: {$: "Con", $0: $omaha_step$(6n, 5n, "Showdown", "River Rook wins 1470 with sevens and fours.", 3n, "win", 1470n, 0n, 660n, 490n, 890n, 1960n), $1: $$Nil}}}}}}}}}}}}}}}}}}}}}}}}}};
 }
 
 function $texas_timeline$() {
@@ -2264,7 +2743,7 @@ function $omaha_timeline$() {
 }
 
 function $main$() {
-  return {$: "PokerReport", $0: $texas_timeline$(), $1: $omaha_timeline$()};
+  return {$: "PokerReport", $0: $texas_timeline$(), $1: $omaha_timeline$(), $2: $proof_audit$()};
 }
 
 globalThis.BEND2_POKER_DATA = $main$();

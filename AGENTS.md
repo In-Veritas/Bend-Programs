@@ -26,10 +26,11 @@ clean detached worktree of `origin/main` with the authored demo/program folders
 linked in. Preserve that separation until the owner chooses a reconciliation
 strategy.
 
-Current Bend3 changed the API substantially: use
+The fetched `1ebc1acc` tree changed the API substantially: use
 `bun bend-ts/src/bend.ts`, explicit file-relative imports, dot-qualified
 constructors, parenthesized type application, current IO/TCP/HTTP/JSON types,
-and `IO.write` for raw output. The old `main.ts` entry is gone. The upstream
+and `IO.write` for raw output. The old `main.ts` entry is gone in that fetched
+revision. The upstream
 `io_main` annotation fix is present.
 
 All 13 files in `../bend3/programas_gabriel` and the published compatibility
@@ -123,18 +124,24 @@ recorded as unsupported because Core lacks an effect runtime. Complete
 interactive demos are likewise blocked, but pure observer ports of Poker and
 Belote now compile reports to JS; see `Bend2 Core/demos/README.md`.
 
-## Bend2 Core Poker and Belote observers
+## Bend2 Core observers
 
 `Bend2 Core/demos/poker/` returns deterministic Texas and Omaha timelines for
 four AIs. Every step includes all private cards, action/pot/stack state, best
-hand labels, and four win/category odds columns. `Bend2 Core/demos/belote/`
+hand labels, and four win/category odds columns. It now also contains 78
+hand-written proof cases: runout and strategy can independently change the
+winner in its finite fairness model; every seat is reachable; all published
+category/win rows normalize; folded seats have zero equity; and showdowns agree
+with their declared winners. Keep the README's strict caveat: these prove table
+consistency, not the real-world accuracy of authored probability estimates.
+`Bend2 Core/demos/belote/`
 returns a seeded four-AI bidding/play timeline with all 32 cards, follow/cut/
 overtrump legality, all eight trick winners, and the verified 47–115 result.
 Both programs are affine, use no `#[halts]`, and contain no IO. Their browser
 pages only decode and animate the immutable values emitted by Core's JS backend.
-The final sequential JS artifact builds took 0.43 s for Poker and 0.86 s for
+The final sequential JS artifact builds took 0.56 s for Poker and 0.86 s for
 Belote. Their generated SHA-256 values were respectively
-`bf9d448132e45aa4d2e357b5cea538a4b988aac4d67548f33b40b8e3950d4bee`
+`ab97076c3b698d498647dfe668e97c46a839d5e6a76d3cb3a604e11f5eaa35af`
 and `aacef18cc9971a6ab69c70ef04d986a002f008014f1e2e2ad6203a78d1ceb498`.
 
 Rebuild and independently validate them from their package directories:
@@ -149,6 +156,40 @@ hub. The Bend3 server is only their HTTP shell: `/core/poker` and
 `/core/belote` are Core computations, while `/poker` and `/belote` are the
 interactive Bend3 versions. Keep that capability boundary explicit until Core
 implements IO.
+
+`Bend2 Core/demos/bend_a_beet/` contains three reusable pure libraries plus the
+integrated game. Physics uses Q10; graphics and ray tracing use Q24.8, bridged
+with `Graphics.fixed_from_q10`. The fixed seed produces a mixed 3 × 8 field and
+a 1,086-frame report: one hundred 50 ms growth frames, sixteen simultaneous
+uproot frames, fifty 50 ms response samples plus a terminal frame for each
+planted beet, and a final state. Its physics, graphics, and ray-tracing tests
+consume erased suites totaling 33 explicit theorems. The six seeded material
+attributes now include `shine`; Core computes roughness, specular response,
+absorption, high-poly mesh quality, and world-space shadow anchors. The browser
+controls select immutable frames or reproject Core points and must not be
+described as Core IO. Keep `bend_a_beet_camera.js`, `bend_a_beet_webgl.js`, and
+`bend_a_beet_viewer.js` synchronized with the viewer page and BendJogos route.
+The WebGL layer uses perspective depth, 3D ellipsoids/tubes/leaves, moving
+camera-dependent highlights and projected shadows, continuous spring cables,
+and persistent separated fracture sectors.
+Rebuild with `./build.sh`, validate with `bun test.mjs`, then synchronize the
+hub route `/core/bend-a-beet` with `bendjogos_web/sync_core.mjs`.
+
+## 2026-08-18 current-worktree additions
+
+The sibling `../bend3` worktree used for Farmhands has a newer CLI layout than
+the detached 2026-08-17 audit: invoke it with `bun bend-ts/src/main.ts`. Check
+the checkout being used instead of carrying this command across revisions.
+
+`Bend3/demos/farmhands_web/` is a Bend3 LAN farming service with a 2 × 6 grid,
+four initially unlocked plots, short test crops, persistent CSV credentials and
+farm state, PBKDF2 password hashes, and the Colheita Feliz-style theft rules.
+The owner retains at least 25%; a visitor can steal once per planting, each
+planting accepts at most three thefts, and a visitor can steal at most two crops
+per owner per day. Its pure rules contain 12 checked proofs. Server integration
+tests cover registration, restart persistence, growth timing, harvest and all
+theft limits. No compiler/runtime issue was found, so there is intentionally no
+`unexpected_behavior` directory for this package.
 
 Check a port and verify its JS backend from `../bend2-core`:
 

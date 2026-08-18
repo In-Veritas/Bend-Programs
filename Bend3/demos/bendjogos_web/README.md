@@ -62,8 +62,10 @@ TCP, or HTTP scheduler. Pages under `/core` are pure Core reports compiled to
 JavaScript and rendered in the browser; the switch does not misrepresent them
 as a second network server. Poker is available at `/core/poker` as a four-AI,
 omniscient odds observer; Belote is available at `/core/belote` as a fully
-visible, rules-checked hand. Each links directly back to its interactive Bend3
-counterpart.
+visible, rules-checked hand. Bend-a-Beet is available at `/core/bend-a-beet`
+as a seeded 3D farm with proved physics, graphics, and ray-tracing libraries.
+Poker and Belote link directly back to their interactive Bend3 counterparts;
+Bend-a-Beet is currently Core-only.
 
 `BendJogos.com.br` is the displayed site name. To use that exact hostname on a
 LAN, configure local DNS or a hosts-file entry that maps it to the server's LAN
