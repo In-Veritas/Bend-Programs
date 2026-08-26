@@ -8,7 +8,7 @@
 
   const $ = id => document.getElementById(id);
   const number = value => Number(value || 0);
-  const tag = value => value?.$ || "Unknown";
+  const tag = value => value?.$?.split(".").pop() || "Unknown";
   const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
   const add = (left, right) => left.map((value, index) => value + right[index]);
   const sub = (left, right) => left.map((value, index) => value - right[index]);
@@ -24,7 +24,8 @@
     Pikeman: "Pikemen", Archer: "Archers", Griffin: "Griffins", Swordsman: "Swordsmen",
     Monk: "Monks", Cavalier: "Cavaliers", Angel: "Angels", Skeleton: "Skeletons",
     WalkingDead: "Walking Dead", Wight: "Wights", Vampire: "Vampires", Lich: "Liches",
-    BlackKnight: "Black Knights", BoneDragon: "Bone Dragons"
+    BlackKnight: "Black Knights", BoneDragon: "Bone Dragons", Imp: "Imps", Gog: "Gogs",
+    HellHound: "Hell Hounds", Demon: "Demons", PitFiend: "Pit Fiends", Efreeti: "Efreeti", Devil: "Devils"
   };
   const resourceNames = ["Gold", "Wood", "Ore", "Mercury", "Sulfur", "Crystal", "Gems"];
   const terrainStyle = {
@@ -36,12 +37,13 @@
     Rock: { color: "#4d4d49", color2: "#77746b", texture: 3, roughness: 1, y: .36 }
   };
   const siteLabels = {
-    RedTownSite: "Castle", BlueTownSite: "Necropolis", GoldPileSite: "Gold pile", WoodPileSite: "Wood pile",
+    RedTownSite: "Red town", BlueTownSite: "Blue town", GoldPileSite: "Gold pile", WoodPileSite: "Wood pile",
     ShrineSite: "Shrine", ArtifactSite: "Artifact", SawmillSite: "Sawmill", GoldMineSite: "Gold mine", GuardianSite: "Guardians"
   };
   const tierNames = {
     Castle: ["Pikeman", "Archer", "Griffin", "Swordsman", "Monk", "Cavalier", "Angel"],
-    Necropolis: ["Skeleton", "Walking Dead", "Wight", "Vampire", "Lich", "Black Knight", "Bone Dragon"]
+    Necropolis: ["Skeleton", "Walking Dead", "Wight", "Vampire", "Lich", "Black Knight", "Bone Dragon"],
+    Inferno: ["Imp", "Gog", "Hell Hound", "Demon", "Pit Fiend", "Efreeti", "Devil"]
   };
 
   let state = initial;
@@ -50,11 +52,28 @@
   let actionFx = null;
   let hotspotEntries = [];
   let previousFrame = performance.now();
+  let battlefieldObstacleSeed = null;
+  let battlefieldObstacles = [];
 
   const mapPoint = (x, y, height = 0) => [(number(x) - 4) * 1.65, height, (number(y) - 3) * 1.5];
   const armySlots = army => Array.from({ length: 7 }, (_, index) => army[`$${index}`]);
   const stackText = stack => tag(stack) === "Troop" ? `${number(stack.$1)} ${creatureNames[tag(stack.$0)] || tag(stack.$0)}` : "Empty";
   const armyEmpty = army => armySlots(army).every(stack => tag(stack) === "EmptyStack");
+  const battleHexPoint = (column, row, height = .05) => [(number(column) - 7) * .72, height, (number(row) - 5) * .61 + (number(column) % 2) * .305];
+  const formationPositions = formation => Array.from({ length: 7 }, (_, index) => {
+    const position = formation?.[`$${index}`];
+    return tag(position) === "AtHex" ? battleHexPoint(position.$0, position.$1) : null;
+  });
+  const obstacleCells = seed => {
+    const numericSeed = number(seed);
+    if (battlefieldObstacleSeed === numericSeed) return battlefieldObstacles;
+    battlefieldObstacleSeed = numericSeed;
+    battlefieldObstacles = [];
+    for (let row = 0; row < 11; row++) for (let column = 0; column < 15; column++) {
+      if (Core.battleObstacle(column, row, numericSeed)) battlefieldObstacles.push([column, row]);
+    }
+    return battlefieldObstacles;
+  };
   const kingdomFor = (game, owner) => owner === "Blue" ? game.$4 : game.$3;
   const activeKingdom = (game = state) => kingdomFor(game, tag(game.$2));
   const activeHero = (game = state) => activeKingdom(game).$1;
@@ -93,26 +112,26 @@
     ];
   }
 
-  function castleParts(position, faction, scale = 1, hall = 1, fort = 0) {
-    const necro = faction === "Necropolis";
-    const stone = necro ? "#353947" : "#92918a";
-    const dark = necro ? "#191d2a" : "#585a55";
-    const roof = necro ? "#49325f" : "#355f8c";
-    const glow = necro ? "#9a62d6" : "#f2d16b";
+  function castleParts(position, faction, scale = 1, hall = 1, fort = 0, owner = "Red") {
+    const necro = faction === "Necropolis", inferno = faction === "Inferno";
+    const stone = inferno ? "#5f2823" : necro ? "#353947" : "#92918a";
+    const dark = inferno ? "#1c0c0e" : necro ? "#191d2a" : "#585a55";
+    const roof = inferno ? "#8f2f1d" : necro ? "#49325f" : "#355f8c";
+    const glow = inferno ? "#ff6a25" : necro ? "#9a62d6" : "#f2d16b";
     const out = [];
     const at = offset => add(position, offset.map(value => value * scale));
-    out.push(E.part("island", at([0, -.28, 0]), [2.2 * scale, .32 * scale, 1.75 * scale], necro ? "#30313b" : "#6e7754", { color2: dark, texture: 3, roughness: .98 }));
+    out.push(E.part("island", at([0, -.28, 0]), [2.2 * scale, .32 * scale, 1.75 * scale], inferno ? "#4c201b" : necro ? "#30313b" : "#6e7754", { color2: dark, texture: inferno ? 7 : 3, roughness: .98, emissive: inferno ? .06 : 0 }));
     out.push(E.part("bevel", at([0, .7, 0]), [1.05 * scale, .78 * scale, .82 * scale], stone, { color2: dark, texture: 7, roughness: .82 }));
     for (const side of [-1, 1]) for (const back of [-1, 1]) {
       const tower = at([side * 1.12, .82, back * .74]);
-      out.push(E.part(necro ? "shard" : "cylinder", tower, [.38 * scale, .9 * scale, .38 * scale], side === back ? stone : dark, { roughness: .87, rot: [0, side * .22, 0] }));
+      out.push(E.part(necro || inferno ? "shard" : "cylinder", tower, [.38 * scale, .9 * scale, .38 * scale], side === back ? stone : dark, { roughness: .87, rot: [0, side * .22, 0], emissive: inferno ? .04 : 0 }));
       out.push(E.part("cone", at([side * 1.12, 1.85, back * .74]), [.48 * scale, .48 * scale, .48 * scale], roof, { roughness: .67 }));
     }
     out.push(E.part(necro ? "shard" : "bevel", at([0, 1.75, 0]), [.62 * scale, (1 + hall * .18) * scale, .56 * scale], dark, { color2: stone, texture: 7, roughness: .8 }));
     out.push(E.part("crystal", at([0, 2.9 + hall * .18, 0]), [.22 * scale, .36 * scale, .22 * scale], glow, { emissive: necro ? .34 : .12, rim: .25, pulse: .06 }));
     if (fort > 0) for (const z of [-1.05, 1.05]) out.push(E.part("bevel", at([0, .42, z]), [1.7 * scale, .43 * scale, .16 * scale], stone, { color2: dark, texture: 7, roughness: .9 }));
     if (fort > 1) for (const x of [-1.55, 1.55]) out.push(E.part("bevel", at([x, .42, 0]), [.16 * scale, .43 * scale, 1.12 * scale], stone, { color2: dark, texture: 7, roughness: .9 }));
-    out.push(...flagParts(at([.1, 2.65 + hall * .18, 0]), necro ? "Blue" : "Red", .68 * scale));
+    out.push(...flagParts(at([.1, 2.65 + hall * .18, 0]), owner, .68 * scale));
     return out;
   }
 
@@ -155,8 +174,8 @@
     const name = tag(site);
     if (!siteVisible(site, world)) return [];
     switch (name) {
-      case "RedTownSite": return castleParts(position, "Castle", .38, number(state.$3.$2.$1), number(state.$3.$2.$2));
-      case "BlueTownSite": return castleParts(position, "Necropolis", .38, number(state.$4.$2.$1), number(state.$4.$2.$2));
+      case "RedTownSite": return castleParts(position, tag(state.$3.$2.$0), .38, number(state.$3.$2.$1), number(state.$3.$2.$2), "Red");
+      case "BlueTownSite": return castleParts(position, tag(state.$4.$2.$0), .38, number(state.$4.$2.$1), number(state.$4.$2.$2), "Blue");
       case "GoldPileSite": return Array.from({ length: 8 }, (_, index) => E.part(index % 3 ? "disc" : "crystal", add(position, [(index % 4 - 1.5) * .18, .09 + Math.floor(index / 4) * .12, (index % 3 - 1) * .14]), [.14, .055 + index % 3 * .025, .14], "#e8b63d", { metallic: .64, roughness: .24, emissive: .05, rot: [0, index, 0] }));
       case "WoodPileSite": return Array.from({ length: 6 }, (_, index) => E.part("branch", add(position, [(index % 3 - 1) * .16, .12 + Math.floor(index / 3) * .18, 0]), [.09, .52, .09], index % 2 ? "#84582f" : "#654426", { rot: [Math.PI / 2, index * .14, Math.PI / 2], roughness: .96 }));
       case "ShrineSite": return shrineParts(position);
@@ -214,27 +233,33 @@
 
   function dwellingParts(out, town, faction, time) {
     const mask = number(town.$3);
-    const palette = faction === "Necropolis" ? ["#42344f", "#845dae"] : ["#8a744c", "#d7bd68"];
+    const palette = faction === "Inferno" ? ["#63251d", "#df5625"] : faction === "Necropolis" ? ["#42344f", "#845dae"] : ["#8a744c", "#d7bd68"];
     const positions = [[-3.2, 0, -1.8], [-2.15, 0, 1.7], [-.9, 0, -2.3], [.9, 0, 2.2], [2.2, 0, -1.7], [3.25, 0, 1.4], [0, 0, -3.2]];
     const shapes = ["bevel", "arch", "rock", "torus", "shard", "cylinder", "crystal"];
     for (let tier = 0; tier < 7; tier++) if (mask & (1 << tier)) {
       const p = positions[tier], scale = .55 + tier * .075;
-      out.push(E.part(shapes[tier], [p[0], .38 + tier * .04, p[2]], [scale, .48 + tier * .08, scale], tier % 2 ? palette[1] : palette[0], { color2: faction === "Necropolis" ? "#171827" : "#544127", texture: 3 + tier % 5, roughness: .72, emissive: tier === 6 ? .22 : 0, pulse: tier === 6 ? .08 : 0, phase: time + tier }));
+      out.push(E.part(shapes[tier], [p[0], .38 + tier * .04, p[2]], [scale, .48 + tier * .08, scale], tier % 2 ? palette[1] : palette[0], { color2: faction === "Inferno" ? "#1c0b0d" : faction === "Necropolis" ? "#171827" : "#544127", texture: 3 + tier % 5, roughness: .72, emissive: faction === "Inferno" || tier === 6 ? .22 : 0, pulse: tier === 6 ? .08 : 0, phase: time + tier }));
       out.push(E.part("disc", [p[0], .035, p[2]], [scale * 1.2, .015, scale], "#070906", { alpha: .25 }));
     }
   }
 
   function buildTownScene(time) {
-    const kingdom = activeKingdom(), town = kingdom.$2, faction = tag(town.$0), necro = faction === "Necropolis";
-    const out = [E.part("island", [0, -.55, 0], [5.6, .54, 4.25], necro ? "#34333d" : "#617346", { color2: necro ? "#191923" : "#3b512f", texture: 3, roughness: .98 })];
-    out.push(...castleParts([0, .02, 0], faction, 1.08, number(town.$1), number(town.$2)));
+    const kingdom = activeKingdom(), town = kingdom.$2, faction = tag(town.$0), necro = faction === "Necropolis", inferno = faction === "Inferno";
+    const ground = inferno ? "#51261d" : necro ? "#34333d" : "#617346", ground2 = inferno ? "#1f1111" : necro ? "#191923" : "#3b512f";
+    const out = [E.part("island", [0, -.55, 0], [5.6, .54, 4.25], ground, { color2: ground2, texture: inferno ? 7 : 3, roughness: .98, emissive: inferno ? .08 : 0 })];
+    out.push(...castleParts([0, .02, 0], faction, 1.08, number(town.$1), number(town.$2), tag(state.$2)));
     dwellingParts(out, town, faction, time);
-    if (necro) {
+    if (inferno) {
+      for (let index = 0; index < 11; index++) {
+        const p = [-4.5 + index * .88, .12, 3 + Math.sin(index * 1.7) * .55];
+        out.push(E.part(index % 2 ? "shard" : "crystal", p, [.2 + index % 3 * .08, .55 + index % 4 * .18, .2], index % 3 ? "#3a2525" : "#db4b1e", { color2: "#160b0b", texture: 7, roughness: .72, emissive: index % 3 ? .04 : .48, pulse: .18, phase: time + index }));
+      }
+    } else if (necro) {
       for (let index = 0; index < 9; index++) out.push(E.part(index % 2 ? "shard" : "branch", [-4 + index, .25 + index % 3 * .12, 3 + Math.sin(index) * .45], [.11 + index % 2 * .07, .55 + index % 3 * .18, .11], index % 2 ? "#4a4857" : "#3c302b", { rot: [index * .2, index, index * .08], roughness: 1, emissive: index % 4 === 0 ? .05 : 0 }));
     } else {
       for (let index = 0; index < 6; index++) out.push(...E.tree(index % 2 ? "oak" : "cypress", [-4.1 + index * 1.62, 0, 3.15 + Math.sin(index) * .34], .42, time + index, ["#69492d", index % 2 ? "#46733d" : "#325c3b"]));
     }
-    return { objects: out, camera: orbit.camera([0, 1.05, 0]), time, background: necro ? "#24283b" : "#88a8a3", sun: { direction: [-.4, -1, -.28], color: necro ? "#b6a4d8" : "#fff0c1" }, point: { position: [0, 7, 2], color: necro ? "#a977df" : "#ffd77a" }, fog: { color: necro ? "#33364a" : "#8d9e88", density: .012 } };
+    return { objects: out, camera: orbit.camera([0, 1.05, 0]), time, background: inferno ? "#2a1215" : necro ? "#24283b" : "#88a8a3", sun: { direction: [-.4, -1, -.28], color: inferno ? "#ff7a3d" : necro ? "#b6a4d8" : "#fff0c1" }, point: { position: [0, 7, 2], color: inferno ? "#ff3b12" : necro ? "#a977df" : "#ffd77a" }, fog: { color: inferno ? "#421b1c" : necro ? "#33364a" : "#8d9e88", density: .012 } };
   }
 
   function turnParts(parts, pivot, reverse) {
@@ -283,13 +308,29 @@
       for (let index = 0; index < 6; index++) out.push(E.part("torus", add(p, [-direction * .45 + direction * index * .18, .88, 0]), [.24, .06, .25], "#d3ceb7", { rot: [Math.PI / 2, 0, 0], roughness: .86 }));
       out.push(E.part("shard", add(p, [direction * 1.15, 1.04, 0]), [.48, .4, .38], "#d9d2b9", { rot: [0, 0, direction * -Math.PI / 2], roughness: .8 }));
       for (const sideZ of [-1, 1]) out.push(E.part(sideZ > 0 ? "wing" : "wingMirror", add(p, [-direction * .08, 1.1, sideZ * .22]), [1.08, .82, .95], "#6f7470", { rot: [sideZ * Math.sin(phase) * .25, friendly ? 0 : Math.PI, 0], doubleSided: true, alpha: .82, roughness: .9 }));
+    } else if (kind === "HellHound") {
+      out.push(E.part("wolfBody", add(p, [0, .58, 0]), [.86, .4, .34], "#7d251b", { color2: "#250e10", texture: 3, roughness: .84, rot: [0, friendly ? 0 : Math.PI, 0] }));
+      for (const sideZ of [-.18, .18]) for (const offset of [-.35, .35]) out.push(E.segment("branch", add(p, [offset, .48, sideZ]), add(p, [offset + Math.sin(phase + offset) * .1, .05, sideZ]), .07, "#3a1514", { roughness: .92 }));
+      for (const sideZ of [-.23, 0, .23]) {
+        out.push(E.part("wolfHead", add(p, [direction * .78, .78, sideZ]), [.34, .28, .27], "#a53c20", { color2: "#321116", texture: 3, roughness: .78, rot: [0, friendly ? 0 : Math.PI, 0] }));
+        out.push(E.part("sphere", add(p, [direction * 1.0, .82, sideZ]), [.06, .06, .06], "#ffbd42", { emissive: .8, pulse: .22, phase: phase + sideZ }));
+      }
+      out.push(E.part("sphere", add(p, [-direction * .58, .55, 0]), [.24, .1, .24], "#f04b1d", { alpha: .62, emissive: .62, pulse: .3, phase }));
     } else {
-      const palette = kind === "Skeleton" || kind === "Lich" ? { cloth: "#494459", cloth2: "#211e2d", accent: "#b8af91", dark: "#17151c", skin: "#d4d0bb" }
+      const palette = ["Imp", "Gog", "HellHound", "Demon", "PitFiend", "Efreeti", "Devil"].includes(kind) ? { cloth: "#8f2f22", cloth2: "#2c1014", accent: "#f29a35", dark: "#190b0d", skin: "#b94a2c" }
+        : kind === "Skeleton" || kind === "Lich" ? { cloth: "#494459", cloth2: "#211e2d", accent: "#b8af91", dark: "#17151c", skin: "#d4d0bb" }
         : kind === "WalkingDead" ? { cloth: "#4d5a42", cloth2: "#283126", accent: "#6c7156", dark: "#24271e", skin: "#859071" }
         : kind === "Vampire" ? { cloth: "#54264f", cloth2: "#1d1224", accent: "#a33e4c", dark: "#111018", skin: "#c8bdc4" }
         : kind === "Monk" ? { cloth: "#d6d0b6", cloth2: "#6d2730", accent: "#e5c65e", dark: "#34252a", skin: "#d6ad86" }
         : living;
       out.push(...humanoid(p, side, phase, palette, kind === "Angel" ? .48 : .43));
+      if (["Imp", "Demon", "PitFiend", "Efreeti", "Devil"].includes(kind)) {
+        for (const sideZ of [-1, 1]) out.push(E.part("shard", add(p, [direction * .08, 1.72, sideZ * .18]), [.12, .34, .12], "#2a1212", { rot: [0, 0, sideZ * .35], roughness: .76, emissive: kind === "Efreeti" ? .22 : 0 }));
+        out.push(E.part("sphere", add(p, [0, .12, 0]), [.3, .08, .3], "#f04b1d", { alpha: .68, emissive: .58, pulse: .22, phase }));
+      }
+      if (kind === "Imp" || kind === "Devil") for (const sideZ of [-1, 1]) out.push(E.part(sideZ > 0 ? "wing" : "wingMirror", add(p, [-direction * .22, 1.12, sideZ * .16]), [kind === "Devil" ? .7 : .42, kind === "Devil" ? .68 : .4, kind === "Devil" ? .72 : .44], kind === "Devil" ? "#35101a" : "#6d2522", { rot: [sideZ * (.25 + Math.sin(phase) * .08), friendly ? 0 : Math.PI, direction * .25], doubleSided: true, alpha: .88, roughness: .84 }));
+      if (kind === "Gog") out.push(E.part("sphere", add(p, [direction * .58, 1.05, .34]), [.18, .18, .18], "#ff6b24", { alpha: .84, emissive: .75, pulse: .35, phase }));
+      if (kind === "Efreeti") for (let ring = 0; ring < 4; ring++) out.push(E.part("torus", add(p, [0, .14 + ring * .13, 0]), [.26 - ring * .035, .035, .26 - ring * .035], ring % 2 ? "#ffba38" : "#e6381d", { alpha: .72, emissive: .65, rot: [Math.PI / 2, phase * (ring % 2 ? 1 : -1), 0] }));
       if (kind === "Pikeman") {
         out.push(E.segment("branch", add(p, [direction * .18, .74, .35]), add(p, [direction * 1.35, 1.55, .35]), .035, "#d3d2ca", { metallic: .74, roughness: .16 }), E.part("disc", add(p, [direction * .32, .82, -.34]), [.32, .06, .32], living.accent, { rot: [Math.PI / 2, 0, 0], metallic: .44 }));
       } else if (kind === "Archer") {
@@ -333,20 +374,26 @@
     const out = [];
     const battle = state.$6.$0;
     const friendly = activeHero().$11, enemy = battle.$2;
+    const battlefield = battle.$4;
     for (let row = 0; row < 11; row++) for (let column = 0; column < 15; column++) {
-      const x = (column - 7) * .72 + (row % 2) * .36, z = (row - 5) * .61;
-      out.push(E.part("disc", [x, -.04, z], [.38, .035, .34], (row + column) % 2 ? "#6d704e" : "#777456", { color2: "#404531", texture: 3, roughness: .98 }));
+      const [x, y, z] = battleHexPoint(column, row, -.04);
+      out.push(E.part("disc", [x, y, z], [.38, .035, .34], (row + column) % 2 ? "#6d704e" : "#777456", { color2: "#404531", texture: 3, roughness: .98 }));
     }
-    for (let index = 0; index < 10; index++) out.push(E.part(index % 3 ? "rock" : "shard", [-6.2 + index * 1.38, .05 + index % 2 * .1, -3.85 + Math.sin(index) * .28], [.28 + index % 3 * .08, .22 + index % 2 * .18, .3], "#55564d", { texture: 3, roughness: 1, rot: [index, index * .8, 0] }));
-    const friendlyPositions = Array(7).fill(null), enemyPositions = Array(7).fill(null);
+    obstacleCells(battlefield.$2).forEach(([column, row], index) => {
+      const p = battleHexPoint(column, row, .08);
+      out.push(E.part(index % 3 ? "rock" : "shard", p, [.3 + index % 3 * .08, .35 + index % 2 * .22, .32], "#55564d", { color2: "#292d29", texture: 3, roughness: 1, rot: [index, index * .8, 0] }));
+    });
+    const friendlyPositions = formationPositions(battlefield.$0), enemyPositions = formationPositions(battlefield.$1);
     armySlots(friendly).forEach((stack, index) => {
       if (tag(stack) !== "Troop") return;
-      const p = [-4.45 + (index % 2) * .32, .05, (index - 3) * .85]; friendlyPositions[index] = p;
+      const p = friendlyPositions[index];
+      if (!p) return;
       out.push(...creatureParts(tag(stack.$0), p, "friendly", time, .72 + Math.min(.2, Math.log10(number(stack.$1) + 1) * .08)));
     });
     armySlots(enemy).forEach((stack, index) => {
       if (tag(stack) !== "Troop") return;
-      const p = [4.45 - (index % 2) * .32, .05, (index - 3) * .85]; enemyPositions[index] = p;
+      const p = enemyPositions[index];
+      if (!p) return;
       out.push(...creatureParts(tag(stack.$0), p, "enemy", time, .72 + Math.min(.2, Math.log10(number(stack.$1) + 1) * .08)));
     });
     battleFxParts(out, time, friendlyPositions, enemyPositions);
@@ -415,7 +462,7 @@
 
   function renderTown(town) {
     const faction = tag(town.$0), stock = town.$5, mask = number(town.$3), hero = activeHero();
-    const atHome = faction === "Castle" ? number(hero.$1) === 1 && number(hero.$2) === 5 : number(hero.$1) === 7 && number(hero.$2) === 1;
+    const atHome = tag(state.$2) === "Red" ? number(hero.$1) === 1 && number(hero.$2) === 5 : number(hero.$1) === 7 && number(hero.$2) === 1;
     $("town-faction").textContent = faction;
     $("town").innerHTML = `
       <div class="town-summary"><div><b>${number(town.$1)}</b><span>Hall</span></div><div><b>${number(town.$2)}</b><span>Fort</span></div><div><b>${town.$4 ? "Used" : "Ready"}</b><span>Build</span></div></div>
@@ -432,14 +479,18 @@
     return armySlots(army).map((stack, index) => ({ stack, index })).filter(entry => tag(entry.stack) === "Troop").map(entry => `<option value="${entry.index}">${entry.index + 1} · ${stackText(entry.stack)}</option>`).join("");
   }
 
-  function rosterMarkup(army) {
-    return armySlots(army).map((stack, index) => `<div class="roster-card"><b>${index + 1} · ${tag(stack) === "Troop" ? creatureNames[tag(stack.$0)] || tag(stack.$0) : "Empty"}</b>${tag(stack) === "Troop" ? number(stack.$1) : "—"}</div>`).join("");
+  function rosterMarkup(army, formation) {
+    const positions = Array.from({ length: 7 }, (_, index) => formation?.[`$${index}`]);
+    return armySlots(army).map((stack, index) => {
+      const position = positions[index], location = tag(position) === "AtHex" ? ` · ${number(position.$0)},${number(position.$1)}` : "";
+      return `<div class="roster-card"><b>${index + 1} · ${tag(stack) === "Troop" ? creatureNames[tag(stack.$0)] || tag(stack.$0) : "Empty"}</b>${tag(stack) === "Troop" ? `${number(stack.$1)}${location}` : "—"}</div>`;
+    }).join("");
   }
 
   function renderCombat(phase) {
-    const battle = phase.$0, friendly = activeHero().$11, enemy = battle.$2;
+    const battle = phase.$0, friendly = activeHero().$11, enemy = battle.$2, battlefield = battle.$4;
     $("own-slot").innerHTML = occupiedOptions(friendly); $("target-slot").innerHTML = occupiedOptions(enemy);
-    $("friendly-roster").innerHTML = rosterMarkup(friendly); $("enemy-roster").innerHTML = rosterMarkup(enemy);
+    $("friendly-roster").innerHTML = rosterMarkup(friendly, battlefield.$0); $("enemy-roster").innerHTML = rosterMarkup(enemy, battlefield.$1);
     $("scene-name").textContent = `${tag(battle.$1) === "GuardianBattle" ? "Bridge guardians" : "Town siege"} · round ${number(battle.$3)}`;
     $("scene-subtitle").textContent = "All damage, casualties, mana and outcomes return from Bend2 Core";
   }
@@ -486,13 +537,23 @@
   $("north").onclick = () => run(0); $("east").onclick = () => run(1); $("south").onclick = () => run(2); $("west").onclick = () => run(3);
   $("northeast").onclick = () => run(9); $("southeast").onclick = () => run(10); $("southwest").onclick = () => run(11); $("northwest").onclick = () => run(12);
   $("end-turn").onclick = () => run(4);
+  $("ai-adventure").onclick = () => run(30);
   $("view-map").onclick = () => { setSceneMode("map"); renderUI(); };
   $("view-town").onclick = () => { setSceneMode("town"); renderUI(); };
   $("undo").onclick = () => { if (history.length) state = history.pop(); setSceneMode(tag(state.$6) === "Combat" ? "combat" : "map"); renderUI(); };
-  $("new-game").onclick = () => { state = Core.newGame(Math.max(0, number($("seed").value)) >>> 0); history = []; actionFx = null; setSceneMode("map"); renderUI(); };
+  $("new-game").onclick = () => { state = Core.newScenario(Math.max(0, number($("seed").value)) >>> 0, number($("new-faction").value)); history = []; actionFx = null; setSceneMode("map"); renderUI(); };
   $("save").onclick = () => { localStorage.setItem("bend-heroes-state", JSON.stringify(state)); $("notice").textContent = "The immutable Core state was saved in this browser."; };
   $("load").onclick = () => { const saved = localStorage.getItem("bend-heroes-state"); if (!saved) return void ($("notice").textContent = "No local save exists."); history.push(state); state = JSON.parse(saved); setSceneMode(tag(state.$6) === "Combat" ? "combat" : "map"); renderUI(); };
   $("combat-controls").querySelectorAll("[data-combat]").forEach(button => button.onclick = () => run(number(button.dataset.combat), number($("own-slot").value), number($("target-slot").value)));
+  $("combat-move").onclick = () => {
+    const column = clamp(number($("move-column").value), 0, 14), row = clamp(number($("move-row").value), 0, 10);
+    run(24, number($("own-slot").value), row * 15 + column);
+  };
+  $("combat-ai").onclick = () => {
+    if (tag(state.$6) !== "Combat") return;
+    const choice = Core.combatAiBattle(activeHero().$8, activeHero().$11, state.$6.$0.$2, state.$6.$0.$4);
+    run(number(choice.$0), number(choice.$1), number(choice.$2));
+  };
   addEventListener("keydown", event => {
     if (/INPUT|SELECT|TEXTAREA/.test(document.activeElement?.tagName || "") || tag(state.$6) !== "Adventure") return;
     const commands = { ArrowUp: 0, ArrowRight: 1, ArrowDown: 2, ArrowLeft: 3, PageUp: 9, PageDown: 10, End: 11, Home: 12, "9": 9, "3": 10, "1": 11, "7": 12 };

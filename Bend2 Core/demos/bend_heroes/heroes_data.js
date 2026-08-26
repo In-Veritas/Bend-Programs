@@ -781,41 +781,156 @@ function $browser_export_newGame_root_func$() {
   return run_jump($browser_export_newGame_root_func$k2$, [h$0]);
 }
 
+function $browser_export_newScenario_root_func$() {
+  const h$0 = run_loop($heroes_initial_faction_func$(1337, 2));
+  return run_jump($browser_export_newScenario_root_func$k3$, [h$0]);
+}
+
 function $browser_export_step_root_func$() {
-  const h$0 = run_loop($heroes_browser_step_func$({$: "Game", $0: 3, $1: 1, $2:
-    {$: "Red"}, $3: {$: "Kingdom", $0: {$: "Resources", $0: 10000, $1: 20, $2:
-    20, $3: 5, $4: 5, $5: 5, $6: 5}, $1: {$: "Hero", $0: "Catherine", $1: 1, $2:
-    5, $3: 1600, $4: 3, $5: 3, $6: 1, $7: 1, $8: 10, $9: 1, $10: 0, $11: {$:
-    "Army", $0: {$: "Troop", $0: {$: "Pikeman"}, $1: 30, $2: 10}, $1: {$:
-    "Troop", $0: {$: "Archer"}, $1: 12, $2: 10}, $2: {$: "EmptyStack"}, $3: {$:
-    "EmptyStack"}, $4: {$: "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$:
-    "EmptyStack"}}}, $2: {$: "Town", $0: {$: "Castle"}, $1: 1, $2: 0, $3: 3, $4:
-    false, $5: {$: "Stock", $0: 14, $1: 9, $2: 0, $3: 0, $4: 0, $5: 0, $6: 0}}},
-    $4: {$: "Kingdom", $0: {$: "Resources", $0: 10000, $1: 20, $2: 20, $3: 5,
-    $4: 5, $5: 5, $6: 5}, $1: {$: "Hero", $0: "Sandro", $1: 7, $2: 1, $3: 1600,
-    $4: 2, $5: 2, $6: 2, $7: 2, $8: 20, $9: 1, $10: 0, $11: {$: "Army", $0: {$:
-    "Troop", $0: {$: "Skeleton"}, $1: 40, $2: 6}, $1: {$: "EmptyStack"}, $2: {$:
-    "Troop", $0: {$: "Wight"}, $1: 9, $2: 18}, $3: {$: "EmptyStack"}, $4: {$:
-    "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}}}, $2: {$:
-    "Town", $0: {$: "Necropolis"}, $1: 1, $2: 0, $3: 7, $4: false, $5: {$:
-    "Stock", $0: 12, $1: 8, $2: 7, $3: 0, $4: 0, $5: 0, $6: 0}}}, $5: {$:
-    "World", $0: true, $1: true, $2: true, $3: true, $4: {$: "Neutral"}, $5: {$:
-    "Neutral"}, $6: {$: "Army", $0: {$: "Troop", $0: {$: "Griffin"}, $1: 10, $2:
-    25}, $1: {$: "EmptyStack"}, $2: {$: "EmptyStack"}, $3: {$: "EmptyStack"},
-    $4: {$: "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}}}, $6: {
-    $: "Adventure"}, $7: 1337, $8: 0, $9:
-    "Red begins Month 1, Week 1, Day 1 at the Castle."}, 0, 0, 0));
-  return run_jump($browser_export_step_root_func$k3$, [h$0]);
+  let $t$0;
+  const $t$1 = BigInt(0);
+  if ($t$1 === 0n) {
+    $t$0 = {$: "Game", $0: 0, $1: 1, $2: {$: "Red"}, $3: {$: "Kingdom", $0: {$:
+      "Resources", $0: 10000, $1: 20, $2: 20, $3: 5, $4: 5, $5: 5, $6: 5}, $1: {
+      $: "Hero", $0: "Catherine", $1: 1, $2: 5, $3: 1600, $4: 3, $5: 3, $6: 1,
+      $7: 1, $8: 10, $9: 1, $10: 0, $11: {$: "Army", $0: {$: "Troop", $0: {$:
+      "Pikeman"}, $1: 30, $2: 10}, $1: {$: "Troop", $0: {$: "Archer"}, $1: 12,
+      $2: 10}, $2: {$: "EmptyStack"}, $3: {$: "EmptyStack"}, $4: {$:
+      "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}}}, $2: {$:
+      "Town", $0: {$: "Castle"}, $1: 1, $2: 0, $3: 3, $4: false, $5: {$:
+      "Stock", $0: 14, $1: 9, $2: 0, $3: 0, $4: 0, $5: 0, $6: 0}}}, $4: {$:
+      "Kingdom", $0: {$: "Resources", $0: 10000, $1: 20, $2: 20, $3: 5, $4: 5,
+      $5: 5, $6: 5}, $1: {$: "Hero", $0: "Sandro", $1: 7, $2: 1, $3: 1600, $4:
+      2, $5: 2, $6: 2, $7: 2, $8: 20, $9: 1, $10: 0, $11: {$: "Army", $0: {$:
+      "Troop", $0: {$: "Skeleton"}, $1: 70, $2: 6}, $1: {$: "EmptyStack"}, $2: {
+      $: "Troop", $0: {$: "Wight"}, $1: 15, $2: 18}, $3: {$: "EmptyStack"}, $4:
+      {$: "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}}}, $2: {$:
+      "Town", $0: {$: "Necropolis"}, $1: 1, $2: 0, $3: 7, $4: false, $5: {$:
+      "Stock", $0: 12, $1: 8, $2: 7, $3: 0, $4: 0, $5: 0, $6: 0}}}, $5: {$:
+      "World", $0: true, $1: true, $2: true, $3: true, $4: {$: "Neutral"}, $5: {
+      $: "Neutral"}, $6: {$: "Army", $0: {$: "Troop", $0: {$: "Griffin"}, $1:
+      10, $2: 25}, $1: {$: "EmptyStack"}, $2: {$: "EmptyStack"}, $3: {$:
+      "EmptyStack"}, $4: {$: "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$:
+      "EmptyStack"}}}, $6: {$: "Adventure"}, $7: 1337, $8: 0, $9:
+      "Castle begins at the Red town against a Necropolis rival."};
+  } else {
+    const $t$2 = ($t$1 - 1n);
+    if ($t$2 === 0n) {
+      $t$0 = {$: "Game", $0: 1, $1: 1, $2: {$: "Red"}, $3: {$: "Kingdom", $0: {
+        $: "Resources", $0: 10000, $1: 20, $2: 20, $3: 5, $4: 5, $5: 5, $6: 5},
+        $1: {$: "Hero", $0: "Sandro", $1: 1, $2: 5, $3: 1600, $4: 2, $5: 2, $6:
+        2, $7: 2, $8: 20, $9: 1, $10: 0, $11: {$: "Army", $0: {$: "Troop", $0: {
+        $: "Skeleton"}, $1: 70, $2: 6}, $1: {$: "EmptyStack"}, $2: {$: "Troop",
+        $0: {$: "Wight"}, $1: 15, $2: 18}, $3: {$: "EmptyStack"}, $4: {$:
+        "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}}}, $2: {$:
+        "Town", $0: {$: "Necropolis"}, $1: 1, $2: 0, $3: 7, $4: false, $5: {$:
+        "Stock", $0: 12, $1: 8, $2: 7, $3: 0, $4: 0, $5: 0, $6: 0}}}, $4: {$:
+        "Kingdom", $0: {$: "Resources", $0: 10000, $1: 20, $2: 20, $3: 5, $4: 5,
+        $5: 5, $6: 5}, $1: {$: "Hero", $0: "Xeron", $1: 7, $2: 1, $3: 1600, $4:
+        4, $5: 2, $6: 2, $7: 1, $8: 10, $9: 1, $10: 0, $11: {$: "Army", $0: {$:
+        "Troop", $0: {$: "Imp"}, $1: 45, $2: 4}, $1: {$: "Troop", $0: {$:
+        "Gog"}, $1: 14, $2: 13}, $2: {$: "Troop", $0: {$: "HellHound"}, $1: 5,
+        $2: 25}, $3: {$: "EmptyStack"}, $4: {$: "EmptyStack"}, $5: {$:
+        "EmptyStack"}, $6: {$: "EmptyStack"}}}, $2: {$: "Town", $0: {$:
+        "Inferno"}, $1: 1, $2: 0, $3: 7, $4: false, $5: {$: "Stock", $0: 15, $1:
+        8, $2: 5, $3: 0, $4: 0, $5: 0, $6: 0}}}, $5: {$: "World", $0: true, $1:
+        true, $2: true, $3: true, $4: {$: "Neutral"}, $5: {$: "Neutral"}, $6: {
+        $: "Army", $0: {$: "Troop", $0: {$: "Griffin"}, $1: 10, $2: 25}, $1: {$:
+        "EmptyStack"}, $2: {$: "EmptyStack"}, $3: {$: "EmptyStack"}, $4: {$:
+        "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}}}, $6: {$:
+        "Adventure"}, $7: 1337, $8: 0, $9:
+        "Necropolis begins at the Red town against an Inferno rival."};
+    } else {
+      $t$0 = {$: "Game", $0: 2, $1: 1, $2: {$: "Red"}, $3: {$: "Kingdom", $0: {
+        $: "Resources", $0: 10000, $1: 20, $2: 20, $3: 5, $4: 5, $5: 5, $6: 5},
+        $1: {$: "Hero", $0: "Xeron", $1: 1, $2: 5, $3: 1600, $4: 4, $5: 2, $6:
+        2, $7: 1, $8: 10, $9: 1, $10: 0, $11: {$: "Army", $0: {$: "Troop", $0: {
+        $: "Imp"}, $1: 45, $2: 4}, $1: {$: "Troop", $0: {$: "Gog"}, $1: 14, $2:
+        13}, $2: {$: "Troop", $0: {$: "HellHound"}, $1: 5, $2: 25}, $3: {$:
+        "EmptyStack"}, $4: {$: "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$:
+        "EmptyStack"}}}, $2: {$: "Town", $0: {$: "Inferno"}, $1: 1, $2: 0, $3:
+        7, $4: false, $5: {$: "Stock", $0: 15, $1: 8, $2: 5, $3: 0, $4: 0, $5:
+        0, $6: 0}}}, $4: {$: "Kingdom", $0: {$: "Resources", $0: 10000, $1: 20,
+        $2: 20, $3: 5, $4: 5, $5: 5, $6: 5}, $1: {$: "Hero", $0: "Catherine",
+        $1: 7, $2: 1, $3: 1600, $4: 3, $5: 3, $6: 1, $7: 1, $8: 10, $9: 1, $10:
+        0, $11: {$: "Army", $0: {$: "Troop", $0: {$: "Pikeman"}, $1: 30, $2:
+        10}, $1: {$: "Troop", $0: {$: "Archer"}, $1: 12, $2: 10}, $2: {$:
+        "EmptyStack"}, $3: {$: "EmptyStack"}, $4: {$: "EmptyStack"}, $5: {$:
+        "EmptyStack"}, $6: {$: "EmptyStack"}}}, $2: {$: "Town", $0: {$:
+        "Castle"}, $1: 1, $2: 0, $3: 3, $4: false, $5: {$: "Stock", $0: 14, $1:
+        9, $2: 0, $3: 0, $4: 0, $5: 0, $6: 0}}}, $5: {$: "World", $0: true, $1:
+        true, $2: true, $3: true, $4: {$: "Neutral"}, $5: {$: "Neutral"}, $6: {
+        $: "Army", $0: {$: "Troop", $0: {$: "Griffin"}, $1: 10, $2: 25}, $1: {$:
+        "EmptyStack"}, $2: {$: "EmptyStack"}, $3: {$: "EmptyStack"}, $4: {$:
+        "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}}}, $6: {$:
+        "Adventure"}, $7: 1337, $8: 0, $9:
+        "Inferno begins at the Red town against a Castle rival."};
+    }
+  }
+  const h$0 = run_loop($heroes_browser_step_func$($t$0, 0, 0, 0));
+  return run_jump($browser_export_step_root_func$k4$, [h$0]);
 }
 
 function $browser_export_cell_root_func$() {
   const h$0 = run_loop($heroes_cell_func$(0, 0));
-  return run_jump($browser_export_cell_root_func$k4$, [h$0]);
+  return run_jump($browser_export_cell_root_func$k5$, [h$0]);
 }
 
 function $browser_export_damageProbe_root_func$() {
   const h$0 = run_loop($heroes_damage_probe_func$(4));
-  return run_jump($browser_export_damageProbe_root_func$k5$, [h$0]);
+  return run_jump($browser_export_damageProbe_root_func$k6$, [h$0]);
+}
+
+function $browser_export_battleObstacle_root_func$() {
+  const h$0 = run_loop($heroes_battle_obstacle_func$(7, 5, 1337));
+  return run_jump($browser_export_battleObstacle_root_func$k7$, [h$0]);
+}
+
+function $browser_export_battlefieldNew_root_func$() {
+  const h$0 = run_loop($heroes_battlefield_new_func$(0));
+  return run_jump($browser_export_battlefieldNew_root_func$k8$, [h$0]);
+}
+
+function $browser_export_hexDistance_root_func$() {
+  const h$0 = run_loop($heroes_hex_distance_func$(1, 5, 13, 5));
+  return run_jump($browser_export_hexDistance_root_func$k9$, [h$0]);
+}
+
+function $browser_export_attackReach_root_func$() {
+  const h$0 = run_loop($heroes_attack_reach_func$({$: "Archer"}, 1, 5, 13, 5,
+    false));
+  return run_jump($browser_export_attackReach_root_func$k10$, [h$0]);
+}
+
+function $browser_export_combatAi_root_func$() {
+  const h$0 = run_loop($combat_ai_choice_func$(10, {$: "Army", $0: {$: "Troop",
+    $0: {$: "Pikeman"}, $1: 30, $2: 10}, $1: {$: "Troop", $0: {$: "Archer"}, $1:
+    12, $2: 10}, $2: {$: "EmptyStack"}, $3: {$: "EmptyStack"}, $4: {$:
+    "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}}, {$: "Army",
+    $0: {$: "Troop", $0: {$: "Skeleton"}, $1: 70, $2: 6}, $1: {$: "EmptyStack"},
+    $2: {$: "Troop", $0: {$: "Wight"}, $1: 15, $2: 18}, $3: {$: "EmptyStack"},
+    $4: {$: "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}}));
+  return run_jump($browser_export_combatAi_root_func$k11$, [h$0]);
+}
+
+function $browser_export_combatAiBattle_root_func$() {
+  const h$0 = run_loop($combat_ai_battle_func$(0, {$: "Army", $0: {$: "Troop",
+    $0: {$: "Pikeman"}, $1: 30, $2: 10}, $1: {$: "Troop", $0: {$: "Archer"}, $1:
+    12, $2: 10}, $2: {$: "EmptyStack"}, $3: {$: "EmptyStack"}, $4: {$:
+    "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}}, {$: "Army",
+    $0: {$: "Troop", $0: {$: "Skeleton"}, $1: 70, $2: 6}, $1: {$: "EmptyStack"},
+    $2: {$: "Troop", $0: {$: "Wight"}, $1: 15, $2: 18}, $3: {$: "EmptyStack"},
+    $4: {$: "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}}, {$:
+    "Tactics.Battlefield", $0: {$: "Tactics.Formation", $0: {$: "Tactics.AtHex",
+    $0: 1, $1: 2}, $1: {$: "Tactics.AtHex", $0: 1, $1: 3}, $2: {$:
+    "Tactics.AtHex", $0: 1, $1: 4}, $3: {$: "Tactics.AtHex", $0: 1, $1: 5}, $4:
+    {$: "Tactics.AtHex", $0: 1, $1: 6}, $5: {$: "Tactics.AtHex", $0: 1, $1: 7},
+    $6: {$: "Tactics.AtHex", $0: 1, $1: 8}}, $1: {$: "Tactics.Formation", $0: {
+    $: "Tactics.AtHex", $0: 13, $1: 2}, $1: {$: "Tactics.AtHex", $0: 13, $1: 3},
+    $2: {$: "Tactics.AtHex", $0: 13, $1: 4}, $3: {$: "Tactics.AtHex", $0: 13,
+    $1: 5}, $4: {$: "Tactics.AtHex", $0: 13, $1: 6}, $5: {$: "Tactics.AtHex",
+    $0: 13, $1: 7}, $6: {$: "Tactics.AtHex", $0: 13, $1: 8}}, $2: 0}));
+  return run_jump($browser_export_combatAiBattle_root_func$k12$, [h$0]);
 }
 
 function $browser_data_root_func$k1$(h$0) {
@@ -823,28 +938,85 @@ function $browser_data_root_func$k1$(h$0) {
 }
 
 function $main_value$() {
-  return {$: "Game", $0: 3, $1: 1, $2: {$: "Red"}, $3: {$: "Kingdom", $0: {$:
-    "Resources", $0: 10000, $1: 20, $2: 20, $3: 5, $4: 5, $5: 5, $6: 5}, $1: {$:
-    "Hero", $0: "Catherine", $1: 1, $2: 5, $3: 1600, $4: 3, $5: 3, $6: 1, $7: 1,
-    $8: 10, $9: 1, $10: 0, $11: {$: "Army", $0: {$: "Troop", $0: {$: "Pikeman"},
-    $1: 30, $2: 10}, $1: {$: "Troop", $0: {$: "Archer"}, $1: 12, $2: 10}, $2: {
-    $: "EmptyStack"}, $3: {$: "EmptyStack"}, $4: {$: "EmptyStack"}, $5: {$:
-    "EmptyStack"}, $6: {$: "EmptyStack"}}}, $2: {$: "Town", $0: {$: "Castle"},
-    $1: 1, $2: 0, $3: 3, $4: false, $5: {$: "Stock", $0: 14, $1: 9, $2: 0, $3:
-    0, $4: 0, $5: 0, $6: 0}}}, $4: {$: "Kingdom", $0: {$: "Resources", $0:
-    10000, $1: 20, $2: 20, $3: 5, $4: 5, $5: 5, $6: 5}, $1: {$: "Hero", $0:
-    "Sandro", $1: 7, $2: 1, $3: 1600, $4: 2, $5: 2, $6: 2, $7: 2, $8: 20, $9: 1,
-    $10: 0, $11: {$: "Army", $0: {$: "Troop", $0: {$: "Skeleton"}, $1: 40, $2:
-    6}, $1: {$: "EmptyStack"}, $2: {$: "Troop", $0: {$: "Wight"}, $1: 9, $2:
-    18}, $3: {$: "EmptyStack"}, $4: {$: "EmptyStack"}, $5: {$: "EmptyStack"},
-    $6: {$: "EmptyStack"}}}, $2: {$: "Town", $0: {$: "Necropolis"}, $1: 1, $2:
-    0, $3: 7, $4: false, $5: {$: "Stock", $0: 12, $1: 8, $2: 7, $3: 0, $4: 0,
-    $5: 0, $6: 0}}}, $5: {$: "World", $0: true, $1: true, $2: true, $3: true,
-    $4: {$: "Neutral"}, $5: {$: "Neutral"}, $6: {$: "Army", $0: {$: "Troop", $0:
-    {$: "Griffin"}, $1: 10, $2: 25}, $1: {$: "EmptyStack"}, $2: {$:
-    "EmptyStack"}, $3: {$: "EmptyStack"}, $4: {$: "EmptyStack"}, $5: {$:
-    "EmptyStack"}, $6: {$: "EmptyStack"}}}, $6: {$: "Adventure"}, $7: 1337, $8:
-    0, $9: "Red begins Month 1, Week 1, Day 1 at the Castle."};
+  const $t$0 = BigInt(0);
+  if ($t$0 === 0n) {
+    return {$: "Game", $0: 0, $1: 1, $2: {$: "Red"}, $3: {$: "Kingdom", $0: {$:
+      "Resources", $0: 10000, $1: 20, $2: 20, $3: 5, $4: 5, $5: 5, $6: 5}, $1: {
+      $: "Hero", $0: "Catherine", $1: 1, $2: 5, $3: 1600, $4: 3, $5: 3, $6: 1,
+      $7: 1, $8: 10, $9: 1, $10: 0, $11: {$: "Army", $0: {$: "Troop", $0: {$:
+      "Pikeman"}, $1: 30, $2: 10}, $1: {$: "Troop", $0: {$: "Archer"}, $1: 12,
+      $2: 10}, $2: {$: "EmptyStack"}, $3: {$: "EmptyStack"}, $4: {$:
+      "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}}}, $2: {$:
+      "Town", $0: {$: "Castle"}, $1: 1, $2: 0, $3: 3, $4: false, $5: {$:
+      "Stock", $0: 14, $1: 9, $2: 0, $3: 0, $4: 0, $5: 0, $6: 0}}}, $4: {$:
+      "Kingdom", $0: {$: "Resources", $0: 10000, $1: 20, $2: 20, $3: 5, $4: 5,
+      $5: 5, $6: 5}, $1: {$: "Hero", $0: "Sandro", $1: 7, $2: 1, $3: 1600, $4:
+      2, $5: 2, $6: 2, $7: 2, $8: 20, $9: 1, $10: 0, $11: {$: "Army", $0: {$:
+      "Troop", $0: {$: "Skeleton"}, $1: 70, $2: 6}, $1: {$: "EmptyStack"}, $2: {
+      $: "Troop", $0: {$: "Wight"}, $1: 15, $2: 18}, $3: {$: "EmptyStack"}, $4:
+      {$: "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}}}, $2: {$:
+      "Town", $0: {$: "Necropolis"}, $1: 1, $2: 0, $3: 7, $4: false, $5: {$:
+      "Stock", $0: 12, $1: 8, $2: 7, $3: 0, $4: 0, $5: 0, $6: 0}}}, $5: {$:
+      "World", $0: true, $1: true, $2: true, $3: true, $4: {$: "Neutral"}, $5: {
+      $: "Neutral"}, $6: {$: "Army", $0: {$: "Troop", $0: {$: "Griffin"}, $1:
+      10, $2: 25}, $1: {$: "EmptyStack"}, $2: {$: "EmptyStack"}, $3: {$:
+      "EmptyStack"}, $4: {$: "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$:
+      "EmptyStack"}}}, $6: {$: "Adventure"}, $7: 1337, $8: 0, $9:
+      "Castle begins at the Red town against a Necropolis rival."};
+  } else {
+    const $t$1 = ($t$0 - 1n);
+    if ($t$1 === 0n) {
+      return {$: "Game", $0: 1, $1: 1, $2: {$: "Red"}, $3: {$: "Kingdom", $0: {
+        $: "Resources", $0: 10000, $1: 20, $2: 20, $3: 5, $4: 5, $5: 5, $6: 5},
+        $1: {$: "Hero", $0: "Sandro", $1: 1, $2: 5, $3: 1600, $4: 2, $5: 2, $6:
+        2, $7: 2, $8: 20, $9: 1, $10: 0, $11: {$: "Army", $0: {$: "Troop", $0: {
+        $: "Skeleton"}, $1: 70, $2: 6}, $1: {$: "EmptyStack"}, $2: {$: "Troop",
+        $0: {$: "Wight"}, $1: 15, $2: 18}, $3: {$: "EmptyStack"}, $4: {$:
+        "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}}}, $2: {$:
+        "Town", $0: {$: "Necropolis"}, $1: 1, $2: 0, $3: 7, $4: false, $5: {$:
+        "Stock", $0: 12, $1: 8, $2: 7, $3: 0, $4: 0, $5: 0, $6: 0}}}, $4: {$:
+        "Kingdom", $0: {$: "Resources", $0: 10000, $1: 20, $2: 20, $3: 5, $4: 5,
+        $5: 5, $6: 5}, $1: {$: "Hero", $0: "Xeron", $1: 7, $2: 1, $3: 1600, $4:
+        4, $5: 2, $6: 2, $7: 1, $8: 10, $9: 1, $10: 0, $11: {$: "Army", $0: {$:
+        "Troop", $0: {$: "Imp"}, $1: 45, $2: 4}, $1: {$: "Troop", $0: {$:
+        "Gog"}, $1: 14, $2: 13}, $2: {$: "Troop", $0: {$: "HellHound"}, $1: 5,
+        $2: 25}, $3: {$: "EmptyStack"}, $4: {$: "EmptyStack"}, $5: {$:
+        "EmptyStack"}, $6: {$: "EmptyStack"}}}, $2: {$: "Town", $0: {$:
+        "Inferno"}, $1: 1, $2: 0, $3: 7, $4: false, $5: {$: "Stock", $0: 15, $1:
+        8, $2: 5, $3: 0, $4: 0, $5: 0, $6: 0}}}, $5: {$: "World", $0: true, $1:
+        true, $2: true, $3: true, $4: {$: "Neutral"}, $5: {$: "Neutral"}, $6: {
+        $: "Army", $0: {$: "Troop", $0: {$: "Griffin"}, $1: 10, $2: 25}, $1: {$:
+        "EmptyStack"}, $2: {$: "EmptyStack"}, $3: {$: "EmptyStack"}, $4: {$:
+        "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}}}, $6: {$:
+        "Adventure"}, $7: 1337, $8: 0, $9:
+        "Necropolis begins at the Red town against an Inferno rival."};
+    } else {
+      return {$: "Game", $0: 2, $1: 1, $2: {$: "Red"}, $3: {$: "Kingdom", $0: {
+        $: "Resources", $0: 10000, $1: 20, $2: 20, $3: 5, $4: 5, $5: 5, $6: 5},
+        $1: {$: "Hero", $0: "Xeron", $1: 1, $2: 5, $3: 1600, $4: 4, $5: 2, $6:
+        2, $7: 1, $8: 10, $9: 1, $10: 0, $11: {$: "Army", $0: {$: "Troop", $0: {
+        $: "Imp"}, $1: 45, $2: 4}, $1: {$: "Troop", $0: {$: "Gog"}, $1: 14, $2:
+        13}, $2: {$: "Troop", $0: {$: "HellHound"}, $1: 5, $2: 25}, $3: {$:
+        "EmptyStack"}, $4: {$: "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$:
+        "EmptyStack"}}}, $2: {$: "Town", $0: {$: "Inferno"}, $1: 1, $2: 0, $3:
+        7, $4: false, $5: {$: "Stock", $0: 15, $1: 8, $2: 5, $3: 0, $4: 0, $5:
+        0, $6: 0}}}, $4: {$: "Kingdom", $0: {$: "Resources", $0: 10000, $1: 20,
+        $2: 20, $3: 5, $4: 5, $5: 5, $6: 5}, $1: {$: "Hero", $0: "Catherine",
+        $1: 7, $2: 1, $3: 1600, $4: 3, $5: 3, $6: 1, $7: 1, $8: 10, $9: 1, $10:
+        0, $11: {$: "Army", $0: {$: "Troop", $0: {$: "Pikeman"}, $1: 30, $2:
+        10}, $1: {$: "Troop", $0: {$: "Archer"}, $1: 12, $2: 10}, $2: {$:
+        "EmptyStack"}, $3: {$: "EmptyStack"}, $4: {$: "EmptyStack"}, $5: {$:
+        "EmptyStack"}, $6: {$: "EmptyStack"}}}, $2: {$: "Town", $0: {$:
+        "Castle"}, $1: 1, $2: 0, $3: 3, $4: false, $5: {$: "Stock", $0: 14, $1:
+        9, $2: 0, $3: 0, $4: 0, $5: 0, $6: 0}}}, $5: {$: "World", $0: true, $1:
+        true, $2: true, $3: true, $4: {$: "Neutral"}, $5: {$: "Neutral"}, $6: {
+        $: "Army", $0: {$: "Troop", $0: {$: "Griffin"}, $1: 10, $2: 25}, $1: {$:
+        "EmptyStack"}, $2: {$: "EmptyStack"}, $3: {$: "EmptyStack"}, $4: {$:
+        "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}}}, $6: {$:
+        "Adventure"}, $7: 1337, $8: 0, $9:
+        "Inferno begins at the Red town against a Castle rival."};
+    }
+  }
 }
 
 function $browser_export_newGame_root_func$k2$(h$0) {
@@ -852,31 +1024,175 @@ function $browser_export_newGame_root_func$k2$(h$0) {
 }
 
 function $heroes_initial_func$(seed$0) {
-  return {$: "Game", $0: 3, $1: 1, $2: {$: "Red"}, $3: {$: "Kingdom", $0: {$:
-    "Resources", $0: 10000, $1: 20, $2: 20, $3: 5, $4: 5, $5: 5, $6: 5}, $1: {$:
-    "Hero", $0: "Catherine", $1: 1, $2: 5, $3: 1600, $4: 3, $5: 3, $6: 1, $7: 1,
-    $8: 10, $9: 1, $10: 0, $11: {$: "Army", $0: {$: "Troop", $0: {$: "Pikeman"},
-    $1: 30, $2: 10}, $1: {$: "Troop", $0: {$: "Archer"}, $1: 12, $2: 10}, $2: {
-    $: "EmptyStack"}, $3: {$: "EmptyStack"}, $4: {$: "EmptyStack"}, $5: {$:
-    "EmptyStack"}, $6: {$: "EmptyStack"}}}, $2: {$: "Town", $0: {$: "Castle"},
-    $1: 1, $2: 0, $3: 3, $4: false, $5: {$: "Stock", $0: 14, $1: 9, $2: 0, $3:
-    0, $4: 0, $5: 0, $6: 0}}}, $4: {$: "Kingdom", $0: {$: "Resources", $0:
-    10000, $1: 20, $2: 20, $3: 5, $4: 5, $5: 5, $6: 5}, $1: {$: "Hero", $0:
-    "Sandro", $1: 7, $2: 1, $3: 1600, $4: 2, $5: 2, $6: 2, $7: 2, $8: 20, $9: 1,
-    $10: 0, $11: {$: "Army", $0: {$: "Troop", $0: {$: "Skeleton"}, $1: 40, $2:
-    6}, $1: {$: "EmptyStack"}, $2: {$: "Troop", $0: {$: "Wight"}, $1: 9, $2:
-    18}, $3: {$: "EmptyStack"}, $4: {$: "EmptyStack"}, $5: {$: "EmptyStack"},
-    $6: {$: "EmptyStack"}}}, $2: {$: "Town", $0: {$: "Necropolis"}, $1: 1, $2:
-    0, $3: 7, $4: false, $5: {$: "Stock", $0: 12, $1: 8, $2: 7, $3: 0, $4: 0,
-    $5: 0, $6: 0}}}, $5: {$: "World", $0: true, $1: true, $2: true, $3: true,
-    $4: {$: "Neutral"}, $5: {$: "Neutral"}, $6: {$: "Army", $0: {$: "Troop", $0:
-    {$: "Griffin"}, $1: 10, $2: 25}, $1: {$: "EmptyStack"}, $2: {$:
-    "EmptyStack"}, $3: {$: "EmptyStack"}, $4: {$: "EmptyStack"}, $5: {$:
-    "EmptyStack"}, $6: {$: "EmptyStack"}}}, $6: {$: "Adventure"}, $7: seed$0,
-    $8: 0, $9: "Red begins Month 1, Week 1, Day 1 at the Castle."};
+  const seed$1 = seed$0;
+  const $t$0 = BigInt(0);
+  if ($t$0 === 0n) {
+    return {$: "Game", $0: 0, $1: 1, $2: {$: "Red"}, $3: {$: "Kingdom", $0: {$:
+      "Resources", $0: 10000, $1: 20, $2: 20, $3: 5, $4: 5, $5: 5, $6: 5}, $1: {
+      $: "Hero", $0: "Catherine", $1: 1, $2: 5, $3: 1600, $4: 3, $5: 3, $6: 1,
+      $7: 1, $8: 10, $9: 1, $10: 0, $11: {$: "Army", $0: {$: "Troop", $0: {$:
+      "Pikeman"}, $1: 30, $2: 10}, $1: {$: "Troop", $0: {$: "Archer"}, $1: 12,
+      $2: 10}, $2: {$: "EmptyStack"}, $3: {$: "EmptyStack"}, $4: {$:
+      "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}}}, $2: {$:
+      "Town", $0: {$: "Castle"}, $1: 1, $2: 0, $3: 3, $4: false, $5: {$:
+      "Stock", $0: 14, $1: 9, $2: 0, $3: 0, $4: 0, $5: 0, $6: 0}}}, $4: {$:
+      "Kingdom", $0: {$: "Resources", $0: 10000, $1: 20, $2: 20, $3: 5, $4: 5,
+      $5: 5, $6: 5}, $1: {$: "Hero", $0: "Sandro", $1: 7, $2: 1, $3: 1600, $4:
+      2, $5: 2, $6: 2, $7: 2, $8: 20, $9: 1, $10: 0, $11: {$: "Army", $0: {$:
+      "Troop", $0: {$: "Skeleton"}, $1: 70, $2: 6}, $1: {$: "EmptyStack"}, $2: {
+      $: "Troop", $0: {$: "Wight"}, $1: 15, $2: 18}, $3: {$: "EmptyStack"}, $4:
+      {$: "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}}}, $2: {$:
+      "Town", $0: {$: "Necropolis"}, $1: 1, $2: 0, $3: 7, $4: false, $5: {$:
+      "Stock", $0: 12, $1: 8, $2: 7, $3: 0, $4: 0, $5: 0, $6: 0}}}, $5: {$:
+      "World", $0: true, $1: true, $2: true, $3: true, $4: {$: "Neutral"}, $5: {
+      $: "Neutral"}, $6: {$: "Army", $0: {$: "Troop", $0: {$: "Griffin"}, $1:
+      10, $2: 25}, $1: {$: "EmptyStack"}, $2: {$: "EmptyStack"}, $3: {$:
+      "EmptyStack"}, $4: {$: "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$:
+      "EmptyStack"}}}, $6: {$: "Adventure"}, $7: seed$1, $8: 0, $9:
+      "Castle begins at the Red town against a Necropolis rival."};
+  } else {
+    const $t$1 = ($t$0 - 1n);
+    if ($t$1 === 0n) {
+      return {$: "Game", $0: 1, $1: 1, $2: {$: "Red"}, $3: {$: "Kingdom", $0: {
+        $: "Resources", $0: 10000, $1: 20, $2: 20, $3: 5, $4: 5, $5: 5, $6: 5},
+        $1: {$: "Hero", $0: "Sandro", $1: 1, $2: 5, $3: 1600, $4: 2, $5: 2, $6:
+        2, $7: 2, $8: 20, $9: 1, $10: 0, $11: {$: "Army", $0: {$: "Troop", $0: {
+        $: "Skeleton"}, $1: 70, $2: 6}, $1: {$: "EmptyStack"}, $2: {$: "Troop",
+        $0: {$: "Wight"}, $1: 15, $2: 18}, $3: {$: "EmptyStack"}, $4: {$:
+        "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}}}, $2: {$:
+        "Town", $0: {$: "Necropolis"}, $1: 1, $2: 0, $3: 7, $4: false, $5: {$:
+        "Stock", $0: 12, $1: 8, $2: 7, $3: 0, $4: 0, $5: 0, $6: 0}}}, $4: {$:
+        "Kingdom", $0: {$: "Resources", $0: 10000, $1: 20, $2: 20, $3: 5, $4: 5,
+        $5: 5, $6: 5}, $1: {$: "Hero", $0: "Xeron", $1: 7, $2: 1, $3: 1600, $4:
+        4, $5: 2, $6: 2, $7: 1, $8: 10, $9: 1, $10: 0, $11: {$: "Army", $0: {$:
+        "Troop", $0: {$: "Imp"}, $1: 45, $2: 4}, $1: {$: "Troop", $0: {$:
+        "Gog"}, $1: 14, $2: 13}, $2: {$: "Troop", $0: {$: "HellHound"}, $1: 5,
+        $2: 25}, $3: {$: "EmptyStack"}, $4: {$: "EmptyStack"}, $5: {$:
+        "EmptyStack"}, $6: {$: "EmptyStack"}}}, $2: {$: "Town", $0: {$:
+        "Inferno"}, $1: 1, $2: 0, $3: 7, $4: false, $5: {$: "Stock", $0: 15, $1:
+        8, $2: 5, $3: 0, $4: 0, $5: 0, $6: 0}}}, $5: {$: "World", $0: true, $1:
+        true, $2: true, $3: true, $4: {$: "Neutral"}, $5: {$: "Neutral"}, $6: {
+        $: "Army", $0: {$: "Troop", $0: {$: "Griffin"}, $1: 10, $2: 25}, $1: {$:
+        "EmptyStack"}, $2: {$: "EmptyStack"}, $3: {$: "EmptyStack"}, $4: {$:
+        "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}}}, $6: {$:
+        "Adventure"}, $7: seed$1, $8: 0, $9:
+        "Necropolis begins at the Red town against an Inferno rival."};
+    } else {
+      return {$: "Game", $0: 2, $1: 1, $2: {$: "Red"}, $3: {$: "Kingdom", $0: {
+        $: "Resources", $0: 10000, $1: 20, $2: 20, $3: 5, $4: 5, $5: 5, $6: 5},
+        $1: {$: "Hero", $0: "Xeron", $1: 1, $2: 5, $3: 1600, $4: 4, $5: 2, $6:
+        2, $7: 1, $8: 10, $9: 1, $10: 0, $11: {$: "Army", $0: {$: "Troop", $0: {
+        $: "Imp"}, $1: 45, $2: 4}, $1: {$: "Troop", $0: {$: "Gog"}, $1: 14, $2:
+        13}, $2: {$: "Troop", $0: {$: "HellHound"}, $1: 5, $2: 25}, $3: {$:
+        "EmptyStack"}, $4: {$: "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$:
+        "EmptyStack"}}}, $2: {$: "Town", $0: {$: "Inferno"}, $1: 1, $2: 0, $3:
+        7, $4: false, $5: {$: "Stock", $0: 15, $1: 8, $2: 5, $3: 0, $4: 0, $5:
+        0, $6: 0}}}, $4: {$: "Kingdom", $0: {$: "Resources", $0: 10000, $1: 20,
+        $2: 20, $3: 5, $4: 5, $5: 5, $6: 5}, $1: {$: "Hero", $0: "Catherine",
+        $1: 7, $2: 1, $3: 1600, $4: 3, $5: 3, $6: 1, $7: 1, $8: 10, $9: 1, $10:
+        0, $11: {$: "Army", $0: {$: "Troop", $0: {$: "Pikeman"}, $1: 30, $2:
+        10}, $1: {$: "Troop", $0: {$: "Archer"}, $1: 12, $2: 10}, $2: {$:
+        "EmptyStack"}, $3: {$: "EmptyStack"}, $4: {$: "EmptyStack"}, $5: {$:
+        "EmptyStack"}, $6: {$: "EmptyStack"}}}, $2: {$: "Town", $0: {$:
+        "Castle"}, $1: 1, $2: 0, $3: 3, $4: false, $5: {$: "Stock", $0: 14, $1:
+        9, $2: 0, $3: 0, $4: 0, $5: 0, $6: 0}}}, $5: {$: "World", $0: true, $1:
+        true, $2: true, $3: true, $4: {$: "Neutral"}, $5: {$: "Neutral"}, $6: {
+        $: "Army", $0: {$: "Troop", $0: {$: "Griffin"}, $1: 10, $2: 25}, $1: {$:
+        "EmptyStack"}, $2: {$: "EmptyStack"}, $3: {$: "EmptyStack"}, $4: {$:
+        "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}}}, $6: {$:
+        "Adventure"}, $7: seed$1, $8: 0, $9:
+        "Inferno begins at the Red town against a Castle rival."};
+    }
+  }
 }
 
-function $browser_export_step_root_func$k3$(h$0) {
+function $browser_export_newScenario_root_func$k3$(h$0) {
+  return run_jump($IO$pure$, [h$0]);
+}
+
+function $heroes_initial_faction_func$(seed$0, faction_index$0) {
+  const $t$0 = BigInt(faction_index$0);
+  if ($t$0 === 0n) {
+    return {$: "Game", $0: 0, $1: 1, $2: {$: "Red"}, $3: {$: "Kingdom", $0: {$:
+      "Resources", $0: 10000, $1: 20, $2: 20, $3: 5, $4: 5, $5: 5, $6: 5}, $1: {
+      $: "Hero", $0: "Catherine", $1: 1, $2: 5, $3: 1600, $4: 3, $5: 3, $6: 1,
+      $7: 1, $8: 10, $9: 1, $10: 0, $11: {$: "Army", $0: {$: "Troop", $0: {$:
+      "Pikeman"}, $1: 30, $2: 10}, $1: {$: "Troop", $0: {$: "Archer"}, $1: 12,
+      $2: 10}, $2: {$: "EmptyStack"}, $3: {$: "EmptyStack"}, $4: {$:
+      "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}}}, $2: {$:
+      "Town", $0: {$: "Castle"}, $1: 1, $2: 0, $3: 3, $4: false, $5: {$:
+      "Stock", $0: 14, $1: 9, $2: 0, $3: 0, $4: 0, $5: 0, $6: 0}}}, $4: {$:
+      "Kingdom", $0: {$: "Resources", $0: 10000, $1: 20, $2: 20, $3: 5, $4: 5,
+      $5: 5, $6: 5}, $1: {$: "Hero", $0: "Sandro", $1: 7, $2: 1, $3: 1600, $4:
+      2, $5: 2, $6: 2, $7: 2, $8: 20, $9: 1, $10: 0, $11: {$: "Army", $0: {$:
+      "Troop", $0: {$: "Skeleton"}, $1: 70, $2: 6}, $1: {$: "EmptyStack"}, $2: {
+      $: "Troop", $0: {$: "Wight"}, $1: 15, $2: 18}, $3: {$: "EmptyStack"}, $4:
+      {$: "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}}}, $2: {$:
+      "Town", $0: {$: "Necropolis"}, $1: 1, $2: 0, $3: 7, $4: false, $5: {$:
+      "Stock", $0: 12, $1: 8, $2: 7, $3: 0, $4: 0, $5: 0, $6: 0}}}, $5: {$:
+      "World", $0: true, $1: true, $2: true, $3: true, $4: {$: "Neutral"}, $5: {
+      $: "Neutral"}, $6: {$: "Army", $0: {$: "Troop", $0: {$: "Griffin"}, $1:
+      10, $2: 25}, $1: {$: "EmptyStack"}, $2: {$: "EmptyStack"}, $3: {$:
+      "EmptyStack"}, $4: {$: "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$:
+      "EmptyStack"}}}, $6: {$: "Adventure"}, $7: seed$0, $8: 0, $9:
+      "Castle begins at the Red town against a Necropolis rival."};
+  } else {
+    const $t$1 = ($t$0 - 1n);
+    if ($t$1 === 0n) {
+      return {$: "Game", $0: 1, $1: 1, $2: {$: "Red"}, $3: {$: "Kingdom", $0: {
+        $: "Resources", $0: 10000, $1: 20, $2: 20, $3: 5, $4: 5, $5: 5, $6: 5},
+        $1: {$: "Hero", $0: "Sandro", $1: 1, $2: 5, $3: 1600, $4: 2, $5: 2, $6:
+        2, $7: 2, $8: 20, $9: 1, $10: 0, $11: {$: "Army", $0: {$: "Troop", $0: {
+        $: "Skeleton"}, $1: 70, $2: 6}, $1: {$: "EmptyStack"}, $2: {$: "Troop",
+        $0: {$: "Wight"}, $1: 15, $2: 18}, $3: {$: "EmptyStack"}, $4: {$:
+        "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}}}, $2: {$:
+        "Town", $0: {$: "Necropolis"}, $1: 1, $2: 0, $3: 7, $4: false, $5: {$:
+        "Stock", $0: 12, $1: 8, $2: 7, $3: 0, $4: 0, $5: 0, $6: 0}}}, $4: {$:
+        "Kingdom", $0: {$: "Resources", $0: 10000, $1: 20, $2: 20, $3: 5, $4: 5,
+        $5: 5, $6: 5}, $1: {$: "Hero", $0: "Xeron", $1: 7, $2: 1, $3: 1600, $4:
+        4, $5: 2, $6: 2, $7: 1, $8: 10, $9: 1, $10: 0, $11: {$: "Army", $0: {$:
+        "Troop", $0: {$: "Imp"}, $1: 45, $2: 4}, $1: {$: "Troop", $0: {$:
+        "Gog"}, $1: 14, $2: 13}, $2: {$: "Troop", $0: {$: "HellHound"}, $1: 5,
+        $2: 25}, $3: {$: "EmptyStack"}, $4: {$: "EmptyStack"}, $5: {$:
+        "EmptyStack"}, $6: {$: "EmptyStack"}}}, $2: {$: "Town", $0: {$:
+        "Inferno"}, $1: 1, $2: 0, $3: 7, $4: false, $5: {$: "Stock", $0: 15, $1:
+        8, $2: 5, $3: 0, $4: 0, $5: 0, $6: 0}}}, $5: {$: "World", $0: true, $1:
+        true, $2: true, $3: true, $4: {$: "Neutral"}, $5: {$: "Neutral"}, $6: {
+        $: "Army", $0: {$: "Troop", $0: {$: "Griffin"}, $1: 10, $2: 25}, $1: {$:
+        "EmptyStack"}, $2: {$: "EmptyStack"}, $3: {$: "EmptyStack"}, $4: {$:
+        "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}}}, $6: {$:
+        "Adventure"}, $7: seed$0, $8: 0, $9:
+        "Necropolis begins at the Red town against an Inferno rival."};
+    } else {
+      return {$: "Game", $0: 2, $1: 1, $2: {$: "Red"}, $3: {$: "Kingdom", $0: {
+        $: "Resources", $0: 10000, $1: 20, $2: 20, $3: 5, $4: 5, $5: 5, $6: 5},
+        $1: {$: "Hero", $0: "Xeron", $1: 1, $2: 5, $3: 1600, $4: 4, $5: 2, $6:
+        2, $7: 1, $8: 10, $9: 1, $10: 0, $11: {$: "Army", $0: {$: "Troop", $0: {
+        $: "Imp"}, $1: 45, $2: 4}, $1: {$: "Troop", $0: {$: "Gog"}, $1: 14, $2:
+        13}, $2: {$: "Troop", $0: {$: "HellHound"}, $1: 5, $2: 25}, $3: {$:
+        "EmptyStack"}, $4: {$: "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$:
+        "EmptyStack"}}}, $2: {$: "Town", $0: {$: "Inferno"}, $1: 1, $2: 0, $3:
+        7, $4: false, $5: {$: "Stock", $0: 15, $1: 8, $2: 5, $3: 0, $4: 0, $5:
+        0, $6: 0}}}, $4: {$: "Kingdom", $0: {$: "Resources", $0: 10000, $1: 20,
+        $2: 20, $3: 5, $4: 5, $5: 5, $6: 5}, $1: {$: "Hero", $0: "Catherine",
+        $1: 7, $2: 1, $3: 1600, $4: 3, $5: 3, $6: 1, $7: 1, $8: 10, $9: 1, $10:
+        0, $11: {$: "Army", $0: {$: "Troop", $0: {$: "Pikeman"}, $1: 30, $2:
+        10}, $1: {$: "Troop", $0: {$: "Archer"}, $1: 12, $2: 10}, $2: {$:
+        "EmptyStack"}, $3: {$: "EmptyStack"}, $4: {$: "EmptyStack"}, $5: {$:
+        "EmptyStack"}, $6: {$: "EmptyStack"}}}, $2: {$: "Town", $0: {$:
+        "Castle"}, $1: 1, $2: 0, $3: 3, $4: false, $5: {$: "Stock", $0: 14, $1:
+        9, $2: 0, $3: 0, $4: 0, $5: 0, $6: 0}}}, $5: {$: "World", $0: true, $1:
+        true, $2: true, $3: true, $4: {$: "Neutral"}, $5: {$: "Neutral"}, $6: {
+        $: "Army", $0: {$: "Troop", $0: {$: "Griffin"}, $1: 10, $2: 25}, $1: {$:
+        "EmptyStack"}, $2: {$: "EmptyStack"}, $3: {$: "EmptyStack"}, $4: {$:
+        "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}}}, $6: {$:
+        "Adventure"}, $7: seed$0, $8: 0, $9:
+        "Inferno begins at the Red town against a Castle rival."};
+    }
+  }
+}
+
+function $browser_export_step_root_func$k4$(h$0) {
   return run_jump($IO$pure$, [h$0]);
 }
 
@@ -885,7 +1201,7 @@ function $heroes_browser_step_func$(game$0, command$0, arg0$0, arg1$0) {
     arg1$0]);
 }
 
-function $browser_export_cell_root_func$k4$(h$0) {
+function $browser_export_cell_root_func$k5$(h$0) {
   return run_jump($IO$pure$, [h$0]);
 }
 
@@ -1078,7 +1394,7 @@ function $heroes_cell_func$(x$0, y$0) {
   }
 }
 
-function $browser_export_damageProbe_root_func$k5$(h$0) {
+function $browser_export_damageProbe_root_func$k6$(h$0) {
   return run_jump($IO$pure$, [h$0]);
 }
 
@@ -1087,13 +1403,83 @@ function $heroes_damage_probe_func$(damage$0) {
     $2: 10}, damage$0]);
 }
 
+function $browser_export_battleObstacle_root_func$k7$(h$0) {
+  return run_jump($IO$pure$, [h$0]);
+}
+
+function $heroes_battle_obstacle_func$(column$0, row$0, seed$0) {
+  return run_jump($Tactics$battlefield_obstacle$, [column$0, row$0, seed$0]);
+}
+
+function $browser_export_battlefieldNew_root_func$k8$(h$0) {
+  return run_jump($IO$pure$, [h$0]);
+}
+
+function $heroes_battlefield_new_func$(seed$0) {
+  const seed$1 = seed$0;
+  return {$: "Tactics.Battlefield", $0: {$: "Tactics.Formation", $0: {$:
+    "Tactics.AtHex", $0: 1, $1: 2}, $1: {$: "Tactics.AtHex", $0: 1, $1: 3}, $2:
+    {$: "Tactics.AtHex", $0: 1, $1: 4}, $3: {$: "Tactics.AtHex", $0: 1, $1: 5},
+    $4: {$: "Tactics.AtHex", $0: 1, $1: 6}, $5: {$: "Tactics.AtHex", $0: 1, $1:
+    7}, $6: {$: "Tactics.AtHex", $0: 1, $1: 8}}, $1: {$: "Tactics.Formation",
+    $0: {$: "Tactics.AtHex", $0: 13, $1: 2}, $1: {$: "Tactics.AtHex", $0: 13,
+    $1: 3}, $2: {$: "Tactics.AtHex", $0: 13, $1: 4}, $3: {$: "Tactics.AtHex",
+    $0: 13, $1: 5}, $4: {$: "Tactics.AtHex", $0: 13, $1: 6}, $5: {$:
+    "Tactics.AtHex", $0: 13, $1: 7}, $6: {$: "Tactics.AtHex", $0: 13, $1: 8}},
+    $2: seed$1};
+}
+
+function $browser_export_hexDistance_root_func$k9$(h$0) {
+  return run_jump($IO$pure$, [h$0]);
+}
+
+function $heroes_hex_distance_func$(left_column$0, left_row$0, right_column$0,
+  right_row$0) {
+  return run_jump($Tactics$hex_distance_values$, [left_column$0, left_row$0,
+    right_column$0, right_row$0]);
+}
+
+function $browser_export_attackReach_root_func$k10$(h$0) {
+  return run_jump($IO$pure$, [h$0]);
+}
+
+function $heroes_attack_reach_func$(kind$0, actor_column$0, actor_row$0,
+  target_column$0, target_row$0, blocked$0) {
+  return run_jump($creature_attack_reach_func$, [kind$0, actor_column$0,
+    actor_row$0, target_column$0, target_row$0, blocked$0]);
+}
+
+function $browser_export_combatAi_root_func$k11$(h$0) {
+  return run_jump($IO$pure$, [h$0]);
+}
+
+function $combat_ai_choice_func$(mana$0, player$0, enemy$0) {
+  const h$0 = run_loop($army_ai_strongest_func$(player$0));
+  return run_jump($combat_ai_choice_func$k13$, [mana$0, enemy$0, h$0]);
+}
+
+function $browser_export_combatAiBattle_root_func$k12$(h$0) {
+  return run_jump($IO$pure$, [h$0]);
+}
+
+function $combat_ai_battle_func$(mana$0, player$0, enemy$0, battlefield$0) {
+  const $t$0 = (5 <= mana$0);
+  if ($t$0) {
+    const h$0 = run_loop($army_ai_strongest_func$(player$0));
+    return run_jump($combat_ai_battle_func$k15$, [enemy$0, h$0]);
+  } else {
+    return run_jump($combat_ai_battle_no_spell_func$, [player$0, enemy$0,
+      battlefield$0]);
+  }
+}
+
 function $main_accept_value_func$(game$0) {
   const h$0 = run_loop($heroes_self_check_func$());
-  return run_jump($main_accept_value_func$k6$, [h$0]);
+  return run_jump($main_accept_value_func$k17$, [h$0]);
 }
 
 function $IO$pure$(x$0) {
-  return (x$1) => run_loop($IO$pure$c7$(x$0, x$1));
+  return (x$1) => run_loop($IO$pure$c18$(x$0, x$1));
 }
 
 function $heroes_step_nat_func$(command$0, game$0, arg0$0, arg1$0) {
@@ -1190,9 +1576,64 @@ function $heroes_step_nat_func$(command$0, game$0, arg0$0, arg1$0) {
                                                     $game_combat_func$, [game$0,
                                                     23, arg0$0, arg1$0]);
                                                 } else {
-                                                  return run_jump(
-                                                    $game_notice_func$, [game$0,
-                                                    "Unknown command; the state was preserved."]);
+                                                  const $t$23 = ($t$22 - 1n);
+                                                  if ($t$23 === 0n) {
+                                                    return run_jump(
+                                                      $game_combat_func$,
+                                                      [game$0, 24, arg0$0,
+                                                      arg1$0]);
+                                                  } else {
+                                                    const $t$24 = ($t$23 - 1n);
+                                                    if ($t$24 !== 0n) {
+                                                      const $t$25 = (
+                                                        $t$24 - 1n);
+                                                      if ($t$25 !== 0n) {
+                                                        const $t$26 = (
+                                                          $t$25 - 1n);
+                                                        if ($t$26 !== 0n) {
+                                                          const $t$27 = (
+                                                            $t$26 - 1n);
+                                                          if ($t$27 !== 0n) {
+                                                            const $t$28 = (
+                                                              $t$27 - 1n);
+                                                            if ($t$28 !== 0n) {
+                                                              const $t$29 = (
+                                                                $t$28 - 1n);
+                                                              if (
+                                                                $t$29 === 0n) {
+                                                                return run_jump(
+                                                                  $game_strategic_ai_func$, [game$0]);
+                                                              } else {
+                                                                return run_jump(
+                                                                  $game_notice_func$, [game$0, "Unknown command; the state was preserved."]);
+                                                              }
+                                                            } else {
+                                                              return run_jump(
+                                                                $game_notice_func$, [game$0, "Unknown command; the state was preserved."]);
+                                                            }
+                                                          } else {
+                                                            return run_jump(
+                                                              $game_notice_func$, [game$0, "Unknown command; the state was preserved."]);
+                                                          }
+                                                        } else {
+                                                          return run_jump(
+                                                            $game_notice_func$,
+                                                            [game$0,
+                                                            "Unknown command; the state was preserved."]);
+                                                        }
+                                                      } else {
+                                                        return run_jump(
+                                                          $game_notice_func$,
+                                                          [game$0,
+                                                          "Unknown command; the state was preserved."]);
+                                                      }
+                                                    } else {
+                                                      return run_jump(
+                                                        $game_notice_func$,
+                                                        [game$0,
+                                                        "Unknown command; the state was preserved."]);
+                                                    }
+                                                  }
                                                 }
                                               }
                                             }
@@ -1253,52 +1694,88 @@ function $stack_damage_func$(stack$0, damage$0) {
     let $t$0;
     if (kind$0.$ === "Pikeman") {
       $t$0 = {$: "CreatureBundle", $0: {$: "Pikeman"}, $1: {$: "CreatureStats",
-        $0: 4, $1: 5, $2: 1, $3: 3, $4: 10, $5: 4, $6: 14, $7: 60, $8: false}};
+        $0: 4, $1: 5, $2: 1, $3: 3, $4: 10, $5: 4, $6: 14, $7: 60, $8: 1, $9: 0,
+        $10: false, $11: 1}};
     } else if (kind$0.$ === "Archer") {
       $t$0 = {$: "CreatureBundle", $0: {$: "Archer"}, $1: {$: "CreatureStats",
-        $0: 6, $1: 3, $2: 2, $3: 3, $4: 10, $5: 4, $6: 9, $7: 100, $8: true}};
+        $0: 6, $1: 3, $2: 2, $3: 3, $4: 10, $5: 4, $6: 9, $7: 100, $8: 15, $9:
+        12, $10: false, $11: 1}};
     } else if (kind$0.$ === "Griffin") {
       $t$0 = {$: "CreatureBundle", $0: {$: "Griffin"}, $1: {$: "CreatureStats",
-        $0: 8, $1: 8, $2: 3, $3: 6, $4: 25, $5: 6, $6: 7, $7: 200, $8: false}};
+        $0: 8, $1: 8, $2: 3, $3: 6, $4: 25, $5: 6, $6: 7, $7: 200, $8: 1, $9: 0,
+        $10: true, $11: 2}};
     } else if (kind$0.$ === "Swordsman") {
       $t$0 = {$: "CreatureBundle", $0: {$: "Swordsman"}, $1: {$:
         "CreatureStats", $0: 10, $1: 12, $2: 6, $3: 9, $4: 35, $5: 5, $6: 4, $7:
-        300, $8: false}};
+        300, $8: 1, $9: 0, $10: false, $11: 1}};
     } else if (kind$0.$ === "Monk") {
       $t$0 = {$: "CreatureBundle", $0: {$: "Monk"}, $1: {$: "CreatureStats", $0:
-        12, $1: 7, $2: 10, $3: 12, $4: 30, $5: 5, $6: 3, $7: 400, $8: true}};
+        12, $1: 7, $2: 10, $3: 12, $4: 30, $5: 5, $6: 3, $7: 400, $8: 15, $9:
+        12, $10: false, $11: 1}};
     } else if (kind$0.$ === "Cavalier") {
       $t$0 = {$: "CreatureBundle", $0: {$: "Cavalier"}, $1: {$: "CreatureStats",
-        $0: 15, $1: 15, $2: 15, $3: 25, $4: 100, $5: 7, $6: 2, $7: 1000, $8:
-        false}};
+        $0: 15, $1: 15, $2: 15, $3: 25, $4: 100, $5: 7, $6: 2, $7: 1000, $8: 1,
+        $9: 0, $10: false, $11: 1}};
     } else if (kind$0.$ === "Angel") {
       $t$0 = {$: "CreatureBundle", $0: {$: "Angel"}, $1: {$: "CreatureStats",
-        $0: 20, $1: 20, $2: 50, $3: 50, $4: 200, $5: 12, $6: 1, $7: 3000, $8:
-        false}};
+        $0: 20, $1: 20, $2: 50, $3: 50, $4: 200, $5: 12, $6: 1, $7: 3000, $8: 1,
+        $9: 0, $10: true, $11: 1}};
     } else if (kind$0.$ === "Skeleton") {
       $t$0 = {$: "CreatureBundle", $0: {$: "Skeleton"}, $1: {$: "CreatureStats",
-        $0: 5, $1: 4, $2: 1, $3: 3, $4: 6, $5: 4, $6: 12, $7: 60, $8: false}};
+        $0: 5, $1: 4, $2: 1, $3: 3, $4: 6, $5: 4, $6: 12, $7: 60, $8: 1, $9: 0,
+        $10: false, $11: 1}};
     } else if (kind$0.$ === "WalkingDead") {
       $t$0 = {$: "CreatureBundle", $0: {$: "WalkingDead"}, $1: {$:
         "CreatureStats", $0: 5, $1: 5, $2: 2, $3: 3, $4: 15, $5: 3, $6: 8, $7:
-        100, $8: false}};
+        100, $8: 1, $9: 0, $10: false, $11: 1}};
     } else if (kind$0.$ === "Wight") {
       $t$0 = {$: "CreatureBundle", $0: {$: "Wight"}, $1: {$: "CreatureStats",
-        $0: 7, $1: 7, $2: 3, $3: 5, $4: 18, $5: 5, $6: 7, $7: 200, $8: false}};
+        $0: 7, $1: 7, $2: 3, $3: 5, $4: 18, $5: 5, $6: 7, $7: 200, $8: 1, $9: 0,
+        $10: true, $11: 1}};
     } else if (kind$0.$ === "Vampire") {
       $t$0 = {$: "CreatureBundle", $0: {$: "Vampire"}, $1: {$: "CreatureStats",
-        $0: 10, $1: 9, $2: 5, $3: 8, $4: 30, $5: 6, $6: 4, $7: 360, $8: false}};
+        $0: 10, $1: 9, $2: 5, $3: 8, $4: 30, $5: 6, $6: 4, $7: 360, $8: 1, $9:
+        0, $10: true, $11: 1}};
     } else if (kind$0.$ === "Lich") {
       $t$0 = {$: "CreatureBundle", $0: {$: "Lich"}, $1: {$: "CreatureStats", $0:
-        13, $1: 10, $2: 11, $3: 13, $4: 30, $5: 6, $6: 3, $7: 500, $8: true}};
+        13, $1: 10, $2: 11, $3: 13, $4: 30, $5: 6, $6: 3, $7: 500, $8: 15, $9:
+        12, $10: false, $11: 1}};
     } else if (kind$0.$ === "BlackKnight") {
       $t$0 = {$: "CreatureBundle", $0: {$: "BlackKnight"}, $1: {$:
         "CreatureStats", $0: 16, $1: 16, $2: 15, $3: 30, $4: 120, $5: 7, $6: 2,
-        $7: 1200, $8: false}};
-    } else {
+        $7: 1200, $8: 1, $9: 0, $10: false, $11: 1}};
+    } else if (kind$0.$ === "BoneDragon") {
       $t$0 = {$: "CreatureBundle", $0: {$: "BoneDragon"}, $1: {$:
         "CreatureStats", $0: 17, $1: 15, $2: 25, $3: 50, $4: 150, $5: 9, $6: 1,
-        $7: 1800, $8: false}};
+        $7: 1800, $8: 1, $9: 0, $10: true, $11: 1}};
+    } else if (kind$0.$ === "Imp") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Imp"}, $1: {$: "CreatureStats", $0:
+        2, $1: 3, $2: 1, $3: 2, $4: 4, $5: 5, $6: 15, $7: 50, $8: 1, $9: 0, $10:
+        false, $11: 1}};
+    } else if (kind$0.$ === "Gog") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Gog"}, $1: {$: "CreatureStats", $0:
+        6, $1: 4, $2: 2, $3: 4, $4: 13, $5: 4, $6: 8, $7: 125, $8: 15, $9: 12,
+        $10: false, $11: 1}};
+    } else if (kind$0.$ === "HellHound") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "HellHound"}, $1: {$:
+        "CreatureStats", $0: 10, $1: 6, $2: 2, $3: 7, $4: 25, $5: 7, $6: 5, $7:
+        200, $8: 1, $9: 0, $10: false, $11: 1}};
+    } else if (kind$0.$ === "Demon") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Demon"}, $1: {$: "CreatureStats",
+        $0: 10, $1: 10, $2: 7, $3: 9, $4: 35, $5: 5, $6: 4, $7: 250, $8: 1, $9:
+        0, $10: false, $11: 1}};
+    } else if (kind$0.$ === "PitFiend") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "PitFiend"}, $1: {$: "CreatureStats",
+        $0: 13, $1: 13, $2: 13, $3: 17, $4: 45, $5: 6, $6: 3, $7: 500, $8: 1,
+        $9: 0, $10: false, $11: 1}};
+    } else if (kind$0.$ === "Efreeti") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Efreeti"}, $1: {$: "CreatureStats",
+        $0: 16, $1: 12, $2: 16, $3: 24, $4: 90, $5: 9, $6: 2, $7: 900, $8: 1,
+        $9: 0, $10: true, $11: 1}};
+    } else {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Devil"}, $1: {$: "CreatureStats",
+        $0: 19, $1: 21, $2: 30, $3: 40, $4: 160, $5: 11, $6: 1, $7: 2700, $8: 1,
+        $9: 0, $10: true, $11: 1}};
     }
     const kept_kind$0 = $t$0.$0;
     const $t$1 = $t$0.$1;
@@ -1310,13 +1787,165 @@ function $stack_damage_func$(stack$0, damage$0) {
     const speed$0 = $t$1.$5;
     const growth$0 = $t$1.$6;
     const cost$0 = $t$1.$7;
-    const ranged$0 = $t$1.$8;
+    const range$0 = $t$1.$8;
+    const shots$0 = $t$1.$9;
+    const flying$0 = $t$1.$10;
+    const retaliations$0 = $t$1.$11;
     return run_jump($stack_damage_values_func$, [kept_kind$0, count$0,
       first_unit_hp$0, hit_points$0, damage$0]);
   }
 }
 
-function $main_accept_value_func$k6$(h$0) {
+function $Tactics$battlefield_obstacle$(column$0, row$0, seed$0) {
+  const h$0 = run_loop($Tactics$u32_pair$(column$0));
+  return run_jump($Tactics$battlefield_obstacle$k19$, [row$0, seed$0, h$0]);
+}
+
+function $Tactics$hex_distance_values$(left_column$0, left_row$0,
+  right_column$0, right_row$0) {
+  const h$0 = run_loop($Tactics$u32_pair$(left_column$0));
+  return run_jump($Tactics$hex_distance_values$k21$, [left_row$0,
+    right_column$0, right_row$0, h$0]);
+}
+
+function $creature_attack_reach_func$(kind$0, actor_column$0, actor_row$0,
+  target_column$0, target_row$0, blocked$0) {
+  let $t$0;
+  if (kind$0.$ === "Pikeman") {
+    $t$0 = {$: "CreatureBundle", $0: {$: "Pikeman"}, $1: {$: "CreatureStats",
+      $0: 4, $1: 5, $2: 1, $3: 3, $4: 10, $5: 4, $6: 14, $7: 60, $8: 1, $9: 0,
+      $10: false, $11: 1}};
+  } else if (kind$0.$ === "Archer") {
+    $t$0 = {$: "CreatureBundle", $0: {$: "Archer"}, $1: {$: "CreatureStats", $0:
+      6, $1: 3, $2: 2, $3: 3, $4: 10, $5: 4, $6: 9, $7: 100, $8: 15, $9: 12,
+      $10: false, $11: 1}};
+  } else if (kind$0.$ === "Griffin") {
+    $t$0 = {$: "CreatureBundle", $0: {$: "Griffin"}, $1: {$: "CreatureStats",
+      $0: 8, $1: 8, $2: 3, $3: 6, $4: 25, $5: 6, $6: 7, $7: 200, $8: 1, $9: 0,
+      $10: true, $11: 2}};
+  } else if (kind$0.$ === "Swordsman") {
+    $t$0 = {$: "CreatureBundle", $0: {$: "Swordsman"}, $1: {$: "CreatureStats",
+      $0: 10, $1: 12, $2: 6, $3: 9, $4: 35, $5: 5, $6: 4, $7: 300, $8: 1, $9: 0,
+      $10: false, $11: 1}};
+  } else if (kind$0.$ === "Monk") {
+    $t$0 = {$: "CreatureBundle", $0: {$: "Monk"}, $1: {$: "CreatureStats", $0:
+      12, $1: 7, $2: 10, $3: 12, $4: 30, $5: 5, $6: 3, $7: 400, $8: 15, $9: 12,
+      $10: false, $11: 1}};
+  } else if (kind$0.$ === "Cavalier") {
+    $t$0 = {$: "CreatureBundle", $0: {$: "Cavalier"}, $1: {$: "CreatureStats",
+      $0: 15, $1: 15, $2: 15, $3: 25, $4: 100, $5: 7, $6: 2, $7: 1000, $8: 1,
+      $9: 0, $10: false, $11: 1}};
+  } else if (kind$0.$ === "Angel") {
+    $t$0 = {$: "CreatureBundle", $0: {$: "Angel"}, $1: {$: "CreatureStats", $0:
+      20, $1: 20, $2: 50, $3: 50, $4: 200, $5: 12, $6: 1, $7: 3000, $8: 1, $9:
+      0, $10: true, $11: 1}};
+  } else if (kind$0.$ === "Skeleton") {
+    $t$0 = {$: "CreatureBundle", $0: {$: "Skeleton"}, $1: {$: "CreatureStats",
+      $0: 5, $1: 4, $2: 1, $3: 3, $4: 6, $5: 4, $6: 12, $7: 60, $8: 1, $9: 0,
+      $10: false, $11: 1}};
+  } else if (kind$0.$ === "WalkingDead") {
+    $t$0 = {$: "CreatureBundle", $0: {$: "WalkingDead"}, $1: {$:
+      "CreatureStats", $0: 5, $1: 5, $2: 2, $3: 3, $4: 15, $5: 3, $6: 8, $7:
+      100, $8: 1, $9: 0, $10: false, $11: 1}};
+  } else if (kind$0.$ === "Wight") {
+    $t$0 = {$: "CreatureBundle", $0: {$: "Wight"}, $1: {$: "CreatureStats", $0:
+      7, $1: 7, $2: 3, $3: 5, $4: 18, $5: 5, $6: 7, $7: 200, $8: 1, $9: 0, $10:
+      true, $11: 1}};
+  } else if (kind$0.$ === "Vampire") {
+    $t$0 = {$: "CreatureBundle", $0: {$: "Vampire"}, $1: {$: "CreatureStats",
+      $0: 10, $1: 9, $2: 5, $3: 8, $4: 30, $5: 6, $6: 4, $7: 360, $8: 1, $9: 0,
+      $10: true, $11: 1}};
+  } else if (kind$0.$ === "Lich") {
+    $t$0 = {$: "CreatureBundle", $0: {$: "Lich"}, $1: {$: "CreatureStats", $0:
+      13, $1: 10, $2: 11, $3: 13, $4: 30, $5: 6, $6: 3, $7: 500, $8: 15, $9: 12,
+      $10: false, $11: 1}};
+  } else if (kind$0.$ === "BlackKnight") {
+    $t$0 = {$: "CreatureBundle", $0: {$: "BlackKnight"}, $1: {$:
+      "CreatureStats", $0: 16, $1: 16, $2: 15, $3: 30, $4: 120, $5: 7, $6: 2,
+      $7: 1200, $8: 1, $9: 0, $10: false, $11: 1}};
+  } else if (kind$0.$ === "BoneDragon") {
+    $t$0 = {$: "CreatureBundle", $0: {$: "BoneDragon"}, $1: {$: "CreatureStats",
+      $0: 17, $1: 15, $2: 25, $3: 50, $4: 150, $5: 9, $6: 1, $7: 1800, $8: 1,
+      $9: 0, $10: true, $11: 1}};
+  } else if (kind$0.$ === "Imp") {
+    $t$0 = {$: "CreatureBundle", $0: {$: "Imp"}, $1: {$: "CreatureStats", $0: 2,
+      $1: 3, $2: 1, $3: 2, $4: 4, $5: 5, $6: 15, $7: 50, $8: 1, $9: 0, $10:
+      false, $11: 1}};
+  } else if (kind$0.$ === "Gog") {
+    $t$0 = {$: "CreatureBundle", $0: {$: "Gog"}, $1: {$: "CreatureStats", $0: 6,
+      $1: 4, $2: 2, $3: 4, $4: 13, $5: 4, $6: 8, $7: 125, $8: 15, $9: 12, $10:
+      false, $11: 1}};
+  } else if (kind$0.$ === "HellHound") {
+    $t$0 = {$: "CreatureBundle", $0: {$: "HellHound"}, $1: {$: "CreatureStats",
+      $0: 10, $1: 6, $2: 2, $3: 7, $4: 25, $5: 7, $6: 5, $7: 200, $8: 1, $9: 0,
+      $10: false, $11: 1}};
+  } else if (kind$0.$ === "Demon") {
+    $t$0 = {$: "CreatureBundle", $0: {$: "Demon"}, $1: {$: "CreatureStats", $0:
+      10, $1: 10, $2: 7, $3: 9, $4: 35, $5: 5, $6: 4, $7: 250, $8: 1, $9: 0,
+      $10: false, $11: 1}};
+  } else if (kind$0.$ === "PitFiend") {
+    $t$0 = {$: "CreatureBundle", $0: {$: "PitFiend"}, $1: {$: "CreatureStats",
+      $0: 13, $1: 13, $2: 13, $3: 17, $4: 45, $5: 6, $6: 3, $7: 500, $8: 1, $9:
+      0, $10: false, $11: 1}};
+  } else if (kind$0.$ === "Efreeti") {
+    $t$0 = {$: "CreatureBundle", $0: {$: "Efreeti"}, $1: {$: "CreatureStats",
+      $0: 16, $1: 12, $2: 16, $3: 24, $4: 90, $5: 9, $6: 2, $7: 900, $8: 1, $9:
+      0, $10: true, $11: 1}};
+  } else {
+    $t$0 = {$: "CreatureBundle", $0: {$: "Devil"}, $1: {$: "CreatureStats", $0:
+      19, $1: 21, $2: 30, $3: 40, $4: 160, $5: 11, $6: 1, $7: 2700, $8: 1, $9:
+      0, $10: true, $11: 1}};
+  }
+  const kept_kind$0 = $t$0.$0;
+  const $t$1 = $t$0.$1;
+  const attack$0 = $t$1.$0;
+  const defense$0 = $t$1.$1;
+  const damage_min$0 = $t$1.$2;
+  const damage_max$0 = $t$1.$3;
+  const hit_points$0 = $t$1.$4;
+  const speed$0 = $t$1.$5;
+  const growth$0 = $t$1.$6;
+  const cost$0 = $t$1.$7;
+  const range$0 = $t$1.$8;
+  const shots$0 = $t$1.$9;
+  const flying$0 = $t$1.$10;
+  const retaliations$0 = $t$1.$11;
+  const h$0 = run_loop($Tactics$hex_distance_values$(actor_column$0,
+    actor_row$0, target_column$0, target_row$0));
+  return run_jump($creature_attack_reach_func$k28$, [blocked$0, range$0,
+    shots$0, h$0]);
+}
+
+function $combat_ai_choice_func$k13$(mana$0, enemy$0, h$0) {
+  const h$1 = run_loop($army_ai_weakest_func$(enemy$0));
+  return run_jump($combat_ai_choice_func$k14$, [mana$0, h$0, h$1]);
+}
+
+function $army_ai_strongest_func$(army$0) {
+  const s0$0 = army$0.$0;
+  const s1$0 = army$0.$1;
+  const s2$0 = army$0.$2;
+  const s3$0 = army$0.$3;
+  const s4$0 = army$0.$4;
+  const s5$0 = army$0.$5;
+  const s6$0 = army$0.$6;
+  const h$0 = run_loop($stack_ai_candidate_func$(0, s0$0));
+  return run_jump($army_ai_strongest_func$k29$, [s1$0, s2$0, s3$0, s4$0, s5$0,
+    s6$0, h$0]);
+}
+
+function $combat_ai_battle_func$k15$(enemy$0, h$0) {
+  const h$1 = run_loop($army_ai_weakest_func$(enemy$0));
+  return run_jump($combat_ai_battle_func$k16$, [h$0, h$1]);
+}
+
+function $combat_ai_battle_no_spell_func$(player$0, enemy$0, battlefield$0) {
+  const h$0 = run_loop($army_pair_func$(player$0));
+  return run_jump($combat_ai_battle_no_spell_func$k41$, [enemy$0, battlefield$0,
+    h$0]);
+}
+
+function $main_accept_value_func$k17$(h$0) {
   if (!h$0) {
     return (x$0) => $IO$print$("False{}", x$0);
   } else {
@@ -1325,184 +1954,241 @@ function $main_accept_value_func$k6$(h$0) {
 }
 
 function $heroes_self_check_func$() {
-  const $t$0 = {$: "Game", $0: 3, $1: 1, $2: {$: "Red"}, $3: {$: "Kingdom", $0:
-    {$: "Resources", $0: 10000, $1: 20, $2: 20, $3: 5, $4: 5, $5: 5, $6: 5}, $1:
-    {$: "Hero", $0: "Catherine", $1: 1, $2: 5, $3: 1600, $4: 3, $5: 3, $6: 1,
-    $7: 1, $8: 10, $9: 1, $10: 0, $11: {$: "Army", $0: {$: "Troop", $0: {$:
-    "Pikeman"}, $1: 30, $2: 10}, $1: {$: "Troop", $0: {$: "Archer"}, $1: 12, $2:
-    10}, $2: {$: "EmptyStack"}, $3: {$: "EmptyStack"}, $4: {$: "EmptyStack"},
-    $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}}}, $2: {$: "Town", $0: {$:
-    "Castle"}, $1: 1, $2: 0, $3: 3, $4: false, $5: {$: "Stock", $0: 14, $1: 9,
-    $2: 0, $3: 0, $4: 0, $5: 0, $6: 0}}}, $4: {$: "Kingdom", $0: {$:
-    "Resources", $0: 10000, $1: 20, $2: 20, $3: 5, $4: 5, $5: 5, $6: 5}, $1: {$:
-    "Hero", $0: "Sandro", $1: 7, $2: 1, $3: 1600, $4: 2, $5: 2, $6: 2, $7: 2,
-    $8: 20, $9: 1, $10: 0, $11: {$: "Army", $0: {$: "Troop", $0: {$:
-    "Skeleton"}, $1: 40, $2: 6}, $1: {$: "EmptyStack"}, $2: {$: "Troop", $0: {$:
-    "Wight"}, $1: 9, $2: 18}, $3: {$: "EmptyStack"}, $4: {$: "EmptyStack"}, $5:
-    {$: "EmptyStack"}, $6: {$: "EmptyStack"}}}, $2: {$: "Town", $0: {$:
-    "Necropolis"}, $1: 1, $2: 0, $3: 7, $4: false, $5: {$: "Stock", $0: 12, $1:
-    8, $2: 7, $3: 0, $4: 0, $5: 0, $6: 0}}}, $5: {$: "World", $0: true, $1:
-    true, $2: true, $3: true, $4: {$: "Neutral"}, $5: {$: "Neutral"}, $6: {$:
-    "Army", $0: {$: "Troop", $0: {$: "Griffin"}, $1: 10, $2: 25}, $1: {$:
-    "EmptyStack"}, $2: {$: "EmptyStack"}, $3: {$: "EmptyStack"}, $4: {$:
-    "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}}}, $6: {$:
-    "Adventure"}, $7: 17, $8: 0, $9:
-    "Red begins Month 1, Week 1, Day 1 at the Castle."};
+  let $t$0;
+  const $t$1 = BigInt(0);
+  if ($t$1 === 0n) {
+    $t$0 = {$: "Game", $0: 0, $1: 1, $2: {$: "Red"}, $3: {$: "Kingdom", $0: {$:
+      "Resources", $0: 10000, $1: 20, $2: 20, $3: 5, $4: 5, $5: 5, $6: 5}, $1: {
+      $: "Hero", $0: "Catherine", $1: 1, $2: 5, $3: 1600, $4: 3, $5: 3, $6: 1,
+      $7: 1, $8: 10, $9: 1, $10: 0, $11: {$: "Army", $0: {$: "Troop", $0: {$:
+      "Pikeman"}, $1: 30, $2: 10}, $1: {$: "Troop", $0: {$: "Archer"}, $1: 12,
+      $2: 10}, $2: {$: "EmptyStack"}, $3: {$: "EmptyStack"}, $4: {$:
+      "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}}}, $2: {$:
+      "Town", $0: {$: "Castle"}, $1: 1, $2: 0, $3: 3, $4: false, $5: {$:
+      "Stock", $0: 14, $1: 9, $2: 0, $3: 0, $4: 0, $5: 0, $6: 0}}}, $4: {$:
+      "Kingdom", $0: {$: "Resources", $0: 10000, $1: 20, $2: 20, $3: 5, $4: 5,
+      $5: 5, $6: 5}, $1: {$: "Hero", $0: "Sandro", $1: 7, $2: 1, $3: 1600, $4:
+      2, $5: 2, $6: 2, $7: 2, $8: 20, $9: 1, $10: 0, $11: {$: "Army", $0: {$:
+      "Troop", $0: {$: "Skeleton"}, $1: 70, $2: 6}, $1: {$: "EmptyStack"}, $2: {
+      $: "Troop", $0: {$: "Wight"}, $1: 15, $2: 18}, $3: {$: "EmptyStack"}, $4:
+      {$: "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}}}, $2: {$:
+      "Town", $0: {$: "Necropolis"}, $1: 1, $2: 0, $3: 7, $4: false, $5: {$:
+      "Stock", $0: 12, $1: 8, $2: 7, $3: 0, $4: 0, $5: 0, $6: 0}}}, $5: {$:
+      "World", $0: true, $1: true, $2: true, $3: true, $4: {$: "Neutral"}, $5: {
+      $: "Neutral"}, $6: {$: "Army", $0: {$: "Troop", $0: {$: "Griffin"}, $1:
+      10, $2: 25}, $1: {$: "EmptyStack"}, $2: {$: "EmptyStack"}, $3: {$:
+      "EmptyStack"}, $4: {$: "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$:
+      "EmptyStack"}}}, $6: {$: "Adventure"}, $7: 17, $8: 0, $9:
+      "Castle begins at the Red town against a Necropolis rival."};
+  } else {
+    const $t$2 = ($t$1 - 1n);
+    if ($t$2 === 0n) {
+      $t$0 = {$: "Game", $0: 1, $1: 1, $2: {$: "Red"}, $3: {$: "Kingdom", $0: {
+        $: "Resources", $0: 10000, $1: 20, $2: 20, $3: 5, $4: 5, $5: 5, $6: 5},
+        $1: {$: "Hero", $0: "Sandro", $1: 1, $2: 5, $3: 1600, $4: 2, $5: 2, $6:
+        2, $7: 2, $8: 20, $9: 1, $10: 0, $11: {$: "Army", $0: {$: "Troop", $0: {
+        $: "Skeleton"}, $1: 70, $2: 6}, $1: {$: "EmptyStack"}, $2: {$: "Troop",
+        $0: {$: "Wight"}, $1: 15, $2: 18}, $3: {$: "EmptyStack"}, $4: {$:
+        "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}}}, $2: {$:
+        "Town", $0: {$: "Necropolis"}, $1: 1, $2: 0, $3: 7, $4: false, $5: {$:
+        "Stock", $0: 12, $1: 8, $2: 7, $3: 0, $4: 0, $5: 0, $6: 0}}}, $4: {$:
+        "Kingdom", $0: {$: "Resources", $0: 10000, $1: 20, $2: 20, $3: 5, $4: 5,
+        $5: 5, $6: 5}, $1: {$: "Hero", $0: "Xeron", $1: 7, $2: 1, $3: 1600, $4:
+        4, $5: 2, $6: 2, $7: 1, $8: 10, $9: 1, $10: 0, $11: {$: "Army", $0: {$:
+        "Troop", $0: {$: "Imp"}, $1: 45, $2: 4}, $1: {$: "Troop", $0: {$:
+        "Gog"}, $1: 14, $2: 13}, $2: {$: "Troop", $0: {$: "HellHound"}, $1: 5,
+        $2: 25}, $3: {$: "EmptyStack"}, $4: {$: "EmptyStack"}, $5: {$:
+        "EmptyStack"}, $6: {$: "EmptyStack"}}}, $2: {$: "Town", $0: {$:
+        "Inferno"}, $1: 1, $2: 0, $3: 7, $4: false, $5: {$: "Stock", $0: 15, $1:
+        8, $2: 5, $3: 0, $4: 0, $5: 0, $6: 0}}}, $5: {$: "World", $0: true, $1:
+        true, $2: true, $3: true, $4: {$: "Neutral"}, $5: {$: "Neutral"}, $6: {
+        $: "Army", $0: {$: "Troop", $0: {$: "Griffin"}, $1: 10, $2: 25}, $1: {$:
+        "EmptyStack"}, $2: {$: "EmptyStack"}, $3: {$: "EmptyStack"}, $4: {$:
+        "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}}}, $6: {$:
+        "Adventure"}, $7: 17, $8: 0, $9:
+        "Necropolis begins at the Red town against an Inferno rival."};
+    } else {
+      $t$0 = {$: "Game", $0: 2, $1: 1, $2: {$: "Red"}, $3: {$: "Kingdom", $0: {
+        $: "Resources", $0: 10000, $1: 20, $2: 20, $3: 5, $4: 5, $5: 5, $6: 5},
+        $1: {$: "Hero", $0: "Xeron", $1: 1, $2: 5, $3: 1600, $4: 4, $5: 2, $6:
+        2, $7: 1, $8: 10, $9: 1, $10: 0, $11: {$: "Army", $0: {$: "Troop", $0: {
+        $: "Imp"}, $1: 45, $2: 4}, $1: {$: "Troop", $0: {$: "Gog"}, $1: 14, $2:
+        13}, $2: {$: "Troop", $0: {$: "HellHound"}, $1: 5, $2: 25}, $3: {$:
+        "EmptyStack"}, $4: {$: "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$:
+        "EmptyStack"}}}, $2: {$: "Town", $0: {$: "Inferno"}, $1: 1, $2: 0, $3:
+        7, $4: false, $5: {$: "Stock", $0: 15, $1: 8, $2: 5, $3: 0, $4: 0, $5:
+        0, $6: 0}}}, $4: {$: "Kingdom", $0: {$: "Resources", $0: 10000, $1: 20,
+        $2: 20, $3: 5, $4: 5, $5: 5, $6: 5}, $1: {$: "Hero", $0: "Catherine",
+        $1: 7, $2: 1, $3: 1600, $4: 3, $5: 3, $6: 1, $7: 1, $8: 10, $9: 1, $10:
+        0, $11: {$: "Army", $0: {$: "Troop", $0: {$: "Pikeman"}, $1: 30, $2:
+        10}, $1: {$: "Troop", $0: {$: "Archer"}, $1: 12, $2: 10}, $2: {$:
+        "EmptyStack"}, $3: {$: "EmptyStack"}, $4: {$: "EmptyStack"}, $5: {$:
+        "EmptyStack"}, $6: {$: "EmptyStack"}}}, $2: {$: "Town", $0: {$:
+        "Castle"}, $1: 1, $2: 0, $3: 3, $4: false, $5: {$: "Stock", $0: 14, $1:
+        9, $2: 0, $3: 0, $4: 0, $5: 0, $6: 0}}}, $5: {$: "World", $0: true, $1:
+        true, $2: true, $3: true, $4: {$: "Neutral"}, $5: {$: "Neutral"}, $6: {
+        $: "Army", $0: {$: "Troop", $0: {$: "Griffin"}, $1: 10, $2: 25}, $1: {$:
+        "EmptyStack"}, $2: {$: "EmptyStack"}, $3: {$: "EmptyStack"}, $4: {$:
+        "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}}}, $6: {$:
+        "Adventure"}, $7: 17, $8: 0, $9:
+        "Inferno begins at the Red town against a Castle rival."};
+    }
+  }
   const scenario$0 = $t$0.$0;
   const day$0 = $t$0.$1;
-  const $t$1 = $t$0.$2;
-  if ($t$1.$ === "Red") {
+  const $t$3 = $t$0.$2;
+  if ($t$3.$ === "Red") {
     const red$0 = $t$0.$3;
     const blue$0 = $t$0.$4;
     const world$0 = $t$0.$5;
-    const $t$2 = $t$0.$6;
-    if ($t$2.$ === "Adventure") {
+    const $t$4 = $t$0.$6;
+    if ($t$4.$ === "Adventure") {
       const seed$0 = $t$0.$7;
       const turn$0 = $t$0.$8;
       const notice$0 = $t$0.$9;
-      let $t$3;
-      let $t$4;
-      const $t$5 = (4 === 4);
-      if ($t$5) {
+      let $t$5;
+      let $t$6;
+      const $t$7 = (4 === 4);
+      if ($t$7) {
         const x$0 = (3 === 3);
         const x$1 = (3 === 5);
-        const $t$6 = (x$0 || x$1);
-        if ($t$6) {
-          $t$4 = {$: "Grass"};
+        const $t$8 = (x$0 || x$1);
+        if ($t$8) {
+          $t$6 = {$: "Grass"};
         } else {
-          $t$4 = {$: "Water"};
+          $t$6 = {$: "Water"};
         }
       } else {
-        const $t$7 = (5 <= 4);
-        if ($t$7) {
-          $t$4 = {$: "Dirt"};
+        const $t$9 = (5 <= 4);
+        if ($t$9) {
+          $t$6 = {$: "Dirt"};
         } else {
-          let $t$8;
-          const $t$9 = (4 === 3);
-          if (!$t$9) {
+          let $t$10;
+          const $t$11 = (4 === 3);
+          if (!$t$11) {
             const b$0 = (3 <= 2);
-            $t$8 = false;
+            $t$10 = false;
           } else {
             const b$1 = (3 <= 2);
-            $t$8 = b$1;
+            $t$10 = b$1;
           }
-          if ($t$8) {
-            $t$4 = {$: "Rough"};
+          if ($t$10) {
+            $t$6 = {$: "Rough"};
           } else {
-            $t$4 = {$: "Grass"};
+            $t$6 = {$: "Grass"};
           }
         }
       }
-      let $t$10;
-      let $t$11;
-      const $t$12 = (4 === 1);
-      if (!$t$12) {
+      let $t$12;
+      let $t$13;
+      const $t$14 = (4 === 1);
+      if (!$t$14) {
         const b$2 = (3 === 5);
-        $t$11 = false;
+        $t$13 = false;
       } else {
         const b$3 = (3 === 5);
-        $t$11 = b$3;
+        $t$13 = b$3;
       }
-      if ($t$11) {
-        $t$10 = {$: "RedTownSite"};
+      if ($t$13) {
+        $t$12 = {$: "RedTownSite"};
       } else {
-        let $t$13;
-        const $t$14 = (4 === 7);
-        if (!$t$14) {
+        let $t$15;
+        const $t$16 = (4 === 7);
+        if (!$t$16) {
           const b$4 = (3 === 1);
-          $t$13 = false;
+          $t$15 = false;
         } else {
           const b$5 = (3 === 1);
-          $t$13 = b$5;
+          $t$15 = b$5;
         }
-        if ($t$13) {
-          $t$10 = {$: "BlueTownSite"};
+        if ($t$15) {
+          $t$12 = {$: "BlueTownSite"};
         } else {
-          let $t$15;
-          const $t$16 = (4 === 2);
-          if (!$t$16) {
+          let $t$17;
+          const $t$18 = (4 === 2);
+          if (!$t$18) {
             const b$6 = (3 === 5);
-            $t$15 = false;
+            $t$17 = false;
           } else {
             const b$7 = (3 === 5);
-            $t$15 = b$7;
+            $t$17 = b$7;
           }
-          if ($t$15) {
-            $t$10 = {$: "GoldPileSite"};
+          if ($t$17) {
+            $t$12 = {$: "GoldPileSite"};
           } else {
-            let $t$17;
-            const $t$18 = (4 === 2);
-            if (!$t$18) {
+            let $t$19;
+            const $t$20 = (4 === 2);
+            if (!$t$20) {
               const b$8 = (3 === 4);
-              $t$17 = false;
+              $t$19 = false;
             } else {
               const b$9 = (3 === 4);
-              $t$17 = b$9;
+              $t$19 = b$9;
             }
-            if ($t$17) {
-              $t$10 = {$: "WoodPileSite"};
+            if ($t$19) {
+              $t$12 = {$: "WoodPileSite"};
             } else {
-              let $t$19;
-              const $t$20 = (4 === 2);
-              if (!$t$20) {
+              let $t$21;
+              const $t$22 = (4 === 2);
+              if (!$t$22) {
                 const b$10 = (3 === 2);
-                $t$19 = false;
+                $t$21 = false;
               } else {
                 const b$11 = (3 === 2);
-                $t$19 = b$11;
+                $t$21 = b$11;
               }
-              if ($t$19) {
-                $t$10 = {$: "ShrineSite"};
+              if ($t$21) {
+                $t$12 = {$: "ShrineSite"};
               } else {
-                let $t$21;
-                const $t$22 = (4 === 5);
-                if (!$t$22) {
+                let $t$23;
+                const $t$24 = (4 === 5);
+                if (!$t$24) {
                   const b$12 = (3 === 3);
-                  $t$21 = false;
+                  $t$23 = false;
                 } else {
                   const b$13 = (3 === 3);
-                  $t$21 = b$13;
+                  $t$23 = b$13;
                 }
-                if ($t$21) {
-                  $t$10 = {$: "ArtifactSite"};
+                if ($t$23) {
+                  $t$12 = {$: "ArtifactSite"};
                 } else {
-                  let $t$23;
-                  const $t$24 = (4 === 3);
-                  if (!$t$24) {
+                  let $t$25;
+                  const $t$26 = (4 === 3);
+                  if (!$t$26) {
                     const b$14 = (3 === 5);
-                    $t$23 = false;
+                    $t$25 = false;
                   } else {
                     const b$15 = (3 === 5);
-                    $t$23 = b$15;
+                    $t$25 = b$15;
                   }
-                  if ($t$23) {
-                    $t$10 = {$: "SawmillSite"};
+                  if ($t$25) {
+                    $t$12 = {$: "SawmillSite"};
                   } else {
-                    let $t$25;
-                    const $t$26 = (4 === 6);
-                    if (!$t$26) {
+                    let $t$27;
+                    const $t$28 = (4 === 6);
+                    if (!$t$28) {
                       const b$16 = (3 === 2);
-                      $t$25 = false;
+                      $t$27 = false;
                     } else {
                       const b$17 = (3 === 2);
-                      $t$25 = b$17;
+                      $t$27 = b$17;
                     }
-                    if ($t$25) {
-                      $t$10 = {$: "GoldMineSite"};
+                    if ($t$27) {
+                      $t$12 = {$: "GoldMineSite"};
                     } else {
-                      let $t$27;
-                      const $t$28 = (4 === 4);
-                      if (!$t$28) {
+                      let $t$29;
+                      const $t$30 = (4 === 4);
+                      if (!$t$30) {
                         const b$18 = (3 === 3);
-                        $t$27 = false;
+                        $t$29 = false;
                       } else {
                         const b$19 = (3 === 3);
-                        $t$27 = b$19;
+                        $t$29 = b$19;
                       }
-                      if ($t$27) {
-                        $t$10 = {$: "GuardianSite"};
+                      if ($t$29) {
+                        $t$12 = {$: "GuardianSite"};
                       } else {
-                        $t$10 = {$: "EmptySite"};
+                        $t$12 = {$: "EmptySite"};
                       }
                     }
                   }
@@ -1512,60 +2198,41 @@ function $heroes_self_check_func$() {
           }
         }
       }
-      if ($t$4.$ === "Grass") {
-        $t$3 = {$: "Cell", $0: {$: "Grass"}, $1: $t$10, $2: 100, $3: true};
-      } else if ($t$4.$ === "Dirt") {
-        $t$3 = {$: "Cell", $0: {$: "Dirt"}, $1: $t$10, $2: 100, $3: true};
-      } else if ($t$4.$ === "Rough") {
-        $t$3 = {$: "Cell", $0: {$: "Rough"}, $1: $t$10, $2: 125, $3: true};
-      } else if ($t$4.$ === "Swamp") {
-        $t$3 = {$: "Cell", $0: {$: "Swamp"}, $1: $t$10, $2: 175, $3: true};
-      } else if ($t$4.$ === "Water") {
-        $t$3 = {$: "Cell", $0: {$: "Water"}, $1: $t$10, $2: 100, $3: false};
+      if ($t$6.$ === "Grass") {
+        $t$5 = {$: "Cell", $0: {$: "Grass"}, $1: $t$12, $2: 100, $3: true};
+      } else if ($t$6.$ === "Dirt") {
+        $t$5 = {$: "Cell", $0: {$: "Dirt"}, $1: $t$12, $2: 100, $3: true};
+      } else if ($t$6.$ === "Rough") {
+        $t$5 = {$: "Cell", $0: {$: "Rough"}, $1: $t$12, $2: 125, $3: true};
+      } else if ($t$6.$ === "Swamp") {
+        $t$5 = {$: "Cell", $0: {$: "Swamp"}, $1: $t$12, $2: 175, $3: true};
+      } else if ($t$6.$ === "Water") {
+        $t$5 = {$: "Cell", $0: {$: "Water"}, $1: $t$12, $2: 100, $3: false};
       } else {
-        $t$3 = {$: "Cell", $0: {$: "Rock"}, $1: $t$10, $2: 0, $3: false};
+        $t$5 = {$: "Cell", $0: {$: "Rock"}, $1: $t$12, $2: 0, $3: false};
       }
-      const $t$29 = $t$3.$0;
-      if ($t$29.$ === "Grass") {
-        const $t$30 = $t$3.$1;
-        if ($t$30.$ === "GuardianSite") {
-          const cost$0 = $t$3.$2;
-          const $t$31 = $t$3.$3;
-          if ($t$31) {
-            let $t$32;
-            let $t$33;
-            const $t$34 = (day$0 === 1);
-            if (!$t$34) {
-              const b$20 = (seed$0 === 17);
-              $t$33 = false;
-            } else {
-              const b$21 = (seed$0 === 17);
-              $t$33 = b$21;
-            }
-            const $t$35 = (scenario$0 === 3);
-            if (!$t$35) {
-              $t$32 = false;
-            } else {
-              $t$32 = $t$33;
-            }
-            const $t$36 = (cost$0 === 100);
-            if (!$t$36) {
-              return false;
-            } else {
-              return $t$32;
-            }
+      const $t$31 = $t$5.$0;
+      if ($t$31.$ === "Grass") {
+        const $t$32 = $t$5.$1;
+        if ($t$32.$ === "GuardianSite") {
+          const cost$0 = $t$5.$2;
+          const $t$33 = $t$5.$3;
+          if ($t$33) {
+            const h$0 = run_loop($Tactics$battlefield_self_check$());
+            return run_jump($heroes_self_check_func$k44$, [scenario$0, day$0,
+              seed$0, cost$0, h$0]);
           } else {
             return false;
           }
         } else {
-          const cost$1 = $t$3.$2;
-          const _63$0 = $t$3.$3;
+          const cost$1 = $t$5.$2;
+          const _64$0 = $t$5.$3;
           return false;
         }
       } else {
-        const _61$0 = $t$3.$1;
-        const cost$2 = $t$3.$2;
-        const _63$1 = $t$3.$3;
+        const _62$0 = $t$5.$1;
+        const cost$2 = $t$5.$2;
+        const _64$1 = $t$5.$3;
         return false;
       }
     } else {
@@ -1578,7 +2245,7 @@ function $heroes_self_check_func$() {
     const red$1 = $t$0.$3;
     const blue$1 = $t$0.$4;
     const world$1 = $t$0.$5;
-    const _55$0 = $t$0.$6;
+    const _56$0 = $t$0.$6;
     const seed$2 = $t$0.$7;
     const turn$2 = $t$0.$8;
     const notice$2 = $t$0.$9;
@@ -1586,7 +2253,7 @@ function $heroes_self_check_func$() {
   }
 }
 
-function $IO$pure$c7$(x$0, k$0) {
+function $IO$pure$c18$(x$0, k$0) {
   return run_jump(k$0, [x$0]);
 }
 
@@ -1605,7 +2272,7 @@ function $game_move_func$(game$0, direction$0) {
       const notice$0 = game$0.$9;
       const h$0 = run_loop($kingdom_move_func$(red$0, direction$0, world$0, {$:
         "Red"}));
-      return run_jump($game_move_func$k8$, [scenario$0, day$0, blue$0, seed$0,
+      return run_jump($game_move_func$k46$, [scenario$0, day$0, blue$0, seed$0,
         turn$0, h$0]);
     } else if ($t$1.$ === "Combat") {
       const battle$0 = $t$1.$0;
@@ -1635,7 +2302,7 @@ function $game_move_func$(game$0, direction$0) {
       const notice$3 = game$0.$9;
       const h$1 = run_loop($kingdom_move_func$(blue$1, direction$0, world$1, {$:
         "Blue"}));
-      return run_jump($game_move_func$k9$, [scenario$0, day$0, red$1, seed$3,
+      return run_jump($game_move_func$k47$, [scenario$0, day$0, red$1, seed$3,
         turn$3, h$1]);
     } else if ($t$2.$ === "Combat") {
       const battle$1 = $t$2.$0;
@@ -1797,7 +2464,7 @@ function $game_build_hall_func$(game$0) {
       const turn$0 = game$0.$8;
       const notice$0 = game$0.$9;
       const h$0 = run_loop($kingdom_build_hall_func$(red$0));
-      return run_jump($game_build_hall_func$k10$, [scenario$0, day$0, blue$0,
+      return run_jump($game_build_hall_func$k48$, [scenario$0, day$0, blue$0,
         world$0, seed$0, turn$0, h$0]);
     } else if ($t$1.$ === "Combat") {
       const battle$0 = $t$1.$0;
@@ -1826,7 +2493,7 @@ function $game_build_hall_func$(game$0) {
       const turn$3 = game$0.$8;
       const notice$3 = game$0.$9;
       const h$1 = run_loop($kingdom_build_hall_func$(blue$1));
-      return run_jump($game_build_hall_func$k11$, [scenario$0, day$0, red$1,
+      return run_jump($game_build_hall_func$k49$, [scenario$0, day$0, red$1,
         world$1, seed$3, turn$3, h$1]);
     } else if ($t$2.$ === "Combat") {
       const battle$1 = $t$2.$0;
@@ -1891,7 +2558,7 @@ function $game_build_fort_func$(game$0) {
       const turn$0 = game$0.$8;
       const notice$0 = game$0.$9;
       const h$0 = run_loop($kingdom_build_fort_func$(red$0));
-      return run_jump($game_build_fort_func$k12$, [scenario$0, day$0, blue$0,
+      return run_jump($game_build_fort_func$k50$, [scenario$0, day$0, blue$0,
         world$0, seed$0, turn$0, h$0]);
     } else if ($t$1.$ === "Combat") {
       const battle$0 = $t$1.$0;
@@ -1920,7 +2587,7 @@ function $game_build_fort_func$(game$0) {
       const turn$3 = game$0.$8;
       const notice$3 = game$0.$9;
       const h$1 = run_loop($kingdom_build_fort_func$(blue$1));
-      return run_jump($game_build_fort_func$k13$, [scenario$0, day$0, red$1,
+      return run_jump($game_build_fort_func$k51$, [scenario$0, day$0, red$1,
         world$1, seed$3, turn$3, h$1]);
     } else if ($t$2.$ === "Combat") {
       const battle$1 = $t$2.$0;
@@ -1985,7 +2652,7 @@ function $game_build_dwelling_func$(game$0, tier$0) {
       const turn$0 = game$0.$8;
       const notice$0 = game$0.$9;
       const h$0 = run_loop($kingdom_build_dwelling_func$(red$0, tier$0));
-      return run_jump($game_build_dwelling_func$k14$, [scenario$0, day$0,
+      return run_jump($game_build_dwelling_func$k52$, [scenario$0, day$0,
         blue$0, world$0, seed$0, turn$0, h$0]);
     } else if ($t$1.$ === "Combat") {
       const battle$0 = $t$1.$0;
@@ -2014,7 +2681,7 @@ function $game_build_dwelling_func$(game$0, tier$0) {
       const turn$3 = game$0.$8;
       const notice$3 = game$0.$9;
       const h$1 = run_loop($kingdom_build_dwelling_func$(blue$1, tier$0));
-      return run_jump($game_build_dwelling_func$k15$, [scenario$0, day$0, red$1,
+      return run_jump($game_build_dwelling_func$k53$, [scenario$0, day$0, red$1,
         world$1, seed$3, turn$3, h$1]);
     } else if ($t$2.$ === "Combat") {
       const battle$1 = $t$2.$0;
@@ -2079,7 +2746,7 @@ function $game_recruit_func$(game$0, tier$0, amount$0) {
       const turn$0 = game$0.$8;
       const notice$0 = game$0.$9;
       const h$0 = run_loop($kingdom_recruit_func$(red$0, tier$0, amount$0));
-      return run_jump($game_recruit_func$k16$, [scenario$0, day$0, blue$0,
+      return run_jump($game_recruit_func$k54$, [scenario$0, day$0, blue$0,
         world$0, seed$0, turn$0, h$0]);
     } else if ($t$1.$ === "Combat") {
       const battle$0 = $t$1.$0;
@@ -2108,7 +2775,7 @@ function $game_recruit_func$(game$0, tier$0, amount$0) {
       const turn$3 = game$0.$8;
       const notice$3 = game$0.$9;
       const h$1 = run_loop($kingdom_recruit_func$(blue$1, tier$0, amount$0));
-      return run_jump($game_recruit_func$k17$, [scenario$0, day$0, red$1,
+      return run_jump($game_recruit_func$k55$, [scenario$0, day$0, red$1,
         world$1, seed$3, turn$3, h$1]);
     } else if ($t$2.$ === "Combat") {
       const battle$1 = $t$2.$0;
@@ -2175,7 +2842,7 @@ function $game_combat_func$(game$0, command$0, own_slot$0, target_slot$0) {
       const notice$0 = game$0.$9;
       const h$0 = run_loop($kingdom_battle_command_func$(red$0, battle$0,
         command$0, own_slot$0, target_slot$0, seed$0));
-      return run_jump($game_combat_func$k18$, [scenario$0, day$0, blue$0,
+      return run_jump($game_combat_func$k56$, [scenario$0, day$0, blue$0,
         world$0, turn$0, h$0]);
     } else if ($t$1.$ === "Adventure") {
       const seed$1 = game$0.$7;
@@ -2205,7 +2872,7 @@ function $game_combat_func$(game$0, command$0, own_slot$0, target_slot$0) {
       const notice$3 = game$0.$9;
       const h$1 = run_loop($kingdom_battle_command_func$(blue$1, battle$1,
         command$0, own_slot$0, target_slot$0, seed$3));
-      return run_jump($game_combat_func$k19$, [scenario$0, day$0, red$1,
+      return run_jump($game_combat_func$k57$, [scenario$0, day$0, red$1,
         world$1, turn$3, h$1]);
     } else if ($t$2.$ === "Adventure") {
       const seed$4 = game$0.$7;
@@ -2254,6 +2921,168 @@ function $game_combat_func$(game$0, command$0, own_slot$0, target_slot$0) {
   }
 }
 
+function $game_strategic_ai_func$(game$0) {
+  const scenario$0 = game$0.$0;
+  const day$0 = game$0.$1;
+  const $t$0 = game$0.$2;
+  if ($t$0.$ === "Red") {
+    const $t$1 = game$0.$3;
+    const resources$0 = $t$1.$0;
+    const $t$2 = $t$1.$1;
+    const name$0 = $t$2.$0;
+    const x$0 = $t$2.$1;
+    const y$0 = $t$2.$2;
+    const movement$0 = $t$2.$3;
+    const attack$0 = $t$2.$4;
+    const defense$0 = $t$2.$5;
+    const power$0 = $t$2.$6;
+    const knowledge$0 = $t$2.$7;
+    const mana$0 = $t$2.$8;
+    const level$0 = $t$2.$9;
+    const experience$0 = $t$2.$10;
+    const army$0 = $t$2.$11;
+    const $t$3 = $t$1.$2;
+    const faction$0 = $t$3.$0;
+    const hall$0 = $t$3.$1;
+    const fort$0 = $t$3.$2;
+    const dwellings$0 = $t$3.$3;
+    const built_today$0 = $t$3.$4;
+    const stock$0 = $t$3.$5;
+    const blue$0 = game$0.$4;
+    const world$0 = game$0.$5;
+    const $t$4 = game$0.$6;
+    if ($t$4.$ === "Adventure") {
+      const seed$0 = game$0.$7;
+      const turn$0 = game$0.$8;
+      const notice$0 = game$0.$9;
+      const h$0 = run_loop($u32_pair_func$(x$0));
+      return run_jump($game_strategic_ai_func$k58$, [scenario$0, day$0,
+        resources$0, name$0, y$0, movement$0, attack$0, defense$0, power$0,
+        knowledge$0, mana$0, level$0, experience$0, army$0, faction$0, hall$0,
+        fort$0, dwellings$0, built_today$0, stock$0, blue$0, world$0, seed$0,
+        turn$0, notice$0, h$0]);
+    } else if ($t$4.$ === "Combat") {
+      const battle$0 = $t$4.$0;
+      const seed$1 = game$0.$7;
+      const turn$1 = game$0.$8;
+      const notice$1 = game$0.$9;
+      return {$: "Game", $0: scenario$0, $1: day$0, $2: {$: "Red"}, $3: {$:
+        "Kingdom", $0: resources$0, $1: {$: "Hero", $0: name$0, $1: x$0, $2:
+        y$0, $3: movement$0, $4: attack$0, $5: defense$0, $6: power$0, $7:
+        knowledge$0, $8: mana$0, $9: level$0, $10: experience$0, $11: army$0},
+        $2: {$: "Town", $0: faction$0, $1: hall$0, $2: fort$0, $3: dwellings$0,
+        $4: built_today$0, $5: stock$0}}, $4: blue$0, $5: world$0, $6: {$:
+        "Combat", $0: battle$0}, $7: seed$1, $8: turn$1, $9:
+        "Use tactical AI while combat is active."};
+    } else {
+      const winner$0 = $t$4.$0;
+      const seed$2 = game$0.$7;
+      const turn$2 = game$0.$8;
+      const notice$2 = game$0.$9;
+      return {$: "Game", $0: scenario$0, $1: day$0, $2: {$: "Red"}, $3: {$:
+        "Kingdom", $0: resources$0, $1: {$: "Hero", $0: name$0, $1: x$0, $2:
+        y$0, $3: movement$0, $4: attack$0, $5: defense$0, $6: power$0, $7:
+        knowledge$0, $8: mana$0, $9: level$0, $10: experience$0, $11: army$0},
+        $2: {$: "Town", $0: faction$0, $1: hall$0, $2: fort$0, $3: dwellings$0,
+        $4: built_today$0, $5: stock$0}}, $4: blue$0, $5: world$0, $6: {$:
+        "Victory", $0: winner$0}, $7: seed$2, $8: turn$2, $9:
+        "The scenario is already complete."};
+    }
+  } else if ($t$0.$ === "Blue") {
+    const _222$0 = game$0.$3;
+    const $t$5 = game$0.$4;
+    const resources$1 = $t$5.$0;
+    const $t$6 = $t$5.$1;
+    const name$1 = $t$6.$0;
+    const x$1 = $t$6.$1;
+    const y$1 = $t$6.$2;
+    const movement$1 = $t$6.$3;
+    const attack$1 = $t$6.$4;
+    const defense$1 = $t$6.$5;
+    const power$1 = $t$6.$6;
+    const knowledge$1 = $t$6.$7;
+    const mana$1 = $t$6.$8;
+    const level$1 = $t$6.$9;
+    const experience$1 = $t$6.$10;
+    const army$1 = $t$6.$11;
+    const $t$7 = $t$5.$2;
+    const faction$1 = $t$7.$0;
+    const hall$1 = $t$7.$1;
+    const fort$1 = $t$7.$2;
+    const dwellings$1 = $t$7.$3;
+    const built_today$1 = $t$7.$4;
+    const stock$1 = $t$7.$5;
+    const world$1 = game$0.$5;
+    const $t$8 = game$0.$6;
+    if ($t$8.$ === "Adventure") {
+      const seed$3 = game$0.$7;
+      const turn$3 = game$0.$8;
+      const notice$3 = game$0.$9;
+      const h$1 = run_loop($u32_pair_func$(x$1));
+      return run_jump($game_strategic_ai_func$k62$, [scenario$0, day$0, _222$0,
+        resources$1, name$1, y$1, movement$1, attack$1, defense$1, power$1,
+        knowledge$1, mana$1, level$1, experience$1, army$1, faction$1, hall$1,
+        fort$1, dwellings$1, built_today$1, stock$1, world$1, seed$3, turn$3,
+        notice$3, h$1]);
+    } else if ($t$8.$ === "Combat") {
+      const battle$1 = $t$8.$0;
+      const seed$4 = game$0.$7;
+      const turn$4 = game$0.$8;
+      const notice$4 = game$0.$9;
+      return {$: "Game", $0: scenario$0, $1: day$0, $2: {$: "Blue"}, $3: _222$0,
+        $4: {$: "Kingdom", $0: resources$1, $1: {$: "Hero", $0: name$1, $1: x$1,
+        $2: y$1, $3: movement$1, $4: attack$1, $5: defense$1, $6: power$1, $7:
+        knowledge$1, $8: mana$1, $9: level$1, $10: experience$1, $11: army$1},
+        $2: {$: "Town", $0: faction$1, $1: hall$1, $2: fort$1, $3: dwellings$1,
+        $4: built_today$1, $5: stock$1}}, $5: world$1, $6: {$: "Combat", $0:
+        battle$1}, $7: seed$4, $8: turn$4, $9:
+        "Use tactical AI while combat is active."};
+    } else {
+      const winner$1 = $t$8.$0;
+      const seed$5 = game$0.$7;
+      const turn$5 = game$0.$8;
+      const notice$5 = game$0.$9;
+      return {$: "Game", $0: scenario$0, $1: day$0, $2: {$: "Blue"}, $3: _222$0,
+        $4: {$: "Kingdom", $0: resources$1, $1: {$: "Hero", $0: name$1, $1: x$1,
+        $2: y$1, $3: movement$1, $4: attack$1, $5: defense$1, $6: power$1, $7:
+        knowledge$1, $8: mana$1, $9: level$1, $10: experience$1, $11: army$1},
+        $2: {$: "Town", $0: faction$1, $1: hall$1, $2: fort$1, $3: dwellings$1,
+        $4: built_today$1, $5: stock$1}}, $5: world$1, $6: {$: "Victory", $0:
+        winner$1}, $7: seed$5, $8: turn$5, $9:
+        "The scenario is already complete."};
+    }
+  } else {
+    const _222$1 = game$0.$3;
+    const blue$1 = game$0.$4;
+    const world$2 = game$0.$5;
+    const $t$9 = game$0.$6;
+    if ($t$9.$ === "Combat") {
+      const battle$2 = $t$9.$0;
+      const seed$6 = game$0.$7;
+      const turn$6 = game$0.$8;
+      const notice$6 = game$0.$9;
+      return {$: "Game", $0: scenario$0, $1: day$0, $2: {$: "Neutral"}, $3:
+        _222$1, $4: blue$1, $5: world$2, $6: {$: "Combat", $0: battle$2}, $7:
+        seed$6, $8: turn$6, $9: "Strategic AI needs an active player."};
+    } else if ($t$9.$ === "Victory") {
+      const winner$2 = $t$9.$0;
+      const seed$7 = game$0.$7;
+      const turn$7 = game$0.$8;
+      const notice$7 = game$0.$9;
+      return {$: "Game", $0: scenario$0, $1: day$0, $2: {$: "Neutral"}, $3:
+        _222$1, $4: blue$1, $5: world$2, $6: {$: "Victory", $0: winner$2}, $7:
+        seed$7, $8: turn$7, $9: "Strategic AI needs an active player."};
+    } else {
+      const seed$8 = game$0.$7;
+      const turn$8 = game$0.$8;
+      const notice$8 = game$0.$9;
+      return {$: "Game", $0: scenario$0, $1: day$0, $2: {$: "Neutral"}, $3:
+        _222$1, $4: blue$1, $5: world$2, $6: $t$9, $7: seed$8, $8: turn$8, $9:
+        "Strategic AI needs an active player."};
+    }
+  }
+}
+
 function $game_notice_func$(game$0, notice$0) {
   const scenario$0 = game$0.$0;
   const day$0 = game$0.$1;
@@ -2275,11 +3104,218 @@ function $stack_damage_values_func$(kind$0, count$0, first_unit_hp$0,
   const x$1 = (Math.imul(x$0, hit_points$0) >>> 0);
   const total_health$0 = ((x$1 + first_unit_hp$0) >>> 0);
   const h$0 = run_loop($u32_pair_func$(total_health$0));
-  return run_jump($stack_damage_values_func$k20$, [kind$0, count$0,
+  return run_jump($stack_damage_values_func$k66$, [kind$0, count$0,
     hit_points$0, damage$0, h$0]);
 }
 
-function $game_move_func$k8$(scenario$0, day$0, blue$0, seed$0, turn$0, h$0) {
+function $Tactics$battlefield_obstacle$k19$(row$0, seed$0, h$0) {
+  const column_low$0 = h$0.$0;
+  const column_tail$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(column_tail$0));
+  return run_jump($Tactics$battlefield_obstacle$k20$, [row$0, seed$0,
+    column_low$0, h$1]);
+}
+
+function $Tactics$u32_pair$(value$0) {
+  const $t$0 = {$: "Tuple", $0: {$: "Tuple", $0: value$0, $1: null}, $1: {$:
+    "Tuple", $0: value$0, $1: null}};
+  const $t$1 = $t$0.$0;
+  const left$0 = $t$1.$0;
+  const left_exact$0 = $t$1.$1;
+  const $t$2 = $t$0.$1;
+  const right$0 = $t$2.$0;
+  const right_exact$0 = $t$2.$1;
+  return {$: "Tuple", $0: left$0, $1: right$0};
+}
+
+function $Tactics$hex_distance_values$k21$(left_row$0, right_column$0,
+  right_row$0, h$0) {
+  const left_column_dx$0 = h$0.$0;
+  const left_column_tail$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(left_column_tail$0));
+  return run_jump($Tactics$hex_distance_values$k22$, [left_row$0,
+    right_column$0, right_row$0, left_column_dx$0, h$1]);
+}
+
+function $creature_attack_reach_func$k28$(blocked$0, range$0, shots$0, h$0) {
+  return run_jump($Tactics$attack_reach$, [h$0, blocked$0, shots$0, range$0]);
+}
+
+function $combat_ai_choice_func$k14$(mana$0, h$0, h$1) {
+  return run_jump($combat_ai_choice_values_func$, [(5 <= mana$0), h$0, h$1]);
+}
+
+function $army_ai_weakest_func$(army$0) {
+  const s0$0 = army$0.$0;
+  const s1$0 = army$0.$1;
+  const s2$0 = army$0.$2;
+  const s3$0 = army$0.$3;
+  const s4$0 = army$0.$4;
+  const s5$0 = army$0.$5;
+  const s6$0 = army$0.$6;
+  const h$0 = run_loop($stack_ai_candidate_func$(0, s0$0));
+  return run_jump($army_ai_weakest_func$k70$, [s1$0, s2$0, s3$0, s4$0, s5$0,
+    s6$0, h$0]);
+}
+
+function $army_ai_strongest_func$k29$(s1$0, s2$0, s3$0, s4$0, s5$0, s6$0, h$0) {
+  const h$1 = run_loop($stack_ai_candidate_func$(1, s1$0));
+  return run_jump($army_ai_strongest_func$k30$, [s2$0, s3$0, s4$0, s5$0, s6$0,
+    h$0, h$1]);
+}
+
+function $stack_ai_candidate_func$(slot$0, stack$0) {
+  if (stack$0.$ === "EmptyStack") {
+    return {$: "AiCandidate", $0: slot$0, $1: 0, $2: false};
+  } else {
+    const kind$0 = stack$0.$0;
+    const count$0 = stack$0.$1;
+    const first_unit_hp$0 = stack$0.$2;
+    let $t$0;
+    if (kind$0.$ === "Pikeman") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Pikeman"}, $1: {$: "CreatureStats",
+        $0: 4, $1: 5, $2: 1, $3: 3, $4: 10, $5: 4, $6: 14, $7: 60, $8: 1, $9: 0,
+        $10: false, $11: 1}};
+    } else if (kind$0.$ === "Archer") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Archer"}, $1: {$: "CreatureStats",
+        $0: 6, $1: 3, $2: 2, $3: 3, $4: 10, $5: 4, $6: 9, $7: 100, $8: 15, $9:
+        12, $10: false, $11: 1}};
+    } else if (kind$0.$ === "Griffin") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Griffin"}, $1: {$: "CreatureStats",
+        $0: 8, $1: 8, $2: 3, $3: 6, $4: 25, $5: 6, $6: 7, $7: 200, $8: 1, $9: 0,
+        $10: true, $11: 2}};
+    } else if (kind$0.$ === "Swordsman") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Swordsman"}, $1: {$:
+        "CreatureStats", $0: 10, $1: 12, $2: 6, $3: 9, $4: 35, $5: 5, $6: 4, $7:
+        300, $8: 1, $9: 0, $10: false, $11: 1}};
+    } else if (kind$0.$ === "Monk") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Monk"}, $1: {$: "CreatureStats", $0:
+        12, $1: 7, $2: 10, $3: 12, $4: 30, $5: 5, $6: 3, $7: 400, $8: 15, $9:
+        12, $10: false, $11: 1}};
+    } else if (kind$0.$ === "Cavalier") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Cavalier"}, $1: {$: "CreatureStats",
+        $0: 15, $1: 15, $2: 15, $3: 25, $4: 100, $5: 7, $6: 2, $7: 1000, $8: 1,
+        $9: 0, $10: false, $11: 1}};
+    } else if (kind$0.$ === "Angel") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Angel"}, $1: {$: "CreatureStats",
+        $0: 20, $1: 20, $2: 50, $3: 50, $4: 200, $5: 12, $6: 1, $7: 3000, $8: 1,
+        $9: 0, $10: true, $11: 1}};
+    } else if (kind$0.$ === "Skeleton") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Skeleton"}, $1: {$: "CreatureStats",
+        $0: 5, $1: 4, $2: 1, $3: 3, $4: 6, $5: 4, $6: 12, $7: 60, $8: 1, $9: 0,
+        $10: false, $11: 1}};
+    } else if (kind$0.$ === "WalkingDead") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "WalkingDead"}, $1: {$:
+        "CreatureStats", $0: 5, $1: 5, $2: 2, $3: 3, $4: 15, $5: 3, $6: 8, $7:
+        100, $8: 1, $9: 0, $10: false, $11: 1}};
+    } else if (kind$0.$ === "Wight") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Wight"}, $1: {$: "CreatureStats",
+        $0: 7, $1: 7, $2: 3, $3: 5, $4: 18, $5: 5, $6: 7, $7: 200, $8: 1, $9: 0,
+        $10: true, $11: 1}};
+    } else if (kind$0.$ === "Vampire") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Vampire"}, $1: {$: "CreatureStats",
+        $0: 10, $1: 9, $2: 5, $3: 8, $4: 30, $5: 6, $6: 4, $7: 360, $8: 1, $9:
+        0, $10: true, $11: 1}};
+    } else if (kind$0.$ === "Lich") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Lich"}, $1: {$: "CreatureStats", $0:
+        13, $1: 10, $2: 11, $3: 13, $4: 30, $5: 6, $6: 3, $7: 500, $8: 15, $9:
+        12, $10: false, $11: 1}};
+    } else if (kind$0.$ === "BlackKnight") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "BlackKnight"}, $1: {$:
+        "CreatureStats", $0: 16, $1: 16, $2: 15, $3: 30, $4: 120, $5: 7, $6: 2,
+        $7: 1200, $8: 1, $9: 0, $10: false, $11: 1}};
+    } else if (kind$0.$ === "BoneDragon") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "BoneDragon"}, $1: {$:
+        "CreatureStats", $0: 17, $1: 15, $2: 25, $3: 50, $4: 150, $5: 9, $6: 1,
+        $7: 1800, $8: 1, $9: 0, $10: true, $11: 1}};
+    } else if (kind$0.$ === "Imp") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Imp"}, $1: {$: "CreatureStats", $0:
+        2, $1: 3, $2: 1, $3: 2, $4: 4, $5: 5, $6: 15, $7: 50, $8: 1, $9: 0, $10:
+        false, $11: 1}};
+    } else if (kind$0.$ === "Gog") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Gog"}, $1: {$: "CreatureStats", $0:
+        6, $1: 4, $2: 2, $3: 4, $4: 13, $5: 4, $6: 8, $7: 125, $8: 15, $9: 12,
+        $10: false, $11: 1}};
+    } else if (kind$0.$ === "HellHound") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "HellHound"}, $1: {$:
+        "CreatureStats", $0: 10, $1: 6, $2: 2, $3: 7, $4: 25, $5: 7, $6: 5, $7:
+        200, $8: 1, $9: 0, $10: false, $11: 1}};
+    } else if (kind$0.$ === "Demon") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Demon"}, $1: {$: "CreatureStats",
+        $0: 10, $1: 10, $2: 7, $3: 9, $4: 35, $5: 5, $6: 4, $7: 250, $8: 1, $9:
+        0, $10: false, $11: 1}};
+    } else if (kind$0.$ === "PitFiend") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "PitFiend"}, $1: {$: "CreatureStats",
+        $0: 13, $1: 13, $2: 13, $3: 17, $4: 45, $5: 6, $6: 3, $7: 500, $8: 1,
+        $9: 0, $10: false, $11: 1}};
+    } else if (kind$0.$ === "Efreeti") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Efreeti"}, $1: {$: "CreatureStats",
+        $0: 16, $1: 12, $2: 16, $3: 24, $4: 90, $5: 9, $6: 2, $7: 900, $8: 1,
+        $9: 0, $10: true, $11: 1}};
+    } else {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Devil"}, $1: {$: "CreatureStats",
+        $0: 19, $1: 21, $2: 30, $3: 40, $4: 160, $5: 11, $6: 1, $7: 2700, $8: 1,
+        $9: 0, $10: true, $11: 1}};
+    }
+    const kept_kind$0 = $t$0.$0;
+    const $t$1 = $t$0.$1;
+    const attack$0 = $t$1.$0;
+    const defense$0 = $t$1.$1;
+    const damage_min$0 = $t$1.$2;
+    const damage_max$0 = $t$1.$3;
+    const hit_points$0 = $t$1.$4;
+    const speed$0 = $t$1.$5;
+    const growth$0 = $t$1.$6;
+    const cost$0 = $t$1.$7;
+    const range$0 = $t$1.$8;
+    const shots$0 = $t$1.$9;
+    const flying$0 = $t$1.$10;
+    const retaliations$0 = $t$1.$11;
+    const x$0 = ((defense$0 + damage_max$0) >>> 0);
+    const x$1 = ((attack$0 + x$0) >>> 0);
+    const x$2 = ((hit_points$0 + x$1) >>> 0);
+    return {$: "AiCandidate", $0: slot$0, $1: (Math.imul(count$0, x$2) >>> 0),
+      $2: true};
+  }
+}
+
+function $combat_ai_battle_func$k16$(h$0, h$1) {
+  return run_jump($combat_ai_choice_values_func$, [true, h$0, h$1]);
+}
+
+function $combat_ai_battle_no_spell_func$k41$(enemy$0, battlefield$0, h$0) {
+  const player_rank$0 = h$0.$0;
+  const player_select$0 = h$0.$1;
+  const h$1 = run_loop($army_ai_strongest_func$(player_rank$0));
+  return run_jump($combat_ai_battle_no_spell_func$k42$, [enemy$0, battlefield$0,
+    player_select$0, h$1]);
+}
+
+function $army_pair_func$(army$0) {
+  const s0$0 = army$0.$0;
+  const s1$0 = army$0.$1;
+  const s2$0 = army$0.$2;
+  const s3$0 = army$0.$3;
+  const s4$0 = army$0.$4;
+  const s5$0 = army$0.$5;
+  const s6$0 = army$0.$6;
+  const h$0 = run_loop($stack_pair_func$(s0$0));
+  return run_jump($army_pair_func$k82$, [s1$0, s2$0, s3$0, s4$0, s5$0, s6$0,
+    h$0]);
+}
+
+function $heroes_self_check_func$k44$(scenario$0, day$0, seed$0, cost$0, h$0) {
+  const h$1 = run_loop($tactics_catalog_self_check_func$());
+  return run_jump($heroes_self_check_func$k45$, [scenario$0, day$0, seed$0,
+    cost$0, h$0, h$1]);
+}
+
+function $Tactics$battlefield_self_check$() {
+  const h$0 = run_loop($Tactics$hex_make$(14, 10));
+  return run_jump($Tactics$battlefield_self_check$k89$, [h$0]);
+}
+
+function $game_move_func$k46$(scenario$0, day$0, blue$0, seed$0, turn$0, h$0) {
   const next_red$0 = h$0.$0;
   const next_world$0 = h$0.$1;
   const next_phase$0 = h$0.$2;
@@ -2289,7 +3325,7 @@ function $game_move_func$k8$(scenario$0, day$0, blue$0, seed$0, turn$0, h$0) {
     turn$0 + 1) >>> 0), $9: next_notice$0};
 }
 
-function $game_move_func$k9$(scenario$0, day$0, red$0, seed$0, turn$0, h$0) {
+function $game_move_func$k47$(scenario$0, day$0, red$0, seed$0, turn$0, h$0) {
   const next_blue$0 = h$0.$0;
   const next_world$0 = h$0.$1;
   const next_phase$0 = h$0.$2;
@@ -2304,18 +3340,18 @@ function $kingdom_move_func$(kingdom$0, direction$0, world$0, owner$0) {
   const hero$0 = kingdom$0.$1;
   const town$0 = kingdom$0.$2;
   const h$0 = run_loop($hero_move_func$(direction$0, hero$0));
-  return run_jump($kingdom_move_func$k24$, [resources$0, town$0, world$0,
+  return run_jump($kingdom_move_func$k93$, [resources$0, town$0, world$0,
     owner$0, h$0]);
 }
 
 function $game_end_day_values_func$(scenario$0, day$0, red$0, blue$0, world$0,
   seed$0, turn$0) {
   const h$0 = run_loop($world_income_func$(world$0));
-  return run_jump($game_end_day_values_func$k25$, [scenario$0, day$0, red$0,
+  return run_jump($game_end_day_values_func$k94$, [scenario$0, day$0, red$0,
     blue$0, seed$0, turn$0, h$0]);
 }
 
-function $game_build_hall_func$k10$(scenario$0, day$0, blue$0, world$0, seed$0,
+function $game_build_hall_func$k48$(scenario$0, day$0, blue$0, world$0, seed$0,
   turn$0, h$0) {
   const next_red$0 = h$0.$0;
   const next_notice$0 = h$0.$1;
@@ -2324,7 +3360,7 @@ function $game_build_hall_func$k10$(scenario$0, day$0, blue$0, world$0, seed$0,
     turn$0 + 1) >>> 0), $9: next_notice$0};
 }
 
-function $game_build_hall_func$k11$(scenario$0, day$0, red$0, world$0, seed$0,
+function $game_build_hall_func$k49$(scenario$0, day$0, red$0, world$0, seed$0,
   turn$0, h$0) {
   const next_blue$0 = h$0.$0;
   const next_notice$0 = h$0.$1;
@@ -2338,10 +3374,10 @@ function $kingdom_build_hall_func$(kingdom$0) {
   const hero$0 = kingdom$0.$1;
   const town$0 = kingdom$0.$2;
   const h$0 = run_loop($town_build_hall_func$(town$0, resources$0));
-  return run_jump($kingdom_build_hall_func$k29$, [hero$0, h$0]);
+  return run_jump($kingdom_build_hall_func$k98$, [hero$0, h$0]);
 }
 
-function $game_build_fort_func$k12$(scenario$0, day$0, blue$0, world$0, seed$0,
+function $game_build_fort_func$k50$(scenario$0, day$0, blue$0, world$0, seed$0,
   turn$0, h$0) {
   const next_red$0 = h$0.$0;
   const next_notice$0 = h$0.$1;
@@ -2350,7 +3386,7 @@ function $game_build_fort_func$k12$(scenario$0, day$0, blue$0, world$0, seed$0,
     turn$0 + 1) >>> 0), $9: next_notice$0};
 }
 
-function $game_build_fort_func$k13$(scenario$0, day$0, red$0, world$0, seed$0,
+function $game_build_fort_func$k51$(scenario$0, day$0, red$0, world$0, seed$0,
   turn$0, h$0) {
   const next_blue$0 = h$0.$0;
   const next_notice$0 = h$0.$1;
@@ -2364,10 +3400,10 @@ function $kingdom_build_fort_func$(kingdom$0) {
   const hero$0 = kingdom$0.$1;
   const town$0 = kingdom$0.$2;
   const h$0 = run_loop($town_build_fort_func$(town$0, resources$0));
-  return run_jump($kingdom_build_fort_func$k30$, [hero$0, h$0]);
+  return run_jump($kingdom_build_fort_func$k99$, [hero$0, h$0]);
 }
 
-function $game_build_dwelling_func$k14$(scenario$0, day$0, blue$0, world$0,
+function $game_build_dwelling_func$k52$(scenario$0, day$0, blue$0, world$0,
   seed$0, turn$0, h$0) {
   const next_red$0 = h$0.$0;
   const next_notice$0 = h$0.$1;
@@ -2376,7 +3412,7 @@ function $game_build_dwelling_func$k14$(scenario$0, day$0, blue$0, world$0,
     turn$0 + 1) >>> 0), $9: next_notice$0};
 }
 
-function $game_build_dwelling_func$k15$(scenario$0, day$0, red$0, world$0,
+function $game_build_dwelling_func$k53$(scenario$0, day$0, red$0, world$0,
   seed$0, turn$0, h$0) {
   const next_blue$0 = h$0.$0;
   const next_notice$0 = h$0.$1;
@@ -2390,10 +3426,10 @@ function $kingdom_build_dwelling_func$(kingdom$0, tier$0) {
   const hero$0 = kingdom$0.$1;
   const town$0 = kingdom$0.$2;
   const h$0 = run_loop($town_build_dwelling_func$(town$0, resources$0, tier$0));
-  return run_jump($kingdom_build_dwelling_func$k31$, [hero$0, h$0]);
+  return run_jump($kingdom_build_dwelling_func$k100$, [hero$0, h$0]);
 }
 
-function $game_recruit_func$k16$(scenario$0, day$0, blue$0, world$0, seed$0,
+function $game_recruit_func$k54$(scenario$0, day$0, blue$0, world$0, seed$0,
   turn$0, h$0) {
   const next_red$0 = h$0.$0;
   const next_notice$0 = h$0.$1;
@@ -2402,7 +3438,7 @@ function $game_recruit_func$k16$(scenario$0, day$0, blue$0, world$0, seed$0,
     turn$0 + 1) >>> 0), $9: next_notice$0};
 }
 
-function $game_recruit_func$k17$(scenario$0, day$0, red$0, world$0, seed$0,
+function $game_recruit_func$k55$(scenario$0, day$0, red$0, world$0, seed$0,
   turn$0, h$0) {
   const next_blue$0 = h$0.$0;
   const next_notice$0 = h$0.$1;
@@ -2423,27 +3459,36 @@ function $kingdom_recruit_func$(kingdom$0, tier$0, amount$0) {
     const built_today$0 = $t$0.$4;
     const stock$0 = $t$0.$5;
     const h$0 = run_loop($hero_home_check_func$({$: "Castle"}, hero$0));
-    return run_jump($kingdom_recruit_func$k32$, [resources$0, hall$0, fort$0,
+    return run_jump($kingdom_recruit_func$k101$, [resources$0, hall$0, fort$0,
       dwellings$0, built_today$0, stock$0, tier$0, amount$0, h$0]);
-  } else {
+  } else if ($t$1.$ === "Necropolis") {
     const hall$1 = $t$0.$1;
     const fort$1 = $t$0.$2;
     const dwellings$1 = $t$0.$3;
     const built_today$1 = $t$0.$4;
     const stock$1 = $t$0.$5;
     const h$1 = run_loop($hero_home_check_func$({$: "Necropolis"}, hero$0));
-    return run_jump($kingdom_recruit_func$k33$, [resources$0, hall$1, fort$1,
+    return run_jump($kingdom_recruit_func$k102$, [resources$0, hall$1, fort$1,
       dwellings$1, built_today$1, stock$1, tier$0, amount$0, h$1]);
+  } else {
+    const hall$2 = $t$0.$1;
+    const fort$2 = $t$0.$2;
+    const dwellings$2 = $t$0.$3;
+    const built_today$2 = $t$0.$4;
+    const stock$2 = $t$0.$5;
+    const h$2 = run_loop($hero_home_check_func$({$: "Inferno"}, hero$0));
+    return run_jump($kingdom_recruit_func$k103$, [resources$0, hall$2, fort$2,
+      dwellings$2, built_today$2, stock$2, tier$0, amount$0, h$2]);
   }
 }
 
-function $game_combat_func$k18$(scenario$0, day$0, blue$0, world$0, turn$0,
+function $game_combat_func$k56$(scenario$0, day$0, blue$0, world$0, turn$0,
   h$0) {
   return run_jump($game_red_battle_result_func$, [scenario$0, day$0, blue$0,
     world$0, turn$0, h$0]);
 }
 
-function $game_combat_func$k19$(scenario$0, day$0, red$0, world$0, turn$0,
+function $game_combat_func$k57$(scenario$0, day$0, red$0, world$0, turn$0,
   h$0) {
   return run_jump($game_blue_battle_result_func$, [scenario$0, day$0, red$0,
     world$0, turn$0, h$0]);
@@ -2470,6 +3515,7 @@ function $kingdom_battle_command_func$(kingdom$0, battle$0, command$0,
   const source$0 = battle$0.$1;
   const enemy$0 = battle$0.$2;
   const round$0 = battle$0.$3;
+  const battlefield$0 = battle$0.$4;
   const $t$1 = BigInt(command$0);
   if ($t$1 !== 0n) {
     const $t$2 = ($t$1 - 1n);
@@ -2519,18 +3565,19 @@ function $kingdom_battle_command_func$(kingdom$0, battle$0, command$0,
                                               power$0, knowledge$0, mana$0,
                                               level$0, experience$0, army$0,
                                               town$0, attacker$0, source$0,
-                                              enemy$0, round$0, own_slot$0,
-                                              target_slot$0, seed$0]);
+                                              enemy$0, round$0, battlefield$0,
+                                              own_slot$0, target_slot$0,
+                                              seed$0]);
                                           } else {
                                             const $t$22 = ($t$21 - 1n);
                                             if ($t$22 === 0n) {
                                               return run_jump(
-                                                $kingdom_combat_defend_case_func$, [resources$0, name$0, x$0, y$0, movement$0, attack$0, defense$0, power$0, knowledge$0, mana$0, level$0, experience$0, army$0, town$0, attacker$0, source$0, enemy$0, round$0, own_slot$0, target_slot$0, seed$0]);
+                                                $kingdom_combat_defend_case_func$, [resources$0, name$0, x$0, y$0, movement$0, attack$0, defense$0, power$0, knowledge$0, mana$0, level$0, experience$0, army$0, town$0, attacker$0, source$0, enemy$0, round$0, battlefield$0, own_slot$0, target_slot$0, seed$0]);
                                             } else {
                                               const $t$23 = ($t$22 - 1n);
                                               if ($t$23 === 0n) {
                                                 return run_jump(
-                                                  $kingdom_combat_spell_case_func$, [resources$0, name$0, x$0, y$0, movement$0, attack$0, defense$0, power$0, knowledge$0, mana$0, level$0, experience$0, army$0, town$0, attacker$0, source$0, enemy$0, round$0, own_slot$0, target_slot$0, seed$0]);
+                                                  $kingdom_combat_spell_case_func$, [resources$0, name$0, x$0, y$0, movement$0, attack$0, defense$0, power$0, knowledge$0, mana$0, level$0, experience$0, army$0, town$0, attacker$0, source$0, enemy$0, round$0, battlefield$0, own_slot$0, target_slot$0, seed$0]);
                                               } else {
                                                 const $t$24 = ($t$23 - 1n);
                                                 if ($t$24 === 0n) {
@@ -2584,7 +3631,7 @@ function $kingdom_battle_command_func$(kingdom$0, battle$0, command$0,
                                                       "BattleEnded", $0: {$:
                                                       "Red"}, $1: source$0, $2:
                                                       enemy$0}, $2: seed$0, $3:
-                                                      "The hero retreated to the Castle and lost the whole army."};
+                                                      "The hero retreated to the Red town and lost the whole army."};
                                                   } else {
                                                     return {$: "KingdomBattle",
                                                       $0: {$: "Kingdom", $0:
@@ -2608,25 +3655,33 @@ function $kingdom_battle_command_func$(kingdom$0, battle$0, command$0,
                                                       "BattleEnded", $0: {$:
                                                       "Blue"}, $1: source$0, $2:
                                                       enemy$0}, $2: seed$0, $3:
-                                                      "The hero retreated to the Necropolis and lost the whole army."};
+                                                      "The hero retreated to the Blue town and lost the whole army."};
                                                   }
                                                 } else {
-                                                  return {$: "KingdomBattle",
-                                                    $0: {$: "Kingdom", $0:
-                                                    resources$0, $1: {$: "Hero",
-                                                    $0: name$0, $1: x$0, $2:
-                                                    y$0, $3: movement$0, $4:
-                                                    attack$0, $5: defense$0, $6:
-                                                    power$0, $7: knowledge$0,
-                                                    $8: mana$0, $9: level$0,
-                                                    $10: experience$0, $11:
-                                                    army$0}, $2: town$0}, $1: {
-                                                    $: "BattleContinues", $0: {
-                                                    $: "Battle", $0: attacker$0,
-                                                    $1: source$0, $2: enemy$0,
-                                                    $3: round$0}}, $2: seed$0,
-                                                    $3:
-                                                    "That command is not available during combat."};
+                                                  const $t$25 = ($t$24 - 1n);
+                                                  if ($t$25 === 0n) {
+                                                    return run_jump(
+                                                      $kingdom_combat_move_case_func$, [resources$0, name$0, x$0, y$0, movement$0, attack$0, defense$0, power$0, knowledge$0, mana$0, level$0, experience$0, army$0, town$0, attacker$0, source$0, enemy$0, round$0, battlefield$0, own_slot$0, target_slot$0, seed$0]);
+                                                  } else {
+                                                    return {$: "KingdomBattle",
+                                                      $0: {$: "Kingdom", $0:
+                                                      resources$0, $1: {$:
+                                                      "Hero", $0: name$0, $1:
+                                                      x$0, $2: y$0, $3:
+                                                      movement$0, $4: attack$0,
+                                                      $5: defense$0, $6:
+                                                      power$0, $7: knowledge$0,
+                                                      $8: mana$0, $9: level$0,
+                                                      $10: experience$0, $11:
+                                                      army$0}, $2: town$0}, $1:
+                                                      {$: "BattleContinues", $0:
+                                                      {$: "Battle", $0:
+                                                      attacker$0, $1: source$0,
+                                                      $2: enemy$0, $3: round$0,
+                                                      $4: battlefield$0}}, $2:
+                                                      seed$0, $3:
+                                                      "That command is not available during combat."};
+                                                  }
                                                 }
                                               }
                                             }
@@ -2642,8 +3697,8 @@ function $kingdom_battle_command_func$(kingdom$0, battle$0, command$0,
                                             army$0}, $2: town$0}, $1: {$:
                                             "BattleContinues", $0: {$: "Battle",
                                             $0: attacker$0, $1: source$0, $2:
-                                            enemy$0, $3: round$0}}, $2: seed$0,
-                                            $3:
+                                            enemy$0, $3: round$0, $4:
+                                            battlefield$0}}, $2: seed$0, $3:
                                             "That command is not available during combat."};
                                         }
                                       } else {
@@ -2656,8 +3711,8 @@ function $kingdom_battle_command_func$(kingdom$0, battle$0, command$0,
                                           $10: experience$0, $11: army$0}, $2:
                                           town$0}, $1: {$: "BattleContinues",
                                           $0: {$: "Battle", $0: attacker$0, $1:
-                                          source$0, $2: enemy$0, $3: round$0}},
-                                          $2: seed$0, $3:
+                                          source$0, $2: enemy$0, $3: round$0,
+                                          $4: battlefield$0}}, $2: seed$0, $3:
                                           "That command is not available during combat."};
                                       }
                                     } else {
@@ -2670,8 +3725,8 @@ function $kingdom_battle_command_func$(kingdom$0, battle$0, command$0,
                                         experience$0, $11: army$0}, $2: town$0},
                                         $1: {$: "BattleContinues", $0: {$:
                                         "Battle", $0: attacker$0, $1: source$0,
-                                        $2: enemy$0, $3: round$0}}, $2: seed$0,
-                                        $3:
+                                        $2: enemy$0, $3: round$0, $4:
+                                        battlefield$0}}, $2: seed$0, $3:
                                         "That command is not available during combat."};
                                     }
                                   } else {
@@ -2684,7 +3739,8 @@ function $kingdom_battle_command_func$(kingdom$0, battle$0, command$0,
                                       army$0}, $2: town$0}, $1: {$:
                                       "BattleContinues", $0: {$: "Battle", $0:
                                       attacker$0, $1: source$0, $2: enemy$0, $3:
-                                      round$0}}, $2: seed$0, $3:
+                                      round$0, $4: battlefield$0}}, $2: seed$0,
+                                      $3:
                                       "That command is not available during combat."};
                                   }
                                 } else {
@@ -2696,7 +3752,8 @@ function $kingdom_battle_command_func$(kingdom$0, battle$0, command$0,
                                     experience$0, $11: army$0}, $2: town$0}, $1:
                                     {$: "BattleContinues", $0: {$: "Battle", $0:
                                     attacker$0, $1: source$0, $2: enemy$0, $3:
-                                    round$0}}, $2: seed$0, $3:
+                                    round$0, $4: battlefield$0}}, $2: seed$0,
+                                    $3:
                                     "That command is not available during combat."};
                                 }
                               } else {
@@ -2708,7 +3765,7 @@ function $kingdom_battle_command_func$(kingdom$0, battle$0, command$0,
                                   experience$0, $11: army$0}, $2: town$0}, $1: {
                                   $: "BattleContinues", $0: {$: "Battle", $0:
                                   attacker$0, $1: source$0, $2: enemy$0, $3:
-                                  round$0}}, $2: seed$0, $3:
+                                  round$0, $4: battlefield$0}}, $2: seed$0, $3:
                                   "That command is not available during combat."};
                               }
                             } else {
@@ -2719,7 +3776,8 @@ function $kingdom_battle_command_func$(kingdom$0, battle$0, command$0,
                                 mana$0, $9: level$0, $10: experience$0, $11:
                                 army$0}, $2: town$0}, $1: {$: "BattleContinues",
                                 $0: {$: "Battle", $0: attacker$0, $1: source$0,
-                                $2: enemy$0, $3: round$0}}, $2: seed$0, $3:
+                                $2: enemy$0, $3: round$0, $4: battlefield$0}},
+                                $2: seed$0, $3:
                                 "That command is not available during combat."};
                             }
                           } else {
@@ -2730,7 +3788,8 @@ function $kingdom_battle_command_func$(kingdom$0, battle$0, command$0,
                               mana$0, $9: level$0, $10: experience$0, $11:
                               army$0}, $2: town$0}, $1: {$: "BattleContinues",
                               $0: {$: "Battle", $0: attacker$0, $1: source$0,
-                              $2: enemy$0, $3: round$0}}, $2: seed$0, $3:
+                              $2: enemy$0, $3: round$0, $4: battlefield$0}}, $2:
+                              seed$0, $3:
                               "That command is not available during combat."};
                           }
                         } else {
@@ -2741,7 +3800,7 @@ function $kingdom_battle_command_func$(kingdom$0, battle$0, command$0,
                             $9: level$0, $10: experience$0, $11: army$0}, $2:
                             town$0}, $1: {$: "BattleContinues", $0: {$:
                             "Battle", $0: attacker$0, $1: source$0, $2: enemy$0,
-                            $3: round$0}}, $2: seed$0, $3:
+                            $3: round$0, $4: battlefield$0}}, $2: seed$0, $3:
                             "That command is not available during combat."};
                         }
                       } else {
@@ -2751,8 +3810,9 @@ function $kingdom_battle_command_func$(kingdom$0, battle$0, command$0,
                           power$0, $7: knowledge$0, $8: mana$0, $9: level$0,
                           $10: experience$0, $11: army$0}, $2: town$0}, $1: {$:
                           "BattleContinues", $0: {$: "Battle", $0: attacker$0,
-                          $1: source$0, $2: enemy$0, $3: round$0}}, $2: seed$0,
-                          $3: "That command is not available during combat."};
+                          $1: source$0, $2: enemy$0, $3: round$0, $4:
+                          battlefield$0}}, $2: seed$0, $3:
+                          "That command is not available during combat."};
                       }
                     } else {
                       return {$: "KingdomBattle", $0: {$: "Kingdom", $0:
@@ -2761,7 +3821,8 @@ function $kingdom_battle_command_func$(kingdom$0, battle$0, command$0,
                         power$0, $7: knowledge$0, $8: mana$0, $9: level$0, $10:
                         experience$0, $11: army$0}, $2: town$0}, $1: {$:
                         "BattleContinues", $0: {$: "Battle", $0: attacker$0, $1:
-                        source$0, $2: enemy$0, $3: round$0}}, $2: seed$0, $3:
+                        source$0, $2: enemy$0, $3: round$0, $4: battlefield$0}},
+                        $2: seed$0, $3:
                         "That command is not available during combat."};
                     }
                   } else {
@@ -2771,7 +3832,8 @@ function $kingdom_battle_command_func$(kingdom$0, battle$0, command$0,
                       $7: knowledge$0, $8: mana$0, $9: level$0, $10:
                       experience$0, $11: army$0}, $2: town$0}, $1: {$:
                       "BattleContinues", $0: {$: "Battle", $0: attacker$0, $1:
-                      source$0, $2: enemy$0, $3: round$0}}, $2: seed$0, $3:
+                      source$0, $2: enemy$0, $3: round$0, $4: battlefield$0}},
+                      $2: seed$0, $3:
                       "That command is not available during combat."};
                   }
                 } else {
@@ -2781,7 +3843,7 @@ function $kingdom_battle_command_func$(kingdom$0, battle$0, command$0,
                     $7: knowledge$0, $8: mana$0, $9: level$0, $10: experience$0,
                     $11: army$0}, $2: town$0}, $1: {$: "BattleContinues", $0: {
                     $: "Battle", $0: attacker$0, $1: source$0, $2: enemy$0, $3:
-                    round$0}}, $2: seed$0, $3:
+                    round$0, $4: battlefield$0}}, $2: seed$0, $3:
                     "That command is not available during combat."};
                 }
               } else {
@@ -2790,8 +3852,9 @@ function $kingdom_battle_command_func$(kingdom$0, battle$0, command$0,
                   $4: attack$0, $5: defense$0, $6: power$0, $7: knowledge$0, $8:
                   mana$0, $9: level$0, $10: experience$0, $11: army$0}, $2:
                   town$0}, $1: {$: "BattleContinues", $0: {$: "Battle", $0:
-                  attacker$0, $1: source$0, $2: enemy$0, $3: round$0}}, $2:
-                  seed$0, $3: "That command is not available during combat."};
+                  attacker$0, $1: source$0, $2: enemy$0, $3: round$0, $4:
+                  battlefield$0}}, $2: seed$0, $3:
+                  "That command is not available during combat."};
               }
             } else {
               return {$: "KingdomBattle", $0: {$: "Kingdom", $0: resources$0,
@@ -2799,8 +3862,9 @@ function $kingdom_battle_command_func$(kingdom$0, battle$0, command$0,
                 $4: attack$0, $5: defense$0, $6: power$0, $7: knowledge$0, $8:
                 mana$0, $9: level$0, $10: experience$0, $11: army$0}, $2:
                 town$0}, $1: {$: "BattleContinues", $0: {$: "Battle", $0:
-                attacker$0, $1: source$0, $2: enemy$0, $3: round$0}}, $2:
-                seed$0, $3: "That command is not available during combat."};
+                attacker$0, $1: source$0, $2: enemy$0, $3: round$0, $4:
+                battlefield$0}}, $2: seed$0, $3:
+                "That command is not available during combat."};
             }
           } else {
             return {$: "KingdomBattle", $0: {$: "Kingdom", $0: resources$0, $1:
@@ -2808,7 +3872,7 @@ function $kingdom_battle_command_func$(kingdom$0, battle$0, command$0,
               attack$0, $5: defense$0, $6: power$0, $7: knowledge$0, $8: mana$0,
               $9: level$0, $10: experience$0, $11: army$0}, $2: town$0}, $1: {$:
               "BattleContinues", $0: {$: "Battle", $0: attacker$0, $1: source$0,
-              $2: enemy$0, $3: round$0}}, $2: seed$0, $3:
+              $2: enemy$0, $3: round$0, $4: battlefield$0}}, $2: seed$0, $3:
               "That command is not available during combat."};
           }
         } else {
@@ -2817,7 +3881,7 @@ function $kingdom_battle_command_func$(kingdom$0, battle$0, command$0,
             attack$0, $5: defense$0, $6: power$0, $7: knowledge$0, $8: mana$0,
             $9: level$0, $10: experience$0, $11: army$0}, $2: town$0}, $1: {$:
             "BattleContinues", $0: {$: "Battle", $0: attacker$0, $1: source$0,
-            $2: enemy$0, $3: round$0}}, $2: seed$0, $3:
+            $2: enemy$0, $3: round$0, $4: battlefield$0}}, $2: seed$0, $3:
             "That command is not available during combat."};
         }
       } else {
@@ -2826,7 +3890,7 @@ function $kingdom_battle_command_func$(kingdom$0, battle$0, command$0,
           $5: defense$0, $6: power$0, $7: knowledge$0, $8: mana$0, $9: level$0,
           $10: experience$0, $11: army$0}, $2: town$0}, $1: {$:
           "BattleContinues", $0: {$: "Battle", $0: attacker$0, $1: source$0, $2:
-          enemy$0, $3: round$0}}, $2: seed$0, $3:
+          enemy$0, $3: round$0, $4: battlefield$0}}, $2: seed$0, $3:
           "That command is not available during combat."};
       }
     } else {
@@ -2834,32 +3898,47 @@ function $kingdom_battle_command_func$(kingdom$0, battle$0, command$0,
         "Hero", $0: name$0, $1: x$0, $2: y$0, $3: movement$0, $4: attack$0, $5:
         defense$0, $6: power$0, $7: knowledge$0, $8: mana$0, $9: level$0, $10:
         experience$0, $11: army$0}, $2: town$0}, $1: {$: "BattleContinues", $0:
-        {$: "Battle", $0: attacker$0, $1: source$0, $2: enemy$0, $3: round$0}},
-        $2: seed$0, $3: "That command is not available during combat."};
+        {$: "Battle", $0: attacker$0, $1: source$0, $2: enemy$0, $3: round$0,
+        $4: battlefield$0}}, $2: seed$0, $3:
+        "That command is not available during combat."};
     }
   } else {
     return {$: "KingdomBattle", $0: {$: "Kingdom", $0: resources$0, $1: {$:
       "Hero", $0: name$0, $1: x$0, $2: y$0, $3: movement$0, $4: attack$0, $5:
       defense$0, $6: power$0, $7: knowledge$0, $8: mana$0, $9: level$0, $10:
       experience$0, $11: army$0}, $2: town$0}, $1: {$: "BattleContinues", $0: {
-      $: "Battle", $0: attacker$0, $1: source$0, $2: enemy$0, $3: round$0}}, $2:
-      seed$0, $3: "That command is not available during combat."};
+      $: "Battle", $0: attacker$0, $1: source$0, $2: enemy$0, $3: round$0, $4:
+      battlefield$0}}, $2: seed$0, $3:
+      "That command is not available during combat."};
   }
 }
 
-function $stack_damage_values_func$k20$(kind$0, count$0, hit_points$0, damage$0,
-  h$0) {
-  const total_test$0 = h$0.$0;
-  const total_live$0 = h$0.$1;
-  const $t$0 = (total_test$0 <= damage$0);
-  if ($t$0) {
-    return {$: "StackDamage", $0: {$: "EmptyStack"}, $1: count$0};
-  } else {
-    const remaining_health$0 = ((total_live$0 - damage$0) >>> 0);
-    const h$1 = run_loop($u32_pair_func$(remaining_health$0));
-    return run_jump($stack_damage_values_func$k21$, [kind$0, count$0,
-      hit_points$0, h$1]);
-  }
+function $game_strategic_ai_func$k58$(scenario$0, day$0, resources$0, name$0,
+  y$0, movement$0, attack$0, defense$0, power$0, knowledge$0, mana$0, level$0,
+  experience$0, army$0, faction$0, hall$0, fort$0, dwellings$0, built_today$0,
+  stock$0, blue$0, world$0, seed$0, turn$0, notice$0, h$0) {
+  const x_home$0 = h$0.$0;
+  const x_tail$0 = h$0.$1;
+  const h$1 = run_loop($u32_pair_func$(x_tail$0));
+  return run_jump($game_strategic_ai_func$k59$, [scenario$0, day$0, resources$0,
+    name$0, y$0, movement$0, attack$0, defense$0, power$0, knowledge$0, mana$0,
+    level$0, experience$0, army$0, faction$0, hall$0, fort$0, dwellings$0,
+    built_today$0, stock$0, blue$0, world$0, seed$0, turn$0, notice$0, x_home$0,
+    h$1]);
+}
+
+function $game_strategic_ai_func$k62$(scenario$0, day$0, _222$0, resources$0,
+  name$0, y$0, movement$0, attack$0, defense$0, power$0, knowledge$0, mana$0,
+  level$0, experience$0, army$0, faction$0, hall$0, fort$0, dwellings$0,
+  built_today$0, stock$0, world$0, seed$0, turn$0, notice$0, h$0) {
+  const x_home$0 = h$0.$0;
+  const x_tail$0 = h$0.$1;
+  const h$1 = run_loop($u32_pair_func$(x_tail$0));
+  return run_jump($game_strategic_ai_func$k63$, [scenario$0, day$0, _222$0,
+    resources$0, name$0, y$0, movement$0, attack$0, defense$0, power$0,
+    knowledge$0, mana$0, level$0, experience$0, army$0, faction$0, hall$0,
+    fort$0, dwellings$0, built_today$0, stock$0, world$0, seed$0, turn$0,
+    notice$0, x_home$0, h$1]);
 }
 
 function $u32_pair_func$(value$0) {
@@ -2874,7 +3953,227 @@ function $u32_pair_func$(value$0) {
   return {$: "Tuple", $0: left$0, $1: right$0};
 }
 
-function $kingdom_move_func$k24$(resources$0, town$0, world$0, owner$0, h$0) {
+function $stack_damage_values_func$k66$(kind$0, count$0, hit_points$0, damage$0,
+  h$0) {
+  const total_test$0 = h$0.$0;
+  const total_live$0 = h$0.$1;
+  const $t$0 = (total_test$0 <= damage$0);
+  if ($t$0) {
+    return {$: "StackDamage", $0: {$: "EmptyStack"}, $1: count$0};
+  } else {
+    const remaining_health$0 = ((total_live$0 - damage$0) >>> 0);
+    const h$1 = run_loop($u32_pair_func$(remaining_health$0));
+    return run_jump($stack_damage_values_func$k67$, [kind$0, count$0,
+      hit_points$0, h$1]);
+  }
+}
+
+function $Tactics$battlefield_obstacle$k20$(row$0, seed$0, column_low$0, h$0) {
+  const column_high$0 = h$0.$0;
+  const column_hash$0 = h$0.$1;
+  let $t$0;
+  const $t$1 = (2 <= column_low$0);
+  if (!$t$1) {
+    const b$0 = (column_high$0 <= 12);
+    $t$0 = false;
+  } else {
+    const b$1 = (column_high$0 <= 12);
+    $t$0 = b$1;
+  }
+  if (!$t$0) {
+    return false;
+  } else {
+    const x$0 = (Math.imul(column_hash$0, 37) >>> 0);
+    const x$1 = (Math.imul(row$0, 61) >>> 0);
+    const x$2 = ((x$0 + x$1) >>> 0);
+    const hash$0 = ((x$2 + seed$0) >>> 0);
+    const x$3 = (17 === 0 ? hash$0 : hash$0 % 17);
+    return (x$3 === 0);
+  }
+}
+
+function $Tactics$hex_distance_values$k22$(left_row$0, right_column$0,
+  right_row$0, left_column_dx$0, h$0) {
+  const left_column_parity$0 = h$0.$0;
+  const left_column_offset$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(right_column$0));
+  return run_jump($Tactics$hex_distance_values$k23$, [left_row$0, right_row$0,
+    left_column_dx$0, left_column_parity$0, left_column_offset$0, h$1]);
+}
+
+function $Tactics$attack_reach$(distance$0, blocked$0, shots$0, range$0) {
+  const h$0 = run_loop($Tactics$u32_pair$(distance$0));
+  return run_jump($Tactics$attack_reach$k104$, [blocked$0, shots$0, range$0,
+    h$0]);
+}
+
+function $combat_ai_choice_values_func$(use_spell$0, own$0, target$0) {
+  if (!use_spell$0) {
+    const own_slot$0 = own$0.$0;
+    const own_value$0 = own$0.$1;
+    const own_valid$0 = own$0.$2;
+    const target_slot$0 = target$0.$0;
+    const target_value$0 = target$0.$1;
+    const target_valid$0 = target$0.$2;
+    return {$: "CombatAiChoice", $0: 20, $1: own_slot$0, $2: target_slot$0};
+  } else {
+    const own_slot$1 = own$0.$0;
+    const own_value$1 = own$0.$1;
+    const own_valid$1 = own$0.$2;
+    const target_slot$1 = target$0.$0;
+    const target_value$1 = target$0.$1;
+    const target_valid$1 = target$0.$2;
+    return {$: "CombatAiChoice", $0: 22, $1: own_slot$1, $2: target_slot$1};
+  }
+}
+
+function $army_ai_weakest_func$k70$(s1$0, s2$0, s3$0, s4$0, s5$0, s6$0, h$0) {
+  const h$1 = run_loop($stack_ai_candidate_func$(1, s1$0));
+  return run_jump($army_ai_weakest_func$k71$, [s2$0, s3$0, s4$0, s5$0, s6$0,
+    h$0, h$1]);
+}
+
+function $army_ai_strongest_func$k30$(s2$0, s3$0, s4$0, s5$0, s6$0, h$0, h$1) {
+  const h$2 = run_loop($ai_candidate_max_func$(h$0, h$1));
+  return run_jump($army_ai_strongest_func$k31$, [s2$0, s3$0, s4$0, s5$0, s6$0,
+    h$2]);
+}
+
+function $combat_ai_battle_no_spell_func$k42$(enemy$0, battlefield$0,
+  player_select$0, h$0) {
+  const h$1 = run_loop($army_ai_strongest_func$(enemy$0));
+  return run_jump($combat_ai_battle_no_spell_func$k43$, [battlefield$0,
+    player_select$0, h$0, h$1]);
+}
+
+function $army_pair_func$k82$(s1$0, s2$0, s3$0, s4$0, s5$0, s6$0, h$0) {
+  const l0$0 = h$0.$0;
+  const r0$0 = h$0.$1;
+  const h$1 = run_loop($stack_pair_func$(s1$0));
+  return run_jump($army_pair_func$k83$, [s2$0, s3$0, s4$0, s5$0, s6$0, l0$0,
+    r0$0, h$1]);
+}
+
+function $stack_pair_func$(stack$0) {
+  if (stack$0.$ === "EmptyStack") {
+    return {$: "StackPair", $0: {$: "EmptyStack"}, $1: {$: "EmptyStack"}};
+  } else {
+    const kind$0 = stack$0.$0;
+    const count$0 = stack$0.$1;
+    const first_unit_hp$0 = stack$0.$2;
+    let $t$0;
+    if (kind$0.$ === "Pikeman") {
+      $t$0 = {$: "Tuple", $0: {$: "Pikeman"}, $1: {$: "Pikeman"}};
+    } else if (kind$0.$ === "Archer") {
+      $t$0 = {$: "Tuple", $0: {$: "Archer"}, $1: {$: "Archer"}};
+    } else if (kind$0.$ === "Griffin") {
+      $t$0 = {$: "Tuple", $0: {$: "Griffin"}, $1: {$: "Griffin"}};
+    } else if (kind$0.$ === "Swordsman") {
+      $t$0 = {$: "Tuple", $0: {$: "Swordsman"}, $1: {$: "Swordsman"}};
+    } else if (kind$0.$ === "Monk") {
+      $t$0 = {$: "Tuple", $0: {$: "Monk"}, $1: {$: "Monk"}};
+    } else if (kind$0.$ === "Cavalier") {
+      $t$0 = {$: "Tuple", $0: {$: "Cavalier"}, $1: {$: "Cavalier"}};
+    } else if (kind$0.$ === "Angel") {
+      $t$0 = {$: "Tuple", $0: {$: "Angel"}, $1: {$: "Angel"}};
+    } else if (kind$0.$ === "Skeleton") {
+      $t$0 = {$: "Tuple", $0: {$: "Skeleton"}, $1: {$: "Skeleton"}};
+    } else if (kind$0.$ === "WalkingDead") {
+      $t$0 = {$: "Tuple", $0: {$: "WalkingDead"}, $1: {$: "WalkingDead"}};
+    } else if (kind$0.$ === "Wight") {
+      $t$0 = {$: "Tuple", $0: {$: "Wight"}, $1: {$: "Wight"}};
+    } else if (kind$0.$ === "Vampire") {
+      $t$0 = {$: "Tuple", $0: {$: "Vampire"}, $1: {$: "Vampire"}};
+    } else if (kind$0.$ === "Lich") {
+      $t$0 = {$: "Tuple", $0: {$: "Lich"}, $1: {$: "Lich"}};
+    } else if (kind$0.$ === "BlackKnight") {
+      $t$0 = {$: "Tuple", $0: {$: "BlackKnight"}, $1: {$: "BlackKnight"}};
+    } else if (kind$0.$ === "BoneDragon") {
+      $t$0 = {$: "Tuple", $0: {$: "BoneDragon"}, $1: {$: "BoneDragon"}};
+    } else if (kind$0.$ === "Imp") {
+      $t$0 = {$: "Tuple", $0: {$: "Imp"}, $1: {$: "Imp"}};
+    } else if (kind$0.$ === "Gog") {
+      $t$0 = {$: "Tuple", $0: {$: "Gog"}, $1: {$: "Gog"}};
+    } else if (kind$0.$ === "HellHound") {
+      $t$0 = {$: "Tuple", $0: {$: "HellHound"}, $1: {$: "HellHound"}};
+    } else if (kind$0.$ === "Demon") {
+      $t$0 = {$: "Tuple", $0: {$: "Demon"}, $1: {$: "Demon"}};
+    } else if (kind$0.$ === "PitFiend") {
+      $t$0 = {$: "Tuple", $0: {$: "PitFiend"}, $1: {$: "PitFiend"}};
+    } else if (kind$0.$ === "Efreeti") {
+      $t$0 = {$: "Tuple", $0: {$: "Efreeti"}, $1: {$: "Efreeti"}};
+    } else {
+      $t$0 = {$: "Tuple", $0: {$: "Devil"}, $1: {$: "Devil"}};
+    }
+    const left_kind$0 = $t$0.$0;
+    const right_kind$0 = $t$0.$1;
+    const h$0 = run_loop($u32_pair_func$(count$0));
+    return run_jump($stack_pair_func$k106$, [first_unit_hp$0, left_kind$0,
+      right_kind$0, h$0]);
+  }
+}
+
+function $heroes_self_check_func$k45$(scenario$0, day$0, seed$0, cost$0, h$0,
+  h$1) {
+  let $t$0;
+  if (!h$0) {
+    $t$0 = false;
+  } else {
+    $t$0 = h$1;
+  }
+  let $t$1;
+  let $t$2;
+  let $t$3;
+  const $t$4 = (day$0 === 1);
+  if (!$t$4) {
+    const b$0 = (seed$0 === 17);
+    $t$3 = false;
+  } else {
+    const b$1 = (seed$0 === 17);
+    $t$3 = b$1;
+  }
+  const $t$5 = (scenario$0 === 0);
+  if (!$t$5) {
+    $t$2 = false;
+  } else {
+    $t$2 = $t$3;
+  }
+  const $t$6 = (cost$0 === 100);
+  if (!$t$6) {
+    $t$1 = false;
+  } else {
+    $t$1 = $t$2;
+  }
+  if (!$t$0) {
+    return false;
+  } else {
+    return $t$1;
+  }
+}
+
+function $tactics_catalog_self_check_func$() {
+  const h$0 = run_loop($creature_attack_reach_func$({$: "Archer"}, 1, 5, 13, 5,
+    false));
+  return run_jump($tactics_catalog_self_check_func$k108$, [h$0]);
+}
+
+function $Tactics$battlefield_self_check$k89$(h$0) {
+  if (h$0.$ === "Tactics.InvalidHex") {
+    return false;
+  } else {
+    const right_bottom$0 = h$0.$0;
+    const h$1 = run_loop($Tactics$hex_make$(0, 0));
+    return run_jump($Tactics$battlefield_self_check$k90$, [right_bottom$0,
+      h$1]);
+  }
+}
+
+function $Tactics$hex_make$(column$0, row$0) {
+  const h$0 = run_loop($Tactics$u32_pair$(column$0));
+  return run_jump($Tactics$hex_make$k110$, [row$0, h$0]);
+}
+
+function $kingdom_move_func$k93$(resources$0, town$0, world$0, owner$0, h$0) {
   const next_hero$0 = h$0.$0;
   const x$0 = h$0.$1;
   const y$0 = h$0.$2;
@@ -2903,12 +4202,12 @@ function $hero_move_func$(direction$0, hero$0) {
   const experience$0 = hero$0.$10;
   const army$0 = hero$0.$11;
   const h$0 = run_loop($u32_pair_func$(x$0));
-  return run_jump($hero_move_func$k34$, [direction$0, name$0, y$0, movement$0,
+  return run_jump($hero_move_func$k112$, [direction$0, name$0, y$0, movement$0,
     attack$0, defense$0, power$0, knowledge$0, mana$0, level$0, experience$0,
     army$0, h$0]);
 }
 
-function $game_end_day_values_func$k25$(scenario$0, day$0, red$0, blue$0,
+function $game_end_day_values_func$k94$(scenario$0, day$0, red$0, blue$0,
   seed$0, turn$0, h$0) {
   const next_world$0 = h$0.$0;
   const red_gold$0 = h$0.$1;
@@ -2917,7 +4216,7 @@ function $game_end_day_values_func$k25$(scenario$0, day$0, red$0, blue$0,
   const blue_wood$0 = h$0.$4;
   const next_day$0 = ((day$0 + 1) >>> 0);
   const h$1 = run_loop($u32_pair_func$(next_day$0));
-  return run_jump($game_end_day_values_func$k26$, [scenario$0, red$0, blue$0,
+  return run_jump($game_end_day_values_func$k95$, [scenario$0, red$0, blue$0,
     seed$0, turn$0, next_world$0, red_gold$0, red_wood$0, blue_gold$0,
     blue_wood$0, h$1]);
 }
@@ -2985,7 +4284,7 @@ function $world_income_func$(world$0) {
   }
 }
 
-function $kingdom_build_hall_func$k29$(hero$0, h$0) {
+function $kingdom_build_hall_func$k98$(hero$0, h$0) {
   const next_town$0 = h$0.$0;
   const next_resources$0 = h$0.$1;
   const accepted$0 = h$0.$2;
@@ -3005,7 +4304,7 @@ function $town_build_hall_func$(town$0, resources$0) {
     dwellings$0, built_today$0, stock$0, resources$0]);
 }
 
-function $kingdom_build_fort_func$k30$(hero$0, h$0) {
+function $kingdom_build_fort_func$k99$(hero$0, h$0) {
   const next_town$0 = h$0.$0;
   const next_resources$0 = h$0.$1;
   const accepted$0 = h$0.$2;
@@ -3025,7 +4324,7 @@ function $town_build_fort_func$(town$0, resources$0) {
     dwellings$0, built_today$0, stock$0, resources$0]);
 }
 
-function $kingdom_build_dwelling_func$k31$(hero$0, h$0) {
+function $kingdom_build_dwelling_func$k100$(hero$0, h$0) {
   const next_town$0 = h$0.$0;
   const next_resources$0 = h$0.$1;
   const accepted$0 = h$0.$2;
@@ -3045,7 +4344,7 @@ function $town_build_dwelling_func$(town$0, resources$0, tier$0) {
     dwellings$0, built_today$0, stock$0, resources$0, tier$0]);
 }
 
-function $kingdom_recruit_func$k32$(resources$0, hall$0, fort$0, dwellings$0,
+function $kingdom_recruit_func$k101$(resources$0, hall$0, fort$0, dwellings$0,
   built_today$0, stock$0, tier$0, amount$0, h$0) {
   const kept_hero$0 = h$0.$0;
   const $t$0 = h$0.$1;
@@ -3061,7 +4360,7 @@ function $kingdom_recruit_func$k32$(resources$0, hall$0, fort$0, dwellings$0,
   }
 }
 
-function $kingdom_recruit_func$k33$(resources$0, hall$0, fort$0, dwellings$0,
+function $kingdom_recruit_func$k102$(resources$0, hall$0, fort$0, dwellings$0,
   built_today$0, stock$0, tier$0, amount$0, h$0) {
   const kept_hero$0 = h$0.$0;
   const $t$0 = h$0.$1;
@@ -3071,9 +4370,25 @@ function $kingdom_recruit_func$k33$(resources$0, hall$0, fort$0, dwellings$0,
       dwellings$0, $4: built_today$0, $5: stock$0}}, $1:
       "The active hero must be visiting the Necropolis to recruit into this army."};
   } else {
-    return run_jump($kingdom_recruit_necropolis_values_func$, [resources$0,
-      kept_hero$0, hall$0, fort$0, dwellings$0, built_today$0, stock$0, tier$0,
-      amount$0]);
+    return run_jump($kingdom_recruit_values_func$, [resources$0, kept_hero$0, {
+      $: "Necropolis"}, hall$0, fort$0, dwellings$0, built_today$0, stock$0,
+      tier$0, amount$0]);
+  }
+}
+
+function $kingdom_recruit_func$k103$(resources$0, hall$0, fort$0, dwellings$0,
+  built_today$0, stock$0, tier$0, amount$0, h$0) {
+  const kept_hero$0 = h$0.$0;
+  const $t$0 = h$0.$1;
+  if (!$t$0) {
+    return {$: "Tuple", $0: {$: "Kingdom", $0: resources$0, $1: kept_hero$0, $2:
+      {$: "Town", $0: {$: "Inferno"}, $1: hall$0, $2: fort$0, $3: dwellings$0,
+      $4: built_today$0, $5: stock$0}}, $1:
+      "The active hero must be visiting the Inferno to recruit into this army."};
+  } else {
+    return run_jump($kingdom_recruit_values_func$, [resources$0, kept_hero$0, {
+      $: "Inferno"}, hall$0, fort$0, dwellings$0, built_today$0, stock$0,
+      tier$0, amount$0]);
   }
 }
 
@@ -3092,10 +4407,10 @@ function $hero_home_check_func$(faction$0, hero$0) {
     const experience$0 = hero$0.$10;
     const army$0 = hero$0.$11;
     const h$0 = run_loop($u32_pair_func$(x$0));
-    return run_jump($hero_home_check_func$k37$, [name$0, y$0, movement$0,
+    return run_jump($hero_home_check_func$k115$, [name$0, y$0, movement$0,
       attack$0, defense$0, power$0, knowledge$0, mana$0, level$0, experience$0,
       army$0, h$0]);
-  } else {
+  } else if (faction$0.$ === "Necropolis") {
     const name$1 = hero$0.$0;
     const x$1 = hero$0.$1;
     const y$1 = hero$0.$2;
@@ -3109,9 +4424,26 @@ function $hero_home_check_func$(faction$0, hero$0) {
     const experience$1 = hero$0.$10;
     const army$1 = hero$0.$11;
     const h$1 = run_loop($u32_pair_func$(x$1));
-    return run_jump($hero_home_check_func$k39$, [name$1, y$1, movement$1,
+    return run_jump($hero_home_check_func$k119$, [name$1, y$1, movement$1,
       attack$1, defense$1, power$1, knowledge$1, mana$1, level$1, experience$1,
       army$1, h$1]);
+  } else {
+    const name$2 = hero$0.$0;
+    const x$2 = hero$0.$1;
+    const y$2 = hero$0.$2;
+    const movement$2 = hero$0.$3;
+    const attack$2 = hero$0.$4;
+    const defense$2 = hero$0.$5;
+    const power$2 = hero$0.$6;
+    const knowledge$2 = hero$0.$7;
+    const mana$2 = hero$0.$8;
+    const level$2 = hero$0.$9;
+    const experience$2 = hero$0.$10;
+    const army$2 = hero$0.$11;
+    const h$2 = run_loop($u32_pair_func$(x$2));
+    return run_jump($hero_home_check_func$k123$, [name$2, y$2, movement$2,
+      attack$2, defense$2, power$2, knowledge$2, mana$2, level$2, experience$2,
+      army$2, h$2]);
   }
 }
 
@@ -3141,7 +4473,7 @@ function $game_red_battle_result_func$(scenario$0, day$0, blue$0, world$0,
       return {$: "Game", $0: scenario$0, $1: day$0, $2: {$: "Red"}, $3: red$0,
         $4: blue$0, $5: world$0, $6: {$: "Victory", $0: {$: "Red"}}, $7:
         next_seed$2, $8: ((turn$0 + 1) >>> 0), $9:
-        "Red captured the Necropolis and won the scenario."};
+        "Red captured the Blue stronghold and won the scenario."};
     }
   } else {
     const attacker$1 = $t$0.$0;
@@ -3152,7 +4484,7 @@ function $game_red_battle_result_func$(scenario$0, day$0, blue$0, world$0,
       const notice$3 = result$0.$3;
       const h$0 = run_loop($world_restore_battle_func$(world$0, {$:
         "GuardianBattle"}, enemy$0));
-      return run_jump($game_red_battle_result_func$k41$, [scenario$0, day$0,
+      return run_jump($game_red_battle_result_func$k127$, [scenario$0, day$0,
         blue$0, turn$0, red$0, next_seed$3, notice$3, h$0]);
     } else {
       const enemy$1 = $t$0.$2;
@@ -3191,7 +4523,7 @@ function $game_blue_battle_result_func$(scenario$0, day$0, red$0, world$0,
       return {$: "Game", $0: scenario$0, $1: day$0, $2: {$: "Blue"}, $3: red$0,
         $4: blue$0, $5: world$0, $6: {$: "Victory", $0: {$: "Blue"}}, $7:
         next_seed$2, $8: ((turn$0 + 1) >>> 0), $9:
-        "Blue captured the Castle and won the scenario."};
+        "Blue captured the Red stronghold and won the scenario."};
     }
   } else {
     const attacker$1 = $t$0.$0;
@@ -3202,7 +4534,7 @@ function $game_blue_battle_result_func$(scenario$0, day$0, red$0, world$0,
       const notice$3 = result$0.$3;
       const h$0 = run_loop($world_restore_battle_func$(world$0, {$:
         "GuardianBattle"}, enemy$0));
-      return run_jump($game_blue_battle_result_func$k42$, [scenario$0, day$0,
+      return run_jump($game_blue_battle_result_func$k128$, [scenario$0, day$0,
         red$0, turn$0, blue$0, next_seed$3, notice$3, h$0]);
     } else {
       const enemy$1 = $t$0.$2;
@@ -3218,10 +4550,10 @@ function $game_blue_battle_result_func$(scenario$0, day$0, red$0, world$0,
 function $kingdom_combat_attack_case_func$(resources$0, name$0, x$0, y$0,
   movement$0, attack$0, defense$0, power$0, knowledge$0, mana$0, level$0,
   experience$0, army$0, town$0, attacker$0, source$0, enemy$0, round$0,
-  own_slot$0, target_slot$0, seed$0) {
+  battlefield$0, own_slot$0, target_slot$0, seed$0) {
   const h$0 = run_loop($combat_attack_func$(army$0, enemy$0, own_slot$0,
-    target_slot$0, attack$0, defense$0, mana$0, seed$0));
-  return run_jump($kingdom_combat_attack_case_func$k43$, [resources$0, name$0,
+    target_slot$0, attack$0, defense$0, mana$0, seed$0, battlefield$0));
+  return run_jump($kingdom_combat_attack_case_func$k129$, [resources$0, name$0,
     x$0, y$0, movement$0, attack$0, defense$0, power$0, knowledge$0, level$0,
     experience$0, town$0, attacker$0, source$0, round$0, h$0]);
 }
@@ -3229,10 +4561,10 @@ function $kingdom_combat_attack_case_func$(resources$0, name$0, x$0, y$0,
 function $kingdom_combat_defend_case_func$(resources$0, name$0, x$0, y$0,
   movement$0, attack$0, defense$0, power$0, knowledge$0, mana$0, level$0,
   experience$0, army$0, town$0, attacker$0, source$0, enemy$0, round$0,
-  own_slot$0, target_slot$0, seed$0) {
+  battlefield$0, own_slot$0, target_slot$0, seed$0) {
   const h$0 = run_loop($combat_defend_func$(army$0, enemy$0, own_slot$0,
-    target_slot$0, defense$0, mana$0, seed$0));
-  return run_jump($kingdom_combat_defend_case_func$k44$, [resources$0, name$0,
+    target_slot$0, defense$0, mana$0, seed$0, battlefield$0));
+  return run_jump($kingdom_combat_defend_case_func$k131$, [resources$0, name$0,
     x$0, y$0, movement$0, attack$0, defense$0, power$0, knowledge$0, level$0,
     experience$0, town$0, attacker$0, source$0, round$0, h$0]);
 }
@@ -3240,23 +4572,169 @@ function $kingdom_combat_defend_case_func$(resources$0, name$0, x$0, y$0,
 function $kingdom_combat_spell_case_func$(resources$0, name$0, x$0, y$0,
   movement$0, attack$0, defense$0, power$0, knowledge$0, mana$0, level$0,
   experience$0, army$0, town$0, attacker$0, source$0, enemy$0, round$0,
-  own_slot$0, target_slot$0, seed$0) {
+  battlefield$0, own_slot$0, target_slot$0, seed$0) {
   const h$0 = run_loop($combat_spell_func$(army$0, enemy$0, own_slot$0,
-    target_slot$0, power$0, defense$0, mana$0, seed$0));
-  return run_jump($kingdom_combat_spell_case_func$k45$, [resources$0, name$0,
+    target_slot$0, power$0, defense$0, mana$0, seed$0, battlefield$0));
+  return run_jump($kingdom_combat_spell_case_func$k132$, [resources$0, name$0,
     x$0, y$0, movement$0, attack$0, defense$0, power$0, knowledge$0, level$0,
     experience$0, town$0, attacker$0, source$0, round$0, h$0]);
 }
 
-function $stack_damage_values_func$k21$(kind$0, count$0, hit_points$0, h$0) {
+function $kingdom_combat_move_case_func$(resources$0, name$0, x$0, y$0,
+  movement$0, attack$0, defense$0, power$0, knowledge$0, mana$0, level$0,
+  experience$0, army$0, town$0, attacker$0, source$0, enemy$0, round$0,
+  battlefield$0, own_slot$0, target_index$0, seed$0) {
+  const h$0 = run_loop($combat_move_func$(army$0, enemy$0, own_slot$0,
+    target_index$0, mana$0, seed$0, battlefield$0));
+  return run_jump($kingdom_combat_move_case_func$k134$, [resources$0, name$0,
+    x$0, y$0, movement$0, attack$0, defense$0, power$0, knowledge$0, level$0,
+    experience$0, town$0, attacker$0, source$0, round$0, h$0]);
+}
+
+function $game_strategic_ai_func$k59$(scenario$0, day$0, resources$0, name$0,
+  y$0, movement$0, attack$0, defense$0, power$0, knowledge$0, mana$0, level$0,
+  experience$0, army$0, faction$0, hall$0, fort$0, dwellings$0, built_today$0,
+  stock$0, blue$0, world$0, seed$0, turn$0, notice$0, x_home$0, h$0) {
+  const x_ai$0 = h$0.$0;
+  const x_keep$0 = h$0.$1;
+  const h$1 = run_loop($u32_pair_func$(y$0));
+  return run_jump($game_strategic_ai_func$k60$, [scenario$0, day$0, resources$0,
+    name$0, movement$0, attack$0, defense$0, power$0, knowledge$0, mana$0,
+    level$0, experience$0, army$0, faction$0, hall$0, fort$0, dwellings$0,
+    built_today$0, stock$0, blue$0, world$0, seed$0, turn$0, notice$0, x_home$0,
+    x_ai$0, x_keep$0, h$1]);
+}
+
+function $game_strategic_ai_func$k63$(scenario$0, day$0, _222$0, resources$0,
+  name$0, y$0, movement$0, attack$0, defense$0, power$0, knowledge$0, mana$0,
+  level$0, experience$0, army$0, faction$0, hall$0, fort$0, dwellings$0,
+  built_today$0, stock$0, world$0, seed$0, turn$0, notice$0, x_home$0, h$0) {
+  const x_ai$0 = h$0.$0;
+  const x_keep$0 = h$0.$1;
+  const h$1 = run_loop($u32_pair_func$(y$0));
+  return run_jump($game_strategic_ai_func$k64$, [scenario$0, day$0, _222$0,
+    resources$0, name$0, movement$0, attack$0, defense$0, power$0, knowledge$0,
+    mana$0, level$0, experience$0, army$0, faction$0, hall$0, fort$0,
+    dwellings$0, built_today$0, stock$0, world$0, seed$0, turn$0, notice$0,
+    x_home$0, x_ai$0, x_keep$0, h$1]);
+}
+
+function $stack_damage_values_func$k67$(kind$0, count$0, hit_points$0, h$0) {
   const remaining_for_count$0 = h$0.$0;
   const remaining_for_hp$0 = h$0.$1;
   const x$0 = ((hit_points$0 - 1) >>> 0);
   const x$1 = ((remaining_for_count$0 + x$0) >>> 0);
   const next_count$0 = (hit_points$0 === 0 ? 0 : (x$1 / hit_points$0) >>> 0);
   const h$1 = run_loop($u32_pair_func$(next_count$0));
-  return run_jump($stack_damage_values_func$k22$, [kind$0, count$0,
+  return run_jump($stack_damage_values_func$k68$, [kind$0, count$0,
     hit_points$0, remaining_for_hp$0, h$1]);
+}
+
+function $Tactics$hex_distance_values$k23$(left_row$0, right_row$0,
+  left_column_dx$0, left_column_parity$0, left_column_offset$0, h$0) {
+  const right_column_dx$0 = h$0.$0;
+  const right_column_tail$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(right_column_tail$0));
+  return run_jump($Tactics$hex_distance_values$k24$, [left_row$0, right_row$0,
+    left_column_dx$0, left_column_parity$0, left_column_offset$0,
+    right_column_dx$0, h$1]);
+}
+
+function $Tactics$attack_reach$k104$(blocked$0, shots$0, range$0, h$0) {
+  const distance_melee$0 = h$0.$0;
+  const distance_tail$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(distance_tail$0));
+  return run_jump($Tactics$attack_reach$k105$, [blocked$0, shots$0, range$0,
+    distance_melee$0, h$1]);
+}
+
+function $army_ai_weakest_func$k71$(s2$0, s3$0, s4$0, s5$0, s6$0, h$0, h$1) {
+  const h$2 = run_loop($ai_candidate_min_func$(h$0, h$1));
+  return run_jump($army_ai_weakest_func$k72$, [s2$0, s3$0, s4$0, s5$0, s6$0,
+    h$2]);
+}
+
+function $army_ai_strongest_func$k31$(s2$0, s3$0, s4$0, s5$0, s6$0, h$0) {
+  const h$1 = run_loop($stack_ai_candidate_func$(2, s2$0));
+  return run_jump($army_ai_strongest_func$k32$, [s3$0, s4$0, s5$0, s6$0, h$0,
+    h$1]);
+}
+
+function $ai_candidate_max_func$(left$0, right$0) {
+  const left_slot$0 = left$0.$0;
+  const left_value$0 = left$0.$1;
+  const $t$0 = left$0.$2;
+  if (!$t$0) {
+    const right_slot$0 = right$0.$0;
+    const right_value$0 = right$0.$1;
+    const right_valid$0 = right$0.$2;
+    return {$: "AiCandidate", $0: right_slot$0, $1: right_value$0, $2:
+      right_valid$0};
+  } else {
+    const right_slot$1 = right$0.$0;
+    const right_value$1 = right$0.$1;
+    const $t$1 = right$0.$2;
+    if (!$t$1) {
+      return {$: "AiCandidate", $0: left_slot$0, $1: left_value$0, $2: true};
+    } else {
+      const h$0 = run_loop($u32_pair_func$(left_value$0));
+      return run_jump($ai_candidate_max_func$k136$, [left_slot$0, right_slot$1,
+        right_value$1, h$0]);
+    }
+  }
+}
+
+function $combat_ai_battle_no_spell_func$k43$(battlefield$0, player_select$0,
+  h$0, h$1) {
+  return run_jump($combat_ai_battle_candidates_func$, [h$0, h$1,
+    player_select$0, battlefield$0]);
+}
+
+function $army_pair_func$k83$(s2$0, s3$0, s4$0, s5$0, s6$0, l0$0, r0$0, h$0) {
+  const l1$0 = h$0.$0;
+  const r1$0 = h$0.$1;
+  const h$1 = run_loop($stack_pair_func$(s2$0));
+  return run_jump($army_pair_func$k84$, [s3$0, s4$0, s5$0, s6$0, l0$0, r0$0,
+    l1$0, r1$0, h$1]);
+}
+
+function $stack_pair_func$k106$(first_unit_hp$0, left_kind$0, right_kind$0,
+  h$0) {
+  const left_count$0 = h$0.$0;
+  const right_count$0 = h$0.$1;
+  const h$1 = run_loop($u32_pair_func$(first_unit_hp$0));
+  return run_jump($stack_pair_func$k107$, [left_kind$0, right_kind$0,
+    left_count$0, right_count$0, h$1]);
+}
+
+function $tactics_catalog_self_check_func$k108$(h$0) {
+  if (h$0.$ === "Tactics.RangedAttack") {
+    const long_range_penalty$0 = h$0.$0;
+    const h$1 = run_loop($creature_attack_reach_func$({$: "Pikeman"}, 1, 5, 13,
+      5, false));
+    return run_jump($tactics_catalog_self_check_func$k109$, [h$1]);
+  } else if (h$0.$ === "Tactics.IllegalAttack") {
+    return false;
+  } else {
+    return false;
+  }
+}
+
+function $Tactics$battlefield_self_check$k90$(right_bottom$0, h$0) {
+  if (h$0.$ === "Tactics.InvalidHex") {
+    return false;
+  } else {
+    const left_top$0 = h$0.$0;
+    const h$1 = run_loop($Tactics$hex_distance$(left_top$0, right_bottom$0));
+    return run_jump($Tactics$battlefield_self_check$k91$, [h$1]);
+  }
+}
+
+function $Tactics$hex_make$k110$(row$0, h$0) {
+  const column_test$0 = h$0.$0;
+  const column_live$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(row$0));
+  return run_jump($Tactics$hex_make$k111$, [column_test$0, column_live$0, h$1]);
 }
 
 function $kingdom_visit_func$(x$0, y$0, world$0, kingdom$0, owner$0) {
@@ -3457,17 +4935,17 @@ function $kingdom_visit_func$(x$0, y$0, world$0, kingdom$0, owner$0) {
     owner$0]);
 }
 
-function $hero_move_func$k34$(direction$0, name$0, y$0, movement$0, attack$0,
+function $hero_move_func$k112$(direction$0, name$0, y$0, movement$0, attack$0,
   defense$0, power$0, knowledge$0, mana$0, level$0, experience$0, army$0, h$0) {
   const step_x$0 = h$0.$0;
   const old_x$0 = h$0.$1;
   const h$1 = run_loop($u32_pair_func$(y$0));
-  return run_jump($hero_move_func$k35$, [direction$0, name$0, movement$0,
+  return run_jump($hero_move_func$k113$, [direction$0, name$0, movement$0,
     attack$0, defense$0, power$0, knowledge$0, mana$0, level$0, experience$0,
     army$0, step_x$0, old_x$0, h$1]);
 }
 
-function $game_end_day_values_func$k26$(scenario$0, red$0, blue$0, seed$0,
+function $game_end_day_values_func$k95$(scenario$0, red$0, blue$0, seed$0,
   turn$0, next_world$0, red_gold$0, red_wood$0, blue_gold$0, blue_wood$0, h$0) {
   const week_day$0 = h$0.$0;
   const output_day$0 = h$0.$1;
@@ -3484,7 +4962,7 @@ function $game_end_day_values_func$k26$(scenario$0, red$0, blue$0, seed$0,
   const blue_week$0 = $t$0.$1;
   const next_red$0 = run_loop($kingdom_new_day_func$(red$0, red_gold$0,
     red_wood$0, red_week$0));
-  return run_jump($game_end_day_values_func$k27$, [scenario$0, blue$0, seed$0,
+  return run_jump($game_end_day_values_func$k96$, [scenario$0, blue$0, seed$0,
     turn$0, next_world$0, blue_gold$0, blue_wood$0, output_day$0, blue_week$0,
     next_red$0]);
 }
@@ -3516,7 +4994,7 @@ function $town_build_hall_values_func$(faction$0, hall$0, fort$0, dwellings$0,
         }
       }
       const h$0 = run_loop($resources_pay_func$(resources$0, $t$1, 5, 5));
-      return run_jump($town_build_hall_values_func$k46$, [faction$0, hall$0,
+      return run_jump($town_build_hall_values_func$k138$, [faction$0, hall$0,
         fort$0, dwellings$0, stock$0, h$0]);
     }
   }
@@ -3533,12 +5011,12 @@ function $town_build_fort_values_func$(faction$0, hall$0, fort$0, dwellings$0,
     if ($t$0) {
       return {$: "TownAction", $0: {$: "Town", $0: faction$0, $1: hall$0, $2:
         fort$0, $3: dwellings$0, $4: false, $5: stock$0}, $1: resources$0, $2:
-        false, $3: "The Castle fortification is already complete."};
+        false, $3: "The town fortification is already complete."};
     } else {
       const x$0 = ((fort$0 + 1) >>> 0);
       const h$0 = run_loop($resources_pay_func$(resources$0, (Math.imul(x$0,
         2500) >>> 0), 5, 5));
-      return run_jump($town_build_fort_values_func$k47$, [faction$0, hall$0,
+      return run_jump($town_build_fort_values_func$k139$, [faction$0, hall$0,
         fort$0, dwellings$0, stock$0, h$0]);
     }
   }
@@ -3630,7 +5108,7 @@ function $town_build_dwelling_values_func$(faction$0, hall$0, fort$0,
     }
     const previous$0 = $t$8;
     const h$0 = run_loop($u32_pair_func$(bit$0));
-    return run_jump($town_build_dwelling_values_func$k48$, [faction$0, hall$0,
+    return run_jump($town_build_dwelling_values_func$k140$, [faction$0, hall$0,
       fort$0, dwellings$0, stock$0, resources$0, tier$0, previous$0, h$0]);
   }
 }
@@ -3649,55 +5127,54 @@ function $kingdom_recruit_values_func$(resources$0, hero$0, faction$0, hall$0,
   const level$0 = hero$0.$9;
   const experience$0 = hero$0.$10;
   const army$0 = hero$0.$11;
+  let $t$0;
+  if (faction$0.$ === "Castle") {
+    $t$0 = {$: "Tuple", $0: {$: "Castle"}, $1: {$: "Castle"}};
+  } else if (faction$0.$ === "Necropolis") {
+    $t$0 = {$: "Tuple", $0: {$: "Necropolis"}, $1: {$: "Necropolis"}};
+  } else {
+    $t$0 = {$: "Tuple", $0: {$: "Inferno"}, $1: {$: "Inferno"}};
+  }
+  const tier_faction$0 = $t$0.$0;
+  const output_faction$0 = $t$0.$1;
   const h$0 = run_loop($stock_select_func$(stock$0, tier$0));
-  return run_jump($kingdom_recruit_values_func$k52$, [resources$0, name$0, x$0,
+  return run_jump($kingdom_recruit_values_func$k144$, [resources$0, name$0, x$0,
     y$0, movement$0, hero_attack$0, hero_defense$0, power$0, knowledge$0,
-    mana$0, level$0, experience$0, army$0, faction$0, hall$0, fort$0,
-    dwellings$0, built_today$0, tier$0, amount$0, h$0]);
+    mana$0, level$0, experience$0, army$0, hall$0, fort$0, dwellings$0,
+    built_today$0, tier$0, amount$0, tier_faction$0, output_faction$0, h$0]);
 }
 
-function $kingdom_recruit_necropolis_values_func$(resources$0, hero$0, hall$0,
-  fort$0, dwellings$0, built_today$0, stock$0, tier$0, amount$0) {
-  const name$0 = hero$0.$0;
-  const x$0 = hero$0.$1;
-  const y$0 = hero$0.$2;
-  const movement$0 = hero$0.$3;
-  const hero_attack$0 = hero$0.$4;
-  const hero_defense$0 = hero$0.$5;
-  const power$0 = hero$0.$6;
-  const knowledge$0 = hero$0.$7;
-  const mana$0 = hero$0.$8;
-  const level$0 = hero$0.$9;
-  const experience$0 = hero$0.$10;
-  const army$0 = hero$0.$11;
-  const h$0 = run_loop($stock_select_func$(stock$0, tier$0));
-  return run_jump($kingdom_recruit_necropolis_values_func$k57$, [resources$0,
-    name$0, x$0, y$0, movement$0, hero_attack$0, hero_defense$0, power$0,
-    knowledge$0, mana$0, level$0, experience$0, army$0, hall$0, fort$0,
-    dwellings$0, built_today$0, tier$0, amount$0, h$0]);
-}
-
-function $hero_home_check_func$k37$(name$0, y$0, movement$0, attack$0,
+function $hero_home_check_func$k115$(name$0, y$0, movement$0, attack$0,
   defense$0, power$0, knowledge$0, mana$0, level$0, experience$0, army$0, h$0) {
   const x_test$0 = h$0.$0;
   const x_keep$0 = h$0.$1;
   const h$1 = run_loop($u32_pair_func$(y$0));
-  return run_jump($hero_home_check_func$k38$, [name$0, movement$0, attack$0,
+  return run_jump($hero_home_check_func$k116$, [name$0, movement$0, attack$0,
     defense$0, power$0, knowledge$0, mana$0, level$0, experience$0, army$0,
     x_test$0, x_keep$0, h$1]);
 }
 
-function $hero_home_check_func$k39$(name$0, y$0, movement$0, attack$0,
+function $hero_home_check_func$k119$(name$0, y$0, movement$0, attack$0,
   defense$0, power$0, knowledge$0, mana$0, level$0, experience$0, army$0, h$0) {
   const x_test$0 = h$0.$0;
   const x_keep$0 = h$0.$1;
   const h$1 = run_loop($u32_pair_func$(y$0));
-  return run_jump($hero_home_check_func$k40$, [name$0, movement$0, attack$0,
+  return run_jump($hero_home_check_func$k120$, [name$0, movement$0, attack$0,
     defense$0, power$0, knowledge$0, mana$0, level$0, experience$0, army$0,
     x_test$0, x_keep$0, h$1]);
 }
 
-function $game_red_battle_result_func$k41$(scenario$0, day$0, blue$0, turn$0,
+function $hero_home_check_func$k123$(name$0, y$0, movement$0, attack$0,
+  defense$0, power$0, knowledge$0, mana$0, level$0, experience$0, army$0, h$0) {
+  const x_test$0 = h$0.$0;
+  const x_keep$0 = h$0.$1;
+  const h$1 = run_loop($u32_pair_func$(y$0));
+  return run_jump($hero_home_check_func$k124$, [name$0, movement$0, attack$0,
+    defense$0, power$0, knowledge$0, mana$0, level$0, experience$0, army$0,
+    x_test$0, x_keep$0, h$1]);
+}
+
+function $game_red_battle_result_func$k127$(scenario$0, day$0, blue$0, turn$0,
   red$0, next_seed$0, notice$0, h$0) {
   return {$: "Game", $0: scenario$0, $1: day$0, $2: {$: "Red"}, $3: red$0, $4:
     blue$0, $5: h$0, $6: {$: "Adventure"}, $7: next_seed$0, $8: ((
@@ -3721,29 +5198,30 @@ function $world_restore_battle_func$(world$0, source$0, enemy$0) {
   }
 }
 
-function $game_blue_battle_result_func$k42$(scenario$0, day$0, red$0, turn$0,
+function $game_blue_battle_result_func$k128$(scenario$0, day$0, red$0, turn$0,
   blue$0, next_seed$0, notice$0, h$0) {
   return {$: "Game", $0: scenario$0, $1: day$0, $2: {$: "Blue"}, $3: red$0, $4:
     blue$0, $5: h$0, $6: {$: "Adventure"}, $7: next_seed$0, $8: ((
     turn$0 + 1) >>> 0), $9: notice$0};
 }
 
-function $kingdom_combat_attack_case_func$k43$(resources$0, name$0, x$0, y$0,
+function $kingdom_combat_attack_case_func$k129$(resources$0, name$0, x$0, y$0,
   movement$0, attack$0, defense$0, power$0, knowledge$0, level$0, experience$0,
   town$0, attacker$0, source$0, round$0, h$0) {
-  return run_jump($kingdom_finish_combat_func$, [resources$0, name$0, x$0, y$0,
-    movement$0, attack$0, defense$0, power$0, knowledge$0, level$0,
-    experience$0, town$0, attacker$0, source$0, round$0, h$0]);
+  const h$1 = run_loop($combat_enemy_response_func$(h$0, defense$0));
+  return run_jump($kingdom_combat_attack_case_func$k130$, [resources$0, name$0,
+    x$0, y$0, movement$0, attack$0, defense$0, power$0, knowledge$0, level$0,
+    experience$0, town$0, attacker$0, source$0, round$0, h$1]);
 }
 
 function $combat_attack_func$(player$0, enemy$0, own_slot$0, target_slot$0,
-  hero_attack$0, hero_defense$0, mana$0, seed$0) {
-  const h$0 = run_loop($army_select_func$(player$0, own_slot$0));
-  return run_jump($combat_attack_func$k62$, [enemy$0, own_slot$0, target_slot$0,
-    hero_attack$0, hero_defense$0, mana$0, seed$0, h$0]);
+  hero_attack$0, hero_defense$0, mana$0, seed$0, battlefield$0) {
+  const h$0 = run_loop($u32_pair_func$(own_slot$0));
+  return run_jump($combat_attack_func$k149$, [player$0, enemy$0, target_slot$0,
+    hero_attack$0, hero_defense$0, mana$0, seed$0, battlefield$0, h$0]);
 }
 
-function $kingdom_combat_defend_case_func$k44$(resources$0, name$0, x$0, y$0,
+function $kingdom_combat_defend_case_func$k131$(resources$0, name$0, x$0, y$0,
   movement$0, attack$0, defense$0, power$0, knowledge$0, level$0, experience$0,
   town$0, attacker$0, source$0, round$0, h$0) {
   return run_jump($kingdom_finish_combat_func$, [resources$0, name$0, x$0, y$0,
@@ -3752,42 +5230,281 @@ function $kingdom_combat_defend_case_func$k44$(resources$0, name$0, x$0, y$0,
 }
 
 function $combat_defend_func$(player$0, enemy$0, own_slot$0, target_slot$0,
-  hero_defense$0, mana$0, seed$0) {
+  hero_defense$0, mana$0, seed$0, battlefield$0) {
   const h$0 = run_loop($army_select_func$(enemy$0, target_slot$0));
-  return run_jump($combat_defend_func$k72$, [player$0, own_slot$0,
-    hero_defense$0, mana$0, seed$0, h$0]);
+  return run_jump($combat_defend_func$k159$, [player$0, own_slot$0,
+    hero_defense$0, mana$0, seed$0, battlefield$0, h$0]);
 }
 
-function $kingdom_combat_spell_case_func$k45$(resources$0, name$0, x$0, y$0,
+function $kingdom_combat_spell_case_func$k132$(resources$0, name$0, x$0, y$0,
   movement$0, attack$0, defense$0, power$0, knowledge$0, level$0, experience$0,
   town$0, attacker$0, source$0, round$0, h$0) {
-  return run_jump($kingdom_finish_combat_func$, [resources$0, name$0, x$0, y$0,
-    movement$0, attack$0, defense$0, power$0, knowledge$0, level$0,
-    experience$0, town$0, attacker$0, source$0, round$0, h$0]);
+  const h$1 = run_loop($combat_enemy_response_func$(h$0, defense$0));
+  return run_jump($kingdom_combat_spell_case_func$k133$, [resources$0, name$0,
+    x$0, y$0, movement$0, attack$0, defense$0, power$0, knowledge$0, level$0,
+    experience$0, town$0, attacker$0, source$0, round$0, h$1]);
 }
 
 function $combat_spell_func$(player$0, enemy$0, own_slot$0, target_slot$0,
-  power$0, hero_defense$0, mana$0, seed$0) {
+  power$0, hero_defense$0, mana$0, seed$0, battlefield$0) {
   const $t$0 = (5 <= mana$0);
   if (!$t$0) {
     return {$: "CombatTurn", $0: player$0, $1: enemy$0, $2: mana$0, $3: seed$0,
-      $4: 0, $5: 0, $6: false};
+      $4: 0, $5: 0, $6: false, $7: battlefield$0};
   } else {
     const h$0 = run_loop($army_select_func$(enemy$0, target_slot$0));
-    return run_jump($combat_spell_func$k77$, [player$0, own_slot$0,
-      target_slot$0, power$0, hero_defense$0, mana$0, seed$0, h$0]);
+    return run_jump($combat_spell_func$k164$, [player$0, target_slot$0, power$0,
+      mana$0, seed$0, battlefield$0, h$0]);
   }
 }
 
-function $stack_damage_values_func$k22$(kind$0, count$0, hit_points$0,
+function $kingdom_combat_move_case_func$k134$(resources$0, name$0, x$0, y$0,
+  movement$0, attack$0, defense$0, power$0, knowledge$0, level$0, experience$0,
+  town$0, attacker$0, source$0, round$0, h$0) {
+  const h$1 = run_loop($combat_enemy_response_func$(h$0, defense$0));
+  return run_jump($kingdom_combat_move_case_func$k135$, [resources$0, name$0,
+    x$0, y$0, movement$0, attack$0, defense$0, power$0, knowledge$0, level$0,
+    experience$0, town$0, attacker$0, source$0, round$0, h$1]);
+}
+
+function $combat_move_func$(player$0, enemy$0, own_slot$0, target_index$0,
+  mana$0, seed$0, battlefield$0) {
+  const h$0 = run_loop($u32_pair_func$(own_slot$0));
+  return run_jump($combat_move_func$k168$, [player$0, enemy$0, target_index$0,
+    mana$0, seed$0, battlefield$0, h$0]);
+}
+
+function $game_strategic_ai_func$k60$(scenario$0, day$0, resources$0, name$0,
+  movement$0, attack$0, defense$0, power$0, knowledge$0, mana$0, level$0,
+  experience$0, army$0, faction$0, hall$0, fort$0, dwellings$0, built_today$0,
+  stock$0, blue$0, world$0, seed$0, turn$0, notice$0, x_home$0, x_ai$0,
+  x_keep$0, h$0) {
+  const y_home$0 = h$0.$0;
+  const y_tail$0 = h$0.$1;
+  const h$1 = run_loop($u32_pair_func$(y_tail$0));
+  return run_jump($game_strategic_ai_func$k61$, [scenario$0, day$0, resources$0,
+    name$0, movement$0, attack$0, defense$0, power$0, knowledge$0, mana$0,
+    level$0, experience$0, army$0, faction$0, hall$0, fort$0, dwellings$0,
+    built_today$0, stock$0, blue$0, world$0, seed$0, turn$0, notice$0, x_home$0,
+    x_ai$0, x_keep$0, y_home$0, h$1]);
+}
+
+function $game_strategic_ai_func$k64$(scenario$0, day$0, _222$0, resources$0,
+  name$0, movement$0, attack$0, defense$0, power$0, knowledge$0, mana$0,
+  level$0, experience$0, army$0, faction$0, hall$0, fort$0, dwellings$0,
+  built_today$0, stock$0, world$0, seed$0, turn$0, notice$0, x_home$0, x_ai$0,
+  x_keep$0, h$0) {
+  const y_home$0 = h$0.$0;
+  const y_tail$0 = h$0.$1;
+  const h$1 = run_loop($u32_pair_func$(y_tail$0));
+  return run_jump($game_strategic_ai_func$k65$, [scenario$0, day$0, _222$0,
+    resources$0, name$0, movement$0, attack$0, defense$0, power$0, knowledge$0,
+    mana$0, level$0, experience$0, army$0, faction$0, hall$0, fort$0,
+    dwellings$0, built_today$0, stock$0, world$0, seed$0, turn$0, notice$0,
+    x_home$0, x_ai$0, x_keep$0, y_home$0, h$1]);
+}
+
+function $stack_damage_values_func$k68$(kind$0, count$0, hit_points$0,
   remaining_for_hp$0, h$0) {
   const next_count_for_kills$0 = h$0.$0;
   const next_count_output$0 = h$0.$1;
   const remainder$0 = (hit_points$0 === 0 ? remaining_for_hp$0 :
     remaining_for_hp$0 % hit_points$0);
   const h$1 = run_loop($u32_pair_func$(remainder$0));
-  return run_jump($stack_damage_values_func$k23$, [kind$0, count$0,
+  return run_jump($stack_damage_values_func$k69$, [kind$0, count$0,
     hit_points$0, next_count_for_kills$0, next_count_output$0, h$1]);
+}
+
+function $Tactics$hex_distance_values$k24$(left_row$0, right_row$0,
+  left_column_dx$0, left_column_parity$0, left_column_offset$0,
+  right_column_dx$0, h$0) {
+  const right_column_parity$0 = h$0.$0;
+  const right_column_offset$0 = h$0.$1;
+  const dx$0 = run_loop($Tactics$u32_abs_diff$(left_column_dx$0,
+    right_column_dx$0));
+  return run_jump($Tactics$hex_distance_values$k25$, [left_row$0, right_row$0,
+    left_column_parity$0, left_column_offset$0, right_column_parity$0,
+    right_column_offset$0, dx$0]);
+}
+
+function $Tactics$attack_reach$k105$(blocked$0, shots$0, range$0,
+  distance_melee$0, h$0) {
+  const distance_ranged$0 = h$0.$0;
+  const distance_long$0 = h$0.$1;
+  let $t$0;
+  let $t$1;
+  if (!blocked$0) {
+    $t$1 = true;
+  } else {
+    $t$1 = false;
+  }
+  let $t$2;
+  const $t$3 = (shots$0 === 0);
+  if (!$t$3) {
+    $t$2 = true;
+  } else {
+    $t$2 = false;
+  }
+  if (!$t$1) {
+    $t$0 = false;
+  } else {
+    $t$0 = $t$2;
+  }
+  const $t$4 = (distance_melee$0 <= 1);
+  if ($t$4) {
+    const within_range$0 = (distance_ranged$0 <= range$0);
+    const long_range$0 = (10 < distance_long$0);
+    return {$: "Tactics.MeleeAttack"};
+  } else {
+    if (!$t$0) {
+      const within_range$1 = (distance_ranged$0 <= range$0);
+      const long_range$1 = (10 < distance_long$0);
+      return {$: "Tactics.IllegalAttack"};
+    } else {
+      const $t$5 = (distance_ranged$0 <= range$0);
+      if (!$t$5) {
+        const long_range$2 = (10 < distance_long$0);
+        return {$: "Tactics.IllegalAttack"};
+      } else {
+        const long_range$3 = (10 < distance_long$0);
+        return {$: "Tactics.RangedAttack", $0: long_range$3};
+      }
+    }
+  }
+}
+
+function $army_ai_weakest_func$k72$(s2$0, s3$0, s4$0, s5$0, s6$0, h$0) {
+  const h$1 = run_loop($stack_ai_candidate_func$(2, s2$0));
+  return run_jump($army_ai_weakest_func$k73$, [s3$0, s4$0, s5$0, s6$0, h$0,
+    h$1]);
+}
+
+function $ai_candidate_min_func$(left$0, right$0) {
+  const left_slot$0 = left$0.$0;
+  const left_value$0 = left$0.$1;
+  const $t$0 = left$0.$2;
+  if (!$t$0) {
+    const right_slot$0 = right$0.$0;
+    const right_value$0 = right$0.$1;
+    const right_valid$0 = right$0.$2;
+    return {$: "AiCandidate", $0: right_slot$0, $1: right_value$0, $2:
+      right_valid$0};
+  } else {
+    const right_slot$1 = right$0.$0;
+    const right_value$1 = right$0.$1;
+    const $t$1 = right$0.$2;
+    if (!$t$1) {
+      return {$: "AiCandidate", $0: left_slot$0, $1: left_value$0, $2: true};
+    } else {
+      const h$0 = run_loop($u32_pair_func$(left_value$0));
+      return run_jump($ai_candidate_min_func$k173$, [left_slot$0, right_slot$1,
+        right_value$1, h$0]);
+    }
+  }
+}
+
+function $army_ai_strongest_func$k32$(s3$0, s4$0, s5$0, s6$0, h$0, h$1) {
+  const h$2 = run_loop($stack_ai_candidate_func$(3, s3$0));
+  return run_jump($army_ai_strongest_func$k33$, [s4$0, s5$0, s6$0, h$0, h$1,
+    h$2]);
+}
+
+function $ai_candidate_max_func$k136$(left_slot$0, right_slot$0, right_value$0,
+  h$0) {
+  const left_test$0 = h$0.$0;
+  const left_keep$0 = h$0.$1;
+  const h$1 = run_loop($u32_pair_func$(right_value$0));
+  return run_jump($ai_candidate_max_func$k137$, [left_slot$0, right_slot$0,
+    left_test$0, left_keep$0, h$1]);
+}
+
+function $combat_ai_battle_candidates_func$(own$0, target$0, player$0,
+  battlefield$0) {
+  const own_slot$0 = own$0.$0;
+  const own_value$0 = own$0.$1;
+  const $t$0 = own$0.$2;
+  if (!$t$0) {
+    const target_slot$0 = target$0.$0;
+    const target_value$0 = target$0.$1;
+    const target_valid$0 = target$0.$2;
+    return {$: "CombatAiChoice", $0: 20, $1: own_slot$0, $2: target_slot$0};
+  } else {
+    const target_slot$1 = target$0.$0;
+    const target_value$1 = target$0.$1;
+    const $t$1 = target$0.$2;
+    if (!$t$1) {
+      return {$: "CombatAiChoice", $0: 20, $1: own_slot$0, $2: target_slot$1};
+    } else {
+      const h$0 = run_loop($u32_pair_func$(own_slot$0));
+      return run_jump($combat_ai_battle_candidates_func$k175$, [target_slot$1,
+        player$0, battlefield$0, h$0]);
+    }
+  }
+}
+
+function $army_pair_func$k84$(s3$0, s4$0, s5$0, s6$0, l0$0, r0$0, l1$0, r1$0,
+  h$0) {
+  const l2$0 = h$0.$0;
+  const r2$0 = h$0.$1;
+  const h$1 = run_loop($stack_pair_func$(s3$0));
+  return run_jump($army_pair_func$k85$, [s4$0, s5$0, s6$0, l0$0, r0$0, l1$0,
+    r1$0, l2$0, r2$0, h$1]);
+}
+
+function $stack_pair_func$k107$(left_kind$0, right_kind$0, left_count$0,
+  right_count$0, h$0) {
+  const left_hp$0 = h$0.$0;
+  const right_hp$0 = h$0.$1;
+  return {$: "StackPair", $0: {$: "Troop", $0: left_kind$0, $1: left_count$0,
+    $2: left_hp$0}, $1: {$: "Troop", $0: right_kind$0, $1: right_count$0, $2:
+    right_hp$0}};
+}
+
+function $tactics_catalog_self_check_func$k109$(h$0) {
+  if (h$0.$ === "Tactics.IllegalAttack") {
+    return true;
+  } else if (h$0.$ === "Tactics.MeleeAttack") {
+    return false;
+  } else {
+    const pikeman_penalty$0 = h$0.$0;
+    return false;
+  }
+}
+
+function $Tactics$battlefield_self_check$k91$(h$0) {
+  const h$1 = run_loop($Tactics$attack_reach$(h$0, false, 12, 15));
+  return run_jump($Tactics$battlefield_self_check$k92$, [h$1]);
+}
+
+function $Tactics$hex_distance$(left$0, right$0) {
+  const left_column$0 = left$0.$0;
+  const left_row$0 = left$0.$1;
+  const right_column$0 = right$0.$0;
+  const right_row$0 = right$0.$1;
+  return run_jump($Tactics$hex_distance_values$, [left_column$0, left_row$0,
+    right_column$0, right_row$0]);
+}
+
+function $Tactics$hex_make$k111$(column_test$0, column_live$0, h$0) {
+  const row_test$0 = h$0.$0;
+  const row_live$0 = h$0.$1;
+  const column$0 = column_test$0;
+  const row$0 = row_test$0;
+  let $t$0;
+  const $t$1 = (column$0 < 15);
+  if (!$t$1) {
+    const b$0 = (row$0 < 11);
+    $t$0 = false;
+  } else {
+    const b$1 = (row$0 < 11);
+    $t$0 = b$1;
+  }
+  if (!$t$0) {
+    return {$: "Tactics.InvalidHex"};
+  } else {
+    return {$: "Tactics.ValidHex", $0: {$: "Tactics.Hex", $0: column_live$0, $1:
+      row_live$0}};
+  }
 }
 
 function $kingdom_visit_site_func$(site$0, world$0, kingdom$0, owner$0) {
@@ -3824,7 +5541,7 @@ function $kingdom_visit_site_func$(site$0, world$0, kingdom$0, owner$0) {
       const gold_mine$2 = world$0.$5;
       const guardian$2 = world$0.$6;
       const h$0 = run_loop($kingdom_add_gold_func$(kingdom$0, 1000));
-      return run_jump($kingdom_visit_site_func$k86$, [wood$2, shrine$2,
+      return run_jump($kingdom_visit_site_func$k185$, [wood$2, shrine$2,
         artifact$2, sawmill$2, gold_mine$2, guardian$2, h$0]);
     }
   } else if (site$0.$ === "WoodPileSite") {
@@ -3847,7 +5564,7 @@ function $kingdom_visit_site_func$(site$0, world$0, kingdom$0, owner$0) {
       const gold_mine$4 = world$0.$5;
       const guardian$4 = world$0.$6;
       const h$1 = run_loop($kingdom_add_wood_func$(kingdom$0, 5));
-      return run_jump($kingdom_visit_site_func$k87$, [gold$1, shrine$4,
+      return run_jump($kingdom_visit_site_func$k186$, [gold$1, shrine$4,
         artifact$4, sawmill$4, gold_mine$4, guardian$4, h$1]);
     }
   } else if (site$0.$ === "ShrineSite") {
@@ -3869,7 +5586,7 @@ function $kingdom_visit_site_func$(site$0, world$0, kingdom$0, owner$0) {
       const gold_mine$6 = world$0.$5;
       const guardian$6 = world$0.$6;
       const h$2 = run_loop($kingdom_add_power_func$(kingdom$0, 1));
-      return run_jump($kingdom_visit_site_func$k88$, [gold$2, wood$3,
+      return run_jump($kingdom_visit_site_func$k187$, [gold$2, wood$3,
         artifact$6, sawmill$6, gold_mine$6, guardian$6, h$2]);
     }
   } else if (site$0.$ === "ArtifactSite") {
@@ -3890,7 +5607,7 @@ function $kingdom_visit_site_func$(site$0, world$0, kingdom$0, owner$0) {
       const gold_mine$8 = world$0.$5;
       const guardian$8 = world$0.$6;
       const h$3 = run_loop($kingdom_add_attack_func$(kingdom$0, 2));
-      return run_jump($kingdom_visit_site_func$k89$, [gold$3, wood$4, shrine$5,
+      return run_jump($kingdom_visit_site_func$k188$, [gold$3, wood$4, shrine$5,
         sawmill$8, gold_mine$8, guardian$8, h$3]);
     }
   } else if (site$0.$ === "SawmillSite") {
@@ -3926,7 +5643,7 @@ function $kingdom_visit_site_func$(site$0, world$0, kingdom$0, owner$0) {
     const gold_mine$11 = world$0.$5;
     const guardian$11 = world$0.$6;
     const h$4 = run_loop($army_check_func$(guardian$11));
-    return run_jump($kingdom_visit_site_func$k90$, [gold$6, wood$7, shrine$8,
+    return run_jump($kingdom_visit_site_func$k189$, [gold$6, wood$7, shrine$8,
       artifact$9, sawmill$11, gold_mine$11, kingdom$0, owner$0, h$4]);
   } else if (site$0.$ === "RedTownSite") {
     const gold$7 = world$0.$0;
@@ -3944,17 +5661,12 @@ function $kingdom_visit_site_func$(site$0, world$0, kingdom$0, owner$0) {
       return {$: "MoveResult", $0: kingdom$0, $1: {$: "World", $0: gold$7, $1:
         wood$8, $2: shrine$9, $3: artifact$10, $4: sawmill$12, $5: gold_mine$12,
         $6: guardian$12}, $2: {$: "Adventure"}, $3:
-        "The hero returned to the Castle."};
+        "The hero returned to the allied town."};
     } else {
-      return {$: "MoveResult", $0: kingdom$0, $1: {$: "World", $0: gold$7, $1:
-        wood$8, $2: shrine$9, $3: artifact$10, $4: sawmill$12, $5: gold_mine$12,
-        $6: guardian$12}, $2: {$: "Combat", $0: {$: "Battle", $0: {$: "Blue"},
-        $1: {$: "EnemyTownBattle"}, $2: {$: "Army", $0: {$: "Troop", $0: {$:
-        "Pikeman"}, $1: 24, $2: 10}, $1: {$: "Troop", $0: {$: "Archer"}, $1: 10,
-        $2: 10}, $2: {$: "Troop", $0: {$: "Griffin"}, $1: 5, $2: 25}, $3: {$:
-        "EmptyStack"}, $4: {$: "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$:
-        "EmptyStack"}}, $3: 1}}, $3:
-        "The Necropolis hero attacks the Castle garrison."};
+      const h$5 = run_loop($kingdom_enemy_garrison_func$(kingdom$0, {$:
+        "Blue"}));
+      return run_jump($kingdom_visit_site_func$k190$, [gold$7, wood$8, shrine$9,
+        artifact$10, sawmill$12, gold_mine$12, guardian$12, h$5]);
     }
   } else {
     const gold$8 = world$0.$0;
@@ -3970,41 +5682,36 @@ function $kingdom_visit_site_func$(site$0, world$0, kingdom$0, owner$0) {
         gold_mine$13, $6: guardian$13}, $2: {$: "Adventure"}, $3:
         "The town gate is closed."};
     } else if (owner$0.$ === "Red") {
-      return {$: "MoveResult", $0: kingdom$0, $1: {$: "World", $0: gold$8, $1:
-        wood$9, $2: shrine$10, $3: artifact$11, $4: sawmill$13, $5:
-        gold_mine$13, $6: guardian$13}, $2: {$: "Combat", $0: {$: "Battle", $0:
-        {$: "Red"}, $1: {$: "EnemyTownBattle"}, $2: {$: "Army", $0: {$: "Troop",
-        $0: {$: "Skeleton"}, $1: 30, $2: 6}, $1: {$: "Troop", $0: {$:
-        "WalkingDead"}, $1: 12, $2: 15}, $2: {$: "Troop", $0: {$: "Wight"}, $1:
-        7, $2: 18}, $3: {$: "EmptyStack"}, $4: {$: "EmptyStack"}, $5: {$:
-        "EmptyStack"}, $6: {$: "EmptyStack"}}, $3: 1}}, $3:
-        "The Castle hero attacks the Necropolis garrison."};
+      const h$6 = run_loop($kingdom_enemy_garrison_func$(kingdom$0, {$:
+        "Red"}));
+      return run_jump($kingdom_visit_site_func$k191$, [gold$8, wood$9,
+        shrine$10, artifact$11, sawmill$13, gold_mine$13, guardian$13, h$6]);
     } else {
       return {$: "MoveResult", $0: kingdom$0, $1: {$: "World", $0: gold$8, $1:
         wood$9, $2: shrine$10, $3: artifact$11, $4: sawmill$13, $5:
         gold_mine$13, $6: guardian$13}, $2: {$: "Adventure"}, $3:
-        "The hero returned to the Necropolis."};
+        "The hero returned to the allied town."};
     }
   }
 }
 
-function $hero_move_func$k35$(direction$0, name$0, movement$0, attack$0,
+function $hero_move_func$k113$(direction$0, name$0, movement$0, attack$0,
   defense$0, power$0, knowledge$0, mana$0, level$0, experience$0, army$0,
   step_x$0, old_x$0, h$0) {
   const step_y$0 = h$0.$0;
   const old_y$0 = h$0.$1;
   const h$1 = run_loop($coordinate_step_func$(direction$0, step_x$0, step_y$0));
-  return run_jump($hero_move_func$k36$, [name$0, movement$0, attack$0,
+  return run_jump($hero_move_func$k114$, [name$0, movement$0, attack$0,
     defense$0, power$0, knowledge$0, mana$0, level$0, experience$0, army$0,
     old_x$0, old_y$0, h$1]);
 }
 
-function $game_end_day_values_func$k27$(scenario$0, blue$0, seed$0, turn$0,
+function $game_end_day_values_func$k96$(scenario$0, blue$0, seed$0, turn$0,
   next_world$0, blue_gold$0, blue_wood$0, output_day$0, blue_week$0,
   next_red$0) {
   const next_blue$0 = run_loop($kingdom_new_day_func$(blue$0, blue_gold$0,
     blue_wood$0, blue_week$0));
-  return run_jump($game_end_day_values_func$k28$, [scenario$0, seed$0, turn$0,
+  return run_jump($game_end_day_values_func$k97$, [scenario$0, seed$0, turn$0,
     next_world$0, output_day$0, next_red$0, next_blue$0]);
 }
 
@@ -4014,11 +5721,11 @@ function $kingdom_new_day_func$(kingdom$0, mine_gold$0, mine_wood$0,
   const hero$0 = kingdom$0.$1;
   const town$0 = kingdom$0.$2;
   const h$0 = run_loop($town_new_day_func$(week_start$0, town$0));
-  return run_jump($kingdom_new_day_func$k91$, [resources$0, hero$0, mine_gold$0,
-    mine_wood$0, h$0]);
+  return run_jump($kingdom_new_day_func$k192$, [resources$0, hero$0,
+    mine_gold$0, mine_wood$0, h$0]);
 }
 
-function $town_build_hall_values_func$k46$(faction$0, hall$0, fort$0,
+function $town_build_hall_values_func$k138$(faction$0, hall$0, fort$0,
   dwellings$0, stock$0, h$0) {
   const remaining$0 = h$0.$0;
   const $t$0 = h$0.$1;
@@ -4082,7 +5789,7 @@ function $resources_pay_func$(resources$0, gold_cost$0, wood_cost$0,
   }
 }
 
-function $town_build_fort_values_func$k47$(faction$0, hall$0, fort$0,
+function $town_build_fort_values_func$k139$(faction$0, hall$0, fort$0,
   dwellings$0, stock$0, h$0) {
   const remaining$0 = h$0.$0;
   const $t$0 = h$0.$1;
@@ -4098,92 +5805,76 @@ function $town_build_fort_values_func$k47$(faction$0, hall$0, fort$0,
   }
 }
 
-function $town_build_dwelling_values_func$k48$(faction$0, hall$0, fort$0,
+function $town_build_dwelling_values_func$k140$(faction$0, hall$0, fort$0,
   dwellings$0, stock$0, resources$0, tier$0, previous$0, h$0) {
   const bit_test$0 = h$0.$0;
   const bit_live$0 = h$0.$1;
   const h$1 = run_loop($u32_pair_func$(previous$0));
-  return run_jump($town_build_dwelling_values_func$k49$, [faction$0, hall$0,
+  return run_jump($town_build_dwelling_values_func$k141$, [faction$0, hall$0,
     fort$0, dwellings$0, stock$0, resources$0, tier$0, bit_test$0, bit_live$0,
     h$1]);
 }
 
-function $kingdom_recruit_values_func$k52$(resources$0, name$0, x$0, y$0,
+function $kingdom_recruit_values_func$k144$(resources$0, name$0, x$0, y$0,
   movement$0, hero_attack$0, hero_defense$0, power$0, knowledge$0, mana$0,
-  level$0, experience$0, army$0, faction$0, hall$0, fort$0, dwellings$0,
-  built_today$0, tier$0, amount$0, h$0) {
+  level$0, experience$0, army$0, hall$0, fort$0, dwellings$0, built_today$0,
+  tier$0, amount$0, tier_faction$0, output_faction$0, h$0) {
   const kept_stock$0 = h$0.$0;
   const available$0 = h$0.$1;
-  const h$1 = run_loop($creature_tier_func$(faction$0, tier$0));
-  return run_jump($kingdom_recruit_values_func$k53$, [resources$0, name$0, x$0,
+  const h$1 = run_loop($creature_tier_func$(tier_faction$0, tier$0));
+  return run_jump($kingdom_recruit_values_func$k145$, [resources$0, name$0, x$0,
     y$0, movement$0, hero_attack$0, hero_defense$0, power$0, knowledge$0,
     mana$0, level$0, experience$0, army$0, hall$0, fort$0, dwellings$0,
-    built_today$0, tier$0, amount$0, kept_stock$0, available$0, h$1]);
+    built_today$0, tier$0, amount$0, output_faction$0, kept_stock$0,
+    available$0, h$1]);
 }
 
 function $stock_select_func$(stock$0, tier$0) {
   return run_jump($stock_select_nat_func$, [BigInt(tier$0), stock$0]);
 }
 
-function $kingdom_recruit_necropolis_values_func$k57$(resources$0, name$0, x$0,
-  y$0, movement$0, hero_attack$0, hero_defense$0, power$0, knowledge$0, mana$0,
-  level$0, experience$0, army$0, hall$0, fort$0, dwellings$0, built_today$0,
-  tier$0, amount$0, h$0) {
-  const kept_stock$0 = h$0.$0;
-  const available$0 = h$0.$1;
-  const h$1 = run_loop($creature_tier_func$({$: "Necropolis"}, tier$0));
-  return run_jump($kingdom_recruit_necropolis_values_func$k58$, [resources$0,
-    name$0, x$0, y$0, movement$0, hero_attack$0, hero_defense$0, power$0,
-    knowledge$0, mana$0, level$0, experience$0, army$0, hall$0, fort$0,
-    dwellings$0, built_today$0, tier$0, amount$0, kept_stock$0, available$0,
-    h$1]);
-}
-
-function $hero_home_check_func$k38$(name$0, movement$0, attack$0, defense$0,
+function $hero_home_check_func$k116$(name$0, movement$0, attack$0, defense$0,
   power$0, knowledge$0, mana$0, level$0, experience$0, army$0, x_test$0,
   x_keep$0, h$0) {
   const y_test$0 = h$0.$0;
   const y_keep$0 = h$0.$1;
-  let $t$0;
-  const $t$1 = (x_test$0 === 1);
-  if (!$t$1) {
-    const b$0 = (y_test$0 === 5);
-    $t$0 = false;
-  } else {
-    const b$1 = (y_test$0 === 5);
-    $t$0 = b$1;
-  }
-  const valid$0 = $t$0;
-  return {$: "HeroCheck", $0: {$: "Hero", $0: name$0, $1: x_keep$0, $2:
-    y_keep$0, $3: movement$0, $4: attack$0, $5: defense$0, $6: power$0, $7:
-    knowledge$0, $8: mana$0, $9: level$0, $10: experience$0, $11: army$0}, $1:
-    valid$0};
+  const h$1 = run_loop($u32_pair_func$(x_test$0));
+  return run_jump($hero_home_check_func$k117$, [name$0, movement$0, attack$0,
+    defense$0, power$0, knowledge$0, mana$0, level$0, experience$0, army$0,
+    x_keep$0, y_test$0, y_keep$0, h$1]);
 }
 
-function $hero_home_check_func$k40$(name$0, movement$0, attack$0, defense$0,
+function $hero_home_check_func$k120$(name$0, movement$0, attack$0, defense$0,
   power$0, knowledge$0, mana$0, level$0, experience$0, army$0, x_test$0,
   x_keep$0, h$0) {
   const y_test$0 = h$0.$0;
   const y_keep$0 = h$0.$1;
-  let $t$0;
-  const $t$1 = (x_test$0 === 7);
-  if (!$t$1) {
-    const b$0 = (y_test$0 === 1);
-    $t$0 = false;
-  } else {
-    const b$1 = (y_test$0 === 1);
-    $t$0 = b$1;
-  }
-  const valid$0 = $t$0;
-  return {$: "HeroCheck", $0: {$: "Hero", $0: name$0, $1: x_keep$0, $2:
-    y_keep$0, $3: movement$0, $4: attack$0, $5: defense$0, $6: power$0, $7:
-    knowledge$0, $8: mana$0, $9: level$0, $10: experience$0, $11: army$0}, $1:
-    valid$0};
+  const h$1 = run_loop($u32_pair_func$(x_test$0));
+  return run_jump($hero_home_check_func$k121$, [name$0, movement$0, attack$0,
+    defense$0, power$0, knowledge$0, mana$0, level$0, experience$0, army$0,
+    x_keep$0, y_test$0, y_keep$0, h$1]);
 }
 
-function $kingdom_finish_combat_func$(resources$0, name$0, x$0, y$0, movement$0,
-  attack$0, defense$0, power$0, knowledge$0, level$0, experience$0, town$0,
-  attacker$0, source$0, round$0, turn$0) {
+function $hero_home_check_func$k124$(name$0, movement$0, attack$0, defense$0,
+  power$0, knowledge$0, mana$0, level$0, experience$0, army$0, x_test$0,
+  x_keep$0, h$0) {
+  const y_test$0 = h$0.$0;
+  const y_keep$0 = h$0.$1;
+  const h$1 = run_loop($u32_pair_func$(x_test$0));
+  return run_jump($hero_home_check_func$k125$, [name$0, movement$0, attack$0,
+    defense$0, power$0, knowledge$0, mana$0, level$0, experience$0, army$0,
+    x_keep$0, y_test$0, y_keep$0, h$1]);
+}
+
+function $kingdom_combat_attack_case_func$k130$(resources$0, name$0, x$0, y$0,
+  movement$0, attack$0, defense$0, power$0, knowledge$0, level$0, experience$0,
+  town$0, attacker$0, source$0, round$0, h$0) {
+  return run_jump($kingdom_finish_combat_func$, [resources$0, name$0, x$0, y$0,
+    movement$0, attack$0, defense$0, power$0, knowledge$0, level$0,
+    experience$0, town$0, attacker$0, source$0, round$0, h$0]);
+}
+
+function $combat_enemy_response_func$(turn$0, hero_defense$0) {
   const player$0 = turn$0.$0;
   const enemy$0 = turn$0.$1;
   const mana$0 = turn$0.$2;
@@ -4192,42 +5883,44 @@ function $kingdom_finish_combat_func$(resources$0, name$0, x$0, y$0, movement$0,
   const received$0 = turn$0.$5;
   const $t$0 = turn$0.$6;
   if (!$t$0) {
-    const name$1 = name$0;
-    const x$1 = x$0;
-    const y$1 = y$0;
-    const movement$1 = movement$0;
-    const attack$1 = attack$0;
-    const defense$1 = defense$0;
-    const power$1 = power$0;
-    const knowledge$1 = knowledge$0;
-    const mana$1 = mana$0;
-    const level$1 = level$0;
-    const experience$1 = experience$0;
-    const army$0 = player$0;
-    return {$: "KingdomBattle", $0: {$: "Kingdom", $0: resources$0, $1: {$:
-      "Hero", $0: name$1, $1: x$1, $2: y$1, $3: movement$1, $4: attack$1, $5:
-      defense$1, $6: power$1, $7: knowledge$1, $8: mana$1, $9: level$1, $10:
-      experience$1, $11: army$0}, $2: town$0}, $1: {$: "BattleContinues", $0: {
-      $: "Battle", $0: attacker$0, $1: source$0, $2: enemy$0, $3: round$0}}, $2:
-      next_seed$0, $3:
-      "Choose occupied army slots; the rejected combat command changed nothing."};
+    const battlefield$0 = turn$0.$7;
+    return {$: "CombatTurn", $0: player$0, $1: enemy$0, $2: mana$0, $3:
+      next_seed$0, $4: dealt$0, $5: received$0, $6: false, $7: battlefield$0};
   } else {
-    const h$0 = run_loop($army_check_func$(enemy$0));
-    return run_jump($kingdom_finish_combat_func$k95$, [resources$0, name$0, x$0,
-      y$0, movement$0, attack$0, defense$0, power$0, knowledge$0, level$0,
-      experience$0, town$0, attacker$0, source$0, round$0, player$0, mana$0,
-      next_seed$0, h$0]);
+    const battlefield$1 = turn$0.$7;
+    const h$0 = run_loop($combat_enemy_action_func$(enemy$0, player$0,
+      hero_defense$0, next_seed$0, battlefield$1));
+    return run_jump($combat_enemy_response_func$k196$, [mana$0, dealt$0,
+      received$0, h$0]);
   }
 }
 
-function $combat_attack_func$k62$(enemy$0, own_slot$0, target_slot$0,
-  hero_attack$0, hero_defense$0, mana$0, seed$0, h$0) {
-  const player_keep$0 = h$0.$0;
-  const actor$0 = h$0.$1;
-  const h$1 = run_loop($army_select_func$(enemy$0, target_slot$0));
-  return run_jump($combat_attack_func$k63$, [own_slot$0, target_slot$0,
-    hero_attack$0, hero_defense$0, mana$0, seed$0, player_keep$0, actor$0,
+function $combat_attack_func$k149$(player$0, enemy$0, target_slot$0,
+  hero_attack$0, hero_defense$0, mana$0, seed$0, battlefield$0, h$0) {
+  const own_select$0 = h$0.$0;
+  const own_tail$0 = h$0.$1;
+  const h$1 = run_loop($u32_pair_func$(own_tail$0));
+  return run_jump($combat_attack_func$k150$, [player$0, enemy$0, target_slot$0,
+    hero_attack$0, hero_defense$0, mana$0, seed$0, battlefield$0, own_select$0,
     h$1]);
+}
+
+function $kingdom_finish_combat_func$(resources$0, name$0, x$0, y$0, movement$0,
+  attack$0, defense$0, power$0, knowledge$0, level$0, experience$0, town$0,
+  attacker$0, source$0, round$0, turn$0) {
+  const h$0 = run_loop($combat_turn_sync_func$(turn$0));
+  return run_jump($kingdom_finish_combat_func$k197$, [resources$0, name$0, x$0,
+    y$0, movement$0, attack$0, defense$0, power$0, knowledge$0, level$0,
+    experience$0, town$0, attacker$0, source$0, round$0, h$0]);
+}
+
+function $combat_defend_func$k159$(player$0, own_slot$0, hero_defense$0, mana$0,
+  seed$0, battlefield$0, h$0) {
+  const enemy_keep$0 = h$0.$0;
+  const attacker$0 = h$0.$1;
+  const h$1 = run_loop($army_select_func$(player$0, own_slot$0));
+  return run_jump($combat_defend_func$k160$, [own_slot$0, hero_defense$0,
+    mana$0, seed$0, battlefield$0, enemy_keep$0, attacker$0, h$1]);
 }
 
 function $army_select_func$(army$0, index$0) {
@@ -4241,41 +5934,41 @@ function $army_select_func$(army$0, index$0) {
   const $t$0 = BigInt(index$0);
   if ($t$0 === 0n) {
     const h$0 = run_loop($stack_pair_func$(a$0));
-    return run_jump($army_select_func$k100$, [b$0, c$0, d$0, e$0, f$0, g$0,
+    return run_jump($army_select_func$k203$, [b$0, c$0, d$0, e$0, f$0, g$0,
       h$0]);
   } else {
     const $t$1 = ($t$0 - 1n);
     if ($t$1 === 0n) {
       const h$1 = run_loop($stack_pair_func$(b$0));
-      return run_jump($army_select_func$k101$, [a$0, c$0, d$0, e$0, f$0, g$0,
+      return run_jump($army_select_func$k204$, [a$0, c$0, d$0, e$0, f$0, g$0,
         h$1]);
     } else {
       const $t$2 = ($t$1 - 1n);
       if ($t$2 === 0n) {
         const h$2 = run_loop($stack_pair_func$(c$0));
-        return run_jump($army_select_func$k102$, [a$0, b$0, d$0, e$0, f$0, g$0,
+        return run_jump($army_select_func$k205$, [a$0, b$0, d$0, e$0, f$0, g$0,
           h$2]);
       } else {
         const $t$3 = ($t$2 - 1n);
         if ($t$3 === 0n) {
           const h$3 = run_loop($stack_pair_func$(d$0));
-          return run_jump($army_select_func$k103$, [a$0, b$0, c$0, e$0, f$0,
+          return run_jump($army_select_func$k206$, [a$0, b$0, c$0, e$0, f$0,
             g$0, h$3]);
         } else {
           const $t$4 = ($t$3 - 1n);
           if ($t$4 === 0n) {
             const h$4 = run_loop($stack_pair_func$(e$0));
-            return run_jump($army_select_func$k104$, [a$0, b$0, c$0, d$0, f$0,
+            return run_jump($army_select_func$k207$, [a$0, b$0, c$0, d$0, f$0,
               g$0, h$4]);
           } else {
             const $t$5 = ($t$4 - 1n);
             if ($t$5 === 0n) {
               const h$5 = run_loop($stack_pair_func$(f$0));
-              return run_jump($army_select_func$k105$, [a$0, b$0, c$0, d$0, e$0,
+              return run_jump($army_select_func$k208$, [a$0, b$0, c$0, d$0, e$0,
                 g$0, h$5]);
             } else {
               const h$6 = run_loop($stack_pair_func$(g$0));
-              return run_jump($army_select_func$k106$, [a$0, b$0, c$0, d$0, e$0,
+              return run_jump($army_select_func$k209$, [a$0, b$0, c$0, d$0, e$0,
                 f$0, h$6]);
             }
           }
@@ -4285,25 +5978,274 @@ function $army_select_func$(army$0, index$0) {
   }
 }
 
-function $combat_defend_func$k72$(player$0, own_slot$0, hero_defense$0, mana$0,
-  seed$0, h$0) {
-  const enemy_keep$0 = h$0.$0;
-  const attacker$0 = h$0.$1;
-  const h$1 = run_loop($army_select_func$(player$0, own_slot$0));
-  return run_jump($combat_defend_func$k73$, [own_slot$0, hero_defense$0, mana$0,
-    seed$0, enemy_keep$0, attacker$0, h$1]);
+function $kingdom_combat_spell_case_func$k133$(resources$0, name$0, x$0, y$0,
+  movement$0, attack$0, defense$0, power$0, knowledge$0, level$0, experience$0,
+  town$0, attacker$0, source$0, round$0, h$0) {
+  return run_jump($kingdom_finish_combat_func$, [resources$0, name$0, x$0, y$0,
+    movement$0, attack$0, defense$0, power$0, knowledge$0, level$0,
+    experience$0, town$0, attacker$0, source$0, round$0, h$0]);
 }
 
-function $combat_spell_func$k77$(player$0, own_slot$0, target_slot$0, power$0,
-  hero_defense$0, mana$0, seed$0, h$0) {
+function $combat_spell_func$k164$(player$0, target_slot$0, power$0, mana$0,
+  seed$0, battlefield$0, h$0) {
   const enemy_keep$0 = h$0.$0;
   const target$0 = h$0.$1;
   const h$1 = run_loop($stack_check_func$(target$0));
-  return run_jump($combat_spell_func$k78$, [player$0, own_slot$0, target_slot$0,
-    power$0, hero_defense$0, mana$0, seed$0, enemy_keep$0, h$1]);
+  return run_jump($combat_spell_func$k165$, [player$0, target_slot$0, power$0,
+    mana$0, seed$0, battlefield$0, enemy_keep$0, h$1]);
 }
 
-function $stack_damage_values_func$k23$(kind$0, count$0, hit_points$0,
+function $kingdom_combat_move_case_func$k135$(resources$0, name$0, x$0, y$0,
+  movement$0, attack$0, defense$0, power$0, knowledge$0, level$0, experience$0,
+  town$0, attacker$0, source$0, round$0, h$0) {
+  return run_jump($kingdom_finish_combat_func$, [resources$0, name$0, x$0, y$0,
+    movement$0, attack$0, defense$0, power$0, knowledge$0, level$0,
+    experience$0, town$0, attacker$0, source$0, round$0, h$0]);
+}
+
+function $combat_move_func$k168$(player$0, enemy$0, target_index$0, mana$0,
+  seed$0, battlefield$0, h$0) {
+  const own_select$0 = h$0.$0;
+  const own_move$0 = h$0.$1;
+  const h$1 = run_loop($army_select_func$(player$0, own_select$0));
+  return run_jump($combat_move_func$k169$, [enemy$0, target_index$0, mana$0,
+    seed$0, battlefield$0, own_move$0, h$1]);
+}
+
+function $game_strategic_ai_func$k61$(scenario$0, day$0, resources$0, name$0,
+  movement$0, attack$0, defense$0, power$0, knowledge$0, mana$0, level$0,
+  experience$0, army$0, faction$0, hall$0, fort$0, dwellings$0, built_today$0,
+  stock$0, blue$0, world$0, seed$0, turn$0, notice$0, x_home$0, x_ai$0,
+  x_keep$0, y_home$0, h$0) {
+  const y_ai$0 = h$0.$0;
+  const y_keep$0 = h$0.$1;
+  let $t$0;
+  if (!built_today$0) {
+    $t$0 = {$: "Tuple", $0: false, $1: false};
+  } else {
+    $t$0 = {$: "Tuple", $0: true, $1: true};
+  }
+  const built_test$0 = $t$0.$0;
+  const built_keep$0 = $t$0.$1;
+  let $t$1;
+  let $t$2;
+  const $t$3 = (x_home$0 === 1);
+  if (!$t$3) {
+    const b$0 = (y_home$0 === 5);
+    $t$2 = false;
+  } else {
+    const b$1 = (y_home$0 === 5);
+    $t$2 = b$1;
+  }
+  let $t$4;
+  if (!built_test$0) {
+    $t$4 = true;
+  } else {
+    $t$4 = false;
+  }
+  if (!$t$2) {
+    $t$1 = false;
+  } else {
+    $t$1 = $t$4;
+  }
+  if ($t$1) {
+    return run_jump($game_build_hall_func$, [{$: "Game", $0: scenario$0, $1:
+      day$0, $2: {$: "Red"}, $3: {$: "Kingdom", $0: resources$0, $1: {$: "Hero",
+      $0: name$0, $1: x_keep$0, $2: y_keep$0, $3: movement$0, $4: attack$0, $5:
+      defense$0, $6: power$0, $7: knowledge$0, $8: mana$0, $9: level$0, $10:
+      experience$0, $11: army$0}, $2: {$: "Town", $0: faction$0, $1: hall$0, $2:
+      fort$0, $3: dwellings$0, $4: built_keep$0, $5: stock$0}}, $4: blue$0, $5:
+      world$0, $6: {$: "Adventure"}, $7: seed$0, $8: turn$0, $9: notice$0}]);
+  } else {
+    const x$0 = x_ai$0;
+    const y$0 = y_ai$0;
+    const x$1 = x$0;
+    const y$1 = y$0;
+    let $t$5;
+    const x$2 = x$1;
+    const y$2 = y$1;
+    let $t$6;
+    const $t$7 = (x$2 === 3);
+    if (!$t$7) {
+      const b$2 = (y$2 === 5);
+      $t$6 = false;
+    } else {
+      const b$3 = (y$2 === 5);
+      $t$6 = b$3;
+    }
+    const x$3 = x$1;
+    const y$3 = y$1;
+    let $t$8;
+    const $t$9 = (x$3 === 3);
+    if (!$t$9) {
+      const b$4 = (y$3 === 4);
+      $t$8 = false;
+    } else {
+      const b$5 = (y$3 === 4);
+      $t$8 = b$5;
+    }
+    const $t$10 = ($t$6 || $t$8);
+    if ($t$10) {
+      $t$5 = {$: "North"};
+    } else {
+      const x$4 = x$1;
+      const y$4 = y$1;
+      let $t$11;
+      const $t$12 = (x$4 === 6);
+      if (!$t$12) {
+        const b$6 = (y$4 === 3);
+        $t$11 = false;
+      } else {
+        const b$7 = (y$4 === 3);
+        $t$11 = b$7;
+      }
+      const x$5 = x$1;
+      const y$5 = y$1;
+      let $t$13;
+      const $t$14 = (x$5 === 6);
+      if (!$t$14) {
+        const b$8 = (y$5 === 2);
+        $t$13 = false;
+      } else {
+        const b$9 = (y$5 === 2);
+        $t$13 = b$9;
+      }
+      const $t$15 = ($t$11 || $t$13);
+      if ($t$15) {
+        $t$5 = {$: "North"};
+      } else {
+        $t$5 = {$: "East"};
+      }
+    }
+    return run_jump($game_move_func$, [{$: "Game", $0: scenario$0, $1: day$0,
+      $2: {$: "Red"}, $3: {$: "Kingdom", $0: resources$0, $1: {$: "Hero", $0:
+      name$0, $1: x_keep$0, $2: y_keep$0, $3: movement$0, $4: attack$0, $5:
+      defense$0, $6: power$0, $7: knowledge$0, $8: mana$0, $9: level$0, $10:
+      experience$0, $11: army$0}, $2: {$: "Town", $0: faction$0, $1: hall$0, $2:
+      fort$0, $3: dwellings$0, $4: built_keep$0, $5: stock$0}}, $4: blue$0, $5:
+      world$0, $6: {$: "Adventure"}, $7: seed$0, $8: turn$0, $9: notice$0},
+      $t$5]);
+  }
+}
+
+function $game_strategic_ai_func$k65$(scenario$0, day$0, _222$0, resources$0,
+  name$0, movement$0, attack$0, defense$0, power$0, knowledge$0, mana$0,
+  level$0, experience$0, army$0, faction$0, hall$0, fort$0, dwellings$0,
+  built_today$0, stock$0, world$0, seed$0, turn$0, notice$0, x_home$0, x_ai$0,
+  x_keep$0, y_home$0, h$0) {
+  const y_ai$0 = h$0.$0;
+  const y_keep$0 = h$0.$1;
+  let $t$0;
+  if (!built_today$0) {
+    $t$0 = {$: "Tuple", $0: false, $1: false};
+  } else {
+    $t$0 = {$: "Tuple", $0: true, $1: true};
+  }
+  const built_test$0 = $t$0.$0;
+  const built_keep$0 = $t$0.$1;
+  let $t$1;
+  let $t$2;
+  const $t$3 = (x_home$0 === 7);
+  if (!$t$3) {
+    const b$0 = (y_home$0 === 1);
+    $t$2 = false;
+  } else {
+    const b$1 = (y_home$0 === 1);
+    $t$2 = b$1;
+  }
+  let $t$4;
+  if (!built_test$0) {
+    $t$4 = true;
+  } else {
+    $t$4 = false;
+  }
+  if (!$t$2) {
+    $t$1 = false;
+  } else {
+    $t$1 = $t$4;
+  }
+  if ($t$1) {
+    return run_jump($game_build_hall_func$, [{$: "Game", $0: scenario$0, $1:
+      day$0, $2: {$: "Blue"}, $3: _222$0, $4: {$: "Kingdom", $0: resources$0,
+      $1: {$: "Hero", $0: name$0, $1: x_keep$0, $2: y_keep$0, $3: movement$0,
+      $4: attack$0, $5: defense$0, $6: power$0, $7: knowledge$0, $8: mana$0, $9:
+      level$0, $10: experience$0, $11: army$0}, $2: {$: "Town", $0: faction$0,
+      $1: hall$0, $2: fort$0, $3: dwellings$0, $4: built_keep$0, $5: stock$0}},
+      $5: world$0, $6: {$: "Adventure"}, $7: seed$0, $8: turn$0, $9:
+      notice$0}]);
+  } else {
+    const x$0 = x_ai$0;
+    const y$0 = y_ai$0;
+    const x$1 = x$0;
+    const y$1 = y$0;
+    let $t$5;
+    const x$2 = x$1;
+    const y$2 = y$1;
+    let $t$6;
+    const $t$7 = (x$2 === 6);
+    if (!$t$7) {
+      const b$2 = (y$2 === 1);
+      $t$6 = false;
+    } else {
+      const b$3 = (y$2 === 1);
+      $t$6 = b$3;
+    }
+    const x$3 = x$1;
+    const y$3 = y$1;
+    let $t$8;
+    const $t$9 = (x$3 === 6);
+    if (!$t$9) {
+      const b$4 = (y$3 === 2);
+      $t$8 = false;
+    } else {
+      const b$5 = (y$3 === 2);
+      $t$8 = b$5;
+    }
+    const $t$10 = ($t$6 || $t$8);
+    if ($t$10) {
+      $t$5 = {$: "South"};
+    } else {
+      const x$4 = x$1;
+      const y$4 = y$1;
+      let $t$11;
+      const $t$12 = (x$4 === 3);
+      if (!$t$12) {
+        const b$6 = (y$4 === 3);
+        $t$11 = false;
+      } else {
+        const b$7 = (y$4 === 3);
+        $t$11 = b$7;
+      }
+      const x$5 = x$1;
+      const y$5 = y$1;
+      let $t$13;
+      const $t$14 = (x$5 === 3);
+      if (!$t$14) {
+        const b$8 = (y$5 === 4);
+        $t$13 = false;
+      } else {
+        const b$9 = (y$5 === 4);
+        $t$13 = b$9;
+      }
+      const $t$15 = ($t$11 || $t$13);
+      if ($t$15) {
+        $t$5 = {$: "South"};
+      } else {
+        $t$5 = {$: "West"};
+      }
+    }
+    return run_jump($game_move_func$, [{$: "Game", $0: scenario$0, $1: day$0,
+      $2: {$: "Blue"}, $3: _222$0, $4: {$: "Kingdom", $0: resources$0, $1: {$:
+      "Hero", $0: name$0, $1: x_keep$0, $2: y_keep$0, $3: movement$0, $4:
+      attack$0, $5: defense$0, $6: power$0, $7: knowledge$0, $8: mana$0, $9:
+      level$0, $10: experience$0, $11: army$0}, $2: {$: "Town", $0: faction$0,
+      $1: hall$0, $2: fort$0, $3: dwellings$0, $4: built_keep$0, $5: stock$0}},
+      $5: world$0, $6: {$: "Adventure"}, $7: seed$0, $8: turn$0, $9: notice$0},
+      $t$5]);
+  }
+}
+
+function $stack_damage_values_func$k69$(kind$0, count$0, hit_points$0,
   next_count_for_kills$0, next_count_output$0, h$0) {
   const remainder_test$0 = h$0.$0;
   const remainder_output$0 = h$0.$1;
@@ -4318,7 +6260,82 @@ function $stack_damage_values_func$k23$(kind$0, count$0, hit_points$0,
   }
 }
 
-function $kingdom_visit_site_func$k86$(wood$0, shrine$0, artifact$0, sawmill$0,
+function $Tactics$hex_distance_values$k25$(left_row$0, right_row$0,
+  left_column_parity$0, left_column_offset$0, right_column_parity$0,
+  right_column_offset$0, dx$0) {
+  const h$0 = run_loop($Tactics$u32_pair$(dx$0));
+  return run_jump($Tactics$hex_distance_values$k26$, [left_row$0, right_row$0,
+    left_column_parity$0, left_column_offset$0, right_column_parity$0,
+    right_column_offset$0, h$0]);
+}
+
+function $Tactics$u32_abs_diff$(left$0, right$0) {
+  const h$0 = run_loop($Tactics$u32_pair$(left$0));
+  return run_jump($Tactics$u32_abs_diff$k215$, [right$0, h$0]);
+}
+
+function $army_ai_weakest_func$k73$(s3$0, s4$0, s5$0, s6$0, h$0, h$1) {
+  const h$2 = run_loop($stack_ai_candidate_func$(3, s3$0));
+  return run_jump($army_ai_weakest_func$k74$, [s4$0, s5$0, s6$0, h$0, h$1,
+    h$2]);
+}
+
+function $ai_candidate_min_func$k173$(left_slot$0, right_slot$0, right_value$0,
+  h$0) {
+  const left_test$0 = h$0.$0;
+  const left_keep$0 = h$0.$1;
+  const h$1 = run_loop($u32_pair_func$(right_value$0));
+  return run_jump($ai_candidate_min_func$k174$, [left_slot$0, right_slot$0,
+    left_test$0, left_keep$0, h$1]);
+}
+
+function $army_ai_strongest_func$k33$(s4$0, s5$0, s6$0, h$0, h$1, h$2) {
+  const h$3 = run_loop($ai_candidate_max_func$(h$1, h$2));
+  return run_jump($army_ai_strongest_func$k34$, [s4$0, s5$0, s6$0, h$0, h$3]);
+}
+
+function $ai_candidate_max_func$k137$(left_slot$0, right_slot$0, left_test$0,
+  left_keep$0, h$0) {
+  const right_test$0 = h$0.$0;
+  const right_keep$0 = h$0.$1;
+  const $t$0 = (left_test$0 <= right_test$0);
+  if ($t$0) {
+    return {$: "AiCandidate", $0: right_slot$0, $1: right_keep$0, $2: true};
+  } else {
+    return {$: "AiCandidate", $0: left_slot$0, $1: left_keep$0, $2: true};
+  }
+}
+
+function $combat_ai_battle_candidates_func$k175$(target_slot$0, player$0,
+  battlefield$0, h$0) {
+  const own_select$0 = h$0.$0;
+  const own_tail$0 = h$0.$1;
+  const h$1 = run_loop($u32_pair_func$(own_tail$0));
+  return run_jump($combat_ai_battle_candidates_func$k176$, [target_slot$0,
+    player$0, battlefield$0, own_select$0, h$1]);
+}
+
+function $army_pair_func$k85$(s4$0, s5$0, s6$0, l0$0, r0$0, l1$0, r1$0, l2$0,
+  r2$0, h$0) {
+  const l3$0 = h$0.$0;
+  const r3$0 = h$0.$1;
+  const h$1 = run_loop($stack_pair_func$(s4$0));
+  return run_jump($army_pair_func$k86$, [s5$0, s6$0, l0$0, r0$0, l1$0, r1$0,
+    l2$0, r2$0, l3$0, r3$0, h$1]);
+}
+
+function $Tactics$battlefield_self_check$k92$(h$0) {
+  if (h$0.$ === "Tactics.RangedAttack") {
+    const long_range_penalty$0 = h$0.$0;
+    return long_range_penalty$0;
+  } else if (h$0.$ === "Tactics.IllegalAttack") {
+    return false;
+  } else {
+    return false;
+  }
+}
+
+function $kingdom_visit_site_func$k185$(wood$0, shrine$0, artifact$0, sawmill$0,
   gold_mine$0, guardian$0, h$0) {
   return {$: "MoveResult", $0: h$0, $1: {$: "World", $0: false, $1: wood$0, $2:
     shrine$0, $3: artifact$0, $4: sawmill$0, $5: gold_mine$0, $6: guardian$0},
@@ -4326,21 +6343,21 @@ function $kingdom_visit_site_func$k86$(wood$0, shrine$0, artifact$0, sawmill$0,
     "A treasure chest added 1000 gold to the kingdom."};
 }
 
-function $kingdom_visit_site_func$k87$(gold$0, shrine$0, artifact$0, sawmill$0,
+function $kingdom_visit_site_func$k186$(gold$0, shrine$0, artifact$0, sawmill$0,
   gold_mine$0, guardian$0, h$0) {
   return {$: "MoveResult", $0: h$0, $1: {$: "World", $0: gold$0, $1: false, $2:
     shrine$0, $3: artifact$0, $4: sawmill$0, $5: gold_mine$0, $6: guardian$0},
     $2: {$: "Adventure"}, $3: "Five wood were collected."};
 }
 
-function $kingdom_visit_site_func$k88$(gold$0, wood$0, artifact$0, sawmill$0,
+function $kingdom_visit_site_func$k187$(gold$0, wood$0, artifact$0, sawmill$0,
   gold_mine$0, guardian$0, h$0) {
   return {$: "MoveResult", $0: h$0, $1: {$: "World", $0: gold$0, $1: wood$0, $2:
     false, $3: artifact$0, $4: sawmill$0, $5: gold_mine$0, $6: guardian$0}, $2:
     {$: "Adventure"}, $3: "The shrine increased the hero's Spell Power."};
 }
 
-function $kingdom_visit_site_func$k89$(gold$0, wood$0, shrine$0, sawmill$0,
+function $kingdom_visit_site_func$k188$(gold$0, wood$0, shrine$0, sawmill$0,
   gold_mine$0, guardian$0, h$0) {
   return {$: "MoveResult", $0: h$0, $1: {$: "World", $0: gold$0, $1: wood$0, $2:
     shrine$0, $3: false, $4: sawmill$0, $5: gold_mine$0, $6: guardian$0}, $2: {
@@ -4348,7 +6365,7 @@ function $kingdom_visit_site_func$k89$(gold$0, wood$0, shrine$0, sawmill$0,
     "The Sword of Judgment increased the hero's Attack by 2."};
 }
 
-function $kingdom_visit_site_func$k90$(gold$0, wood$0, shrine$0, artifact$0,
+function $kingdom_visit_site_func$k189$(gold$0, wood$0, shrine$0, artifact$0,
   sawmill$0, gold_mine$0, kingdom$0, owner$0, h$0) {
   const kept_guardian$0 = h$0.$0;
   const $t$0 = h$0.$1;
@@ -4364,8 +6381,58 @@ function $kingdom_visit_site_func$k90$(gold$0, wood$0, shrine$0, artifact$0,
       "EmptyStack"}, $3: {$: "EmptyStack"}, $4: {$: "EmptyStack"}, $5: {$:
       "EmptyStack"}, $6: {$: "EmptyStack"}}}, $2: {$: "Combat", $0: {$:
       "Battle", $0: owner$0, $1: {$: "GuardianBattle"}, $2: kept_guardian$0, $3:
-      1}}, $3: "Ten Griffins block the bridge. Combat begins."};
+      1, $4: {$: "Tactics.Battlefield", $0: {$: "Tactics.Formation", $0: {$:
+      "Tactics.AtHex", $0: 1, $1: 2}, $1: {$: "Tactics.AtHex", $0: 1, $1: 3},
+      $2: {$: "Tactics.AtHex", $0: 1, $1: 4}, $3: {$: "Tactics.AtHex", $0: 1,
+      $1: 5}, $4: {$: "Tactics.AtHex", $0: 1, $1: 6}, $5: {$: "Tactics.AtHex",
+      $0: 1, $1: 7}, $6: {$: "Tactics.AtHex", $0: 1, $1: 8}}, $1: {$:
+      "Tactics.Formation", $0: {$: "Tactics.AtHex", $0: 13, $1: 2}, $1: {$:
+      "Tactics.AtHex", $0: 13, $1: 3}, $2: {$: "Tactics.AtHex", $0: 13, $1: 4},
+      $3: {$: "Tactics.AtHex", $0: 13, $1: 5}, $4: {$: "Tactics.AtHex", $0: 13,
+      $1: 6}, $5: {$: "Tactics.AtHex", $0: 13, $1: 7}, $6: {$: "Tactics.AtHex",
+      $0: 13, $1: 8}}, $2: 0}}}, $3:
+      "Ten Griffins block the bridge. Combat begins."};
   }
+}
+
+function $kingdom_visit_site_func$k190$(gold$0, wood$0, shrine$0, artifact$0,
+  sawmill$0, gold_mine$0, guardian$0, h$0) {
+  const kingdom_keep$0 = h$0.$0;
+  const garrison$0 = h$0.$1;
+  return {$: "MoveResult", $0: kingdom_keep$0, $1: {$: "World", $0: gold$0, $1:
+    wood$0, $2: shrine$0, $3: artifact$0, $4: sawmill$0, $5: gold_mine$0, $6:
+    guardian$0}, $2: {$: "Combat", $0: {$: "Battle", $0: {$: "Blue"}, $1: {$:
+    "EnemyTownBattle"}, $2: garrison$0, $3: 1, $4: {$: "Tactics.Battlefield",
+    $0: {$: "Tactics.Formation", $0: {$: "Tactics.AtHex", $0: 1, $1: 2}, $1: {$:
+    "Tactics.AtHex", $0: 1, $1: 3}, $2: {$: "Tactics.AtHex", $0: 1, $1: 4}, $3:
+    {$: "Tactics.AtHex", $0: 1, $1: 5}, $4: {$: "Tactics.AtHex", $0: 1, $1: 6},
+    $5: {$: "Tactics.AtHex", $0: 1, $1: 7}, $6: {$: "Tactics.AtHex", $0: 1, $1:
+    8}}, $1: {$: "Tactics.Formation", $0: {$: "Tactics.AtHex", $0: 13, $1: 2},
+    $1: {$: "Tactics.AtHex", $0: 13, $1: 3}, $2: {$: "Tactics.AtHex", $0: 13,
+    $1: 4}, $3: {$: "Tactics.AtHex", $0: 13, $1: 5}, $4: {$: "Tactics.AtHex",
+    $0: 13, $1: 6}, $5: {$: "Tactics.AtHex", $0: 13, $1: 7}, $6: {$:
+    "Tactics.AtHex", $0: 13, $1: 8}}, $2: 1}}}, $3:
+    "The Blue hero attacks the Red town garrison."};
+}
+
+function $kingdom_visit_site_func$k191$(gold$0, wood$0, shrine$0, artifact$0,
+  sawmill$0, gold_mine$0, guardian$0, h$0) {
+  const kingdom_keep$0 = h$0.$0;
+  const garrison$0 = h$0.$1;
+  return {$: "MoveResult", $0: kingdom_keep$0, $1: {$: "World", $0: gold$0, $1:
+    wood$0, $2: shrine$0, $3: artifact$0, $4: sawmill$0, $5: gold_mine$0, $6:
+    guardian$0}, $2: {$: "Combat", $0: {$: "Battle", $0: {$: "Red"}, $1: {$:
+    "EnemyTownBattle"}, $2: garrison$0, $3: 1, $4: {$: "Tactics.Battlefield",
+    $0: {$: "Tactics.Formation", $0: {$: "Tactics.AtHex", $0: 1, $1: 2}, $1: {$:
+    "Tactics.AtHex", $0: 1, $1: 3}, $2: {$: "Tactics.AtHex", $0: 1, $1: 4}, $3:
+    {$: "Tactics.AtHex", $0: 1, $1: 5}, $4: {$: "Tactics.AtHex", $0: 1, $1: 6},
+    $5: {$: "Tactics.AtHex", $0: 1, $1: 7}, $6: {$: "Tactics.AtHex", $0: 1, $1:
+    8}}, $1: {$: "Tactics.Formation", $0: {$: "Tactics.AtHex", $0: 13, $1: 2},
+    $1: {$: "Tactics.AtHex", $0: 13, $1: 3}, $2: {$: "Tactics.AtHex", $0: 13,
+    $1: 4}, $3: {$: "Tactics.AtHex", $0: 13, $1: 5}, $4: {$: "Tactics.AtHex",
+    $0: 13, $1: 6}, $5: {$: "Tactics.AtHex", $0: 13, $1: 7}, $6: {$:
+    "Tactics.AtHex", $0: 13, $1: 8}}, $2: 2}}}, $3:
+    "The Red hero attacks the Blue town garrison."};
 }
 
 function $kingdom_add_gold_func$(kingdom$0, amount$0) {
@@ -4373,7 +6440,7 @@ function $kingdom_add_gold_func$(kingdom$0, amount$0) {
   const hero$0 = kingdom$0.$1;
   const town$0 = kingdom$0.$2;
   const h$0 = run_loop($resources_add_gold_func$(resources$0, amount$0));
-  return run_jump($kingdom_add_gold_func$k112$, [hero$0, town$0, h$0]);
+  return run_jump($kingdom_add_gold_func$k217$, [hero$0, town$0, h$0]);
 }
 
 function $kingdom_add_wood_func$(kingdom$0, amount$0) {
@@ -4381,7 +6448,7 @@ function $kingdom_add_wood_func$(kingdom$0, amount$0) {
   const hero$0 = kingdom$0.$1;
   const town$0 = kingdom$0.$2;
   const h$0 = run_loop($resources_add_wood_func$(resources$0, amount$0));
-  return run_jump($kingdom_add_wood_func$k113$, [hero$0, town$0, h$0]);
+  return run_jump($kingdom_add_wood_func$k218$, [hero$0, town$0, h$0]);
 }
 
 function $kingdom_add_power_func$(kingdom$0, amount$0) {
@@ -4389,7 +6456,7 @@ function $kingdom_add_power_func$(kingdom$0, amount$0) {
   const hero$0 = kingdom$0.$1;
   const town$0 = kingdom$0.$2;
   const h$0 = run_loop($hero_add_power_func$(hero$0, amount$0));
-  return run_jump($kingdom_add_power_func$k114$, [resources$0, town$0, h$0]);
+  return run_jump($kingdom_add_power_func$k219$, [resources$0, town$0, h$0]);
 }
 
 function $kingdom_add_attack_func$(kingdom$0, amount$0) {
@@ -4397,7 +6464,7 @@ function $kingdom_add_attack_func$(kingdom$0, amount$0) {
   const hero$0 = kingdom$0.$1;
   const town$0 = kingdom$0.$2;
   const h$0 = run_loop($hero_add_attack_func$(hero$0, amount$0));
-  return run_jump($kingdom_add_attack_func$k115$, [resources$0, town$0, h$0]);
+  return run_jump($kingdom_add_attack_func$k220$, [resources$0, town$0, h$0]);
 }
 
 function $army_check_func$(army$0) {
@@ -4409,10 +6476,85 @@ function $army_check_func$(army$0) {
   const f$0 = army$0.$5;
   const g$0 = army$0.$6;
   const h$0 = run_loop($stack_check_func$(a$0));
-  return run_jump($army_check_func$k116$, [b$0, c$0, d$0, e$0, f$0, g$0, h$0]);
+  return run_jump($army_check_func$k221$, [b$0, c$0, d$0, e$0, f$0, g$0, h$0]);
 }
 
-function $hero_move_func$k36$(name$0, movement$0, attack$0, defense$0, power$0,
+function $kingdom_enemy_garrison_func$(kingdom$0, owner$0) {
+  const resources$0 = kingdom$0.$0;
+  const hero$0 = kingdom$0.$1;
+  const $t$0 = kingdom$0.$2;
+  const faction$0 = $t$0.$0;
+  const hall$0 = $t$0.$1;
+  const fort$0 = $t$0.$2;
+  const dwellings$0 = $t$0.$3;
+  const built_today$0 = $t$0.$4;
+  const stock$0 = $t$0.$5;
+  let $t$1;
+  if (faction$0.$ === "Castle") {
+    $t$1 = {$: "Tuple", $0: {$: "Castle"}, $1: {$: "Castle"}};
+  } else if (faction$0.$ === "Necropolis") {
+    $t$1 = {$: "Tuple", $0: {$: "Necropolis"}, $1: {$: "Necropolis"}};
+  } else {
+    $t$1 = {$: "Tuple", $0: {$: "Inferno"}, $1: {$: "Inferno"}};
+  }
+  const faction_keep$0 = $t$1.$0;
+  const faction_enemy$0 = $t$1.$1;
+  let $t$2;
+  if (owner$0.$ === "Neutral") {
+    if (faction_enemy$0.$ === "Castle") {
+      $t$2 = {$: "Army", $0: {$: "Troop", $0: {$: "Griffin"}, $1: 10, $2: 25},
+        $1: {$: "EmptyStack"}, $2: {$: "EmptyStack"}, $3: {$: "EmptyStack"}, $4:
+        {$: "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}};
+    } else if (faction_enemy$0.$ === "Necropolis") {
+      $t$2 = {$: "Army", $0: {$: "Troop", $0: {$: "Griffin"}, $1: 10, $2: 25},
+        $1: {$: "EmptyStack"}, $2: {$: "EmptyStack"}, $3: {$: "EmptyStack"}, $4:
+        {$: "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}};
+    } else {
+      $t$2 = {$: "Army", $0: {$: "Troop", $0: {$: "Griffin"}, $1: 10, $2: 25},
+        $1: {$: "EmptyStack"}, $2: {$: "EmptyStack"}, $3: {$: "EmptyStack"}, $4:
+        {$: "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}};
+    }
+  } else if (owner$0.$ === "Red") {
+    if (faction_enemy$0.$ === "Castle") {
+      $t$2 = {$: "Army", $0: {$: "Troop", $0: {$: "Skeleton"}, $1: 30, $2: 6},
+        $1: {$: "Troop", $0: {$: "WalkingDead"}, $1: 12, $2: 15}, $2: {$:
+        "Troop", $0: {$: "Wight"}, $1: 7, $2: 18}, $3: {$: "EmptyStack"}, $4: {
+        $: "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}};
+    } else if (faction_enemy$0.$ === "Necropolis") {
+      $t$2 = {$: "Army", $0: {$: "Troop", $0: {$: "Imp"}, $1: 35, $2: 4}, $1: {
+        $: "Troop", $0: {$: "Gog"}, $1: 12, $2: 13}, $2: {$: "Troop", $0: {$:
+        "HellHound"}, $1: 6, $2: 25}, $3: {$: "EmptyStack"}, $4: {$:
+        "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}};
+    } else {
+      $t$2 = {$: "Army", $0: {$: "Troop", $0: {$: "Pikeman"}, $1: 24, $2: 10},
+        $1: {$: "Troop", $0: {$: "Archer"}, $1: 10, $2: 10}, $2: {$: "Troop",
+        $0: {$: "Griffin"}, $1: 5, $2: 25}, $3: {$: "EmptyStack"}, $4: {$:
+        "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}};
+    }
+  } else {
+    if (faction_enemy$0.$ === "Castle") {
+      $t$2 = {$: "Army", $0: {$: "Troop", $0: {$: "Imp"}, $1: 35, $2: 4}, $1: {
+        $: "Troop", $0: {$: "Gog"}, $1: 12, $2: 13}, $2: {$: "Troop", $0: {$:
+        "HellHound"}, $1: 6, $2: 25}, $3: {$: "EmptyStack"}, $4: {$:
+        "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}};
+    } else if (faction_enemy$0.$ === "Necropolis") {
+      $t$2 = {$: "Army", $0: {$: "Troop", $0: {$: "Pikeman"}, $1: 24, $2: 10},
+        $1: {$: "Troop", $0: {$: "Archer"}, $1: 10, $2: 10}, $2: {$: "Troop",
+        $0: {$: "Griffin"}, $1: 5, $2: 25}, $3: {$: "EmptyStack"}, $4: {$:
+        "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}};
+    } else {
+      $t$2 = {$: "Army", $0: {$: "Troop", $0: {$: "Skeleton"}, $1: 30, $2: 6},
+        $1: {$: "Troop", $0: {$: "WalkingDead"}, $1: 12, $2: 15}, $2: {$:
+        "Troop", $0: {$: "Wight"}, $1: 7, $2: 18}, $3: {$: "EmptyStack"}, $4: {
+        $: "EmptyStack"}, $5: {$: "EmptyStack"}, $6: {$: "EmptyStack"}};
+    }
+  }
+  return {$: "KingdomGarrison", $0: {$: "Kingdom", $0: resources$0, $1: hero$0,
+    $2: {$: "Town", $0: faction_keep$0, $1: hall$0, $2: fort$0, $3: dwellings$0,
+    $4: built_today$0, $5: stock$0}}, $1: $t$2};
+}
+
+function $hero_move_func$k114$(name$0, movement$0, attack$0, defense$0, power$0,
   knowledge$0, mana$0, level$0, experience$0, army$0, old_x$0, old_y$0, h$0) {
   const next_x$0 = h$0.$0;
   const next_y$0 = h$0.$1;
@@ -4519,7 +6661,7 @@ function $coordinate_step_func$(direction$0, x$0, y$0) {
   }
 }
 
-function $game_end_day_values_func$k28$(scenario$0, seed$0, turn$0,
+function $game_end_day_values_func$k97$(scenario$0, seed$0, turn$0,
   next_world$0, output_day$0, next_red$0, next_blue$0) {
   return {$: "Game", $0: scenario$0, $1: output_day$0, $2: {$: "Red"}, $3:
     next_red$0, $4: next_blue$0, $5: next_world$0, $6: {$: "Adventure"}, $7:
@@ -4527,14 +6669,14 @@ function $game_end_day_values_func$k28$(scenario$0, seed$0, turn$0,
     "A new day began: income was credited, movement and mana refreshed, and weekly growth applied when due."};
 }
 
-function $kingdom_new_day_func$k91$(resources$0, hero$0, mine_gold$0,
+function $kingdom_new_day_func$k192$(resources$0, hero$0, mine_gold$0,
   mine_wood$0, h$0) {
   const next_town$0 = h$0.$0;
   const income$0 = h$0.$1;
   const with_mines$0 = run_loop($resources_add_gold_func$(resources$0, ((
     income$0 + mine_gold$0) >>> 0)));
-  return run_jump($kingdom_new_day_func$k92$, [hero$0, mine_wood$0, next_town$0,
-    with_mines$0]);
+  return run_jump($kingdom_new_day_func$k193$, [hero$0, mine_wood$0,
+    next_town$0, with_mines$0]);
 }
 
 function $town_new_day_func$(week_start$0, town$0) {
@@ -4546,7 +6688,7 @@ function $town_new_day_func$(week_start$0, town$0) {
     const built_today$0 = town$0.$4;
     const stock$0 = town$0.$5;
     const h$0 = run_loop($u32_pair_func$(hall$0));
-    return run_jump($town_new_day_func$k123$, [faction$0, fort$0, dwellings$0,
+    return run_jump($town_new_day_func$k228$, [faction$0, fort$0, dwellings$0,
       stock$0, h$0]);
   } else {
     const faction$1 = town$0.$0;
@@ -4556,12 +6698,12 @@ function $town_new_day_func$(week_start$0, town$0) {
     const built_today$1 = town$0.$4;
     const stock$1 = town$0.$5;
     const h$1 = run_loop($u32_pair_func$(hall$1));
-    return run_jump($town_new_day_func$k124$, [faction$1, fort$1, dwellings$1,
+    return run_jump($town_new_day_func$k229$, [faction$1, fort$1, dwellings$1,
       stock$1, h$1]);
   }
 }
 
-function $town_build_dwelling_values_func$k49$(faction$0, hall$0, fort$0,
+function $town_build_dwelling_values_func$k141$(faction$0, hall$0, fort$0,
   dwellings$0, stock$0, resources$0, tier$0, bit_test$0, bit_live$0, h$0) {
   const previous_zero$0 = h$0.$0;
   const previous_test$0 = h$0.$1;
@@ -4603,15 +6745,15 @@ function $town_build_dwelling_values_func$k49$(faction$0, hall$0, fort$0,
     const gold_cost$0 = (Math.imul(500, x$4) >>> 0);
     const material_cost$0 = (Math.imul(2, tier$0) >>> 0);
     const h$1 = run_loop($u32_pair_func$(material_cost$0));
-    return run_jump($town_build_dwelling_values_func$k50$, [faction$0, hall$0,
+    return run_jump($town_build_dwelling_values_func$k142$, [faction$0, hall$0,
       fort$0, dwellings$0, stock$0, resources$0, bit_live$0, gold_cost$0, h$1]);
   }
 }
 
-function $kingdom_recruit_values_func$k53$(resources$0, name$0, x$0, y$0,
+function $kingdom_recruit_values_func$k145$(resources$0, name$0, x$0, y$0,
   movement$0, hero_attack$0, hero_defense$0, power$0, knowledge$0, mana$0,
   level$0, experience$0, army$0, hall$0, fort$0, dwellings$0, built_today$0,
-  tier$0, amount$0, kept_stock$0, available$0, h$0) {
+  tier$0, amount$0, output_faction$0, kept_stock$0, available$0, h$0) {
   const kind$0 = h$0.$0;
   const $t$0 = h$0.$1;
   const attack$0 = $t$0.$0;
@@ -4622,7 +6764,10 @@ function $kingdom_recruit_values_func$k53$(resources$0, name$0, x$0, y$0,
   const speed$0 = $t$0.$5;
   const growth$0 = $t$0.$6;
   const cost$0 = $t$0.$7;
-  const ranged$0 = $t$0.$8;
+  const range$0 = $t$0.$8;
+  const shots$0 = $t$0.$9;
+  const flying$0 = $t$0.$10;
+  const retaliations$0 = $t$0.$11;
   let $t$1;
   const $t$2 = (1 <= tier$0);
   if (!$t$2) {
@@ -4653,16 +6798,16 @@ function $kingdom_recruit_values_func$k53$(resources$0, name$0, x$0, y$0,
     return {$: "Tuple", $0: {$: "Kingdom", $0: resources$0, $1: {$: "Hero", $0:
       name$0, $1: x$0, $2: y$0, $3: movement$0, $4: hero_attack$0, $5:
       hero_defense$0, $6: power$0, $7: knowledge$0, $8: mana$0, $9: level$0,
-      $10: experience$0, $11: army$0}, $2: {$: "Town", $0: {$: "Castle"}, $1:
+      $10: experience$0, $11: army$0}, $2: {$: "Town", $0: output_faction$0, $1:
       hall$0, $2: fort$0, $3: dwellings$0, $4: built_today$0, $5:
       kept_stock$0}}, $1: "The requested creatures are not available."};
   } else {
     const h$1 = run_loop($resources_pay_func$(resources$0, (Math.imul(cost$0,
       amount$0) >>> 0), 0, 0));
-    return run_jump($kingdom_recruit_values_func$k54$, [name$0, x$0, y$0,
+    return run_jump($kingdom_recruit_values_func$k146$, [name$0, x$0, y$0,
       movement$0, hero_attack$0, hero_defense$0, power$0, knowledge$0, mana$0,
       level$0, experience$0, army$0, hall$0, fort$0, dwellings$0, built_today$0,
-      tier$0, amount$0, kept_stock$0, kind$0, h$1]);
+      tier$0, amount$0, output_faction$0, kept_stock$0, kind$0, h$1]);
   }
 }
 
@@ -4671,47 +6816,101 @@ function $creature_tier_func$(faction$0, tier$0) {
     const $t$0 = BigInt(tier$0);
     if ($t$0 === 0n) {
       return {$: "CreatureBundle", $0: {$: "Pikeman"}, $1: {$: "CreatureStats",
-        $0: 4, $1: 5, $2: 1, $3: 3, $4: 10, $5: 4, $6: 14, $7: 60, $8: false}};
+        $0: 4, $1: 5, $2: 1, $3: 3, $4: 10, $5: 4, $6: 14, $7: 60, $8: 1, $9: 0,
+        $10: false, $11: 1}};
     } else {
       const $t$1 = ($t$0 - 1n);
       if ($t$1 === 0n) {
         return {$: "CreatureBundle", $0: {$: "Pikeman"}, $1: {$:
           "CreatureStats", $0: 4, $1: 5, $2: 1, $3: 3, $4: 10, $5: 4, $6: 14,
-          $7: 60, $8: false}};
+          $7: 60, $8: 1, $9: 0, $10: false, $11: 1}};
       } else {
         const $t$2 = ($t$1 - 1n);
         if ($t$2 === 0n) {
           return {$: "CreatureBundle", $0: {$: "Archer"}, $1: {$:
             "CreatureStats", $0: 6, $1: 3, $2: 2, $3: 3, $4: 10, $5: 4, $6: 9,
-            $7: 100, $8: true}};
+            $7: 100, $8: 15, $9: 12, $10: false, $11: 1}};
         } else {
           const $t$3 = ($t$2 - 1n);
           if ($t$3 === 0n) {
             return {$: "CreatureBundle", $0: {$: "Griffin"}, $1: {$:
               "CreatureStats", $0: 8, $1: 8, $2: 3, $3: 6, $4: 25, $5: 6, $6: 7,
-              $7: 200, $8: false}};
+              $7: 200, $8: 1, $9: 0, $10: true, $11: 2}};
           } else {
             const $t$4 = ($t$3 - 1n);
             if ($t$4 === 0n) {
               return {$: "CreatureBundle", $0: {$: "Swordsman"}, $1: {$:
                 "CreatureStats", $0: 10, $1: 12, $2: 6, $3: 9, $4: 35, $5: 5,
-                $6: 4, $7: 300, $8: false}};
+                $6: 4, $7: 300, $8: 1, $9: 0, $10: false, $11: 1}};
             } else {
               const $t$5 = ($t$4 - 1n);
               if ($t$5 === 0n) {
                 return {$: "CreatureBundle", $0: {$: "Monk"}, $1: {$:
                   "CreatureStats", $0: 12, $1: 7, $2: 10, $3: 12, $4: 30, $5: 5,
-                  $6: 3, $7: 400, $8: true}};
+                  $6: 3, $7: 400, $8: 15, $9: 12, $10: false, $11: 1}};
               } else {
                 const $t$6 = ($t$5 - 1n);
                 if ($t$6 === 0n) {
                   return {$: "CreatureBundle", $0: {$: "Cavalier"}, $1: {$:
                     "CreatureStats", $0: 15, $1: 15, $2: 15, $3: 25, $4: 100,
-                    $5: 7, $6: 2, $7: 1000, $8: false}};
+                    $5: 7, $6: 2, $7: 1000, $8: 1, $9: 0, $10: false, $11: 1}};
                 } else {
                   return {$: "CreatureBundle", $0: {$: "Angel"}, $1: {$:
                     "CreatureStats", $0: 20, $1: 20, $2: 50, $3: 50, $4: 200,
-                    $5: 12, $6: 1, $7: 3000, $8: false}};
+                    $5: 12, $6: 1, $7: 3000, $8: 1, $9: 0, $10: true, $11: 1}};
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  } else if (faction$0.$ === "Necropolis") {
+    const $t$7 = BigInt(tier$0);
+    if ($t$7 === 0n) {
+      return {$: "CreatureBundle", $0: {$: "Skeleton"}, $1: {$: "CreatureStats",
+        $0: 5, $1: 4, $2: 1, $3: 3, $4: 6, $5: 4, $6: 12, $7: 60, $8: 1, $9: 0,
+        $10: false, $11: 1}};
+    } else {
+      const $t$8 = ($t$7 - 1n);
+      if ($t$8 === 0n) {
+        return {$: "CreatureBundle", $0: {$: "Skeleton"}, $1: {$:
+          "CreatureStats", $0: 5, $1: 4, $2: 1, $3: 3, $4: 6, $5: 4, $6: 12, $7:
+          60, $8: 1, $9: 0, $10: false, $11: 1}};
+      } else {
+        const $t$9 = ($t$8 - 1n);
+        if ($t$9 === 0n) {
+          return {$: "CreatureBundle", $0: {$: "WalkingDead"}, $1: {$:
+            "CreatureStats", $0: 5, $1: 5, $2: 2, $3: 3, $4: 15, $5: 3, $6: 8,
+            $7: 100, $8: 1, $9: 0, $10: false, $11: 1}};
+        } else {
+          const $t$10 = ($t$9 - 1n);
+          if ($t$10 === 0n) {
+            return {$: "CreatureBundle", $0: {$: "Wight"}, $1: {$:
+              "CreatureStats", $0: 7, $1: 7, $2: 3, $3: 5, $4: 18, $5: 5, $6: 7,
+              $7: 200, $8: 1, $9: 0, $10: true, $11: 1}};
+          } else {
+            const $t$11 = ($t$10 - 1n);
+            if ($t$11 === 0n) {
+              return {$: "CreatureBundle", $0: {$: "Vampire"}, $1: {$:
+                "CreatureStats", $0: 10, $1: 9, $2: 5, $3: 8, $4: 30, $5: 6, $6:
+                4, $7: 360, $8: 1, $9: 0, $10: true, $11: 1}};
+            } else {
+              const $t$12 = ($t$11 - 1n);
+              if ($t$12 === 0n) {
+                return {$: "CreatureBundle", $0: {$: "Lich"}, $1: {$:
+                  "CreatureStats", $0: 13, $1: 10, $2: 11, $3: 13, $4: 30, $5:
+                  6, $6: 3, $7: 500, $8: 15, $9: 12, $10: false, $11: 1}};
+              } else {
+                const $t$13 = ($t$12 - 1n);
+                if ($t$13 === 0n) {
+                  return {$: "CreatureBundle", $0: {$: "BlackKnight"}, $1: {$:
+                    "CreatureStats", $0: 16, $1: 16, $2: 15, $3: 30, $4: 120,
+                    $5: 7, $6: 2, $7: 1200, $8: 1, $9: 0, $10: false, $11: 1}};
+                } else {
+                  return {$: "CreatureBundle", $0: {$: "BoneDragon"}, $1: {$:
+                    "CreatureStats", $0: 17, $1: 15, $2: 25, $3: 50, $4: 150,
+                    $5: 9, $6: 1, $7: 1800, $8: 1, $9: 0, $10: true, $11: 1}};
                 }
               }
             }
@@ -4720,50 +6919,51 @@ function $creature_tier_func$(faction$0, tier$0) {
       }
     }
   } else {
-    const $t$7 = BigInt(tier$0);
-    if ($t$7 === 0n) {
-      return {$: "CreatureBundle", $0: {$: "Skeleton"}, $1: {$: "CreatureStats",
-        $0: 5, $1: 4, $2: 1, $3: 3, $4: 6, $5: 4, $6: 12, $7: 60, $8: false}};
+    const $t$14 = BigInt(tier$0);
+    if ($t$14 === 0n) {
+      return {$: "CreatureBundle", $0: {$: "Imp"}, $1: {$: "CreatureStats", $0:
+        2, $1: 3, $2: 1, $3: 2, $4: 4, $5: 5, $6: 15, $7: 50, $8: 1, $9: 0, $10:
+        false, $11: 1}};
     } else {
-      const $t$8 = ($t$7 - 1n);
-      if ($t$8 === 0n) {
-        return {$: "CreatureBundle", $0: {$: "Skeleton"}, $1: {$:
-          "CreatureStats", $0: 5, $1: 4, $2: 1, $3: 3, $4: 6, $5: 4, $6: 12, $7:
-          60, $8: false}};
+      const $t$15 = ($t$14 - 1n);
+      if ($t$15 === 0n) {
+        return {$: "CreatureBundle", $0: {$: "Imp"}, $1: {$: "CreatureStats",
+          $0: 2, $1: 3, $2: 1, $3: 2, $4: 4, $5: 5, $6: 15, $7: 50, $8: 1, $9:
+          0, $10: false, $11: 1}};
       } else {
-        const $t$9 = ($t$8 - 1n);
-        if ($t$9 === 0n) {
-          return {$: "CreatureBundle", $0: {$: "WalkingDead"}, $1: {$:
-            "CreatureStats", $0: 5, $1: 5, $2: 2, $3: 3, $4: 15, $5: 3, $6: 8,
-            $7: 100, $8: false}};
+        const $t$16 = ($t$15 - 1n);
+        if ($t$16 === 0n) {
+          return {$: "CreatureBundle", $0: {$: "Gog"}, $1: {$: "CreatureStats",
+            $0: 6, $1: 4, $2: 2, $3: 4, $4: 13, $5: 4, $6: 8, $7: 125, $8: 15,
+            $9: 12, $10: false, $11: 1}};
         } else {
-          const $t$10 = ($t$9 - 1n);
-          if ($t$10 === 0n) {
-            return {$: "CreatureBundle", $0: {$: "Wight"}, $1: {$:
-              "CreatureStats", $0: 7, $1: 7, $2: 3, $3: 5, $4: 18, $5: 5, $6: 7,
-              $7: 200, $8: false}};
+          const $t$17 = ($t$16 - 1n);
+          if ($t$17 === 0n) {
+            return {$: "CreatureBundle", $0: {$: "HellHound"}, $1: {$:
+              "CreatureStats", $0: 10, $1: 6, $2: 2, $3: 7, $4: 25, $5: 7, $6:
+              5, $7: 200, $8: 1, $9: 0, $10: false, $11: 1}};
           } else {
-            const $t$11 = ($t$10 - 1n);
-            if ($t$11 === 0n) {
-              return {$: "CreatureBundle", $0: {$: "Vampire"}, $1: {$:
-                "CreatureStats", $0: 10, $1: 9, $2: 5, $3: 8, $4: 30, $5: 6, $6:
-                4, $7: 360, $8: false}};
+            const $t$18 = ($t$17 - 1n);
+            if ($t$18 === 0n) {
+              return {$: "CreatureBundle", $0: {$: "Demon"}, $1: {$:
+                "CreatureStats", $0: 10, $1: 10, $2: 7, $3: 9, $4: 35, $5: 5,
+                $6: 4, $7: 250, $8: 1, $9: 0, $10: false, $11: 1}};
             } else {
-              const $t$12 = ($t$11 - 1n);
-              if ($t$12 === 0n) {
-                return {$: "CreatureBundle", $0: {$: "Lich"}, $1: {$:
-                  "CreatureStats", $0: 13, $1: 10, $2: 11, $3: 13, $4: 30, $5:
-                  6, $6: 3, $7: 500, $8: true}};
+              const $t$19 = ($t$18 - 1n);
+              if ($t$19 === 0n) {
+                return {$: "CreatureBundle", $0: {$: "PitFiend"}, $1: {$:
+                  "CreatureStats", $0: 13, $1: 13, $2: 13, $3: 17, $4: 45, $5:
+                  6, $6: 3, $7: 500, $8: 1, $9: 0, $10: false, $11: 1}};
               } else {
-                const $t$13 = ($t$12 - 1n);
-                if ($t$13 === 0n) {
-                  return {$: "CreatureBundle", $0: {$: "BlackKnight"}, $1: {$:
-                    "CreatureStats", $0: 16, $1: 16, $2: 15, $3: 30, $4: 120,
-                    $5: 7, $6: 2, $7: 1200, $8: false}};
+                const $t$20 = ($t$19 - 1n);
+                if ($t$20 === 0n) {
+                  return {$: "CreatureBundle", $0: {$: "Efreeti"}, $1: {$:
+                    "CreatureStats", $0: 16, $1: 12, $2: 16, $3: 24, $4: 90, $5:
+                    9, $6: 2, $7: 900, $8: 1, $9: 0, $10: true, $11: 1}};
                 } else {
-                  return {$: "CreatureBundle", $0: {$: "BoneDragon"}, $1: {$:
-                    "CreatureStats", $0: 17, $1: 15, $2: 25, $3: 50, $4: 150,
-                    $5: 9, $6: 1, $7: 1800, $8: false}};
+                  return {$: "CreatureBundle", $0: {$: "Devil"}, $1: {$:
+                    "CreatureStats", $0: 19, $1: 21, $2: 30, $3: 40, $4: 160,
+                    $5: 11, $6: 1, $7: 2700, $8: 1, $9: 0, $10: true, $11: 1}};
                 }
               }
             }
@@ -4786,7 +6986,7 @@ function $stock_select_nat_func$(tier$0, stock$0) {
       const f$0 = stock$0.$5;
       const g$0 = stock$0.$6;
       const h$0 = run_loop($u32_pair_func$(a$0));
-      return run_jump($stock_select_nat_func$k128$, [b$0, c$0, d$0, e$0, f$0,
+      return run_jump($stock_select_nat_func$k233$, [b$0, c$0, d$0, e$0, f$0,
         g$0, h$0]);
     } else {
       const $t$1 = ($t$0 - 1n);
@@ -4799,7 +6999,7 @@ function $stock_select_nat_func$(tier$0, stock$0) {
         const f$1 = stock$0.$5;
         const g$1 = stock$0.$6;
         const h$1 = run_loop($u32_pair_func$(b$1));
-        return run_jump($stock_select_nat_func$k129$, [a$1, c$1, d$1, e$1, f$1,
+        return run_jump($stock_select_nat_func$k234$, [a$1, c$1, d$1, e$1, f$1,
           g$1, h$1]);
       } else {
         const $t$2 = ($t$1 - 1n);
@@ -4812,7 +7012,7 @@ function $stock_select_nat_func$(tier$0, stock$0) {
           const f$2 = stock$0.$5;
           const g$2 = stock$0.$6;
           const h$2 = run_loop($u32_pair_func$(c$2));
-          return run_jump($stock_select_nat_func$k130$, [a$2, b$2, d$2, e$2,
+          return run_jump($stock_select_nat_func$k235$, [a$2, b$2, d$2, e$2,
             f$2, g$2, h$2]);
         } else {
           const $t$3 = ($t$2 - 1n);
@@ -4825,7 +7025,7 @@ function $stock_select_nat_func$(tier$0, stock$0) {
             const f$3 = stock$0.$5;
             const g$3 = stock$0.$6;
             const h$3 = run_loop($u32_pair_func$(d$3));
-            return run_jump($stock_select_nat_func$k131$, [a$3, b$3, c$3, e$3,
+            return run_jump($stock_select_nat_func$k236$, [a$3, b$3, c$3, e$3,
               f$3, g$3, h$3]);
           } else {
             const $t$4 = ($t$3 - 1n);
@@ -4838,7 +7038,7 @@ function $stock_select_nat_func$(tier$0, stock$0) {
               const f$4 = stock$0.$5;
               const g$4 = stock$0.$6;
               const h$4 = run_loop($u32_pair_func$(e$4));
-              return run_jump($stock_select_nat_func$k132$, [a$4, b$4, c$4, d$4,
+              return run_jump($stock_select_nat_func$k237$, [a$4, b$4, c$4, d$4,
                 f$4, g$4, h$4]);
             } else {
               const $t$5 = ($t$4 - 1n);
@@ -4851,7 +7051,7 @@ function $stock_select_nat_func$(tier$0, stock$0) {
                 const f$5 = stock$0.$5;
                 const g$5 = stock$0.$6;
                 const h$5 = run_loop($u32_pair_func$(f$5));
-                return run_jump($stock_select_nat_func$k133$, [a$5, b$5, c$5,
+                return run_jump($stock_select_nat_func$k238$, [a$5, b$5, c$5,
                   d$5, e$5, g$5, h$5]);
               } else {
                 const a$6 = stock$0.$0;
@@ -4862,7 +7062,7 @@ function $stock_select_nat_func$(tier$0, stock$0) {
                 const f$6 = stock$0.$5;
                 const g$6 = stock$0.$6;
                 const h$6 = run_loop($u32_pair_func$(g$6));
-                return run_jump($stock_select_nat_func$k134$, [a$6, b$6, c$6,
+                return run_jump($stock_select_nat_func$k239$, [a$6, b$6, c$6,
                   d$6, e$6, f$6, h$6]);
               }
             }
@@ -4879,251 +7079,232 @@ function $stock_select_nat_func$(tier$0, stock$0) {
     const f$7 = stock$0.$5;
     const g$7 = stock$0.$6;
     const h$7 = run_loop($u32_pair_func$(g$7));
-    return run_jump($stock_select_nat_func$k140$, [a$7, b$7, c$7, d$7, e$7, f$7,
+    return run_jump($stock_select_nat_func$k245$, [a$7, b$7, c$7, d$7, e$7, f$7,
       h$7]);
   }
 }
 
-function $kingdom_recruit_necropolis_values_func$k58$(resources$0, name$0, x$0,
-  y$0, movement$0, hero_attack$0, hero_defense$0, power$0, knowledge$0, mana$0,
-  level$0, experience$0, army$0, hall$0, fort$0, dwellings$0, built_today$0,
-  tier$0, amount$0, kept_stock$0, available$0, h$0) {
-  const kind$0 = h$0.$0;
-  const $t$0 = h$0.$1;
-  const attack$0 = $t$0.$0;
-  const defense$0 = $t$0.$1;
-  const damage_min$0 = $t$0.$2;
-  const damage_max$0 = $t$0.$3;
-  const hit_points$0 = $t$0.$4;
-  const speed$0 = $t$0.$5;
-  const growth$0 = $t$0.$6;
-  const cost$0 = $t$0.$7;
-  const ranged$0 = $t$0.$8;
-  let $t$1;
-  const $t$2 = (1 <= tier$0);
-  if (!$t$2) {
-    const b$0 = (tier$0 <= 7);
-    $t$1 = false;
-  } else {
-    const b$1 = (tier$0 <= 7);
-    $t$1 = b$1;
-  }
-  const valid_tier$0 = $t$1;
-  let $t$3;
-  let $t$4;
-  const $t$5 = (amount$0 !== 0);
-  if (!$t$5) {
-    const b$2 = (amount$0 <= available$0);
-    $t$4 = false;
-  } else {
-    const b$3 = (amount$0 <= available$0);
-    $t$4 = b$3;
-  }
-  if (!valid_tier$0) {
-    $t$3 = false;
-  } else {
-    $t$3 = $t$4;
-  }
-  const enough_stock$0 = $t$3;
-  if (!enough_stock$0) {
-    return {$: "Tuple", $0: {$: "Kingdom", $0: resources$0, $1: {$: "Hero", $0:
-      name$0, $1: x$0, $2: y$0, $3: movement$0, $4: hero_attack$0, $5:
-      hero_defense$0, $6: power$0, $7: knowledge$0, $8: mana$0, $9: level$0,
-      $10: experience$0, $11: army$0}, $2: {$: "Town", $0: {$: "Necropolis"},
-      $1: hall$0, $2: fort$0, $3: dwellings$0, $4: built_today$0, $5:
-      kept_stock$0}}, $1: "The requested creatures are not available."};
-  } else {
-    const h$1 = run_loop($resources_pay_func$(resources$0, (Math.imul(cost$0,
-      amount$0) >>> 0), 0, 0));
-    return run_jump($kingdom_recruit_necropolis_values_func$k59$, [name$0, x$0,
-      y$0, movement$0, hero_attack$0, hero_defense$0, power$0, knowledge$0,
-      mana$0, level$0, experience$0, army$0, hall$0, fort$0, dwellings$0,
-      built_today$0, tier$0, amount$0, kept_stock$0, kind$0, h$1]);
-  }
+function $hero_home_check_func$k117$(name$0, movement$0, attack$0, defense$0,
+  power$0, knowledge$0, mana$0, level$0, experience$0, army$0, x_keep$0,
+  y_test$0, y_keep$0, h$0) {
+  const x_red$0 = h$0.$0;
+  const x_blue$0 = h$0.$1;
+  const h$1 = run_loop($u32_pair_func$(y_test$0));
+  return run_jump($hero_home_check_func$k118$, [name$0, movement$0, attack$0,
+    defense$0, power$0, knowledge$0, mana$0, level$0, experience$0, army$0,
+    x_keep$0, y_keep$0, x_red$0, x_blue$0, h$1]);
 }
 
-function $kingdom_finish_combat_func$k95$(resources$0, name$0, x$0, y$0,
+function $hero_home_check_func$k121$(name$0, movement$0, attack$0, defense$0,
+  power$0, knowledge$0, mana$0, level$0, experience$0, army$0, x_keep$0,
+  y_test$0, y_keep$0, h$0) {
+  const x_red$0 = h$0.$0;
+  const x_blue$0 = h$0.$1;
+  const h$1 = run_loop($u32_pair_func$(y_test$0));
+  return run_jump($hero_home_check_func$k122$, [name$0, movement$0, attack$0,
+    defense$0, power$0, knowledge$0, mana$0, level$0, experience$0, army$0,
+    x_keep$0, y_keep$0, x_red$0, x_blue$0, h$1]);
+}
+
+function $hero_home_check_func$k125$(name$0, movement$0, attack$0, defense$0,
+  power$0, knowledge$0, mana$0, level$0, experience$0, army$0, x_keep$0,
+  y_test$0, y_keep$0, h$0) {
+  const x_red$0 = h$0.$0;
+  const x_blue$0 = h$0.$1;
+  const h$1 = run_loop($u32_pair_func$(y_test$0));
+  return run_jump($hero_home_check_func$k126$, [name$0, movement$0, attack$0,
+    defense$0, power$0, knowledge$0, mana$0, level$0, experience$0, army$0,
+    x_keep$0, y_keep$0, x_red$0, x_blue$0, h$1]);
+}
+
+function $combat_enemy_response_func$k196$(mana$0, dealt$0, received$0, h$0) {
+  return run_jump($combat_enemy_merge_func$, [h$0, mana$0, dealt$0,
+    received$0]);
+}
+
+function $combat_enemy_action_func$(enemy$0, player$0, hero_defense$0, seed$0,
+  battlefield$0) {
+  const h$0 = run_loop($army_pair_func$(enemy$0));
+  return run_jump($combat_enemy_action_func$k246$, [player$0, hero_defense$0,
+    seed$0, battlefield$0, h$0]);
+}
+
+function $combat_attack_func$k150$(player$0, enemy$0, target_slot$0,
+  hero_attack$0, hero_defense$0, mana$0, seed$0, battlefield$0, own_select$0,
+  h$0) {
+  const own_reach$0 = h$0.$0;
+  const own_apply$0 = h$0.$1;
+  const h$1 = run_loop($u32_pair_func$(target_slot$0));
+  return run_jump($combat_attack_func$k151$, [player$0, enemy$0, hero_attack$0,
+    hero_defense$0, mana$0, seed$0, battlefield$0, own_select$0, own_reach$0,
+    own_apply$0, h$1]);
+}
+
+function $kingdom_finish_combat_func$k197$(resources$0, name$0, x$0, y$0,
   movement$0, attack$0, defense$0, power$0, knowledge$0, level$0, experience$0,
-  town$0, attacker$0, source$0, round$0, player$0, mana$0, next_seed$0, h$0) {
-  const enemy_keep$0 = h$0.$0;
-  const $t$0 = h$0.$1;
-  if ($t$0) {
-    const h$1 = run_loop($resources_add_gold_func$(resources$0, 1500));
-    return run_jump($kingdom_finish_combat_func$k96$, [name$0, x$0, y$0,
-      movement$0, attack$0, defense$0, power$0, knowledge$0, level$0,
-      experience$0, town$0, attacker$0, source$0, player$0, mana$0, next_seed$0,
-      h$1]);
+  town$0, attacker$0, source$0, round$0, h$0) {
+  const player$0 = h$0.$0;
+  const enemy$0 = h$0.$1;
+  const mana$0 = h$0.$2;
+  const next_seed$0 = h$0.$3;
+  const dealt$0 = h$0.$4;
+  const received$0 = h$0.$5;
+  const $t$0 = h$0.$6;
+  if (!$t$0) {
+    const battlefield$0 = h$0.$7;
+    const name$1 = name$0;
+    const x$1 = x$0;
+    const y$1 = y$0;
+    const movement$1 = movement$0;
+    const attack$1 = attack$0;
+    const defense$1 = defense$0;
+    const power$1 = power$0;
+    const knowledge$1 = knowledge$0;
+    const mana$1 = mana$0;
+    const level$1 = level$0;
+    const experience$1 = experience$0;
+    const army$0 = player$0;
+    return {$: "KingdomBattle", $0: {$: "Kingdom", $0: resources$0, $1: {$:
+      "Hero", $0: name$1, $1: x$1, $2: y$1, $3: movement$1, $4: attack$1, $5:
+      defense$1, $6: power$1, $7: knowledge$1, $8: mana$1, $9: level$1, $10:
+      experience$1, $11: army$0}, $2: town$0}, $1: {$: "BattleContinues", $0: {
+      $: "Battle", $0: attacker$0, $1: source$0, $2: enemy$0, $3: round$0, $4:
+      battlefield$0}}, $2: next_seed$0, $3:
+      "Choose occupied army slots; the rejected combat command changed nothing."};
   } else {
-    const h$2 = run_loop($army_check_func$(player$0));
-    return run_jump($kingdom_finish_combat_func$k99$, [resources$0, name$0, x$0,
-      y$0, movement$0, attack$0, defense$0, power$0, knowledge$0, level$0,
-      experience$0, town$0, attacker$0, source$0, round$0, mana$0, next_seed$0,
-      enemy_keep$0, h$2]);
+    const battlefield$1 = h$0.$7;
+    const h$1 = run_loop($army_check_func$(enemy$0));
+    return run_jump($kingdom_finish_combat_func$k198$, [resources$0, name$0,
+      x$0, y$0, movement$0, attack$0, defense$0, power$0, knowledge$0, level$0,
+      experience$0, town$0, attacker$0, source$0, round$0, player$0, mana$0,
+      next_seed$0, battlefield$1, h$1]);
   }
 }
 
-function $combat_attack_func$k63$(own_slot$0, target_slot$0, hero_attack$0,
-  hero_defense$0, mana$0, seed$0, player_keep$0, actor$0, h$0) {
-  const enemy_keep$0 = h$0.$0;
-  const target$0 = h$0.$1;
-  const h$1 = run_loop($attack_roll_func$(actor$0, target$0, hero_attack$0, 0,
-    seed$0));
-  return run_jump($combat_attack_func$k64$, [own_slot$0, target_slot$0,
-    hero_defense$0, mana$0, player_keep$0, enemy_keep$0, h$1]);
+function $combat_turn_sync_func$(turn$0) {
+  const player$0 = turn$0.$0;
+  const enemy$0 = turn$0.$1;
+  const mana$0 = turn$0.$2;
+  const next_seed$0 = turn$0.$3;
+  const dealt$0 = turn$0.$4;
+  const received$0 = turn$0.$5;
+  const valid$0 = turn$0.$6;
+  const $t$0 = turn$0.$7;
+  const friendly$0 = $t$0.$0;
+  const hostile$0 = $t$0.$1;
+  const obstacle_seed$0 = $t$0.$2;
+  const h$0 = run_loop($army_formation_sync_func$(player$0, friendly$0));
+  return run_jump($combat_turn_sync_func$k252$, [enemy$0, mana$0, next_seed$0,
+    dealt$0, received$0, valid$0, hostile$0, obstacle_seed$0, h$0]);
 }
 
-function $army_select_func$k100$(b$0, c$0, d$0, e$0, f$0, g$0, h$0) {
+function $combat_defend_func$k160$(own_slot$0, hero_defense$0, mana$0, seed$0,
+  battlefield$0, enemy_keep$0, attacker$0, h$0) {
+  const player_keep$0 = h$0.$0;
+  const defender$0 = h$0.$1;
+  const h$1 = run_loop($attack_roll_defend_func$(attacker$0, defender$0, 0,
+    hero_defense$0, seed$0));
+  return run_jump($combat_defend_func$k161$, [own_slot$0, mana$0, battlefield$0,
+    enemy_keep$0, player_keep$0, h$1]);
+}
+
+function $army_select_func$k203$(b$0, c$0, d$0, e$0, f$0, g$0, h$0) {
   const kept$0 = h$0.$0;
   const selected$0 = h$0.$1;
   return {$: "ArmySelection", $0: {$: "Army", $0: kept$0, $1: b$0, $2: c$0, $3:
     d$0, $4: e$0, $5: f$0, $6: g$0}, $1: selected$0};
 }
 
-function $army_select_func$k101$(a$0, c$0, d$0, e$0, f$0, g$0, h$0) {
+function $army_select_func$k204$(a$0, c$0, d$0, e$0, f$0, g$0, h$0) {
   const kept$0 = h$0.$0;
   const selected$0 = h$0.$1;
   return {$: "ArmySelection", $0: {$: "Army", $0: a$0, $1: kept$0, $2: c$0, $3:
     d$0, $4: e$0, $5: f$0, $6: g$0}, $1: selected$0};
 }
 
-function $army_select_func$k102$(a$0, b$0, d$0, e$0, f$0, g$0, h$0) {
+function $army_select_func$k205$(a$0, b$0, d$0, e$0, f$0, g$0, h$0) {
   const kept$0 = h$0.$0;
   const selected$0 = h$0.$1;
   return {$: "ArmySelection", $0: {$: "Army", $0: a$0, $1: b$0, $2: kept$0, $3:
     d$0, $4: e$0, $5: f$0, $6: g$0}, $1: selected$0};
 }
 
-function $army_select_func$k103$(a$0, b$0, c$0, e$0, f$0, g$0, h$0) {
+function $army_select_func$k206$(a$0, b$0, c$0, e$0, f$0, g$0, h$0) {
   const kept$0 = h$0.$0;
   const selected$0 = h$0.$1;
   return {$: "ArmySelection", $0: {$: "Army", $0: a$0, $1: b$0, $2: c$0, $3:
     kept$0, $4: e$0, $5: f$0, $6: g$0}, $1: selected$0};
 }
 
-function $army_select_func$k104$(a$0, b$0, c$0, d$0, f$0, g$0, h$0) {
+function $army_select_func$k207$(a$0, b$0, c$0, d$0, f$0, g$0, h$0) {
   const kept$0 = h$0.$0;
   const selected$0 = h$0.$1;
   return {$: "ArmySelection", $0: {$: "Army", $0: a$0, $1: b$0, $2: c$0, $3:
     d$0, $4: kept$0, $5: f$0, $6: g$0}, $1: selected$0};
 }
 
-function $army_select_func$k105$(a$0, b$0, c$0, d$0, e$0, g$0, h$0) {
+function $army_select_func$k208$(a$0, b$0, c$0, d$0, e$0, g$0, h$0) {
   const kept$0 = h$0.$0;
   const selected$0 = h$0.$1;
   return {$: "ArmySelection", $0: {$: "Army", $0: a$0, $1: b$0, $2: c$0, $3:
     d$0, $4: e$0, $5: kept$0, $6: g$0}, $1: selected$0};
 }
 
-function $army_select_func$k106$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
+function $army_select_func$k209$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
   const kept$0 = h$0.$0;
   const selected$0 = h$0.$1;
   return {$: "ArmySelection", $0: {$: "Army", $0: a$0, $1: b$0, $2: c$0, $3:
     d$0, $4: e$0, $5: f$0, $6: kept$0}, $1: selected$0};
 }
 
-function $army_select_func$k107$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
+function $army_select_func$k210$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
   const kept$0 = h$0.$0;
   const selected$0 = h$0.$1;
   return {$: "ArmySelection", $0: {$: "Army", $0: a$0, $1: b$0, $2: c$0, $3:
     d$0, $4: e$0, $5: f$0, $6: kept$0}, $1: selected$0};
 }
 
-function $army_select_func$k108$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
+function $army_select_func$k211$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
   const kept$0 = h$0.$0;
   const selected$0 = h$0.$1;
   return {$: "ArmySelection", $0: {$: "Army", $0: a$0, $1: b$0, $2: c$0, $3:
     d$0, $4: e$0, $5: f$0, $6: kept$0}, $1: selected$0};
 }
 
-function $army_select_func$k109$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
+function $army_select_func$k212$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
   const kept$0 = h$0.$0;
   const selected$0 = h$0.$1;
   return {$: "ArmySelection", $0: {$: "Army", $0: a$0, $1: b$0, $2: c$0, $3:
     d$0, $4: e$0, $5: f$0, $6: kept$0}, $1: selected$0};
 }
 
-function $army_select_func$k110$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
+function $army_select_func$k213$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
   const kept$0 = h$0.$0;
   const selected$0 = h$0.$1;
   return {$: "ArmySelection", $0: {$: "Army", $0: a$0, $1: b$0, $2: c$0, $3:
     d$0, $4: e$0, $5: f$0, $6: kept$0}, $1: selected$0};
 }
 
-function $army_select_func$k111$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
+function $army_select_func$k214$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
   const kept$0 = h$0.$0;
   const selected$0 = h$0.$1;
   return {$: "ArmySelection", $0: {$: "Army", $0: a$0, $1: b$0, $2: c$0, $3:
     d$0, $4: e$0, $5: f$0, $6: kept$0}, $1: selected$0};
 }
 
-function $stack_pair_func$(stack$0) {
-  if (stack$0.$ === "EmptyStack") {
-    return {$: "StackPair", $0: {$: "EmptyStack"}, $1: {$: "EmptyStack"}};
-  } else {
-    const kind$0 = stack$0.$0;
-    const count$0 = stack$0.$1;
-    const first_unit_hp$0 = stack$0.$2;
-    let $t$0;
-    if (kind$0.$ === "Pikeman") {
-      $t$0 = {$: "Tuple", $0: {$: "Pikeman"}, $1: {$: "Pikeman"}};
-    } else if (kind$0.$ === "Archer") {
-      $t$0 = {$: "Tuple", $0: {$: "Archer"}, $1: {$: "Archer"}};
-    } else if (kind$0.$ === "Griffin") {
-      $t$0 = {$: "Tuple", $0: {$: "Griffin"}, $1: {$: "Griffin"}};
-    } else if (kind$0.$ === "Swordsman") {
-      $t$0 = {$: "Tuple", $0: {$: "Swordsman"}, $1: {$: "Swordsman"}};
-    } else if (kind$0.$ === "Monk") {
-      $t$0 = {$: "Tuple", $0: {$: "Monk"}, $1: {$: "Monk"}};
-    } else if (kind$0.$ === "Cavalier") {
-      $t$0 = {$: "Tuple", $0: {$: "Cavalier"}, $1: {$: "Cavalier"}};
-    } else if (kind$0.$ === "Angel") {
-      $t$0 = {$: "Tuple", $0: {$: "Angel"}, $1: {$: "Angel"}};
-    } else if (kind$0.$ === "Skeleton") {
-      $t$0 = {$: "Tuple", $0: {$: "Skeleton"}, $1: {$: "Skeleton"}};
-    } else if (kind$0.$ === "WalkingDead") {
-      $t$0 = {$: "Tuple", $0: {$: "WalkingDead"}, $1: {$: "WalkingDead"}};
-    } else if (kind$0.$ === "Wight") {
-      $t$0 = {$: "Tuple", $0: {$: "Wight"}, $1: {$: "Wight"}};
-    } else if (kind$0.$ === "Vampire") {
-      $t$0 = {$: "Tuple", $0: {$: "Vampire"}, $1: {$: "Vampire"}};
-    } else if (kind$0.$ === "Lich") {
-      $t$0 = {$: "Tuple", $0: {$: "Lich"}, $1: {$: "Lich"}};
-    } else if (kind$0.$ === "BlackKnight") {
-      $t$0 = {$: "Tuple", $0: {$: "BlackKnight"}, $1: {$: "BlackKnight"}};
-    } else {
-      $t$0 = {$: "Tuple", $0: {$: "BoneDragon"}, $1: {$: "BoneDragon"}};
-    }
-    const left_kind$0 = $t$0.$0;
-    const right_kind$0 = $t$0.$1;
-    const h$0 = run_loop($u32_pair_func$(count$0));
-    return run_jump($stack_pair_func$k141$, [first_unit_hp$0, left_kind$0,
-      right_kind$0, h$0]);
-  }
-}
-
-function $combat_defend_func$k73$(own_slot$0, hero_defense$0, mana$0, seed$0,
-  enemy_keep$0, attacker$0, h$0) {
-  const player_keep$0 = h$0.$0;
-  const defender$0 = h$0.$1;
-  const h$1 = run_loop($attack_roll_defend_func$(attacker$0, defender$0, 0,
-    hero_defense$0, seed$0));
-  return run_jump($combat_defend_func$k74$, [own_slot$0, mana$0, enemy_keep$0,
-    player_keep$0, h$1]);
-}
-
-function $combat_spell_func$k78$(player$0, own_slot$0, target_slot$0, power$0,
-  hero_defense$0, mana$0, seed$0, enemy_keep$0, h$0) {
+function $combat_spell_func$k165$(player$0, target_slot$0, power$0, mana$0,
+  seed$0, battlefield$0, enemy_keep$0, h$0) {
   const target_keep$0 = h$0.$0;
   const $t$0 = h$0.$1;
   if ($t$0) {
     return {$: "CombatTurn", $0: player$0, $1: enemy_keep$0, $2: mana$0, $3:
-      seed$0, $4: 0, $5: 0, $6: false};
+      seed$0, $4: 0, $5: 0, $6: false, $7: battlefield$0};
   } else {
     const x$0 = (Math.imul(power$0, 10) >>> 0);
     const spell_damage$0 = ((10 + x$0) >>> 0);
     const h$1 = run_loop($u32_pair_func$(spell_damage$0));
-    return run_jump($combat_spell_func$k79$, [player$0, own_slot$0,
-      target_slot$0, hero_defense$0, mana$0, seed$0, enemy_keep$0, h$1]);
+    return run_jump($combat_spell_func$k166$, [player$0, target_slot$0, mana$0,
+      seed$0, battlefield$0, enemy_keep$0, h$1]);
   }
 }
 
@@ -5139,7 +7320,83 @@ function $stack_check_func$(stack$0) {
   }
 }
 
-function $kingdom_add_gold_func$k112$(hero$0, town$0, h$0) {
+function $combat_move_func$k169$(enemy$0, target_index$0, mana$0, seed$0,
+  battlefield$0, own_move$0, h$0) {
+  const player_keep$0 = h$0.$0;
+  const stack$0 = h$0.$1;
+  const h$1 = run_loop($stack_tactics_func$(stack$0));
+  return run_jump($combat_move_func$k170$, [enemy$0, target_index$0, mana$0,
+    seed$0, battlefield$0, own_move$0, player_keep$0, h$1]);
+}
+
+function $Tactics$hex_distance_values$k26$(left_row$0, right_row$0,
+  left_column_parity$0, left_column_offset$0, right_column_parity$0,
+  right_column_offset$0, h$0) {
+  const dx_for_max$0 = h$0.$0;
+  const dx_for_sum$0 = h$0.$1;
+  const x$0 = (Math.imul(left_row$0, 2) >>> 0);
+  const x$1 = (2 === 0 ? left_column_parity$0 : left_column_parity$0 % 2);
+  const x$2 = ((x$0 + x$1) >>> 0);
+  const x$3 = ((x$2 + 14) >>> 0);
+  const left_y2$0 = ((x$3 - left_column_offset$0) >>> 0);
+  const x$4 = (Math.imul(right_row$0, 2) >>> 0);
+  const x$5 = (2 === 0 ? right_column_parity$0 : right_column_parity$0 % 2);
+  const x$6 = ((x$4 + x$5) >>> 0);
+  const x$7 = ((x$6 + 14) >>> 0);
+  const right_y2$0 = ((x$7 - right_column_offset$0) >>> 0);
+  const dy2$0 = run_loop($Tactics$u32_abs_diff$(left_y2$0, right_y2$0));
+  return run_jump($Tactics$hex_distance_values$k27$, [dx_for_max$0,
+    dx_for_sum$0, dy2$0]);
+}
+
+function $Tactics$u32_abs_diff$k215$(right$0, h$0) {
+  const left_test$0 = h$0.$0;
+  const left_live$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(right$0));
+  return run_jump($Tactics$u32_abs_diff$k216$, [left_test$0, left_live$0, h$1]);
+}
+
+function $army_ai_weakest_func$k74$(s4$0, s5$0, s6$0, h$0, h$1, h$2) {
+  const h$3 = run_loop($ai_candidate_min_func$(h$1, h$2));
+  return run_jump($army_ai_weakest_func$k75$, [s4$0, s5$0, s6$0, h$0, h$3]);
+}
+
+function $ai_candidate_min_func$k174$(left_slot$0, right_slot$0, left_test$0,
+  left_keep$0, h$0) {
+  const right_test$0 = h$0.$0;
+  const right_keep$0 = h$0.$1;
+  const $t$0 = (left_test$0 <= right_test$0);
+  if ($t$0) {
+    return {$: "AiCandidate", $0: left_slot$0, $1: left_keep$0, $2: true};
+  } else {
+    return {$: "AiCandidate", $0: right_slot$0, $1: right_keep$0, $2: true};
+  }
+}
+
+function $army_ai_strongest_func$k34$(s4$0, s5$0, s6$0, h$0, h$1) {
+  const h$2 = run_loop($ai_candidate_max_func$(h$0, h$1));
+  return run_jump($army_ai_strongest_func$k35$, [s4$0, s5$0, s6$0, h$2]);
+}
+
+function $combat_ai_battle_candidates_func$k176$(target_slot$0, player$0,
+  battlefield$0, own_select$0, h$0) {
+  const own_reach$0 = h$0.$0;
+  const own_tail2$0 = h$0.$1;
+  const h$1 = run_loop($u32_pair_func$(own_tail2$0));
+  return run_jump($combat_ai_battle_candidates_func$k177$, [target_slot$0,
+    player$0, battlefield$0, own_select$0, own_reach$0, h$1]);
+}
+
+function $army_pair_func$k86$(s5$0, s6$0, l0$0, r0$0, l1$0, r1$0, l2$0, r2$0,
+  l3$0, r3$0, h$0) {
+  const l4$0 = h$0.$0;
+  const r4$0 = h$0.$1;
+  const h$1 = run_loop($stack_pair_func$(s5$0));
+  return run_jump($army_pair_func$k87$, [s6$0, l0$0, r0$0, l1$0, r1$0, l2$0,
+    r2$0, l3$0, r3$0, l4$0, r4$0, h$1]);
+}
+
+function $kingdom_add_gold_func$k217$(hero$0, town$0, h$0) {
   return {$: "Kingdom", $0: h$0, $1: hero$0, $2: town$0};
 }
 
@@ -5155,7 +7412,7 @@ function $resources_add_gold_func$(resources$0, amount$0) {
     ore$0, $3: mercury$0, $4: sulfur$0, $5: crystal$0, $6: gems$0};
 }
 
-function $kingdom_add_wood_func$k113$(hero$0, town$0, h$0) {
+function $kingdom_add_wood_func$k218$(hero$0, town$0, h$0) {
   return {$: "Kingdom", $0: h$0, $1: hero$0, $2: town$0};
 }
 
@@ -5171,7 +7428,7 @@ function $resources_add_wood_func$(resources$0, amount$0) {
     ore$0, $3: mercury$0, $4: sulfur$0, $5: crystal$0, $6: gems$0};
 }
 
-function $kingdom_add_power_func$k114$(resources$0, town$0, h$0) {
+function $kingdom_add_power_func$k219$(resources$0, town$0, h$0) {
   return {$: "Kingdom", $0: resources$0, $1: h$0, $2: town$0};
 }
 
@@ -5193,7 +7450,7 @@ function $hero_add_power_func$(hero$0, amount$0) {
     mana$0, $9: level$0, $10: experience$0, $11: army$0};
 }
 
-function $kingdom_add_attack_func$k115$(resources$0, town$0, h$0) {
+function $kingdom_add_attack_func$k220$(resources$0, town$0, h$0) {
   return {$: "Kingdom", $0: resources$0, $1: h$0, $2: town$0};
 }
 
@@ -5215,11 +7472,11 @@ function $hero_add_attack_func$(hero$0, amount$0) {
     $8: mana$0, $9: level$0, $10: experience$0, $11: army$0};
 }
 
-function $army_check_func$k116$(b$0, c$0, d$0, e$0, f$0, g$0, h$0) {
+function $army_check_func$k221$(b$0, c$0, d$0, e$0, f$0, g$0, h$0) {
   const a_keep$0 = h$0.$0;
   const a_empty$0 = h$0.$1;
   const h$1 = run_loop($stack_check_func$(b$0));
-  return run_jump($army_check_func$k117$, [c$0, d$0, e$0, f$0, g$0, a_keep$0,
+  return run_jump($army_check_func$k222$, [c$0, d$0, e$0, f$0, g$0, a_keep$0,
     a_empty$0, h$1]);
 }
 
@@ -5435,21 +7692,21 @@ function $hero_attempt_enter_func$(name$0, old_x$0, old_y$0, movement$0,
     }
     const adjusted_cost$0 = $t$27;
     const h$0 = run_loop($u32_pair_func$(adjusted_cost$0));
-    return run_jump($hero_attempt_enter_func$k143$, [name$0, old_x$0, old_y$0,
+    return run_jump($hero_attempt_enter_func$k254$, [name$0, old_x$0, old_y$0,
       movement$0, attack$0, defense$0, power$0, knowledge$0, mana$0, level$0,
       experience$0, army$0, next_x$0, next_y$0, h$0]);
   }
 }
 
-function $kingdom_new_day_func$k92$(hero$0, mine_wood$0, next_town$0,
+function $kingdom_new_day_func$k193$(hero$0, mine_wood$0, next_town$0,
   with_mines$0) {
   const next_resources$0 = run_loop($resources_add_wood_func$(with_mines$0,
     mine_wood$0));
-  return run_jump($kingdom_new_day_func$k93$, [hero$0, next_town$0,
+  return run_jump($kingdom_new_day_func$k194$, [hero$0, next_town$0,
     next_resources$0]);
 }
 
-function $town_new_day_func$k123$(faction$0, fort$0, dwellings$0, stock$0,
+function $town_new_day_func$k228$(faction$0, fort$0, dwellings$0, stock$0,
   h$0) {
   const hall_income$0 = h$0.$0;
   const hall_keep$0 = h$0.$1;
@@ -5476,163 +7733,851 @@ function $town_new_day_func$k123$(faction$0, fort$0, dwellings$0, stock$0,
     fort$0, $3: dwellings$0, $4: false, $5: stock$0}, $1: income$0};
 }
 
-function $town_new_day_func$k124$(faction$0, fort$0, dwellings$0, stock$0,
+function $town_new_day_func$k229$(faction$0, fort$0, dwellings$0, stock$0,
   h$0) {
   const hall_income$0 = h$0.$0;
   const hall_keep$0 = h$0.$1;
   const h$1 = run_loop($u32_pair_func$(fort$0));
-  return run_jump($town_new_day_func$k125$, [faction$0, dwellings$0, stock$0,
+  return run_jump($town_new_day_func$k230$, [faction$0, dwellings$0, stock$0,
     hall_income$0, hall_keep$0, h$1]);
 }
 
-function $town_build_dwelling_values_func$k50$(faction$0, hall$0, fort$0,
+function $town_build_dwelling_values_func$k142$(faction$0, hall$0, fort$0,
   dwellings$0, stock$0, resources$0, bit_live$0, gold_cost$0, h$0) {
   const wood_cost$0 = h$0.$0;
   const ore_cost$0 = h$0.$1;
   const h$1 = run_loop($resources_pay_func$(resources$0, gold_cost$0,
     wood_cost$0, ore_cost$0));
-  return run_jump($town_build_dwelling_values_func$k51$, [faction$0, hall$0,
+  return run_jump($town_build_dwelling_values_func$k143$, [faction$0, hall$0,
     fort$0, dwellings$0, stock$0, bit_live$0, h$1]);
 }
 
-function $kingdom_recruit_values_func$k54$(name$0, x$0, y$0, movement$0,
+function $kingdom_recruit_values_func$k146$(name$0, x$0, y$0, movement$0,
   hero_attack$0, hero_defense$0, power$0, knowledge$0, mana$0, level$0,
   experience$0, army$0, hall$0, fort$0, dwellings$0, built_today$0, tier$0,
-  amount$0, kept_stock$0, kind$0, h$0) {
+  amount$0, output_faction$0, kept_stock$0, kind$0, h$0) {
   const remaining$0 = h$0.$0;
   const $t$0 = h$0.$1;
   if (!$t$0) {
     return {$: "Tuple", $0: {$: "Kingdom", $0: remaining$0, $1: {$: "Hero", $0:
       name$0, $1: x$0, $2: y$0, $3: movement$0, $4: hero_attack$0, $5:
       hero_defense$0, $6: power$0, $7: knowledge$0, $8: mana$0, $9: level$0,
-      $10: experience$0, $11: army$0}, $2: {$: "Town", $0: {$: "Castle"}, $1:
+      $10: experience$0, $11: army$0}, $2: {$: "Town", $0: output_faction$0, $1:
       hall$0, $2: fort$0, $3: dwellings$0, $4: built_today$0, $5:
       kept_stock$0}}, $1: "The kingdom lacks gold for that recruitment."};
   } else {
     const next_army$0 = run_loop($army_add_func$(army$0, tier$0, kind$0,
       amount$0));
-    return run_jump($kingdom_recruit_values_func$k55$, [name$0, x$0, y$0,
+    return run_jump($kingdom_recruit_values_func$k147$, [name$0, x$0, y$0,
       movement$0, hero_attack$0, hero_defense$0, power$0, knowledge$0, mana$0,
       level$0, experience$0, hall$0, fort$0, dwellings$0, built_today$0, tier$0,
-      amount$0, kept_stock$0, remaining$0, next_army$0]);
+      amount$0, output_faction$0, kept_stock$0, remaining$0, next_army$0]);
   }
 }
 
-function $stock_select_nat_func$k128$(b$0, c$0, d$0, e$0, f$0, g$0, h$0) {
+function $stock_select_nat_func$k233$(b$0, c$0, d$0, e$0, f$0, g$0, h$0) {
   const kept$0 = h$0.$0;
   const available$0 = h$0.$1;
   return {$: "StockSelection", $0: {$: "Stock", $0: kept$0, $1: b$0, $2: c$0,
     $3: d$0, $4: e$0, $5: f$0, $6: g$0}, $1: available$0};
 }
 
-function $stock_select_nat_func$k129$(a$0, c$0, d$0, e$0, f$0, g$0, h$0) {
+function $stock_select_nat_func$k234$(a$0, c$0, d$0, e$0, f$0, g$0, h$0) {
   const kept$0 = h$0.$0;
   const available$0 = h$0.$1;
   return {$: "StockSelection", $0: {$: "Stock", $0: a$0, $1: kept$0, $2: c$0,
     $3: d$0, $4: e$0, $5: f$0, $6: g$0}, $1: available$0};
 }
 
-function $stock_select_nat_func$k130$(a$0, b$0, d$0, e$0, f$0, g$0, h$0) {
+function $stock_select_nat_func$k235$(a$0, b$0, d$0, e$0, f$0, g$0, h$0) {
   const kept$0 = h$0.$0;
   const available$0 = h$0.$1;
   return {$: "StockSelection", $0: {$: "Stock", $0: a$0, $1: b$0, $2: kept$0,
     $3: d$0, $4: e$0, $5: f$0, $6: g$0}, $1: available$0};
 }
 
-function $stock_select_nat_func$k131$(a$0, b$0, c$0, e$0, f$0, g$0, h$0) {
+function $stock_select_nat_func$k236$(a$0, b$0, c$0, e$0, f$0, g$0, h$0) {
   const kept$0 = h$0.$0;
   const available$0 = h$0.$1;
   return {$: "StockSelection", $0: {$: "Stock", $0: a$0, $1: b$0, $2: c$0, $3:
     kept$0, $4: e$0, $5: f$0, $6: g$0}, $1: available$0};
 }
 
-function $stock_select_nat_func$k132$(a$0, b$0, c$0, d$0, f$0, g$0, h$0) {
+function $stock_select_nat_func$k237$(a$0, b$0, c$0, d$0, f$0, g$0, h$0) {
   const kept$0 = h$0.$0;
   const available$0 = h$0.$1;
   return {$: "StockSelection", $0: {$: "Stock", $0: a$0, $1: b$0, $2: c$0, $3:
     d$0, $4: kept$0, $5: f$0, $6: g$0}, $1: available$0};
 }
 
-function $stock_select_nat_func$k133$(a$0, b$0, c$0, d$0, e$0, g$0, h$0) {
+function $stock_select_nat_func$k238$(a$0, b$0, c$0, d$0, e$0, g$0, h$0) {
   const kept$0 = h$0.$0;
   const available$0 = h$0.$1;
   return {$: "StockSelection", $0: {$: "Stock", $0: a$0, $1: b$0, $2: c$0, $3:
     d$0, $4: e$0, $5: kept$0, $6: g$0}, $1: available$0};
 }
 
-function $stock_select_nat_func$k134$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
+function $stock_select_nat_func$k239$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
   const kept$0 = h$0.$0;
   const available$0 = h$0.$1;
   return {$: "StockSelection", $0: {$: "Stock", $0: a$0, $1: b$0, $2: c$0, $3:
     d$0, $4: e$0, $5: f$0, $6: kept$0}, $1: available$0};
 }
 
-function $stock_select_nat_func$k135$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
+function $stock_select_nat_func$k240$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
   const kept$0 = h$0.$0;
   const available$0 = h$0.$1;
   return {$: "StockSelection", $0: {$: "Stock", $0: a$0, $1: b$0, $2: c$0, $3:
     d$0, $4: e$0, $5: f$0, $6: kept$0}, $1: available$0};
 }
 
-function $stock_select_nat_func$k136$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
+function $stock_select_nat_func$k241$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
   const kept$0 = h$0.$0;
   const available$0 = h$0.$1;
   return {$: "StockSelection", $0: {$: "Stock", $0: a$0, $1: b$0, $2: c$0, $3:
     d$0, $4: e$0, $5: f$0, $6: kept$0}, $1: available$0};
 }
 
-function $stock_select_nat_func$k137$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
+function $stock_select_nat_func$k242$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
   const kept$0 = h$0.$0;
   const available$0 = h$0.$1;
   return {$: "StockSelection", $0: {$: "Stock", $0: a$0, $1: b$0, $2: c$0, $3:
     d$0, $4: e$0, $5: f$0, $6: kept$0}, $1: available$0};
 }
 
-function $stock_select_nat_func$k138$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
+function $stock_select_nat_func$k243$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
   const kept$0 = h$0.$0;
   const available$0 = h$0.$1;
   return {$: "StockSelection", $0: {$: "Stock", $0: a$0, $1: b$0, $2: c$0, $3:
     d$0, $4: e$0, $5: f$0, $6: kept$0}, $1: available$0};
 }
 
-function $stock_select_nat_func$k139$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
+function $stock_select_nat_func$k244$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
   const kept$0 = h$0.$0;
   const available$0 = h$0.$1;
   return {$: "StockSelection", $0: {$: "Stock", $0: a$0, $1: b$0, $2: c$0, $3:
     d$0, $4: e$0, $5: f$0, $6: kept$0}, $1: available$0};
 }
 
-function $stock_select_nat_func$k140$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
+function $stock_select_nat_func$k245$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
   const kept$0 = h$0.$0;
   const available$0 = h$0.$1;
   return {$: "StockSelection", $0: {$: "Stock", $0: a$0, $1: b$0, $2: c$0, $3:
     d$0, $4: e$0, $5: f$0, $6: kept$0}, $1: available$0};
 }
 
-function $kingdom_recruit_necropolis_values_func$k59$(name$0, x$0, y$0,
-  movement$0, hero_attack$0, hero_defense$0, power$0, knowledge$0, mana$0,
-  level$0, experience$0, army$0, hall$0, fort$0, dwellings$0, built_today$0,
-  tier$0, amount$0, kept_stock$0, kind$0, h$0) {
-  const remaining$0 = h$0.$0;
-  const $t$0 = h$0.$1;
-  if (!$t$0) {
-    return {$: "Tuple", $0: {$: "Kingdom", $0: remaining$0, $1: {$: "Hero", $0:
-      name$0, $1: x$0, $2: y$0, $3: movement$0, $4: hero_attack$0, $5:
-      hero_defense$0, $6: power$0, $7: knowledge$0, $8: mana$0, $9: level$0,
-      $10: experience$0, $11: army$0}, $2: {$: "Town", $0: {$: "Necropolis"},
-      $1: hall$0, $2: fort$0, $3: dwellings$0, $4: built_today$0, $5:
-      kept_stock$0}}, $1: "The kingdom lacks gold for that recruitment."};
+function $hero_home_check_func$k118$(name$0, movement$0, attack$0, defense$0,
+  power$0, knowledge$0, mana$0, level$0, experience$0, army$0, x_keep$0,
+  y_keep$0, x_red$0, x_blue$0, h$0) {
+  const y_red$0 = h$0.$0;
+  const y_blue$0 = h$0.$1;
+  let $t$0;
+  const $t$1 = (x_red$0 === 1);
+  if (!$t$1) {
+    const b$0 = (y_red$0 === 5);
+    $t$0 = false;
   } else {
-    const next_army$0 = run_loop($army_add_func$(army$0, tier$0, kind$0,
-      amount$0));
-    return run_jump($kingdom_recruit_necropolis_values_func$k60$, [name$0, x$0,
-      y$0, movement$0, hero_attack$0, hero_defense$0, power$0, knowledge$0,
-      mana$0, level$0, experience$0, hall$0, fort$0, dwellings$0, built_today$0,
-      tier$0, amount$0, kept_stock$0, remaining$0, next_army$0]);
+    const b$1 = (y_red$0 === 5);
+    $t$0 = b$1;
+  }
+  let $t$2;
+  const $t$3 = (x_blue$0 === 7);
+  if (!$t$3) {
+    const b$2 = (y_blue$0 === 1);
+    $t$2 = false;
+  } else {
+    const b$3 = (y_blue$0 === 1);
+    $t$2 = b$3;
+  }
+  const valid$0 = ($t$0 || $t$2);
+  return {$: "HeroCheck", $0: {$: "Hero", $0: name$0, $1: x_keep$0, $2:
+    y_keep$0, $3: movement$0, $4: attack$0, $5: defense$0, $6: power$0, $7:
+    knowledge$0, $8: mana$0, $9: level$0, $10: experience$0, $11: army$0}, $1:
+    valid$0};
+}
+
+function $hero_home_check_func$k122$(name$0, movement$0, attack$0, defense$0,
+  power$0, knowledge$0, mana$0, level$0, experience$0, army$0, x_keep$0,
+  y_keep$0, x_red$0, x_blue$0, h$0) {
+  const y_red$0 = h$0.$0;
+  const y_blue$0 = h$0.$1;
+  let $t$0;
+  const $t$1 = (x_red$0 === 1);
+  if (!$t$1) {
+    const b$0 = (y_red$0 === 5);
+    $t$0 = false;
+  } else {
+    const b$1 = (y_red$0 === 5);
+    $t$0 = b$1;
+  }
+  let $t$2;
+  const $t$3 = (x_blue$0 === 7);
+  if (!$t$3) {
+    const b$2 = (y_blue$0 === 1);
+    $t$2 = false;
+  } else {
+    const b$3 = (y_blue$0 === 1);
+    $t$2 = b$3;
+  }
+  const valid$0 = ($t$0 || $t$2);
+  return {$: "HeroCheck", $0: {$: "Hero", $0: name$0, $1: x_keep$0, $2:
+    y_keep$0, $3: movement$0, $4: attack$0, $5: defense$0, $6: power$0, $7:
+    knowledge$0, $8: mana$0, $9: level$0, $10: experience$0, $11: army$0}, $1:
+    valid$0};
+}
+
+function $hero_home_check_func$k126$(name$0, movement$0, attack$0, defense$0,
+  power$0, knowledge$0, mana$0, level$0, experience$0, army$0, x_keep$0,
+  y_keep$0, x_red$0, x_blue$0, h$0) {
+  const y_red$0 = h$0.$0;
+  const y_blue$0 = h$0.$1;
+  let $t$0;
+  const $t$1 = (x_red$0 === 1);
+  if (!$t$1) {
+    const b$0 = (y_red$0 === 5);
+    $t$0 = false;
+  } else {
+    const b$1 = (y_red$0 === 5);
+    $t$0 = b$1;
+  }
+  let $t$2;
+  const $t$3 = (x_blue$0 === 7);
+  if (!$t$3) {
+    const b$2 = (y_blue$0 === 1);
+    $t$2 = false;
+  } else {
+    const b$3 = (y_blue$0 === 1);
+    $t$2 = b$3;
+  }
+  const valid$0 = ($t$0 || $t$2);
+  return {$: "HeroCheck", $0: {$: "Hero", $0: name$0, $1: x_keep$0, $2:
+    y_keep$0, $3: movement$0, $4: attack$0, $5: defense$0, $6: power$0, $7:
+    knowledge$0, $8: mana$0, $9: level$0, $10: experience$0, $11: army$0}, $1:
+    valid$0};
+}
+
+function $combat_enemy_merge_func$(turn$0, mana$0, dealt$0, received$0) {
+  const enemy_after$0 = turn$0.$0;
+  const player_after$0 = turn$0.$1;
+  const enemy_mana$0 = turn$0.$2;
+  const next_seed$0 = turn$0.$3;
+  const enemy_dealt$0 = turn$0.$4;
+  const enemy_received$0 = turn$0.$5;
+  const enemy_valid$0 = turn$0.$6;
+  const battlefield$0 = turn$0.$7;
+  const h$0 = run_loop($Tactics$battlefield_flip$(battlefield$0));
+  return run_jump($combat_enemy_merge_func$k257$, [enemy_after$0,
+    player_after$0, next_seed$0, enemy_dealt$0, mana$0, dealt$0, received$0,
+    h$0]);
+}
+
+function $combat_enemy_action_func$k246$(player$0, hero_defense$0, seed$0,
+  battlefield$0, h$0) {
+  const enemy_plan$0 = h$0.$0;
+  const enemy_action$0 = h$0.$1;
+  const h$1 = run_loop($army_pair_func$(player$0));
+  return run_jump($combat_enemy_action_func$k247$, [hero_defense$0, seed$0,
+    battlefield$0, enemy_plan$0, enemy_action$0, h$1]);
+}
+
+function $combat_attack_func$k151$(player$0, enemy$0, hero_attack$0,
+  hero_defense$0, mana$0, seed$0, battlefield$0, own_select$0, own_reach$0,
+  own_apply$0, h$0) {
+  const target_select$0 = h$0.$0;
+  const target_tail$0 = h$0.$1;
+  const h$1 = run_loop($u32_pair_func$(target_tail$0));
+  return run_jump($combat_attack_func$k152$, [player$0, enemy$0, hero_attack$0,
+    hero_defense$0, mana$0, seed$0, battlefield$0, own_select$0, own_reach$0,
+    own_apply$0, target_select$0, h$1]);
+}
+
+function $kingdom_finish_combat_func$k198$(resources$0, name$0, x$0, y$0,
+  movement$0, attack$0, defense$0, power$0, knowledge$0, level$0, experience$0,
+  town$0, attacker$0, source$0, round$0, player$0, mana$0, next_seed$0,
+  battlefield$0, h$0) {
+  const enemy_keep$0 = h$0.$0;
+  const $t$0 = h$0.$1;
+  if ($t$0) {
+    const h$1 = run_loop($resources_add_gold_func$(resources$0, 1500));
+    return run_jump($kingdom_finish_combat_func$k199$, [name$0, x$0, y$0,
+      movement$0, attack$0, defense$0, power$0, knowledge$0, level$0,
+      experience$0, town$0, attacker$0, source$0, player$0, mana$0, next_seed$0,
+      h$1]);
+  } else {
+    const h$2 = run_loop($army_check_func$(player$0));
+    return run_jump($kingdom_finish_combat_func$k202$, [resources$0, name$0,
+      x$0, y$0, movement$0, attack$0, defense$0, power$0, knowledge$0, level$0,
+      experience$0, town$0, attacker$0, source$0, round$0, mana$0, next_seed$0,
+      battlefield$0, enemy_keep$0, h$2]);
   }
 }
 
-function $kingdom_finish_combat_func$k96$(name$0, x$0, y$0, movement$0,
+function $combat_turn_sync_func$k252$(enemy$0, mana$0, next_seed$0, dealt$0,
+  received$0, valid$0, hostile$0, obstacle_seed$0, h$0) {
+  const player_keep$0 = h$0.$0;
+  const friendly_keep$0 = h$0.$1;
+  const h$1 = run_loop($army_formation_sync_func$(enemy$0, hostile$0));
+  return run_jump($combat_turn_sync_func$k253$, [mana$0, next_seed$0, dealt$0,
+    received$0, valid$0, obstacle_seed$0, player_keep$0, friendly_keep$0, h$1]);
+}
+
+function $army_formation_sync_func$(army$0, formation$0) {
+  const s0$0 = army$0.$0;
+  const s1$0 = army$0.$1;
+  const s2$0 = army$0.$2;
+  const s3$0 = army$0.$3;
+  const s4$0 = army$0.$4;
+  const s5$0 = army$0.$5;
+  const s6$0 = army$0.$6;
+  const p0$0 = formation$0.$0;
+  const p1$0 = formation$0.$1;
+  const p2$0 = formation$0.$2;
+  const p3$0 = formation$0.$3;
+  const p4$0 = formation$0.$4;
+  const p5$0 = formation$0.$5;
+  const p6$0 = formation$0.$6;
+  const h$0 = run_loop($stack_position_sync_func$(s0$0, p0$0));
+  return run_jump($army_formation_sync_func$k258$, [s1$0, s2$0, s3$0, s4$0,
+    s5$0, s6$0, p1$0, p2$0, p3$0, p4$0, p5$0, p6$0, h$0]);
+}
+
+function $combat_defend_func$k161$(own_slot$0, mana$0, battlefield$0,
+  enemy_keep$0, player_keep$0, h$0) {
+  const response$0 = h$0.$0;
+  const next_seed$0 = h$0.$1;
+  const $t$0 = h$0.$2;
+  if (!$t$0) {
+    return {$: "CombatTurn", $0: player_keep$0, $1: enemy_keep$0, $2: mana$0,
+      $3: next_seed$0, $4: 0, $5: 0, $6: false, $7: battlefield$0};
+  } else {
+    const h$1 = run_loop($u32_pair_func$(response$0));
+    return run_jump($combat_defend_func$k162$, [own_slot$0, mana$0,
+      battlefield$0, enemy_keep$0, player_keep$0, next_seed$0, h$1]);
+  }
+}
+
+function $attack_roll_defend_func$(actor$0, target$0, hero_attack$0,
+  hero_defense$0, seed$0) {
+  if (actor$0.$ === "EmptyStack") {
+    if (target$0.$ === "EmptyStack") {
+      return {$: "AttackRoll", $0: 0, $1: seed$0, $2: false};
+    } else {
+      const target_kind$0 = target$0.$0;
+      const target_count$0 = target$0.$1;
+      const target_first_hp$0 = target$0.$2;
+      return {$: "AttackRoll", $0: 0, $1: seed$0, $2: false};
+    }
+  } else {
+    const actor_kind$0 = actor$0.$0;
+    const actor_count$0 = actor$0.$1;
+    const actor_first_hp$0 = actor$0.$2;
+    if (target$0.$ === "EmptyStack") {
+      return {$: "AttackRoll", $0: 0, $1: seed$0, $2: false};
+    } else {
+      const target_kind$1 = target$0.$0;
+      const target_count$1 = target$0.$1;
+      const target_first_hp$1 = target$0.$2;
+      let $t$0;
+      if (actor_kind$0.$ === "Pikeman") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "Pikeman"}, $1: {$:
+          "CreatureStats", $0: 4, $1: 5, $2: 1, $3: 3, $4: 10, $5: 4, $6: 14,
+          $7: 60, $8: 1, $9: 0, $10: false, $11: 1}};
+      } else if (actor_kind$0.$ === "Archer") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "Archer"}, $1: {$: "CreatureStats",
+          $0: 6, $1: 3, $2: 2, $3: 3, $4: 10, $5: 4, $6: 9, $7: 100, $8: 15, $9:
+          12, $10: false, $11: 1}};
+      } else if (actor_kind$0.$ === "Griffin") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "Griffin"}, $1: {$:
+          "CreatureStats", $0: 8, $1: 8, $2: 3, $3: 6, $4: 25, $5: 6, $6: 7, $7:
+          200, $8: 1, $9: 0, $10: true, $11: 2}};
+      } else if (actor_kind$0.$ === "Swordsman") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "Swordsman"}, $1: {$:
+          "CreatureStats", $0: 10, $1: 12, $2: 6, $3: 9, $4: 35, $5: 5, $6: 4,
+          $7: 300, $8: 1, $9: 0, $10: false, $11: 1}};
+      } else if (actor_kind$0.$ === "Monk") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "Monk"}, $1: {$: "CreatureStats",
+          $0: 12, $1: 7, $2: 10, $3: 12, $4: 30, $5: 5, $6: 3, $7: 400, $8: 15,
+          $9: 12, $10: false, $11: 1}};
+      } else if (actor_kind$0.$ === "Cavalier") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "Cavalier"}, $1: {$:
+          "CreatureStats", $0: 15, $1: 15, $2: 15, $3: 25, $4: 100, $5: 7, $6:
+          2, $7: 1000, $8: 1, $9: 0, $10: false, $11: 1}};
+      } else if (actor_kind$0.$ === "Angel") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "Angel"}, $1: {$: "CreatureStats",
+          $0: 20, $1: 20, $2: 50, $3: 50, $4: 200, $5: 12, $6: 1, $7: 3000, $8:
+          1, $9: 0, $10: true, $11: 1}};
+      } else if (actor_kind$0.$ === "Skeleton") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "Skeleton"}, $1: {$:
+          "CreatureStats", $0: 5, $1: 4, $2: 1, $3: 3, $4: 6, $5: 4, $6: 12, $7:
+          60, $8: 1, $9: 0, $10: false, $11: 1}};
+      } else if (actor_kind$0.$ === "WalkingDead") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "WalkingDead"}, $1: {$:
+          "CreatureStats", $0: 5, $1: 5, $2: 2, $3: 3, $4: 15, $5: 3, $6: 8, $7:
+          100, $8: 1, $9: 0, $10: false, $11: 1}};
+      } else if (actor_kind$0.$ === "Wight") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "Wight"}, $1: {$: "CreatureStats",
+          $0: 7, $1: 7, $2: 3, $3: 5, $4: 18, $5: 5, $6: 7, $7: 200, $8: 1, $9:
+          0, $10: true, $11: 1}};
+      } else if (actor_kind$0.$ === "Vampire") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "Vampire"}, $1: {$:
+          "CreatureStats", $0: 10, $1: 9, $2: 5, $3: 8, $4: 30, $5: 6, $6: 4,
+          $7: 360, $8: 1, $9: 0, $10: true, $11: 1}};
+      } else if (actor_kind$0.$ === "Lich") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "Lich"}, $1: {$: "CreatureStats",
+          $0: 13, $1: 10, $2: 11, $3: 13, $4: 30, $5: 6, $6: 3, $7: 500, $8: 15,
+          $9: 12, $10: false, $11: 1}};
+      } else if (actor_kind$0.$ === "BlackKnight") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "BlackKnight"}, $1: {$:
+          "CreatureStats", $0: 16, $1: 16, $2: 15, $3: 30, $4: 120, $5: 7, $6:
+          2, $7: 1200, $8: 1, $9: 0, $10: false, $11: 1}};
+      } else if (actor_kind$0.$ === "BoneDragon") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "BoneDragon"}, $1: {$:
+          "CreatureStats", $0: 17, $1: 15, $2: 25, $3: 50, $4: 150, $5: 9, $6:
+          1, $7: 1800, $8: 1, $9: 0, $10: true, $11: 1}};
+      } else if (actor_kind$0.$ === "Imp") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "Imp"}, $1: {$: "CreatureStats",
+          $0: 2, $1: 3, $2: 1, $3: 2, $4: 4, $5: 5, $6: 15, $7: 50, $8: 1, $9:
+          0, $10: false, $11: 1}};
+      } else if (actor_kind$0.$ === "Gog") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "Gog"}, $1: {$: "CreatureStats",
+          $0: 6, $1: 4, $2: 2, $3: 4, $4: 13, $5: 4, $6: 8, $7: 125, $8: 15, $9:
+          12, $10: false, $11: 1}};
+      } else if (actor_kind$0.$ === "HellHound") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "HellHound"}, $1: {$:
+          "CreatureStats", $0: 10, $1: 6, $2: 2, $3: 7, $4: 25, $5: 7, $6: 5,
+          $7: 200, $8: 1, $9: 0, $10: false, $11: 1}};
+      } else if (actor_kind$0.$ === "Demon") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "Demon"}, $1: {$: "CreatureStats",
+          $0: 10, $1: 10, $2: 7, $3: 9, $4: 35, $5: 5, $6: 4, $7: 250, $8: 1,
+          $9: 0, $10: false, $11: 1}};
+      } else if (actor_kind$0.$ === "PitFiend") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "PitFiend"}, $1: {$:
+          "CreatureStats", $0: 13, $1: 13, $2: 13, $3: 17, $4: 45, $5: 6, $6: 3,
+          $7: 500, $8: 1, $9: 0, $10: false, $11: 1}};
+      } else if (actor_kind$0.$ === "Efreeti") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "Efreeti"}, $1: {$:
+          "CreatureStats", $0: 16, $1: 12, $2: 16, $3: 24, $4: 90, $5: 9, $6: 2,
+          $7: 900, $8: 1, $9: 0, $10: true, $11: 1}};
+      } else {
+        $t$0 = {$: "CreatureBundle", $0: {$: "Devil"}, $1: {$: "CreatureStats",
+          $0: 19, $1: 21, $2: 30, $3: 40, $4: 160, $5: 11, $6: 1, $7: 2700, $8:
+          1, $9: 0, $10: true, $11: 1}};
+      }
+      const actor_keep$0 = $t$0.$0;
+      const $t$1 = $t$0.$1;
+      const creature_attack$0 = $t$1.$0;
+      const actor_defense$0 = $t$1.$1;
+      const damage_min$0 = $t$1.$2;
+      const damage_max$0 = $t$1.$3;
+      const actor_hp$0 = $t$1.$4;
+      const actor_speed$0 = $t$1.$5;
+      const actor_growth$0 = $t$1.$6;
+      const actor_cost$0 = $t$1.$7;
+      const actor_range$0 = $t$1.$8;
+      const actor_shots$0 = $t$1.$9;
+      const actor_flying$0 = $t$1.$10;
+      const actor_retaliations$0 = $t$1.$11;
+      let $t$2;
+      if (target_kind$1.$ === "Pikeman") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "Pikeman"}, $1: {$:
+          "CreatureStats", $0: 4, $1: 5, $2: 1, $3: 3, $4: 10, $5: 4, $6: 14,
+          $7: 60, $8: 1, $9: 0, $10: false, $11: 1}};
+      } else if (target_kind$1.$ === "Archer") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "Archer"}, $1: {$: "CreatureStats",
+          $0: 6, $1: 3, $2: 2, $3: 3, $4: 10, $5: 4, $6: 9, $7: 100, $8: 15, $9:
+          12, $10: false, $11: 1}};
+      } else if (target_kind$1.$ === "Griffin") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "Griffin"}, $1: {$:
+          "CreatureStats", $0: 8, $1: 8, $2: 3, $3: 6, $4: 25, $5: 6, $6: 7, $7:
+          200, $8: 1, $9: 0, $10: true, $11: 2}};
+      } else if (target_kind$1.$ === "Swordsman") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "Swordsman"}, $1: {$:
+          "CreatureStats", $0: 10, $1: 12, $2: 6, $3: 9, $4: 35, $5: 5, $6: 4,
+          $7: 300, $8: 1, $9: 0, $10: false, $11: 1}};
+      } else if (target_kind$1.$ === "Monk") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "Monk"}, $1: {$: "CreatureStats",
+          $0: 12, $1: 7, $2: 10, $3: 12, $4: 30, $5: 5, $6: 3, $7: 400, $8: 15,
+          $9: 12, $10: false, $11: 1}};
+      } else if (target_kind$1.$ === "Cavalier") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "Cavalier"}, $1: {$:
+          "CreatureStats", $0: 15, $1: 15, $2: 15, $3: 25, $4: 100, $5: 7, $6:
+          2, $7: 1000, $8: 1, $9: 0, $10: false, $11: 1}};
+      } else if (target_kind$1.$ === "Angel") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "Angel"}, $1: {$: "CreatureStats",
+          $0: 20, $1: 20, $2: 50, $3: 50, $4: 200, $5: 12, $6: 1, $7: 3000, $8:
+          1, $9: 0, $10: true, $11: 1}};
+      } else if (target_kind$1.$ === "Skeleton") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "Skeleton"}, $1: {$:
+          "CreatureStats", $0: 5, $1: 4, $2: 1, $3: 3, $4: 6, $5: 4, $6: 12, $7:
+          60, $8: 1, $9: 0, $10: false, $11: 1}};
+      } else if (target_kind$1.$ === "WalkingDead") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "WalkingDead"}, $1: {$:
+          "CreatureStats", $0: 5, $1: 5, $2: 2, $3: 3, $4: 15, $5: 3, $6: 8, $7:
+          100, $8: 1, $9: 0, $10: false, $11: 1}};
+      } else if (target_kind$1.$ === "Wight") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "Wight"}, $1: {$: "CreatureStats",
+          $0: 7, $1: 7, $2: 3, $3: 5, $4: 18, $5: 5, $6: 7, $7: 200, $8: 1, $9:
+          0, $10: true, $11: 1}};
+      } else if (target_kind$1.$ === "Vampire") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "Vampire"}, $1: {$:
+          "CreatureStats", $0: 10, $1: 9, $2: 5, $3: 8, $4: 30, $5: 6, $6: 4,
+          $7: 360, $8: 1, $9: 0, $10: true, $11: 1}};
+      } else if (target_kind$1.$ === "Lich") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "Lich"}, $1: {$: "CreatureStats",
+          $0: 13, $1: 10, $2: 11, $3: 13, $4: 30, $5: 6, $6: 3, $7: 500, $8: 15,
+          $9: 12, $10: false, $11: 1}};
+      } else if (target_kind$1.$ === "BlackKnight") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "BlackKnight"}, $1: {$:
+          "CreatureStats", $0: 16, $1: 16, $2: 15, $3: 30, $4: 120, $5: 7, $6:
+          2, $7: 1200, $8: 1, $9: 0, $10: false, $11: 1}};
+      } else if (target_kind$1.$ === "BoneDragon") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "BoneDragon"}, $1: {$:
+          "CreatureStats", $0: 17, $1: 15, $2: 25, $3: 50, $4: 150, $5: 9, $6:
+          1, $7: 1800, $8: 1, $9: 0, $10: true, $11: 1}};
+      } else if (target_kind$1.$ === "Imp") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "Imp"}, $1: {$: "CreatureStats",
+          $0: 2, $1: 3, $2: 1, $3: 2, $4: 4, $5: 5, $6: 15, $7: 50, $8: 1, $9:
+          0, $10: false, $11: 1}};
+      } else if (target_kind$1.$ === "Gog") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "Gog"}, $1: {$: "CreatureStats",
+          $0: 6, $1: 4, $2: 2, $3: 4, $4: 13, $5: 4, $6: 8, $7: 125, $8: 15, $9:
+          12, $10: false, $11: 1}};
+      } else if (target_kind$1.$ === "HellHound") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "HellHound"}, $1: {$:
+          "CreatureStats", $0: 10, $1: 6, $2: 2, $3: 7, $4: 25, $5: 7, $6: 5,
+          $7: 200, $8: 1, $9: 0, $10: false, $11: 1}};
+      } else if (target_kind$1.$ === "Demon") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "Demon"}, $1: {$: "CreatureStats",
+          $0: 10, $1: 10, $2: 7, $3: 9, $4: 35, $5: 5, $6: 4, $7: 250, $8: 1,
+          $9: 0, $10: false, $11: 1}};
+      } else if (target_kind$1.$ === "PitFiend") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "PitFiend"}, $1: {$:
+          "CreatureStats", $0: 13, $1: 13, $2: 13, $3: 17, $4: 45, $5: 6, $6: 3,
+          $7: 500, $8: 1, $9: 0, $10: false, $11: 1}};
+      } else if (target_kind$1.$ === "Efreeti") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "Efreeti"}, $1: {$:
+          "CreatureStats", $0: 16, $1: 12, $2: 16, $3: 24, $4: 90, $5: 9, $6: 2,
+          $7: 900, $8: 1, $9: 0, $10: true, $11: 1}};
+      } else {
+        $t$2 = {$: "CreatureBundle", $0: {$: "Devil"}, $1: {$: "CreatureStats",
+          $0: 19, $1: 21, $2: 30, $3: 40, $4: 160, $5: 11, $6: 1, $7: 2700, $8:
+          1, $9: 0, $10: true, $11: 1}};
+      }
+      const target_keep$0 = $t$2.$0;
+      const $t$3 = $t$2.$1;
+      const target_attack$0 = $t$3.$0;
+      const creature_defense$0 = $t$3.$1;
+      const target_min$0 = $t$3.$2;
+      const target_max$0 = $t$3.$3;
+      const target_hp$0 = $t$3.$4;
+      const target_speed$0 = $t$3.$5;
+      const target_growth$0 = $t$3.$6;
+      const target_cost$0 = $t$3.$7;
+      const target_range$0 = $t$3.$8;
+      const target_shots$0 = $t$3.$9;
+      const target_flying$0 = $t$3.$10;
+      const target_retaliations$0 = $t$3.$11;
+      const h$0 = run_loop($u32_pair_func$(creature_defense$0));
+      return run_jump($attack_roll_defend_func$k265$, [actor_count$0,
+        hero_attack$0, hero_defense$0, seed$0, creature_attack$0, damage_min$0,
+        damage_max$0, h$0]);
+    }
+  }
+}
+
+function $combat_spell_func$k166$(player$0, target_slot$0, mana$0, seed$0,
+  battlefield$0, enemy_keep$0, h$0) {
+  const damage_apply$0 = h$0.$0;
+  const damage_output$0 = h$0.$1;
+  const h$1 = run_loop($army_damage_func$(enemy_keep$0, target_slot$0,
+    damage_apply$0));
+  return run_jump($combat_spell_func$k167$, [player$0, mana$0, seed$0,
+    battlefield$0, damage_output$0, h$1]);
+}
+
+function $combat_move_func$k170$(enemy$0, target_index$0, mana$0, seed$0,
+  battlefield$0, own_move$0, player_keep$0, h$0) {
+  const kept_stack$0 = h$0.$0;
+  const speed$0 = h$0.$1;
+  const range$0 = h$0.$2;
+  const shots$0 = h$0.$3;
+  const flying$0 = h$0.$4;
+  const retaliations$0 = h$0.$5;
+  const h$1 = run_loop($Tactics$hex_from_index$(target_index$0));
+  return run_jump($combat_move_func$k171$, [enemy$0, mana$0, seed$0,
+    battlefield$0, own_move$0, player_keep$0, speed$0, flying$0, h$1]);
+}
+
+function $stack_tactics_func$(stack$0) {
+  if (stack$0.$ === "EmptyStack") {
+    return {$: "StackTactics", $0: {$: "EmptyStack"}, $1: 0, $2: 1, $3: 0, $4:
+      false, $5: 0};
+  } else {
+    const kind$0 = stack$0.$0;
+    const count$0 = stack$0.$1;
+    const first_unit_hp$0 = stack$0.$2;
+    let $t$0;
+    if (kind$0.$ === "Pikeman") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Pikeman"}, $1: {$: "CreatureStats",
+        $0: 4, $1: 5, $2: 1, $3: 3, $4: 10, $5: 4, $6: 14, $7: 60, $8: 1, $9: 0,
+        $10: false, $11: 1}};
+    } else if (kind$0.$ === "Archer") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Archer"}, $1: {$: "CreatureStats",
+        $0: 6, $1: 3, $2: 2, $3: 3, $4: 10, $5: 4, $6: 9, $7: 100, $8: 15, $9:
+        12, $10: false, $11: 1}};
+    } else if (kind$0.$ === "Griffin") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Griffin"}, $1: {$: "CreatureStats",
+        $0: 8, $1: 8, $2: 3, $3: 6, $4: 25, $5: 6, $6: 7, $7: 200, $8: 1, $9: 0,
+        $10: true, $11: 2}};
+    } else if (kind$0.$ === "Swordsman") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Swordsman"}, $1: {$:
+        "CreatureStats", $0: 10, $1: 12, $2: 6, $3: 9, $4: 35, $5: 5, $6: 4, $7:
+        300, $8: 1, $9: 0, $10: false, $11: 1}};
+    } else if (kind$0.$ === "Monk") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Monk"}, $1: {$: "CreatureStats", $0:
+        12, $1: 7, $2: 10, $3: 12, $4: 30, $5: 5, $6: 3, $7: 400, $8: 15, $9:
+        12, $10: false, $11: 1}};
+    } else if (kind$0.$ === "Cavalier") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Cavalier"}, $1: {$: "CreatureStats",
+        $0: 15, $1: 15, $2: 15, $3: 25, $4: 100, $5: 7, $6: 2, $7: 1000, $8: 1,
+        $9: 0, $10: false, $11: 1}};
+    } else if (kind$0.$ === "Angel") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Angel"}, $1: {$: "CreatureStats",
+        $0: 20, $1: 20, $2: 50, $3: 50, $4: 200, $5: 12, $6: 1, $7: 3000, $8: 1,
+        $9: 0, $10: true, $11: 1}};
+    } else if (kind$0.$ === "Skeleton") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Skeleton"}, $1: {$: "CreatureStats",
+        $0: 5, $1: 4, $2: 1, $3: 3, $4: 6, $5: 4, $6: 12, $7: 60, $8: 1, $9: 0,
+        $10: false, $11: 1}};
+    } else if (kind$0.$ === "WalkingDead") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "WalkingDead"}, $1: {$:
+        "CreatureStats", $0: 5, $1: 5, $2: 2, $3: 3, $4: 15, $5: 3, $6: 8, $7:
+        100, $8: 1, $9: 0, $10: false, $11: 1}};
+    } else if (kind$0.$ === "Wight") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Wight"}, $1: {$: "CreatureStats",
+        $0: 7, $1: 7, $2: 3, $3: 5, $4: 18, $5: 5, $6: 7, $7: 200, $8: 1, $9: 0,
+        $10: true, $11: 1}};
+    } else if (kind$0.$ === "Vampire") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Vampire"}, $1: {$: "CreatureStats",
+        $0: 10, $1: 9, $2: 5, $3: 8, $4: 30, $5: 6, $6: 4, $7: 360, $8: 1, $9:
+        0, $10: true, $11: 1}};
+    } else if (kind$0.$ === "Lich") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Lich"}, $1: {$: "CreatureStats", $0:
+        13, $1: 10, $2: 11, $3: 13, $4: 30, $5: 6, $6: 3, $7: 500, $8: 15, $9:
+        12, $10: false, $11: 1}};
+    } else if (kind$0.$ === "BlackKnight") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "BlackKnight"}, $1: {$:
+        "CreatureStats", $0: 16, $1: 16, $2: 15, $3: 30, $4: 120, $5: 7, $6: 2,
+        $7: 1200, $8: 1, $9: 0, $10: false, $11: 1}};
+    } else if (kind$0.$ === "BoneDragon") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "BoneDragon"}, $1: {$:
+        "CreatureStats", $0: 17, $1: 15, $2: 25, $3: 50, $4: 150, $5: 9, $6: 1,
+        $7: 1800, $8: 1, $9: 0, $10: true, $11: 1}};
+    } else if (kind$0.$ === "Imp") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Imp"}, $1: {$: "CreatureStats", $0:
+        2, $1: 3, $2: 1, $3: 2, $4: 4, $5: 5, $6: 15, $7: 50, $8: 1, $9: 0, $10:
+        false, $11: 1}};
+    } else if (kind$0.$ === "Gog") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Gog"}, $1: {$: "CreatureStats", $0:
+        6, $1: 4, $2: 2, $3: 4, $4: 13, $5: 4, $6: 8, $7: 125, $8: 15, $9: 12,
+        $10: false, $11: 1}};
+    } else if (kind$0.$ === "HellHound") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "HellHound"}, $1: {$:
+        "CreatureStats", $0: 10, $1: 6, $2: 2, $3: 7, $4: 25, $5: 7, $6: 5, $7:
+        200, $8: 1, $9: 0, $10: false, $11: 1}};
+    } else if (kind$0.$ === "Demon") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Demon"}, $1: {$: "CreatureStats",
+        $0: 10, $1: 10, $2: 7, $3: 9, $4: 35, $5: 5, $6: 4, $7: 250, $8: 1, $9:
+        0, $10: false, $11: 1}};
+    } else if (kind$0.$ === "PitFiend") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "PitFiend"}, $1: {$: "CreatureStats",
+        $0: 13, $1: 13, $2: 13, $3: 17, $4: 45, $5: 6, $6: 3, $7: 500, $8: 1,
+        $9: 0, $10: false, $11: 1}};
+    } else if (kind$0.$ === "Efreeti") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Efreeti"}, $1: {$: "CreatureStats",
+        $0: 16, $1: 12, $2: 16, $3: 24, $4: 90, $5: 9, $6: 2, $7: 900, $8: 1,
+        $9: 0, $10: true, $11: 1}};
+    } else {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Devil"}, $1: {$: "CreatureStats",
+        $0: 19, $1: 21, $2: 30, $3: 40, $4: 160, $5: 11, $6: 1, $7: 2700, $8: 1,
+        $9: 0, $10: true, $11: 1}};
+    }
+    const kept_kind$0 = $t$0.$0;
+    const $t$1 = $t$0.$1;
+    const attack$0 = $t$1.$0;
+    const defense$0 = $t$1.$1;
+    const damage_min$0 = $t$1.$2;
+    const damage_max$0 = $t$1.$3;
+    const hit_points$0 = $t$1.$4;
+    const speed$0 = $t$1.$5;
+    const growth$0 = $t$1.$6;
+    const cost$0 = $t$1.$7;
+    const range$0 = $t$1.$8;
+    const shots$0 = $t$1.$9;
+    const flying$0 = $t$1.$10;
+    const retaliations$0 = $t$1.$11;
+    return {$: "StackTactics", $0: {$: "Troop", $0: kept_kind$0, $1: count$0,
+      $2: first_unit_hp$0}, $1: speed$0, $2: range$0, $3: shots$0, $4: flying$0,
+      $5: retaliations$0};
+  }
+}
+
+function $Tactics$hex_distance_values$k27$(dx_for_max$0, dx_for_sum$0, dy2$0) {
+  const x$0 = ((dx_for_sum$0 + dy2$0) >>> 0);
+  return run_jump($Tactics$u32_max$, [dx_for_max$0, (2 === 0 ? 0 : (
+    x$0 / 2) >>> 0)]);
+}
+
+function $Tactics$u32_abs_diff$k216$(left_test$0, left_live$0, h$0) {
+  const right_test$0 = h$0.$0;
+  const right_live$0 = h$0.$1;
+  const $t$0 = (left_test$0 <= right_test$0);
+  if ($t$0) {
+    return ((right_live$0 - left_live$0) >>> 0);
+  } else {
+    return ((left_live$0 - right_live$0) >>> 0);
+  }
+}
+
+function $army_ai_weakest_func$k75$(s4$0, s5$0, s6$0, h$0, h$1) {
+  const h$2 = run_loop($ai_candidate_min_func$(h$0, h$1));
+  return run_jump($army_ai_weakest_func$k76$, [s4$0, s5$0, s6$0, h$2]);
+}
+
+function $army_ai_strongest_func$k35$(s4$0, s5$0, s6$0, h$0) {
+  const h$1 = run_loop($stack_ai_candidate_func$(4, s4$0));
+  return run_jump($army_ai_strongest_func$k36$, [s5$0, s6$0, h$0, h$1]);
+}
+
+function $combat_ai_battle_candidates_func$k177$(target_slot$0, player$0,
+  battlefield$0, own_select$0, own_reach$0, h$0) {
+  const own_move$0 = h$0.$0;
+  const own_output$0 = h$0.$1;
+  const h$1 = run_loop($u32_pair_func$(target_slot$0));
+  return run_jump($combat_ai_battle_candidates_func$k178$, [player$0,
+    battlefield$0, own_select$0, own_reach$0, own_move$0, own_output$0, h$1]);
+}
+
+function $army_pair_func$k87$(s6$0, l0$0, r0$0, l1$0, r1$0, l2$0, r2$0, l3$0,
+  r3$0, l4$0, r4$0, h$0) {
+  const l5$0 = h$0.$0;
+  const r5$0 = h$0.$1;
+  const h$1 = run_loop($stack_pair_func$(s6$0));
+  return run_jump($army_pair_func$k88$, [l0$0, r0$0, l1$0, r1$0, l2$0, r2$0,
+    l3$0, r3$0, l4$0, r4$0, l5$0, r5$0, h$1]);
+}
+
+function $army_check_func$k222$(c$0, d$0, e$0, f$0, g$0, a_keep$0, a_empty$0,
+  h$0) {
+  const b_keep$0 = h$0.$0;
+  const b_empty$0 = h$0.$1;
+  const h$1 = run_loop($stack_check_func$(c$0));
+  return run_jump($army_check_func$k223$, [d$0, e$0, f$0, g$0, a_keep$0,
+    a_empty$0, b_keep$0, b_empty$0, h$1]);
+}
+
+function $hero_attempt_enter_func$k254$(name$0, old_x$0, old_y$0, movement$0,
+  attack$0, defense$0, power$0, knowledge$0, mana$0, level$0, experience$0,
+  army$0, next_x$0, next_y$0, h$0) {
+  const cost_test$0 = h$0.$0;
+  const cost_live$0 = h$0.$1;
+  const $t$0 = (cost_test$0 <= movement$0);
+  if (!$t$0) {
+    return {$: "HeroMove", $0: {$: "Hero", $0: name$0, $1: old_x$0, $2: old_y$0,
+      $3: movement$0, $4: attack$0, $5: defense$0, $6: power$0, $7: knowledge$0,
+      $8: mana$0, $9: level$0, $10: experience$0, $11: army$0}, $1: next_x$0,
+      $2: next_y$0, $3: false};
+  } else {
+    const h$1 = run_loop($u32_pair_func$(next_x$0));
+    return run_jump($hero_attempt_enter_func$k255$, [name$0, movement$0,
+      attack$0, defense$0, power$0, knowledge$0, mana$0, level$0, experience$0,
+      army$0, next_y$0, cost_live$0, h$1]);
+  }
+}
+
+function $kingdom_new_day_func$k194$(hero$0, next_town$0, next_resources$0) {
+  const h$0 = run_loop($hero_new_day_func$(hero$0));
+  return run_jump($kingdom_new_day_func$k195$, [next_town$0, next_resources$0,
+    h$0]);
+}
+
+function $town_new_day_func$k230$(faction$0, dwellings$0, stock$0,
+  hall_income$0, hall_keep$0, h$0) {
+  const fort_growth$0 = h$0.$0;
+  const fort_keep$0 = h$0.$1;
+  const h$1 = run_loop($u32_pair_func$(dwellings$0));
+  return run_jump($town_new_day_func$k231$, [faction$0, stock$0, hall_income$0,
+    hall_keep$0, fort_growth$0, fort_keep$0, h$1]);
+}
+
+function $town_build_dwelling_values_func$k143$(faction$0, hall$0, fort$0,
+  dwellings$0, stock$0, bit_live$0, h$0) {
+  const remaining$0 = h$0.$0;
+  const $t$0 = h$0.$1;
+  if (!$t$0) {
+    return {$: "TownAction", $0: {$: "Town", $0: faction$0, $1: hall$0, $2:
+      fort$0, $3: dwellings$0, $4: false, $5: stock$0}, $1: remaining$0, $2:
+      false, $3: "The kingdom lacks resources for that creature dwelling."};
+  } else {
+    return {$: "TownAction", $0: {$: "Town", $0: faction$0, $1: hall$0, $2:
+      fort$0, $3: ((dwellings$0 | bit_live$0) >>> 0), $4: true, $5: stock$0},
+      $1: remaining$0, $2: true, $3: "A new creature dwelling was completed."};
+  }
+}
+
+function $kingdom_recruit_values_func$k147$(name$0, x$0, y$0, movement$0,
+  hero_attack$0, hero_defense$0, power$0, knowledge$0, mana$0, level$0,
+  experience$0, hall$0, fort$0, dwellings$0, built_today$0, tier$0, amount$0,
+  output_faction$0, kept_stock$0, remaining$0, next_army$0) {
+  const next_stock$0 = run_loop($stock_sub_func$(kept_stock$0, tier$0,
+    amount$0));
+  return run_jump($kingdom_recruit_values_func$k148$, [name$0, x$0, y$0,
+    movement$0, hero_attack$0, hero_defense$0, power$0, knowledge$0, mana$0,
+    level$0, experience$0, hall$0, fort$0, dwellings$0, built_today$0,
+    output_faction$0, remaining$0, next_army$0, next_stock$0]);
+}
+
+function $army_add_func$(army$0, tier$0, kind$0, amount$0) {
+  return run_jump($army_add_nat_func$, [BigInt(tier$0), army$0, kind$0,
+    amount$0]);
+}
+
+function $combat_enemy_merge_func$k257$(enemy_after$0, player_after$0,
+  next_seed$0, enemy_dealt$0, mana$0, dealt$0, received$0, h$0) {
+  return {$: "CombatTurn", $0: player_after$0, $1: enemy_after$0, $2: mana$0,
+    $3: next_seed$0, $4: dealt$0, $5: ((received$0 + enemy_dealt$0) >>> 0), $6:
+    true, $7: h$0};
+}
+
+function $Tactics$battlefield_flip$(battlefield$0) {
+  const friendly$0 = battlefield$0.$0;
+  const enemy$0 = battlefield$0.$1;
+  const obstacle_seed$0 = battlefield$0.$2;
+  return {$: "Tactics.Battlefield", $0: enemy$0, $1: friendly$0, $2:
+    obstacle_seed$0};
+}
+
+function $combat_enemy_action_func$k247$(hero_defense$0, seed$0, battlefield$0,
+  enemy_plan$0, enemy_action$0, h$0) {
+  const player_plan$0 = h$0.$0;
+  const player_action$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$battlefield_pair$(battlefield$0));
+  return run_jump($combat_enemy_action_func$k248$, [hero_defense$0, seed$0,
+    enemy_plan$0, enemy_action$0, player_plan$0, player_action$0, h$1]);
+}
+
+function $combat_attack_func$k152$(player$0, enemy$0, hero_attack$0,
+  hero_defense$0, mana$0, seed$0, battlefield$0, own_select$0, own_reach$0,
+  own_apply$0, target_select$0, h$0) {
+  const target_reach$0 = h$0.$0;
+  const target_apply$0 = h$0.$1;
+  const h$1 = run_loop($army_select_func$(player$0, own_select$0));
+  return run_jump($combat_attack_func$k153$, [enemy$0, hero_attack$0,
+    hero_defense$0, mana$0, seed$0, battlefield$0, own_reach$0, own_apply$0,
+    target_select$0, target_reach$0, target_apply$0, h$1]);
+}
+
+function $kingdom_finish_combat_func$k199$(name$0, x$0, y$0, movement$0,
   attack$0, defense$0, power$0, knowledge$0, level$0, experience$0, town$0,
   attacker$0, source$0, player$0, mana$0, next_seed$0, h$0) {
   const name$1 = name$0;
@@ -5647,15 +8592,15 @@ function $kingdom_finish_combat_func$k96$(name$0, x$0, y$0, movement$0,
   const level$1 = level$0;
   const experience$1 = experience$0;
   const h$1 = run_loop($army_heal_func$(player$0));
-  return run_jump($kingdom_finish_combat_func$k97$, [town$0, attacker$0,
+  return run_jump($kingdom_finish_combat_func$k200$, [town$0, attacker$0,
     source$0, next_seed$0, h$0, name$1, x$1, y$1, movement$1, attack$1,
     defense$1, power$1, knowledge$1, mana$1, level$1, experience$1, h$1]);
 }
 
-function $kingdom_finish_combat_func$k99$(resources$0, name$0, x$0, y$0,
+function $kingdom_finish_combat_func$k202$(resources$0, name$0, x$0, y$0,
   movement$0, attack$0, defense$0, power$0, knowledge$0, level$0, experience$0,
-  town$0, attacker$0, source$0, round$0, mana$0, next_seed$0, enemy_keep$0,
-  h$0) {
+  town$0, attacker$0, source$0, round$0, mana$0, next_seed$0, battlefield$0,
+  enemy_keep$0, h$0) {
   const player_keep$0 = h$0.$0;
   const $t$0 = h$0.$1;
   if ($t$0) {
@@ -5692,7 +8637,7 @@ function $kingdom_finish_combat_func$k99$(resources$0, name$0, x$0, y$0,
         $6: power$2, $7: knowledge$2, $8: mana$2, $9: level$2, $10:
         experience$2, $11: army$1}, $2: town$0}, $1: {$: "BattleEnded", $0: {$:
         "Red"}, $1: source$0, $2: enemy_keep$0}, $2: next_seed$0, $3:
-        "Defeat: the hero escaped to the Castle without an army."};
+        "Defeat: the hero escaped to the Red town without an army."};
     } else {
       const name$3 = name$0;
       const attack$3 = attack$0;
@@ -5708,7 +8653,7 @@ function $kingdom_finish_combat_func$k99$(resources$0, name$0, x$0, y$0,
         $6: power$3, $7: knowledge$3, $8: mana$3, $9: level$3, $10:
         experience$3, $11: army$2}, $2: town$0}, $1: {$: "BattleEnded", $0: {$:
         "Blue"}, $1: source$0, $2: enemy_keep$0}, $2: next_seed$0, $3:
-        "Defeat: the hero escaped to the Necropolis without an army."};
+        "Defeat: the hero escaped to the Blue town without an army."};
     }
   } else {
     const name$4 = name$0;
@@ -5728,559 +8673,63 @@ function $kingdom_finish_combat_func$k99$(resources$0, name$0, x$0, y$0,
       defense$4, $6: power$4, $7: knowledge$4, $8: mana$4, $9: level$4, $10:
       experience$4, $11: army$3}, $2: town$0}, $1: {$: "BattleContinues", $0: {
       $: "Battle", $0: attacker$0, $1: source$0, $2: enemy_keep$0, $3: ((
-      round$0 + 1) >>> 0)}}, $2: next_seed$0, $3:
-      "The exchange resolved using Core's attack/defense damage formula."};
+      round$0 + 1) >>> 0), $4: battlefield$0}}, $2: next_seed$0, $3:
+      "The tactical action resolved on Core's 15 x 11 hex battlefield."};
   }
 }
 
-function $combat_attack_func$k64$(own_slot$0, target_slot$0, hero_defense$0,
-  mana$0, player_keep$0, enemy_keep$0, h$0) {
-  const damage$0 = h$0.$0;
-  const next_seed$0 = h$0.$1;
-  const $t$0 = h$0.$2;
-  if (!$t$0) {
-    return {$: "CombatTurn", $0: player_keep$0, $1: enemy_keep$0, $2: mana$0,
-      $3: next_seed$0, $4: 0, $5: 0, $6: false};
-  } else {
-    const h$1 = run_loop($u32_pair_func$(damage$0));
-    return run_jump($combat_attack_func$k65$, [own_slot$0, target_slot$0,
-      hero_defense$0, mana$0, player_keep$0, enemy_keep$0, next_seed$0, h$1]);
-  }
+function $combat_turn_sync_func$k253$(mana$0, next_seed$0, dealt$0, received$0,
+  valid$0, obstacle_seed$0, player_keep$0, friendly_keep$0, h$0) {
+  const enemy_keep$0 = h$0.$0;
+  const hostile_keep$0 = h$0.$1;
+  return {$: "CombatTurn", $0: player_keep$0, $1: enemy_keep$0, $2: mana$0, $3:
+    next_seed$0, $4: dealt$0, $5: received$0, $6: valid$0, $7: {$:
+    "Tactics.Battlefield", $0: friendly_keep$0, $1: hostile_keep$0, $2:
+    obstacle_seed$0}};
 }
 
-function $attack_roll_func$(actor$0, target$0, hero_attack$0, hero_defense$0,
-  seed$0) {
-  if (actor$0.$ === "EmptyStack") {
-    if (target$0.$ === "EmptyStack") {
-      return {$: "AttackRoll", $0: 0, $1: seed$0, $2: false};
-    } else {
-      const target_kind$0 = target$0.$0;
-      const target_count$0 = target$0.$1;
-      const target_first_hp$0 = target$0.$2;
-      return {$: "AttackRoll", $0: 0, $1: seed$0, $2: false};
-    }
-  } else {
-    const actor_kind$0 = actor$0.$0;
-    const actor_count$0 = actor$0.$1;
-    const actor_first_hp$0 = actor$0.$2;
-    if (target$0.$ === "EmptyStack") {
-      return {$: "AttackRoll", $0: 0, $1: seed$0, $2: false};
-    } else {
-      const target_kind$1 = target$0.$0;
-      const target_count$1 = target$0.$1;
-      const target_first_hp$1 = target$0.$2;
-      let $t$0;
-      if (actor_kind$0.$ === "Pikeman") {
-        $t$0 = {$: "CreatureBundle", $0: {$: "Pikeman"}, $1: {$:
-          "CreatureStats", $0: 4, $1: 5, $2: 1, $3: 3, $4: 10, $5: 4, $6: 14,
-          $7: 60, $8: false}};
-      } else if (actor_kind$0.$ === "Archer") {
-        $t$0 = {$: "CreatureBundle", $0: {$: "Archer"}, $1: {$: "CreatureStats",
-          $0: 6, $1: 3, $2: 2, $3: 3, $4: 10, $5: 4, $6: 9, $7: 100, $8: true}};
-      } else if (actor_kind$0.$ === "Griffin") {
-        $t$0 = {$: "CreatureBundle", $0: {$: "Griffin"}, $1: {$:
-          "CreatureStats", $0: 8, $1: 8, $2: 3, $3: 6, $4: 25, $5: 6, $6: 7, $7:
-          200, $8: false}};
-      } else if (actor_kind$0.$ === "Swordsman") {
-        $t$0 = {$: "CreatureBundle", $0: {$: "Swordsman"}, $1: {$:
-          "CreatureStats", $0: 10, $1: 12, $2: 6, $3: 9, $4: 35, $5: 5, $6: 4,
-          $7: 300, $8: false}};
-      } else if (actor_kind$0.$ === "Monk") {
-        $t$0 = {$: "CreatureBundle", $0: {$: "Monk"}, $1: {$: "CreatureStats",
-          $0: 12, $1: 7, $2: 10, $3: 12, $4: 30, $5: 5, $6: 3, $7: 400, $8:
-          true}};
-      } else if (actor_kind$0.$ === "Cavalier") {
-        $t$0 = {$: "CreatureBundle", $0: {$: "Cavalier"}, $1: {$:
-          "CreatureStats", $0: 15, $1: 15, $2: 15, $3: 25, $4: 100, $5: 7, $6:
-          2, $7: 1000, $8: false}};
-      } else if (actor_kind$0.$ === "Angel") {
-        $t$0 = {$: "CreatureBundle", $0: {$: "Angel"}, $1: {$: "CreatureStats",
-          $0: 20, $1: 20, $2: 50, $3: 50, $4: 200, $5: 12, $6: 1, $7: 3000, $8:
-          false}};
-      } else if (actor_kind$0.$ === "Skeleton") {
-        $t$0 = {$: "CreatureBundle", $0: {$: "Skeleton"}, $1: {$:
-          "CreatureStats", $0: 5, $1: 4, $2: 1, $3: 3, $4: 6, $5: 4, $6: 12, $7:
-          60, $8: false}};
-      } else if (actor_kind$0.$ === "WalkingDead") {
-        $t$0 = {$: "CreatureBundle", $0: {$: "WalkingDead"}, $1: {$:
-          "CreatureStats", $0: 5, $1: 5, $2: 2, $3: 3, $4: 15, $5: 3, $6: 8, $7:
-          100, $8: false}};
-      } else if (actor_kind$0.$ === "Wight") {
-        $t$0 = {$: "CreatureBundle", $0: {$: "Wight"}, $1: {$: "CreatureStats",
-          $0: 7, $1: 7, $2: 3, $3: 5, $4: 18, $5: 5, $6: 7, $7: 200, $8:
-          false}};
-      } else if (actor_kind$0.$ === "Vampire") {
-        $t$0 = {$: "CreatureBundle", $0: {$: "Vampire"}, $1: {$:
-          "CreatureStats", $0: 10, $1: 9, $2: 5, $3: 8, $4: 30, $5: 6, $6: 4,
-          $7: 360, $8: false}};
-      } else if (actor_kind$0.$ === "Lich") {
-        $t$0 = {$: "CreatureBundle", $0: {$: "Lich"}, $1: {$: "CreatureStats",
-          $0: 13, $1: 10, $2: 11, $3: 13, $4: 30, $5: 6, $6: 3, $7: 500, $8:
-          true}};
-      } else if (actor_kind$0.$ === "BlackKnight") {
-        $t$0 = {$: "CreatureBundle", $0: {$: "BlackKnight"}, $1: {$:
-          "CreatureStats", $0: 16, $1: 16, $2: 15, $3: 30, $4: 120, $5: 7, $6:
-          2, $7: 1200, $8: false}};
-      } else {
-        $t$0 = {$: "CreatureBundle", $0: {$: "BoneDragon"}, $1: {$:
-          "CreatureStats", $0: 17, $1: 15, $2: 25, $3: 50, $4: 150, $5: 9, $6:
-          1, $7: 1800, $8: false}};
-      }
-      const actor_keep$0 = $t$0.$0;
-      const $t$1 = $t$0.$1;
-      const creature_attack$0 = $t$1.$0;
-      const actor_defense$0 = $t$1.$1;
-      const damage_min$0 = $t$1.$2;
-      const damage_max$0 = $t$1.$3;
-      const actor_hp$0 = $t$1.$4;
-      const actor_speed$0 = $t$1.$5;
-      const actor_growth$0 = $t$1.$6;
-      const actor_cost$0 = $t$1.$7;
-      const ranged$0 = $t$1.$8;
-      let $t$2;
-      if (target_kind$1.$ === "Pikeman") {
-        $t$2 = {$: "CreatureBundle", $0: {$: "Pikeman"}, $1: {$:
-          "CreatureStats", $0: 4, $1: 5, $2: 1, $3: 3, $4: 10, $5: 4, $6: 14,
-          $7: 60, $8: false}};
-      } else if (target_kind$1.$ === "Archer") {
-        $t$2 = {$: "CreatureBundle", $0: {$: "Archer"}, $1: {$: "CreatureStats",
-          $0: 6, $1: 3, $2: 2, $3: 3, $4: 10, $5: 4, $6: 9, $7: 100, $8: true}};
-      } else if (target_kind$1.$ === "Griffin") {
-        $t$2 = {$: "CreatureBundle", $0: {$: "Griffin"}, $1: {$:
-          "CreatureStats", $0: 8, $1: 8, $2: 3, $3: 6, $4: 25, $5: 6, $6: 7, $7:
-          200, $8: false}};
-      } else if (target_kind$1.$ === "Swordsman") {
-        $t$2 = {$: "CreatureBundle", $0: {$: "Swordsman"}, $1: {$:
-          "CreatureStats", $0: 10, $1: 12, $2: 6, $3: 9, $4: 35, $5: 5, $6: 4,
-          $7: 300, $8: false}};
-      } else if (target_kind$1.$ === "Monk") {
-        $t$2 = {$: "CreatureBundle", $0: {$: "Monk"}, $1: {$: "CreatureStats",
-          $0: 12, $1: 7, $2: 10, $3: 12, $4: 30, $5: 5, $6: 3, $7: 400, $8:
-          true}};
-      } else if (target_kind$1.$ === "Cavalier") {
-        $t$2 = {$: "CreatureBundle", $0: {$: "Cavalier"}, $1: {$:
-          "CreatureStats", $0: 15, $1: 15, $2: 15, $3: 25, $4: 100, $5: 7, $6:
-          2, $7: 1000, $8: false}};
-      } else if (target_kind$1.$ === "Angel") {
-        $t$2 = {$: "CreatureBundle", $0: {$: "Angel"}, $1: {$: "CreatureStats",
-          $0: 20, $1: 20, $2: 50, $3: 50, $4: 200, $5: 12, $6: 1, $7: 3000, $8:
-          false}};
-      } else if (target_kind$1.$ === "Skeleton") {
-        $t$2 = {$: "CreatureBundle", $0: {$: "Skeleton"}, $1: {$:
-          "CreatureStats", $0: 5, $1: 4, $2: 1, $3: 3, $4: 6, $5: 4, $6: 12, $7:
-          60, $8: false}};
-      } else if (target_kind$1.$ === "WalkingDead") {
-        $t$2 = {$: "CreatureBundle", $0: {$: "WalkingDead"}, $1: {$:
-          "CreatureStats", $0: 5, $1: 5, $2: 2, $3: 3, $4: 15, $5: 3, $6: 8, $7:
-          100, $8: false}};
-      } else if (target_kind$1.$ === "Wight") {
-        $t$2 = {$: "CreatureBundle", $0: {$: "Wight"}, $1: {$: "CreatureStats",
-          $0: 7, $1: 7, $2: 3, $3: 5, $4: 18, $5: 5, $6: 7, $7: 200, $8:
-          false}};
-      } else if (target_kind$1.$ === "Vampire") {
-        $t$2 = {$: "CreatureBundle", $0: {$: "Vampire"}, $1: {$:
-          "CreatureStats", $0: 10, $1: 9, $2: 5, $3: 8, $4: 30, $5: 6, $6: 4,
-          $7: 360, $8: false}};
-      } else if (target_kind$1.$ === "Lich") {
-        $t$2 = {$: "CreatureBundle", $0: {$: "Lich"}, $1: {$: "CreatureStats",
-          $0: 13, $1: 10, $2: 11, $3: 13, $4: 30, $5: 6, $6: 3, $7: 500, $8:
-          true}};
-      } else if (target_kind$1.$ === "BlackKnight") {
-        $t$2 = {$: "CreatureBundle", $0: {$: "BlackKnight"}, $1: {$:
-          "CreatureStats", $0: 16, $1: 16, $2: 15, $3: 30, $4: 120, $5: 7, $6:
-          2, $7: 1200, $8: false}};
-      } else {
-        $t$2 = {$: "CreatureBundle", $0: {$: "BoneDragon"}, $1: {$:
-          "CreatureStats", $0: 17, $1: 15, $2: 25, $3: 50, $4: 150, $5: 9, $6:
-          1, $7: 1800, $8: false}};
-      }
-      const target_keep$0 = $t$2.$0;
-      const $t$3 = $t$2.$1;
-      const target_attack$0 = $t$3.$0;
-      const creature_defense$0 = $t$3.$1;
-      const target_min$0 = $t$3.$2;
-      const target_max$0 = $t$3.$3;
-      const target_hp$0 = $t$3.$4;
-      const target_speed$0 = $t$3.$5;
-      const target_growth$0 = $t$3.$6;
-      const target_cost$0 = $t$3.$7;
-      const target_ranged$0 = $t$3.$8;
-      return run_jump($attack_roll_values_func$, [actor_count$0,
-        creature_attack$0, damage_min$0, damage_max$0, creature_defense$0,
-        hero_attack$0, hero_defense$0, seed$0, ranged$0]);
-    }
-  }
+function $army_formation_sync_func$k258$(s1$0, s2$0, s3$0, s4$0, s5$0, s6$0,
+  p1$0, p2$0, p3$0, p4$0, p5$0, p6$0, h$0) {
+  const a0$0 = h$0.$0;
+  const q0$0 = h$0.$1;
+  const h$1 = run_loop($stack_position_sync_func$(s1$0, p1$0));
+  return run_jump($army_formation_sync_func$k259$, [s2$0, s3$0, s4$0, s5$0,
+    s6$0, p2$0, p3$0, p4$0, p5$0, p6$0, a0$0, q0$0, h$1]);
 }
 
-function $stack_pair_func$k141$(first_unit_hp$0, left_kind$0, right_kind$0,
-  h$0) {
-  const left_count$0 = h$0.$0;
-  const right_count$0 = h$0.$1;
-  const h$1 = run_loop($u32_pair_func$(first_unit_hp$0));
-  return run_jump($stack_pair_func$k142$, [left_kind$0, right_kind$0,
-    left_count$0, right_count$0, h$1]);
+function $stack_position_sync_func$(stack$0, position$0) {
+  const h$0 = run_loop($stack_check_func$(stack$0));
+  return run_jump($stack_position_sync_func$k266$, [position$0, h$0]);
 }
 
-function $combat_defend_func$k74$(own_slot$0, mana$0, enemy_keep$0,
-  player_keep$0, h$0) {
-  const response$0 = h$0.$0;
-  const next_seed$0 = h$0.$1;
-  const $t$0 = h$0.$2;
-  if (!$t$0) {
-    return {$: "CombatTurn", $0: player_keep$0, $1: enemy_keep$0, $2: mana$0,
-      $3: next_seed$0, $4: 0, $5: 0, $6: false};
-  } else {
-    const h$1 = run_loop($u32_pair_func$(response$0));
-    return run_jump($combat_defend_func$k75$, [own_slot$0, mana$0, enemy_keep$0,
-      player_keep$0, next_seed$0, h$1]);
-  }
-}
-
-function $attack_roll_defend_func$(actor$0, target$0, hero_attack$0,
-  hero_defense$0, seed$0) {
-  if (actor$0.$ === "EmptyStack") {
-    if (target$0.$ === "EmptyStack") {
-      return {$: "AttackRoll", $0: 0, $1: seed$0, $2: false};
-    } else {
-      const target_kind$0 = target$0.$0;
-      const target_count$0 = target$0.$1;
-      const target_first_hp$0 = target$0.$2;
-      return {$: "AttackRoll", $0: 0, $1: seed$0, $2: false};
-    }
-  } else {
-    const actor_kind$0 = actor$0.$0;
-    const actor_count$0 = actor$0.$1;
-    const actor_first_hp$0 = actor$0.$2;
-    if (target$0.$ === "EmptyStack") {
-      return {$: "AttackRoll", $0: 0, $1: seed$0, $2: false};
-    } else {
-      const target_kind$1 = target$0.$0;
-      const target_count$1 = target$0.$1;
-      const target_first_hp$1 = target$0.$2;
-      let $t$0;
-      if (actor_kind$0.$ === "Pikeman") {
-        $t$0 = {$: "CreatureBundle", $0: {$: "Pikeman"}, $1: {$:
-          "CreatureStats", $0: 4, $1: 5, $2: 1, $3: 3, $4: 10, $5: 4, $6: 14,
-          $7: 60, $8: false}};
-      } else if (actor_kind$0.$ === "Archer") {
-        $t$0 = {$: "CreatureBundle", $0: {$: "Archer"}, $1: {$: "CreatureStats",
-          $0: 6, $1: 3, $2: 2, $3: 3, $4: 10, $5: 4, $6: 9, $7: 100, $8: true}};
-      } else if (actor_kind$0.$ === "Griffin") {
-        $t$0 = {$: "CreatureBundle", $0: {$: "Griffin"}, $1: {$:
-          "CreatureStats", $0: 8, $1: 8, $2: 3, $3: 6, $4: 25, $5: 6, $6: 7, $7:
-          200, $8: false}};
-      } else if (actor_kind$0.$ === "Swordsman") {
-        $t$0 = {$: "CreatureBundle", $0: {$: "Swordsman"}, $1: {$:
-          "CreatureStats", $0: 10, $1: 12, $2: 6, $3: 9, $4: 35, $5: 5, $6: 4,
-          $7: 300, $8: false}};
-      } else if (actor_kind$0.$ === "Monk") {
-        $t$0 = {$: "CreatureBundle", $0: {$: "Monk"}, $1: {$: "CreatureStats",
-          $0: 12, $1: 7, $2: 10, $3: 12, $4: 30, $5: 5, $6: 3, $7: 400, $8:
-          true}};
-      } else if (actor_kind$0.$ === "Cavalier") {
-        $t$0 = {$: "CreatureBundle", $0: {$: "Cavalier"}, $1: {$:
-          "CreatureStats", $0: 15, $1: 15, $2: 15, $3: 25, $4: 100, $5: 7, $6:
-          2, $7: 1000, $8: false}};
-      } else if (actor_kind$0.$ === "Angel") {
-        $t$0 = {$: "CreatureBundle", $0: {$: "Angel"}, $1: {$: "CreatureStats",
-          $0: 20, $1: 20, $2: 50, $3: 50, $4: 200, $5: 12, $6: 1, $7: 3000, $8:
-          false}};
-      } else if (actor_kind$0.$ === "Skeleton") {
-        $t$0 = {$: "CreatureBundle", $0: {$: "Skeleton"}, $1: {$:
-          "CreatureStats", $0: 5, $1: 4, $2: 1, $3: 3, $4: 6, $5: 4, $6: 12, $7:
-          60, $8: false}};
-      } else if (actor_kind$0.$ === "WalkingDead") {
-        $t$0 = {$: "CreatureBundle", $0: {$: "WalkingDead"}, $1: {$:
-          "CreatureStats", $0: 5, $1: 5, $2: 2, $3: 3, $4: 15, $5: 3, $6: 8, $7:
-          100, $8: false}};
-      } else if (actor_kind$0.$ === "Wight") {
-        $t$0 = {$: "CreatureBundle", $0: {$: "Wight"}, $1: {$: "CreatureStats",
-          $0: 7, $1: 7, $2: 3, $3: 5, $4: 18, $5: 5, $6: 7, $7: 200, $8:
-          false}};
-      } else if (actor_kind$0.$ === "Vampire") {
-        $t$0 = {$: "CreatureBundle", $0: {$: "Vampire"}, $1: {$:
-          "CreatureStats", $0: 10, $1: 9, $2: 5, $3: 8, $4: 30, $5: 6, $6: 4,
-          $7: 360, $8: false}};
-      } else if (actor_kind$0.$ === "Lich") {
-        $t$0 = {$: "CreatureBundle", $0: {$: "Lich"}, $1: {$: "CreatureStats",
-          $0: 13, $1: 10, $2: 11, $3: 13, $4: 30, $5: 6, $6: 3, $7: 500, $8:
-          true}};
-      } else if (actor_kind$0.$ === "BlackKnight") {
-        $t$0 = {$: "CreatureBundle", $0: {$: "BlackKnight"}, $1: {$:
-          "CreatureStats", $0: 16, $1: 16, $2: 15, $3: 30, $4: 120, $5: 7, $6:
-          2, $7: 1200, $8: false}};
-      } else {
-        $t$0 = {$: "CreatureBundle", $0: {$: "BoneDragon"}, $1: {$:
-          "CreatureStats", $0: 17, $1: 15, $2: 25, $3: 50, $4: 150, $5: 9, $6:
-          1, $7: 1800, $8: false}};
-      }
-      const actor_keep$0 = $t$0.$0;
-      const $t$1 = $t$0.$1;
-      const creature_attack$0 = $t$1.$0;
-      const actor_defense$0 = $t$1.$1;
-      const damage_min$0 = $t$1.$2;
-      const damage_max$0 = $t$1.$3;
-      const actor_hp$0 = $t$1.$4;
-      const actor_speed$0 = $t$1.$5;
-      const actor_growth$0 = $t$1.$6;
-      const actor_cost$0 = $t$1.$7;
-      const ranged$0 = $t$1.$8;
-      let $t$2;
-      if (target_kind$1.$ === "Pikeman") {
-        $t$2 = {$: "CreatureBundle", $0: {$: "Pikeman"}, $1: {$:
-          "CreatureStats", $0: 4, $1: 5, $2: 1, $3: 3, $4: 10, $5: 4, $6: 14,
-          $7: 60, $8: false}};
-      } else if (target_kind$1.$ === "Archer") {
-        $t$2 = {$: "CreatureBundle", $0: {$: "Archer"}, $1: {$: "CreatureStats",
-          $0: 6, $1: 3, $2: 2, $3: 3, $4: 10, $5: 4, $6: 9, $7: 100, $8: true}};
-      } else if (target_kind$1.$ === "Griffin") {
-        $t$2 = {$: "CreatureBundle", $0: {$: "Griffin"}, $1: {$:
-          "CreatureStats", $0: 8, $1: 8, $2: 3, $3: 6, $4: 25, $5: 6, $6: 7, $7:
-          200, $8: false}};
-      } else if (target_kind$1.$ === "Swordsman") {
-        $t$2 = {$: "CreatureBundle", $0: {$: "Swordsman"}, $1: {$:
-          "CreatureStats", $0: 10, $1: 12, $2: 6, $3: 9, $4: 35, $5: 5, $6: 4,
-          $7: 300, $8: false}};
-      } else if (target_kind$1.$ === "Monk") {
-        $t$2 = {$: "CreatureBundle", $0: {$: "Monk"}, $1: {$: "CreatureStats",
-          $0: 12, $1: 7, $2: 10, $3: 12, $4: 30, $5: 5, $6: 3, $7: 400, $8:
-          true}};
-      } else if (target_kind$1.$ === "Cavalier") {
-        $t$2 = {$: "CreatureBundle", $0: {$: "Cavalier"}, $1: {$:
-          "CreatureStats", $0: 15, $1: 15, $2: 15, $3: 25, $4: 100, $5: 7, $6:
-          2, $7: 1000, $8: false}};
-      } else if (target_kind$1.$ === "Angel") {
-        $t$2 = {$: "CreatureBundle", $0: {$: "Angel"}, $1: {$: "CreatureStats",
-          $0: 20, $1: 20, $2: 50, $3: 50, $4: 200, $5: 12, $6: 1, $7: 3000, $8:
-          false}};
-      } else if (target_kind$1.$ === "Skeleton") {
-        $t$2 = {$: "CreatureBundle", $0: {$: "Skeleton"}, $1: {$:
-          "CreatureStats", $0: 5, $1: 4, $2: 1, $3: 3, $4: 6, $5: 4, $6: 12, $7:
-          60, $8: false}};
-      } else if (target_kind$1.$ === "WalkingDead") {
-        $t$2 = {$: "CreatureBundle", $0: {$: "WalkingDead"}, $1: {$:
-          "CreatureStats", $0: 5, $1: 5, $2: 2, $3: 3, $4: 15, $5: 3, $6: 8, $7:
-          100, $8: false}};
-      } else if (target_kind$1.$ === "Wight") {
-        $t$2 = {$: "CreatureBundle", $0: {$: "Wight"}, $1: {$: "CreatureStats",
-          $0: 7, $1: 7, $2: 3, $3: 5, $4: 18, $5: 5, $6: 7, $7: 200, $8:
-          false}};
-      } else if (target_kind$1.$ === "Vampire") {
-        $t$2 = {$: "CreatureBundle", $0: {$: "Vampire"}, $1: {$:
-          "CreatureStats", $0: 10, $1: 9, $2: 5, $3: 8, $4: 30, $5: 6, $6: 4,
-          $7: 360, $8: false}};
-      } else if (target_kind$1.$ === "Lich") {
-        $t$2 = {$: "CreatureBundle", $0: {$: "Lich"}, $1: {$: "CreatureStats",
-          $0: 13, $1: 10, $2: 11, $3: 13, $4: 30, $5: 6, $6: 3, $7: 500, $8:
-          true}};
-      } else if (target_kind$1.$ === "BlackKnight") {
-        $t$2 = {$: "CreatureBundle", $0: {$: "BlackKnight"}, $1: {$:
-          "CreatureStats", $0: 16, $1: 16, $2: 15, $3: 30, $4: 120, $5: 7, $6:
-          2, $7: 1200, $8: false}};
-      } else {
-        $t$2 = {$: "CreatureBundle", $0: {$: "BoneDragon"}, $1: {$:
-          "CreatureStats", $0: 17, $1: 15, $2: 25, $3: 50, $4: 150, $5: 9, $6:
-          1, $7: 1800, $8: false}};
-      }
-      const target_keep$0 = $t$2.$0;
-      const $t$3 = $t$2.$1;
-      const target_attack$0 = $t$3.$0;
-      const creature_defense$0 = $t$3.$1;
-      const target_min$0 = $t$3.$2;
-      const target_max$0 = $t$3.$3;
-      const target_hp$0 = $t$3.$4;
-      const target_speed$0 = $t$3.$5;
-      const target_growth$0 = $t$3.$6;
-      const target_cost$0 = $t$3.$7;
-      const target_ranged$0 = $t$3.$8;
-      const h$0 = run_loop($u32_pair_func$(creature_defense$0));
-      return run_jump($attack_roll_defend_func$k146$, [actor_count$0,
-        hero_attack$0, hero_defense$0, seed$0, creature_attack$0, damage_min$0,
-        damage_max$0, ranged$0, h$0]);
-    }
-  }
-}
-
-function $combat_spell_func$k79$(player$0, own_slot$0, target_slot$0,
-  hero_defense$0, mana$0, seed$0, enemy_keep$0, h$0) {
-  const damage_apply$0 = h$0.$0;
-  const damage_output$0 = h$0.$1;
-  const h$1 = run_loop($army_damage_func$(enemy_keep$0, target_slot$0,
-    damage_apply$0));
-  return run_jump($combat_spell_func$k80$, [player$0, own_slot$0, target_slot$0,
-    hero_defense$0, mana$0, seed$0, damage_output$0, h$1]);
-}
-
-function $army_check_func$k117$(c$0, d$0, e$0, f$0, g$0, a_keep$0, a_empty$0,
-  h$0) {
-  const b_keep$0 = h$0.$0;
-  const b_empty$0 = h$0.$1;
-  const h$1 = run_loop($stack_check_func$(c$0));
-  return run_jump($army_check_func$k118$, [d$0, e$0, f$0, g$0, a_keep$0,
-    a_empty$0, b_keep$0, b_empty$0, h$1]);
-}
-
-function $hero_attempt_enter_func$k143$(name$0, old_x$0, old_y$0, movement$0,
-  attack$0, defense$0, power$0, knowledge$0, mana$0, level$0, experience$0,
-  army$0, next_x$0, next_y$0, h$0) {
-  const cost_test$0 = h$0.$0;
-  const cost_live$0 = h$0.$1;
-  const $t$0 = (cost_test$0 <= movement$0);
-  if (!$t$0) {
-    return {$: "HeroMove", $0: {$: "Hero", $0: name$0, $1: old_x$0, $2: old_y$0,
-      $3: movement$0, $4: attack$0, $5: defense$0, $6: power$0, $7: knowledge$0,
-      $8: mana$0, $9: level$0, $10: experience$0, $11: army$0}, $1: next_x$0,
-      $2: next_y$0, $3: false};
-  } else {
-    const h$1 = run_loop($u32_pair_func$(next_x$0));
-    return run_jump($hero_attempt_enter_func$k144$, [name$0, movement$0,
-      attack$0, defense$0, power$0, knowledge$0, mana$0, level$0, experience$0,
-      army$0, next_y$0, cost_live$0, h$1]);
-  }
-}
-
-function $kingdom_new_day_func$k93$(hero$0, next_town$0, next_resources$0) {
-  const h$0 = run_loop($hero_new_day_func$(hero$0));
-  return run_jump($kingdom_new_day_func$k94$, [next_town$0, next_resources$0,
-    h$0]);
-}
-
-function $town_new_day_func$k125$(faction$0, dwellings$0, stock$0,
-  hall_income$0, hall_keep$0, h$0) {
-  const fort_growth$0 = h$0.$0;
-  const fort_keep$0 = h$0.$1;
-  const h$1 = run_loop($u32_pair_func$(dwellings$0));
-  return run_jump($town_new_day_func$k126$, [faction$0, stock$0, hall_income$0,
-    hall_keep$0, fort_growth$0, fort_keep$0, h$1]);
-}
-
-function $town_build_dwelling_values_func$k51$(faction$0, hall$0, fort$0,
-  dwellings$0, stock$0, bit_live$0, h$0) {
-  const remaining$0 = h$0.$0;
-  const $t$0 = h$0.$1;
-  if (!$t$0) {
-    return {$: "TownAction", $0: {$: "Town", $0: faction$0, $1: hall$0, $2:
-      fort$0, $3: dwellings$0, $4: false, $5: stock$0}, $1: remaining$0, $2:
-      false, $3: "The kingdom lacks resources for that creature dwelling."};
-  } else {
-    return {$: "TownAction", $0: {$: "Town", $0: faction$0, $1: hall$0, $2:
-      fort$0, $3: ((dwellings$0 | bit_live$0) >>> 0), $4: true, $5: stock$0},
-      $1: remaining$0, $2: true, $3: "A new creature dwelling was completed."};
-  }
-}
-
-function $kingdom_recruit_values_func$k55$(name$0, x$0, y$0, movement$0,
-  hero_attack$0, hero_defense$0, power$0, knowledge$0, mana$0, level$0,
-  experience$0, hall$0, fort$0, dwellings$0, built_today$0, tier$0, amount$0,
-  kept_stock$0, remaining$0, next_army$0) {
-  const next_stock$0 = run_loop($stock_sub_func$(kept_stock$0, tier$0,
-    amount$0));
-  return run_jump($kingdom_recruit_values_func$k56$, [name$0, x$0, y$0,
-    movement$0, hero_attack$0, hero_defense$0, power$0, knowledge$0, mana$0,
-    level$0, experience$0, hall$0, fort$0, dwellings$0, built_today$0,
-    remaining$0, next_army$0, next_stock$0]);
-}
-
-function $army_add_func$(army$0, tier$0, kind$0, amount$0) {
-  return run_jump($army_add_nat_func$, [BigInt(tier$0), army$0, kind$0,
-    amount$0]);
-}
-
-function $kingdom_recruit_necropolis_values_func$k60$(name$0, x$0, y$0,
-  movement$0, hero_attack$0, hero_defense$0, power$0, knowledge$0, mana$0,
-  level$0, experience$0, hall$0, fort$0, dwellings$0, built_today$0, tier$0,
-  amount$0, kept_stock$0, remaining$0, next_army$0) {
-  const next_stock$0 = run_loop($stock_sub_func$(kept_stock$0, tier$0,
-    amount$0));
-  return run_jump($kingdom_recruit_necropolis_values_func$k61$, [name$0, x$0,
-    y$0, movement$0, hero_attack$0, hero_defense$0, power$0, knowledge$0,
-    mana$0, level$0, experience$0, hall$0, fort$0, dwellings$0, built_today$0,
-    remaining$0, next_army$0, next_stock$0]);
-}
-
-function $kingdom_finish_combat_func$k97$(town$0, attacker$0, source$0,
-  next_seed$0, h$0, name$0, x$0, y$0, movement$0, attack$0, defense$0, power$0,
-  knowledge$0, mana$0, level$0, experience$0, h$1) {
-  const army$0 = h$1;
-  const h$2 = run_loop($hero_gain_func$({$: "Hero", $0: name$0, $1: x$0, $2:
-    y$0, $3: movement$0, $4: attack$0, $5: defense$0, $6: power$0, $7:
-    knowledge$0, $8: mana$0, $9: level$0, $10: experience$0, $11: army$0},
-    1200));
-  return run_jump($kingdom_finish_combat_func$k98$, [town$0, attacker$0,
-    source$0, next_seed$0, h$0, h$2]);
-}
-
-function $army_heal_func$(army$0) {
-  const a$0 = army$0.$0;
-  const b$0 = army$0.$1;
-  const c$0 = army$0.$2;
-  const d$0 = army$0.$3;
-  const e$0 = army$0.$4;
-  const f$0 = army$0.$5;
-  const g$0 = army$0.$6;
-  const h$0 = run_loop($stack_heal_func$(a$0));
-  return run_jump($army_heal_func$k147$, [b$0, c$0, d$0, e$0, f$0, g$0, h$0]);
-}
-
-function $combat_attack_func$k65$(own_slot$0, target_slot$0, hero_defense$0,
-  mana$0, player_keep$0, enemy_keep$0, next_seed$0, h$0) {
-  const damage_apply$0 = h$0.$0;
-  const damage_output$0 = h$0.$1;
-  const h$1 = run_loop($army_damage_func$(enemy_keep$0, target_slot$0,
-    damage_apply$0));
-  return run_jump($combat_attack_func$k66$, [own_slot$0, target_slot$0,
-    hero_defense$0, mana$0, player_keep$0, next_seed$0, damage_output$0, h$1]);
-}
-
-function $attack_roll_values_func$(count$0, creature_attack$0, damage_min$0,
-  damage_max$0, creature_defense$0, hero_attack$0, hero_defense$0, seed$0,
-  ranged$0) {
-  const x$0 = ((damage_max$0 - damage_min$0) >>> 0);
-  const span$0 = ((x$0 + 1) >>> 0);
-  const h$0 = run_loop($rng_step_func$(seed$0, span$0));
-  return run_jump($attack_roll_values_func$k154$, [count$0, creature_attack$0,
-    damage_min$0, creature_defense$0, hero_attack$0, hero_defense$0, ranged$0,
-    h$0]);
-}
-
-function $stack_pair_func$k142$(left_kind$0, right_kind$0, left_count$0,
-  right_count$0, h$0) {
-  const left_hp$0 = h$0.$0;
-  const right_hp$0 = h$0.$1;
-  return {$: "StackPair", $0: {$: "Troop", $0: left_kind$0, $1: left_count$0,
-    $2: left_hp$0}, $1: {$: "Troop", $0: right_kind$0, $1: right_count$0, $2:
-    right_hp$0}};
-}
-
-function $combat_defend_func$k75$(own_slot$0, mana$0, enemy_keep$0,
-  player_keep$0, next_seed$0, h$0) {
+function $combat_defend_func$k162$(own_slot$0, mana$0, battlefield$0,
+  enemy_keep$0, player_keep$0, next_seed$0, h$0) {
   const response_apply$0 = h$0.$0;
   const response_output$0 = h$0.$1;
   const h$1 = run_loop($army_damage_func$(player_keep$0, own_slot$0,
     response_apply$0));
-  return run_jump($combat_defend_func$k76$, [mana$0, enemy_keep$0, next_seed$0,
-    response_output$0, h$1]);
+  return run_jump($combat_defend_func$k163$, [mana$0, battlefield$0,
+    enemy_keep$0, next_seed$0, response_output$0, h$1]);
 }
 
-function $attack_roll_defend_func$k146$(actor_count$0, hero_attack$0,
-  hero_defense$0, seed$0, creature_attack$0, damage_min$0, damage_max$0,
-  ranged$0, h$0) {
+function $attack_roll_defend_func$k265$(actor_count$0, hero_attack$0,
+  hero_defense$0, seed$0, creature_attack$0, damage_min$0, damage_max$0, h$0) {
   const defense_for_bonus$0 = h$0.$0;
   const defense_for_roll$0 = h$0.$1;
   const x$0 = ((defense_for_bonus$0 + hero_defense$0) >>> 0);
   const defend_bonus$0 = (5 === 0 ? 0 : (x$0 / 5) >>> 0);
   return run_jump($attack_roll_values_func$, [actor_count$0, creature_attack$0,
     damage_min$0, damage_max$0, defense_for_roll$0, hero_attack$0, ((
-    hero_defense$0 + defend_bonus$0) >>> 0), seed$0, ranged$0]);
+    hero_defense$0 + defend_bonus$0) >>> 0), seed$0]);
 }
 
-function $combat_spell_func$k80$(player$0, own_slot$0, target_slot$0,
-  hero_defense$0, mana$0, seed$0, damage_output$0, h$0) {
+function $combat_spell_func$k167$(player$0, mana$0, seed$0, battlefield$0,
+  damage_output$0, h$0) {
   const enemy_hit$0 = h$0.$0;
   const kills$0 = h$0.$1;
-  const h$1 = run_loop($army_select_func$(enemy_hit$0, target_slot$0));
-  return run_jump($combat_spell_func$k81$, [player$0, own_slot$0,
-    hero_defense$0, mana$0, seed$0, damage_output$0, h$1]);
+  return {$: "CombatTurn", $0: player$0, $1: enemy_hit$0, $2: ((
+    mana$0 - 5) >>> 0), $3: seed$0, $4: damage_output$0, $5: 0, $6: true, $7:
+    battlefield$0};
 }
 
 function $army_damage_func$(army$0, index$0, damage$0) {
@@ -6294,41 +8743,41 @@ function $army_damage_func$(army$0, index$0, damage$0) {
   const $t$0 = BigInt(index$0);
   if ($t$0 === 0n) {
     const h$0 = run_loop($stack_damage_func$(a$0, damage$0));
-    return run_jump($army_damage_func$k155$, [b$0, c$0, d$0, e$0, f$0, g$0,
+    return run_jump($army_damage_func$k267$, [b$0, c$0, d$0, e$0, f$0, g$0,
       h$0]);
   } else {
     const $t$1 = ($t$0 - 1n);
     if ($t$1 === 0n) {
       const h$1 = run_loop($stack_damage_func$(b$0, damage$0));
-      return run_jump($army_damage_func$k156$, [a$0, c$0, d$0, e$0, f$0, g$0,
+      return run_jump($army_damage_func$k268$, [a$0, c$0, d$0, e$0, f$0, g$0,
         h$1]);
     } else {
       const $t$2 = ($t$1 - 1n);
       if ($t$2 === 0n) {
         const h$2 = run_loop($stack_damage_func$(c$0, damage$0));
-        return run_jump($army_damage_func$k157$, [a$0, b$0, d$0, e$0, f$0, g$0,
+        return run_jump($army_damage_func$k269$, [a$0, b$0, d$0, e$0, f$0, g$0,
           h$2]);
       } else {
         const $t$3 = ($t$2 - 1n);
         if ($t$3 === 0n) {
           const h$3 = run_loop($stack_damage_func$(d$0, damage$0));
-          return run_jump($army_damage_func$k158$, [a$0, b$0, c$0, e$0, f$0,
+          return run_jump($army_damage_func$k270$, [a$0, b$0, c$0, e$0, f$0,
             g$0, h$3]);
         } else {
           const $t$4 = ($t$3 - 1n);
           if ($t$4 === 0n) {
             const h$4 = run_loop($stack_damage_func$(e$0, damage$0));
-            return run_jump($army_damage_func$k159$, [a$0, b$0, c$0, d$0, f$0,
+            return run_jump($army_damage_func$k271$, [a$0, b$0, c$0, d$0, f$0,
               g$0, h$4]);
           } else {
             const $t$5 = ($t$4 - 1n);
             if ($t$5 === 0n) {
               const h$5 = run_loop($stack_damage_func$(f$0, damage$0));
-              return run_jump($army_damage_func$k160$, [a$0, b$0, c$0, d$0, e$0,
+              return run_jump($army_damage_func$k272$, [a$0, b$0, c$0, d$0, e$0,
                 g$0, h$5]);
             } else {
               const h$6 = run_loop($stack_damage_func$(g$0, damage$0));
-              return run_jump($army_damage_func$k161$, [a$0, b$0, c$0, d$0, e$0,
+              return run_jump($army_damage_func$k273$, [a$0, b$0, c$0, d$0, e$0,
                 f$0, h$6]);
             }
           }
@@ -6338,27 +8787,82 @@ function $army_damage_func$(army$0, index$0, damage$0) {
   }
 }
 
-function $army_check_func$k118$(d$0, e$0, f$0, g$0, a_keep$0, a_empty$0,
+function $combat_move_func$k171$(enemy$0, mana$0, seed$0, battlefield$0,
+  own_move$0, player_keep$0, speed$0, flying$0, h$0) {
+  if (h$0.$ === "Tactics.InvalidHex") {
+    return {$: "CombatTurn", $0: player_keep$0, $1: enemy$0, $2: mana$0, $3:
+      seed$0, $4: 0, $5: 0, $6: false, $7: battlefield$0};
+  } else {
+    const $t$0 = h$0.$0;
+    const target_column$0 = $t$0.$0;
+    const target_row$0 = $t$0.$1;
+    const h$1 = run_loop($Tactics$battlefield_move_friendly$(battlefield$0,
+      own_move$0, target_column$0, target_row$0, speed$0, flying$0));
+    return run_jump($combat_move_func$k172$, [enemy$0, mana$0, seed$0,
+      player_keep$0, h$1]);
+  }
+}
+
+function $Tactics$hex_from_index$(index$0) {
+  const h$0 = run_loop($Tactics$u32_pair$(index$0));
+  return run_jump($Tactics$hex_from_index$k279$, [h$0]);
+}
+
+function $Tactics$u32_max$(left$0, right$0) {
+  const h$0 = run_loop($Tactics$u32_pair$(left$0));
+  return run_jump($Tactics$u32_max$k280$, [right$0, h$0]);
+}
+
+function $army_ai_weakest_func$k76$(s4$0, s5$0, s6$0, h$0) {
+  const h$1 = run_loop($stack_ai_candidate_func$(4, s4$0));
+  return run_jump($army_ai_weakest_func$k77$, [s5$0, s6$0, h$0, h$1]);
+}
+
+function $army_ai_strongest_func$k36$(s5$0, s6$0, h$0, h$1) {
+  const h$2 = run_loop($stack_ai_candidate_func$(5, s5$0));
+  return run_jump($army_ai_strongest_func$k37$, [s6$0, h$0, h$1, h$2]);
+}
+
+function $combat_ai_battle_candidates_func$k178$(player$0, battlefield$0,
+  own_select$0, own_reach$0, own_move$0, own_output$0, h$0) {
+  const target_reach$0 = h$0.$0;
+  const target_tail$0 = h$0.$1;
+  const h$1 = run_loop($u32_pair_func$(target_tail$0));
+  return run_jump($combat_ai_battle_candidates_func$k179$, [player$0,
+    battlefield$0, own_select$0, own_reach$0, own_move$0, own_output$0,
+    target_reach$0, h$1]);
+}
+
+function $army_pair_func$k88$(l0$0, r0$0, l1$0, r1$0, l2$0, r2$0, l3$0, r3$0,
+  l4$0, r4$0, l5$0, r5$0, h$0) {
+  const l6$0 = h$0.$0;
+  const r6$0 = h$0.$1;
+  return {$: "ArmyPair", $0: {$: "Army", $0: l0$0, $1: l1$0, $2: l2$0, $3: l3$0,
+    $4: l4$0, $5: l5$0, $6: l6$0}, $1: {$: "Army", $0: r0$0, $1: r1$0, $2: r2$0,
+    $3: r3$0, $4: r4$0, $5: r5$0, $6: r6$0}};
+}
+
+function $army_check_func$k223$(d$0, e$0, f$0, g$0, a_keep$0, a_empty$0,
   b_keep$0, b_empty$0, h$0) {
   const c_keep$0 = h$0.$0;
   const c_empty$0 = h$0.$1;
   const h$1 = run_loop($stack_check_func$(d$0));
-  return run_jump($army_check_func$k119$, [e$0, f$0, g$0, a_keep$0, a_empty$0,
+  return run_jump($army_check_func$k224$, [e$0, f$0, g$0, a_keep$0, a_empty$0,
     b_keep$0, b_empty$0, c_keep$0, c_empty$0, h$1]);
 }
 
-function $hero_attempt_enter_func$k144$(name$0, movement$0, attack$0, defense$0,
+function $hero_attempt_enter_func$k255$(name$0, movement$0, attack$0, defense$0,
   power$0, knowledge$0, mana$0, level$0, experience$0, army$0, next_y$0,
   cost_live$0, h$0) {
   const hero_x$0 = h$0.$0;
   const visit_x$0 = h$0.$1;
   const h$1 = run_loop($u32_pair_func$(next_y$0));
-  return run_jump($hero_attempt_enter_func$k145$, [name$0, movement$0, attack$0,
+  return run_jump($hero_attempt_enter_func$k256$, [name$0, movement$0, attack$0,
     defense$0, power$0, knowledge$0, mana$0, level$0, experience$0, army$0,
     cost_live$0, hero_x$0, visit_x$0, h$1]);
 }
 
-function $kingdom_new_day_func$k94$(next_town$0, next_resources$0, h$0) {
+function $kingdom_new_day_func$k195$(next_town$0, next_resources$0, h$0) {
   return {$: "Kingdom", $0: next_resources$0, $1: h$0, $2: next_town$0};
 }
 
@@ -6376,11 +8880,11 @@ function $hero_new_day_func$(hero$0) {
   const experience$0 = hero$0.$10;
   const army$0 = hero$0.$11;
   const h$0 = run_loop($u32_pair_func$(knowledge$0));
-  return run_jump($hero_new_day_func$k167$, [name$0, x$0, y$0, attack$0,
+  return run_jump($hero_new_day_func$k282$, [name$0, x$0, y$0, attack$0,
     defense$0, power$0, mana$0, level$0, experience$0, army$0, h$0]);
 }
 
-function $town_new_day_func$k126$(faction$0, stock$0, hall_income$0,
+function $town_new_day_func$k231$(faction$0, stock$0, hall_income$0,
   hall_keep$0, fort_growth$0, fort_keep$0, h$0) {
   const dwellings_growth$0 = h$0.$0;
   const dwellings_keep$0 = h$0.$1;
@@ -6406,25 +8910,27 @@ function $town_new_day_func$k126$(faction$0, stock$0, hall_income$0,
   let $t$4;
   if (faction$0.$ === "Castle") {
     $t$4 = {$: "Tuple", $0: {$: "Castle"}, $1: {$: "Castle"}};
-  } else {
+  } else if (faction$0.$ === "Necropolis") {
     $t$4 = {$: "Tuple", $0: {$: "Necropolis"}, $1: {$: "Necropolis"}};
+  } else {
+    $t$4 = {$: "Tuple", $0: {$: "Inferno"}, $1: {$: "Inferno"}};
   }
   const growth_faction$0 = $t$4.$0;
   const output_faction$0 = $t$4.$1;
   const grown$0 = run_loop($stock_grow_faction_func$(stock$0, growth_faction$0,
     dwellings_growth$0, fort_growth$0));
-  return run_jump($town_new_day_func$k127$, [hall_keep$0, fort_keep$0,
+  return run_jump($town_new_day_func$k232$, [hall_keep$0, fort_keep$0,
     dwellings_keep$0, income$0, output_faction$0, grown$0]);
 }
 
-function $kingdom_recruit_values_func$k56$(name$0, x$0, y$0, movement$0,
+function $kingdom_recruit_values_func$k148$(name$0, x$0, y$0, movement$0,
   hero_attack$0, hero_defense$0, power$0, knowledge$0, mana$0, level$0,
-  experience$0, hall$0, fort$0, dwellings$0, built_today$0, remaining$0,
-  next_army$0, next_stock$0) {
+  experience$0, hall$0, fort$0, dwellings$0, built_today$0, output_faction$0,
+  remaining$0, next_army$0, next_stock$0) {
   return {$: "Tuple", $0: {$: "Kingdom", $0: remaining$0, $1: {$: "Hero", $0:
     name$0, $1: x$0, $2: y$0, $3: movement$0, $4: hero_attack$0, $5:
     hero_defense$0, $6: power$0, $7: knowledge$0, $8: mana$0, $9: level$0, $10:
-    experience$0, $11: next_army$0}, $2: {$: "Town", $0: {$: "Castle"}, $1:
+    experience$0, $11: next_army$0}, $2: {$: "Town", $0: output_faction$0, $1:
     hall$0, $2: fort$0, $3: dwellings$0, $4: built_today$0, $5: next_stock$0}},
     $1: "Creatures joined the active hero's army."};
 }
@@ -6437,50 +8943,88 @@ function $army_add_nat_func$(tier$0, army$0, kind$0, amount$0) {
   let $t$0;
   if (kind$0.$ === "Pikeman") {
     $t$0 = {$: "CreatureBundle", $0: {$: "Pikeman"}, $1: {$: "CreatureStats",
-      $0: 4, $1: 5, $2: 1, $3: 3, $4: 10, $5: 4, $6: 14, $7: 60, $8: false}};
+      $0: 4, $1: 5, $2: 1, $3: 3, $4: 10, $5: 4, $6: 14, $7: 60, $8: 1, $9: 0,
+      $10: false, $11: 1}};
   } else if (kind$0.$ === "Archer") {
     $t$0 = {$: "CreatureBundle", $0: {$: "Archer"}, $1: {$: "CreatureStats", $0:
-      6, $1: 3, $2: 2, $3: 3, $4: 10, $5: 4, $6: 9, $7: 100, $8: true}};
+      6, $1: 3, $2: 2, $3: 3, $4: 10, $5: 4, $6: 9, $7: 100, $8: 15, $9: 12,
+      $10: false, $11: 1}};
   } else if (kind$0.$ === "Griffin") {
     $t$0 = {$: "CreatureBundle", $0: {$: "Griffin"}, $1: {$: "CreatureStats",
-      $0: 8, $1: 8, $2: 3, $3: 6, $4: 25, $5: 6, $6: 7, $7: 200, $8: false}};
+      $0: 8, $1: 8, $2: 3, $3: 6, $4: 25, $5: 6, $6: 7, $7: 200, $8: 1, $9: 0,
+      $10: true, $11: 2}};
   } else if (kind$0.$ === "Swordsman") {
     $t$0 = {$: "CreatureBundle", $0: {$: "Swordsman"}, $1: {$: "CreatureStats",
-      $0: 10, $1: 12, $2: 6, $3: 9, $4: 35, $5: 5, $6: 4, $7: 300, $8: false}};
+      $0: 10, $1: 12, $2: 6, $3: 9, $4: 35, $5: 5, $6: 4, $7: 300, $8: 1, $9: 0,
+      $10: false, $11: 1}};
   } else if (kind$0.$ === "Monk") {
     $t$0 = {$: "CreatureBundle", $0: {$: "Monk"}, $1: {$: "CreatureStats", $0:
-      12, $1: 7, $2: 10, $3: 12, $4: 30, $5: 5, $6: 3, $7: 400, $8: true}};
+      12, $1: 7, $2: 10, $3: 12, $4: 30, $5: 5, $6: 3, $7: 400, $8: 15, $9: 12,
+      $10: false, $11: 1}};
   } else if (kind$0.$ === "Cavalier") {
     $t$0 = {$: "CreatureBundle", $0: {$: "Cavalier"}, $1: {$: "CreatureStats",
-      $0: 15, $1: 15, $2: 15, $3: 25, $4: 100, $5: 7, $6: 2, $7: 1000, $8:
-      false}};
+      $0: 15, $1: 15, $2: 15, $3: 25, $4: 100, $5: 7, $6: 2, $7: 1000, $8: 1,
+      $9: 0, $10: false, $11: 1}};
   } else if (kind$0.$ === "Angel") {
     $t$0 = {$: "CreatureBundle", $0: {$: "Angel"}, $1: {$: "CreatureStats", $0:
-      20, $1: 20, $2: 50, $3: 50, $4: 200, $5: 12, $6: 1, $7: 3000, $8: false}};
+      20, $1: 20, $2: 50, $3: 50, $4: 200, $5: 12, $6: 1, $7: 3000, $8: 1, $9:
+      0, $10: true, $11: 1}};
   } else if (kind$0.$ === "Skeleton") {
     $t$0 = {$: "CreatureBundle", $0: {$: "Skeleton"}, $1: {$: "CreatureStats",
-      $0: 5, $1: 4, $2: 1, $3: 3, $4: 6, $5: 4, $6: 12, $7: 60, $8: false}};
+      $0: 5, $1: 4, $2: 1, $3: 3, $4: 6, $5: 4, $6: 12, $7: 60, $8: 1, $9: 0,
+      $10: false, $11: 1}};
   } else if (kind$0.$ === "WalkingDead") {
     $t$0 = {$: "CreatureBundle", $0: {$: "WalkingDead"}, $1: {$:
       "CreatureStats", $0: 5, $1: 5, $2: 2, $3: 3, $4: 15, $5: 3, $6: 8, $7:
-      100, $8: false}};
+      100, $8: 1, $9: 0, $10: false, $11: 1}};
   } else if (kind$0.$ === "Wight") {
     $t$0 = {$: "CreatureBundle", $0: {$: "Wight"}, $1: {$: "CreatureStats", $0:
-      7, $1: 7, $2: 3, $3: 5, $4: 18, $5: 5, $6: 7, $7: 200, $8: false}};
+      7, $1: 7, $2: 3, $3: 5, $4: 18, $5: 5, $6: 7, $7: 200, $8: 1, $9: 0, $10:
+      true, $11: 1}};
   } else if (kind$0.$ === "Vampire") {
     $t$0 = {$: "CreatureBundle", $0: {$: "Vampire"}, $1: {$: "CreatureStats",
-      $0: 10, $1: 9, $2: 5, $3: 8, $4: 30, $5: 6, $6: 4, $7: 360, $8: false}};
+      $0: 10, $1: 9, $2: 5, $3: 8, $4: 30, $5: 6, $6: 4, $7: 360, $8: 1, $9: 0,
+      $10: true, $11: 1}};
   } else if (kind$0.$ === "Lich") {
     $t$0 = {$: "CreatureBundle", $0: {$: "Lich"}, $1: {$: "CreatureStats", $0:
-      13, $1: 10, $2: 11, $3: 13, $4: 30, $5: 6, $6: 3, $7: 500, $8: true}};
+      13, $1: 10, $2: 11, $3: 13, $4: 30, $5: 6, $6: 3, $7: 500, $8: 15, $9: 12,
+      $10: false, $11: 1}};
   } else if (kind$0.$ === "BlackKnight") {
     $t$0 = {$: "CreatureBundle", $0: {$: "BlackKnight"}, $1: {$:
       "CreatureStats", $0: 16, $1: 16, $2: 15, $3: 30, $4: 120, $5: 7, $6: 2,
-      $7: 1200, $8: false}};
-  } else {
+      $7: 1200, $8: 1, $9: 0, $10: false, $11: 1}};
+  } else if (kind$0.$ === "BoneDragon") {
     $t$0 = {$: "CreatureBundle", $0: {$: "BoneDragon"}, $1: {$: "CreatureStats",
-      $0: 17, $1: 15, $2: 25, $3: 50, $4: 150, $5: 9, $6: 1, $7: 1800, $8:
-      false}};
+      $0: 17, $1: 15, $2: 25, $3: 50, $4: 150, $5: 9, $6: 1, $7: 1800, $8: 1,
+      $9: 0, $10: true, $11: 1}};
+  } else if (kind$0.$ === "Imp") {
+    $t$0 = {$: "CreatureBundle", $0: {$: "Imp"}, $1: {$: "CreatureStats", $0: 2,
+      $1: 3, $2: 1, $3: 2, $4: 4, $5: 5, $6: 15, $7: 50, $8: 1, $9: 0, $10:
+      false, $11: 1}};
+  } else if (kind$0.$ === "Gog") {
+    $t$0 = {$: "CreatureBundle", $0: {$: "Gog"}, $1: {$: "CreatureStats", $0: 6,
+      $1: 4, $2: 2, $3: 4, $4: 13, $5: 4, $6: 8, $7: 125, $8: 15, $9: 12, $10:
+      false, $11: 1}};
+  } else if (kind$0.$ === "HellHound") {
+    $t$0 = {$: "CreatureBundle", $0: {$: "HellHound"}, $1: {$: "CreatureStats",
+      $0: 10, $1: 6, $2: 2, $3: 7, $4: 25, $5: 7, $6: 5, $7: 200, $8: 1, $9: 0,
+      $10: false, $11: 1}};
+  } else if (kind$0.$ === "Demon") {
+    $t$0 = {$: "CreatureBundle", $0: {$: "Demon"}, $1: {$: "CreatureStats", $0:
+      10, $1: 10, $2: 7, $3: 9, $4: 35, $5: 5, $6: 4, $7: 250, $8: 1, $9: 0,
+      $10: false, $11: 1}};
+  } else if (kind$0.$ === "PitFiend") {
+    $t$0 = {$: "CreatureBundle", $0: {$: "PitFiend"}, $1: {$: "CreatureStats",
+      $0: 13, $1: 13, $2: 13, $3: 17, $4: 45, $5: 6, $6: 3, $7: 500, $8: 1, $9:
+      0, $10: false, $11: 1}};
+  } else if (kind$0.$ === "Efreeti") {
+    $t$0 = {$: "CreatureBundle", $0: {$: "Efreeti"}, $1: {$: "CreatureStats",
+      $0: 16, $1: 12, $2: 16, $3: 24, $4: 90, $5: 9, $6: 2, $7: 900, $8: 1, $9:
+      0, $10: true, $11: 1}};
+  } else {
+    $t$0 = {$: "CreatureBundle", $0: {$: "Devil"}, $1: {$: "CreatureStats", $0:
+      19, $1: 21, $2: 30, $3: 40, $4: 160, $5: 11, $6: 1, $7: 2700, $8: 1, $9:
+      0, $10: true, $11: 1}};
   }
   const kept_kind$0 = $t$0.$0;
   const $t$1 = $t$0.$1;
@@ -6492,308 +9036,251 @@ function $army_add_nat_func$(tier$0, army$0, kind$0, amount$0) {
   const speed$0 = $t$1.$5;
   const growth$0 = $t$1.$6;
   const cost$0 = $t$1.$7;
-  const ranged$0 = $t$1.$8;
+  const range$0 = $t$1.$8;
+  const shots$0 = $t$1.$9;
+  const flying$0 = $t$1.$10;
+  const retaliations$0 = $t$1.$11;
   return run_jump($army_add_ready_nat_func$, [tier$0, army$0, kept_kind$0,
     amount$0, hit_points$0]);
 }
 
-function $kingdom_recruit_necropolis_values_func$k61$(name$0, x$0, y$0,
-  movement$0, hero_attack$0, hero_defense$0, power$0, knowledge$0, mana$0,
-  level$0, experience$0, hall$0, fort$0, dwellings$0, built_today$0,
-  remaining$0, next_army$0, next_stock$0) {
-  return {$: "Tuple", $0: {$: "Kingdom", $0: remaining$0, $1: {$: "Hero", $0:
-    name$0, $1: x$0, $2: y$0, $3: movement$0, $4: hero_attack$0, $5:
-    hero_defense$0, $6: power$0, $7: knowledge$0, $8: mana$0, $9: level$0, $10:
-    experience$0, $11: next_army$0}, $2: {$: "Town", $0: {$: "Necropolis"}, $1:
-    hall$0, $2: fort$0, $3: dwellings$0, $4: built_today$0, $5: next_stock$0}},
-    $1: "Creatures joined the active hero's army."};
+function $combat_enemy_action_func$k248$(hero_defense$0, seed$0, enemy_plan$0,
+  enemy_action$0, player_plan$0, player_action$0, h$0) {
+  const battlefield_plan$0 = h$0.$0;
+  const battlefield_action$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$battlefield_flip$(battlefield_plan$0));
+  return run_jump($combat_enemy_action_func$k249$, [hero_defense$0, seed$0,
+    enemy_plan$0, enemy_action$0, player_plan$0, player_action$0,
+    battlefield_action$0, h$1]);
 }
 
-function $kingdom_finish_combat_func$k98$(town$0, attacker$0, source$0,
-  next_seed$0, h$0, h$1) {
-  return {$: "KingdomBattle", $0: {$: "Kingdom", $0: h$0, $1: h$1, $2: town$0},
-    $1: {$: "BattleWon", $0: attacker$0, $1: source$0}, $2: next_seed$0, $3:
-    "Victory: the enemy army fell; 1200 experience and 1500 gold were awarded."};
+function $Tactics$battlefield_pair$(battlefield$0) {
+  const friendly$0 = battlefield$0.$0;
+  const enemy$0 = battlefield$0.$1;
+  const obstacle_seed$0 = battlefield$0.$2;
+  const h$0 = run_loop($Tactics$formation_pair$(friendly$0));
+  return run_jump($Tactics$battlefield_pair$k283$, [enemy$0, obstacle_seed$0,
+    h$0]);
 }
 
-function $hero_gain_func$(hero$0, reward$0) {
-  const name$0 = hero$0.$0;
-  const x$0 = hero$0.$1;
-  const y$0 = hero$0.$2;
-  const movement$0 = hero$0.$3;
-  const attack$0 = hero$0.$4;
-  const defense$0 = hero$0.$5;
-  const power$0 = hero$0.$6;
-  const knowledge$0 = hero$0.$7;
-  const mana$0 = hero$0.$8;
-  const level$0 = hero$0.$9;
-  const experience$0 = hero$0.$10;
-  const army$0 = hero$0.$11;
-  return run_jump($hero_gain_values_func$, [name$0, x$0, y$0, movement$0,
-    attack$0, defense$0, power$0, knowledge$0, mana$0, level$0, experience$0,
-    army$0, reward$0]);
+function $combat_attack_func$k153$(enemy$0, hero_attack$0, hero_defense$0,
+  mana$0, seed$0, battlefield$0, own_reach$0, own_apply$0, target_select$0,
+  target_reach$0, target_apply$0, h$0) {
+  const player_keep$0 = h$0.$0;
+  const actor$0 = h$0.$1;
+  const h$1 = run_loop($army_select_func$(enemy$0, target_select$0));
+  return run_jump($combat_attack_func$k154$, [hero_attack$0, hero_defense$0,
+    mana$0, seed$0, battlefield$0, own_reach$0, own_apply$0, target_reach$0,
+    target_apply$0, player_keep$0, actor$0, h$1]);
 }
 
-function $army_heal_func$k147$(b$0, c$0, d$0, e$0, f$0, g$0, h$0) {
-  const h$1 = run_loop($stack_heal_func$(b$0));
-  return run_jump($army_heal_func$k148$, [c$0, d$0, e$0, f$0, g$0, h$0, h$1]);
+function $kingdom_finish_combat_func$k200$(town$0, attacker$0, source$0,
+  next_seed$0, h$0, name$0, x$0, y$0, movement$0, attack$0, defense$0, power$0,
+  knowledge$0, mana$0, level$0, experience$0, h$1) {
+  const army$0 = h$1;
+  const h$2 = run_loop($hero_gain_func$({$: "Hero", $0: name$0, $1: x$0, $2:
+    y$0, $3: movement$0, $4: attack$0, $5: defense$0, $6: power$0, $7:
+    knowledge$0, $8: mana$0, $9: level$0, $10: experience$0, $11: army$0},
+    1200));
+  return run_jump($kingdom_finish_combat_func$k201$, [town$0, attacker$0,
+    source$0, next_seed$0, h$0, h$2]);
 }
 
-function $stack_heal_func$(stack$0) {
-  if (stack$0.$ === "EmptyStack") {
-    return {$: "EmptyStack"};
+function $army_heal_func$(army$0) {
+  const a$0 = army$0.$0;
+  const b$0 = army$0.$1;
+  const c$0 = army$0.$2;
+  const d$0 = army$0.$3;
+  const e$0 = army$0.$4;
+  const f$0 = army$0.$5;
+  const g$0 = army$0.$6;
+  const h$0 = run_loop($stack_heal_func$(a$0));
+  return run_jump($army_heal_func$k286$, [b$0, c$0, d$0, e$0, f$0, g$0, h$0]);
+}
+
+function $army_formation_sync_func$k259$(s2$0, s3$0, s4$0, s5$0, s6$0, p2$0,
+  p3$0, p4$0, p5$0, p6$0, a0$0, q0$0, h$0) {
+  const a1$0 = h$0.$0;
+  const q1$0 = h$0.$1;
+  const h$1 = run_loop($stack_position_sync_func$(s2$0, p2$0));
+  return run_jump($army_formation_sync_func$k260$, [s3$0, s4$0, s5$0, s6$0,
+    p3$0, p4$0, p5$0, p6$0, a0$0, q0$0, a1$0, q1$0, h$1]);
+}
+
+function $stack_position_sync_func$k266$(position$0, h$0) {
+  const kept_stack$0 = h$0.$0;
+  const $t$0 = h$0.$1;
+  if (!$t$0) {
+    return {$: "StackPosition", $0: kept_stack$0, $1: position$0};
   } else {
-    const kind$0 = stack$0.$0;
-    const count$0 = stack$0.$1;
-    const first_unit_hp$0 = stack$0.$2;
-    let $t$0;
-    if (kind$0.$ === "Pikeman") {
-      $t$0 = {$: "CreatureBundle", $0: {$: "Pikeman"}, $1: {$: "CreatureStats",
-        $0: 4, $1: 5, $2: 1, $3: 3, $4: 10, $5: 4, $6: 14, $7: 60, $8: false}};
-    } else if (kind$0.$ === "Archer") {
-      $t$0 = {$: "CreatureBundle", $0: {$: "Archer"}, $1: {$: "CreatureStats",
-        $0: 6, $1: 3, $2: 2, $3: 3, $4: 10, $5: 4, $6: 9, $7: 100, $8: true}};
-    } else if (kind$0.$ === "Griffin") {
-      $t$0 = {$: "CreatureBundle", $0: {$: "Griffin"}, $1: {$: "CreatureStats",
-        $0: 8, $1: 8, $2: 3, $3: 6, $4: 25, $5: 6, $6: 7, $7: 200, $8: false}};
-    } else if (kind$0.$ === "Swordsman") {
-      $t$0 = {$: "CreatureBundle", $0: {$: "Swordsman"}, $1: {$:
-        "CreatureStats", $0: 10, $1: 12, $2: 6, $3: 9, $4: 35, $5: 5, $6: 4, $7:
-        300, $8: false}};
-    } else if (kind$0.$ === "Monk") {
-      $t$0 = {$: "CreatureBundle", $0: {$: "Monk"}, $1: {$: "CreatureStats", $0:
-        12, $1: 7, $2: 10, $3: 12, $4: 30, $5: 5, $6: 3, $7: 400, $8: true}};
-    } else if (kind$0.$ === "Cavalier") {
-      $t$0 = {$: "CreatureBundle", $0: {$: "Cavalier"}, $1: {$: "CreatureStats",
-        $0: 15, $1: 15, $2: 15, $3: 25, $4: 100, $5: 7, $6: 2, $7: 1000, $8:
-        false}};
-    } else if (kind$0.$ === "Angel") {
-      $t$0 = {$: "CreatureBundle", $0: {$: "Angel"}, $1: {$: "CreatureStats",
-        $0: 20, $1: 20, $2: 50, $3: 50, $4: 200, $5: 12, $6: 1, $7: 3000, $8:
-        false}};
-    } else if (kind$0.$ === "Skeleton") {
-      $t$0 = {$: "CreatureBundle", $0: {$: "Skeleton"}, $1: {$: "CreatureStats",
-        $0: 5, $1: 4, $2: 1, $3: 3, $4: 6, $5: 4, $6: 12, $7: 60, $8: false}};
-    } else if (kind$0.$ === "WalkingDead") {
-      $t$0 = {$: "CreatureBundle", $0: {$: "WalkingDead"}, $1: {$:
-        "CreatureStats", $0: 5, $1: 5, $2: 2, $3: 3, $4: 15, $5: 3, $6: 8, $7:
-        100, $8: false}};
-    } else if (kind$0.$ === "Wight") {
-      $t$0 = {$: "CreatureBundle", $0: {$: "Wight"}, $1: {$: "CreatureStats",
-        $0: 7, $1: 7, $2: 3, $3: 5, $4: 18, $5: 5, $6: 7, $7: 200, $8: false}};
-    } else if (kind$0.$ === "Vampire") {
-      $t$0 = {$: "CreatureBundle", $0: {$: "Vampire"}, $1: {$: "CreatureStats",
-        $0: 10, $1: 9, $2: 5, $3: 8, $4: 30, $5: 6, $6: 4, $7: 360, $8: false}};
-    } else if (kind$0.$ === "Lich") {
-      $t$0 = {$: "CreatureBundle", $0: {$: "Lich"}, $1: {$: "CreatureStats", $0:
-        13, $1: 10, $2: 11, $3: 13, $4: 30, $5: 6, $6: 3, $7: 500, $8: true}};
-    } else if (kind$0.$ === "BlackKnight") {
-      $t$0 = {$: "CreatureBundle", $0: {$: "BlackKnight"}, $1: {$:
-        "CreatureStats", $0: 16, $1: 16, $2: 15, $3: 30, $4: 120, $5: 7, $6: 2,
-        $7: 1200, $8: false}};
-    } else {
-      $t$0 = {$: "CreatureBundle", $0: {$: "BoneDragon"}, $1: {$:
-        "CreatureStats", $0: 17, $1: 15, $2: 25, $3: 50, $4: 150, $5: 9, $6: 1,
-        $7: 1800, $8: false}};
-    }
-    const kept_kind$0 = $t$0.$0;
-    const $t$1 = $t$0.$1;
-    const attack$0 = $t$1.$0;
-    const defense$0 = $t$1.$1;
-    const damage_min$0 = $t$1.$2;
-    const damage_max$0 = $t$1.$3;
-    const hit_points$0 = $t$1.$4;
-    const speed$0 = $t$1.$5;
-    const growth$0 = $t$1.$6;
-    const cost$0 = $t$1.$7;
-    const ranged$0 = $t$1.$8;
-    return {$: "Troop", $0: kept_kind$0, $1: count$0, $2: hit_points$0};
+    return {$: "StackPosition", $0: kept_stack$0, $1: {$:
+      "Tactics.OffBattlefield"}};
   }
 }
 
-function $combat_attack_func$k66$(own_slot$0, target_slot$0, hero_defense$0,
-  mana$0, player_keep$0, next_seed$0, damage_output$0, h$0) {
-  const enemy_hit$0 = h$0.$0;
-  const kills$0 = h$0.$1;
-  const h$1 = run_loop($army_select_func$(enemy_hit$0, target_slot$0));
-  return run_jump($combat_attack_func$k67$, [own_slot$0, hero_defense$0, mana$0,
-    player_keep$0, next_seed$0, damage_output$0, h$1]);
-}
-
-function $attack_roll_values_func$k154$(count$0, creature_attack$0,
-  damage_min$0, creature_defense$0, hero_attack$0, hero_defense$0, ranged$0,
-  h$0) {
-  const roll$0 = h$0.$0;
-  const next_seed$0 = h$0.$1;
-  const rolled_damage$0 = ((damage_min$0 + roll$0) >>> 0);
-  const base_damage$0 = (Math.imul(count$0, rolled_damage$0) >>> 0);
-  const attack$0 = ((creature_attack$0 + hero_attack$0) >>> 0);
-  const defense$0 = ((creature_defense$0 + hero_defense$0) >>> 0);
-  let $t$0;
-  const $t$1 = (defense$0 < attack$0);
-  if ($t$1) {
-    const x$0 = ((attack$0 - defense$0) >>> 0);
-    const right$0 = (Math.imul(x$0, 5) >>> 0);
-    let $t$2;
-    const $t$3 = (300 <= right$0);
-    if ($t$3) {
-      $t$2 = 300;
-    } else {
-      $t$2 = right$0;
-    }
-    const bonus$0 = $t$2;
-    $t$0 = ((100 + bonus$0) >>> 0);
-  } else {
-    const x$1 = ((defense$0 - attack$0) >>> 0);
-    const right$1 = (Math.imul(x$1, 2) >>> 0);
-    let $t$4;
-    const $t$5 = (70 <= right$1);
-    if ($t$5) {
-      $t$4 = 70;
-    } else {
-      $t$4 = right$1;
-    }
-    const reduction$0 = $t$4;
-    $t$0 = ((100 - reduction$0) >>> 0);
-  }
-  const percent$0 = $t$0;
-  let $t$6;
-  if (!ranged$0) {
-    $t$6 = percent$0;
-  } else {
-    $t$6 = percent$0;
-  }
-  const final_percent$0 = $t$6;
-  const x$2 = (Math.imul(base_damage$0, final_percent$0) >>> 0);
-  const value$0 = (100 === 0 ? 0 : (x$2 / 100) >>> 0);
-  let $t$7;
-  const $t$8 = (value$0 === 0);
-  if ($t$8) {
-    $t$7 = 1;
-  } else {
-    $t$7 = value$0;
-  }
-  return {$: "AttackRoll", $0: $t$7, $1: next_seed$0, $2: true};
-}
-
-function $rng_step_func$(seed$0, bound$0) {
-  const x$0 = (Math.imul(seed$0, 1664525) >>> 0);
-  const next$0 = ((x$0 + 1013904223) >>> 0);
-  const h$0 = run_loop($u32_pair_func$(next$0));
-  return run_jump($rng_step_func$k168$, [bound$0, h$0]);
-}
-
-function $combat_defend_func$k76$(mana$0, enemy_keep$0, next_seed$0,
-  response_output$0, h$0) {
+function $combat_defend_func$k163$(mana$0, battlefield$0, enemy_keep$0,
+  next_seed$0, response_output$0, h$0) {
   const player_hit$0 = h$0.$0;
   const losses$0 = h$0.$1;
   return {$: "CombatTurn", $0: player_hit$0, $1: enemy_keep$0, $2: mana$0, $3:
-    next_seed$0, $4: 0, $5: response_output$0, $6: true};
+    next_seed$0, $4: 0, $5: response_output$0, $6: true, $7: battlefield$0};
 }
 
-function $combat_spell_func$k81$(player$0, own_slot$0, hero_defense$0, mana$0,
-  seed$0, damage_output$0, h$0) {
-  const enemy_after$0 = h$0.$0;
-  const retaliator$0 = h$0.$1;
-  const h$1 = run_loop($army_select_func$(player$0, own_slot$0));
-  return run_jump($combat_spell_func$k82$, [own_slot$0, hero_defense$0, mana$0,
-    seed$0, damage_output$0, enemy_after$0, retaliator$0, h$1]);
+function $attack_roll_values_func$(count$0, creature_attack$0, damage_min$0,
+  damage_max$0, creature_defense$0, hero_attack$0, hero_defense$0, seed$0) {
+  const x$0 = ((damage_max$0 - damage_min$0) >>> 0);
+  const span$0 = ((x$0 + 1) >>> 0);
+  const h$0 = run_loop($rng_step_func$(seed$0, span$0));
+  return run_jump($attack_roll_values_func$k293$, [count$0, creature_attack$0,
+    damage_min$0, creature_defense$0, hero_attack$0, hero_defense$0, h$0]);
 }
 
-function $army_damage_func$k155$(b$0, c$0, d$0, e$0, f$0, g$0, h$0) {
+function $army_damage_func$k267$(b$0, c$0, d$0, e$0, f$0, g$0, h$0) {
   const stack$0 = h$0.$0;
   const kills$0 = h$0.$1;
   return {$: "ArmyDamage", $0: {$: "Army", $0: stack$0, $1: b$0, $2: c$0, $3:
     d$0, $4: e$0, $5: f$0, $6: g$0}, $1: kills$0};
 }
 
-function $army_damage_func$k156$(a$0, c$0, d$0, e$0, f$0, g$0, h$0) {
+function $army_damage_func$k268$(a$0, c$0, d$0, e$0, f$0, g$0, h$0) {
   const stack$0 = h$0.$0;
   const kills$0 = h$0.$1;
   return {$: "ArmyDamage", $0: {$: "Army", $0: a$0, $1: stack$0, $2: c$0, $3:
     d$0, $4: e$0, $5: f$0, $6: g$0}, $1: kills$0};
 }
 
-function $army_damage_func$k157$(a$0, b$0, d$0, e$0, f$0, g$0, h$0) {
+function $army_damage_func$k269$(a$0, b$0, d$0, e$0, f$0, g$0, h$0) {
   const stack$0 = h$0.$0;
   const kills$0 = h$0.$1;
   return {$: "ArmyDamage", $0: {$: "Army", $0: a$0, $1: b$0, $2: stack$0, $3:
     d$0, $4: e$0, $5: f$0, $6: g$0}, $1: kills$0};
 }
 
-function $army_damage_func$k158$(a$0, b$0, c$0, e$0, f$0, g$0, h$0) {
+function $army_damage_func$k270$(a$0, b$0, c$0, e$0, f$0, g$0, h$0) {
   const stack$0 = h$0.$0;
   const kills$0 = h$0.$1;
   return {$: "ArmyDamage", $0: {$: "Army", $0: a$0, $1: b$0, $2: c$0, $3:
     stack$0, $4: e$0, $5: f$0, $6: g$0}, $1: kills$0};
 }
 
-function $army_damage_func$k159$(a$0, b$0, c$0, d$0, f$0, g$0, h$0) {
+function $army_damage_func$k271$(a$0, b$0, c$0, d$0, f$0, g$0, h$0) {
   const stack$0 = h$0.$0;
   const kills$0 = h$0.$1;
   return {$: "ArmyDamage", $0: {$: "Army", $0: a$0, $1: b$0, $2: c$0, $3: d$0,
     $4: stack$0, $5: f$0, $6: g$0}, $1: kills$0};
 }
 
-function $army_damage_func$k160$(a$0, b$0, c$0, d$0, e$0, g$0, h$0) {
+function $army_damage_func$k272$(a$0, b$0, c$0, d$0, e$0, g$0, h$0) {
   const stack$0 = h$0.$0;
   const kills$0 = h$0.$1;
   return {$: "ArmyDamage", $0: {$: "Army", $0: a$0, $1: b$0, $2: c$0, $3: d$0,
     $4: e$0, $5: stack$0, $6: g$0}, $1: kills$0};
 }
 
-function $army_damage_func$k161$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
+function $army_damage_func$k273$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
   const stack$0 = h$0.$0;
   const kills$0 = h$0.$1;
   return {$: "ArmyDamage", $0: {$: "Army", $0: a$0, $1: b$0, $2: c$0, $3: d$0,
     $4: e$0, $5: f$0, $6: stack$0}, $1: kills$0};
 }
 
-function $army_damage_func$k162$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
+function $army_damage_func$k274$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
   const stack$0 = h$0.$0;
   const kills$0 = h$0.$1;
   return {$: "ArmyDamage", $0: {$: "Army", $0: a$0, $1: b$0, $2: c$0, $3: d$0,
     $4: e$0, $5: f$0, $6: stack$0}, $1: kills$0};
 }
 
-function $army_damage_func$k163$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
+function $army_damage_func$k275$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
   const stack$0 = h$0.$0;
   const kills$0 = h$0.$1;
   return {$: "ArmyDamage", $0: {$: "Army", $0: a$0, $1: b$0, $2: c$0, $3: d$0,
     $4: e$0, $5: f$0, $6: stack$0}, $1: kills$0};
 }
 
-function $army_damage_func$k164$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
+function $army_damage_func$k276$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
   const stack$0 = h$0.$0;
   const kills$0 = h$0.$1;
   return {$: "ArmyDamage", $0: {$: "Army", $0: a$0, $1: b$0, $2: c$0, $3: d$0,
     $4: e$0, $5: f$0, $6: stack$0}, $1: kills$0};
 }
 
-function $army_damage_func$k165$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
+function $army_damage_func$k277$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
   const stack$0 = h$0.$0;
   const kills$0 = h$0.$1;
   return {$: "ArmyDamage", $0: {$: "Army", $0: a$0, $1: b$0, $2: c$0, $3: d$0,
     $4: e$0, $5: f$0, $6: stack$0}, $1: kills$0};
 }
 
-function $army_damage_func$k166$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
+function $army_damage_func$k278$(a$0, b$0, c$0, d$0, e$0, f$0, h$0) {
   const stack$0 = h$0.$0;
   const kills$0 = h$0.$1;
   return {$: "ArmyDamage", $0: {$: "Army", $0: a$0, $1: b$0, $2: c$0, $3: d$0,
     $4: e$0, $5: f$0, $6: stack$0}, $1: kills$0};
 }
 
-function $army_check_func$k119$(e$0, f$0, g$0, a_keep$0, a_empty$0, b_keep$0,
+function $combat_move_func$k172$(enemy$0, mana$0, seed$0, player_keep$0, h$0) {
+  const next_battlefield$0 = h$0.$0;
+  const moved$0 = h$0.$1;
+  return {$: "CombatTurn", $0: player_keep$0, $1: enemy$0, $2: mana$0, $3:
+    seed$0, $4: 0, $5: 0, $6: moved$0, $7: next_battlefield$0};
+}
+
+function $Tactics$battlefield_move_friendly$(battlefield$0, slot$0,
+  target_column$0, target_row$0, speed$0, flying$0) {
+  const friendly$0 = battlefield$0.$0;
+  const enemy$0 = battlefield$0.$1;
+  const obstacle_seed$0 = battlefield$0.$2;
+  const h$0 = run_loop($Tactics$u32_pair$(slot$0));
+  return run_jump($Tactics$battlefield_move_friendly$k294$, [friendly$0,
+    enemy$0, obstacle_seed$0, target_column$0, target_row$0, speed$0, flying$0,
+    h$0]);
+}
+
+function $Tactics$hex_from_index$k279$(h$0) {
+  const for_column$0 = h$0.$0;
+  const for_row$0 = h$0.$1;
+  return run_jump($Tactics$hex_make$, [(15 === 0 ? for_column$0 :
+    for_column$0 % 15), (15 === 0 ? 0 : (for_row$0 / 15) >>> 0)]);
+}
+
+function $Tactics$u32_max$k280$(right$0, h$0) {
+  const left_test$0 = h$0.$0;
+  const left_live$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(right$0));
+  return run_jump($Tactics$u32_max$k281$, [left_test$0, left_live$0, h$1]);
+}
+
+function $army_ai_weakest_func$k77$(s5$0, s6$0, h$0, h$1) {
+  const h$2 = run_loop($stack_ai_candidate_func$(5, s5$0));
+  return run_jump($army_ai_weakest_func$k78$, [s6$0, h$0, h$1, h$2]);
+}
+
+function $army_ai_strongest_func$k37$(s6$0, h$0, h$1, h$2) {
+  const h$3 = run_loop($ai_candidate_max_func$(h$1, h$2));
+  return run_jump($army_ai_strongest_func$k38$, [s6$0, h$0, h$3]);
+}
+
+function $combat_ai_battle_candidates_func$k179$(player$0, battlefield$0,
+  own_select$0, own_reach$0, own_move$0, own_output$0, target_reach$0, h$0) {
+  const target_move$0 = h$0.$0;
+  const target_output$0 = h$0.$1;
+  const h$1 = run_loop($army_select_func$(player$0, own_select$0));
+  return run_jump($combat_ai_battle_candidates_func$k180$, [battlefield$0,
+    own_reach$0, own_move$0, own_output$0, target_reach$0, target_move$0,
+    target_output$0, h$1]);
+}
+
+function $army_check_func$k224$(e$0, f$0, g$0, a_keep$0, a_empty$0, b_keep$0,
   b_empty$0, c_keep$0, c_empty$0, h$0) {
   const d_keep$0 = h$0.$0;
   const d_empty$0 = h$0.$1;
   const h$1 = run_loop($stack_check_func$(e$0));
-  return run_jump($army_check_func$k120$, [f$0, g$0, a_keep$0, a_empty$0,
+  return run_jump($army_check_func$k225$, [f$0, g$0, a_keep$0, a_empty$0,
     b_keep$0, b_empty$0, c_keep$0, c_empty$0, d_keep$0, d_empty$0, h$1]);
 }
 
-function $hero_attempt_enter_func$k145$(name$0, movement$0, attack$0, defense$0,
+function $hero_attempt_enter_func$k256$(name$0, movement$0, attack$0, defense$0,
   power$0, knowledge$0, mana$0, level$0, experience$0, army$0, cost_live$0,
   hero_x$0, visit_x$0, h$0) {
   const hero_y$0 = h$0.$0;
@@ -6805,7 +9292,7 @@ function $hero_attempt_enter_func$k145$(name$0, movement$0, attack$0, defense$0,
     visit_x$0, $2: visit_y$0, $3: true};
 }
 
-function $hero_new_day_func$k167$(name$0, x$0, y$0, attack$0, defense$0,
+function $hero_new_day_func$k282$(name$0, x$0, y$0, attack$0, defense$0,
   power$0, mana$0, level$0, experience$0, army$0, h$0) {
   const knowledge_limit$0 = h$0.$0;
   const knowledge_keep$0 = h$0.$1;
@@ -6824,7 +9311,7 @@ function $hero_new_day_func$k167$(name$0, x$0, y$0, attack$0, defense$0,
     experience$0, $11: army$0};
 }
 
-function $town_new_day_func$k127$(hall_keep$0, fort_keep$0, dwellings_keep$0,
+function $town_new_day_func$k232$(hall_keep$0, fort_keep$0, dwellings_keep$0,
   income$0, output_faction$0, grown$0) {
   return {$: "TownDay", $0: {$: "Town", $0: output_faction$0, $1: hall_keep$0,
     $2: fort_keep$0, $3: dwellings_keep$0, $4: false, $5: grown$0}, $1:
@@ -6835,8 +9322,11 @@ function $stock_grow_faction_func$(stock$0, faction$0, mask$0, fort$0) {
   if (faction$0.$ === "Castle") {
     return run_jump($stock_grow_func$, [stock$0, mask$0, fort$0, 14, 9, 7, 4, 3,
       2, 1]);
-  } else {
+  } else if (faction$0.$ === "Necropolis") {
     return run_jump($stock_grow_func$, [stock$0, mask$0, fort$0, 12, 8, 7, 4, 3,
+      2, 1]);
+  } else {
+    return run_jump($stock_grow_func$, [stock$0, mask$0, fort$0, 15, 8, 5, 4, 3,
       2, 1]);
   }
 }
@@ -7263,57 +9753,299 @@ function $army_add_ready_nat_func$(tier$0, army$0, kind$0, amount$0,
   }
 }
 
-function $hero_gain_values_func$(name$0, x$0, y$0, movement$0, attack$0,
-  defense$0, power$0, knowledge$0, mana$0, level$0, experience$0, army$0,
-  reward$0) {
-  const next_experience$0 = ((experience$0 + reward$0) >>> 0);
-  const h$0 = run_loop($u32_pair_func$(next_experience$0));
-  return run_jump($hero_gain_values_func$k169$, [name$0, x$0, y$0, movement$0,
-    attack$0, defense$0, power$0, knowledge$0, mana$0, level$0, army$0, h$0]);
+function $combat_enemy_action_func$k249$(hero_defense$0, seed$0, enemy_plan$0,
+  enemy_action$0, player_plan$0, player_action$0, battlefield_action$0, h$0) {
+  const h$1 = run_loop($combat_ai_battle_no_spell_func$(enemy_plan$0,
+    player_plan$0, h$0));
+  return run_jump($combat_enemy_action_func$k250$, [hero_defense$0, seed$0,
+    enemy_action$0, player_action$0, battlefield_action$0, h$1]);
 }
 
-function $army_heal_func$k148$(c$0, d$0, e$0, f$0, g$0, h$0, h$1) {
-  const h$2 = run_loop($stack_heal_func$(c$0));
-  return run_jump($army_heal_func$k149$, [d$0, e$0, f$0, g$0, h$0, h$1, h$2]);
+function $Tactics$battlefield_pair$k283$(enemy$0, obstacle_seed$0, h$0) {
+  const friendly_left$0 = h$0.$0;
+  const friendly_right$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$formation_pair$(enemy$0));
+  return run_jump($Tactics$battlefield_pair$k284$, [obstacle_seed$0,
+    friendly_left$0, friendly_right$0, h$1]);
 }
 
-function $combat_attack_func$k67$(own_slot$0, hero_defense$0, mana$0,
-  player_keep$0, next_seed$0, damage_output$0, h$0) {
-  const enemy_after$0 = h$0.$0;
-  const retaliator$0 = h$0.$1;
-  const h$1 = run_loop($army_select_func$(player_keep$0, own_slot$0));
-  return run_jump($combat_attack_func$k68$, [own_slot$0, hero_defense$0, mana$0,
-    next_seed$0, damage_output$0, enemy_after$0, retaliator$0, h$1]);
+function $Tactics$formation_pair$(formation$0) {
+  const s0$0 = formation$0.$0;
+  const s1$0 = formation$0.$1;
+  const s2$0 = formation$0.$2;
+  const s3$0 = formation$0.$3;
+  const s4$0 = formation$0.$4;
+  const s5$0 = formation$0.$5;
+  const s6$0 = formation$0.$6;
+  const h$0 = run_loop($Tactics$slot_position_pair$(s0$0));
+  return run_jump($Tactics$formation_pair$k296$, [s1$0, s2$0, s3$0, s4$0, s5$0,
+    s6$0, h$0]);
 }
 
-function $rng_step_func$k168$(bound$0, h$0) {
-  const value_seed$0 = h$0.$0;
-  const next_seed$0 = h$0.$1;
-  const $t$0 = (bound$0 === 0);
-  if ($t$0) {
-    return {$: "RngStep", $0: 0, $1: next_seed$0};
+function $combat_attack_func$k154$(hero_attack$0, hero_defense$0, mana$0,
+  seed$0, battlefield$0, own_reach$0, own_apply$0, target_reach$0,
+  target_apply$0, player_keep$0, actor$0, h$0) {
+  const enemy_keep$0 = h$0.$0;
+  const target$0 = h$0.$1;
+  const h$1 = run_loop($stack_pair_func$(actor$0));
+  return run_jump($combat_attack_func$k155$, [hero_attack$0, hero_defense$0,
+    mana$0, seed$0, battlefield$0, own_reach$0, own_apply$0, target_reach$0,
+    target_apply$0, player_keep$0, enemy_keep$0, target$0, h$1]);
+}
+
+function $kingdom_finish_combat_func$k201$(town$0, attacker$0, source$0,
+  next_seed$0, h$0, h$1) {
+  return {$: "KingdomBattle", $0: {$: "Kingdom", $0: h$0, $1: h$1, $2: town$0},
+    $1: {$: "BattleWon", $0: attacker$0, $1: source$0}, $2: next_seed$0, $3:
+    "Victory: the enemy army fell; 1200 experience and 1500 gold were awarded."};
+}
+
+function $hero_gain_func$(hero$0, reward$0) {
+  const name$0 = hero$0.$0;
+  const x$0 = hero$0.$1;
+  const y$0 = hero$0.$2;
+  const movement$0 = hero$0.$3;
+  const attack$0 = hero$0.$4;
+  const defense$0 = hero$0.$5;
+  const power$0 = hero$0.$6;
+  const knowledge$0 = hero$0.$7;
+  const mana$0 = hero$0.$8;
+  const level$0 = hero$0.$9;
+  const experience$0 = hero$0.$10;
+  const army$0 = hero$0.$11;
+  return run_jump($hero_gain_values_func$, [name$0, x$0, y$0, movement$0,
+    attack$0, defense$0, power$0, knowledge$0, mana$0, level$0, experience$0,
+    army$0, reward$0]);
+}
+
+function $army_heal_func$k286$(b$0, c$0, d$0, e$0, f$0, g$0, h$0) {
+  const h$1 = run_loop($stack_heal_func$(b$0));
+  return run_jump($army_heal_func$k287$, [c$0, d$0, e$0, f$0, g$0, h$0, h$1]);
+}
+
+function $stack_heal_func$(stack$0) {
+  if (stack$0.$ === "EmptyStack") {
+    return {$: "EmptyStack"};
   } else {
-    return {$: "RngStep", $0: (bound$0 === 0 ? value_seed$0 :
-      value_seed$0 % bound$0), $1: next_seed$0};
+    const kind$0 = stack$0.$0;
+    const count$0 = stack$0.$1;
+    const first_unit_hp$0 = stack$0.$2;
+    let $t$0;
+    if (kind$0.$ === "Pikeman") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Pikeman"}, $1: {$: "CreatureStats",
+        $0: 4, $1: 5, $2: 1, $3: 3, $4: 10, $5: 4, $6: 14, $7: 60, $8: 1, $9: 0,
+        $10: false, $11: 1}};
+    } else if (kind$0.$ === "Archer") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Archer"}, $1: {$: "CreatureStats",
+        $0: 6, $1: 3, $2: 2, $3: 3, $4: 10, $5: 4, $6: 9, $7: 100, $8: 15, $9:
+        12, $10: false, $11: 1}};
+    } else if (kind$0.$ === "Griffin") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Griffin"}, $1: {$: "CreatureStats",
+        $0: 8, $1: 8, $2: 3, $3: 6, $4: 25, $5: 6, $6: 7, $7: 200, $8: 1, $9: 0,
+        $10: true, $11: 2}};
+    } else if (kind$0.$ === "Swordsman") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Swordsman"}, $1: {$:
+        "CreatureStats", $0: 10, $1: 12, $2: 6, $3: 9, $4: 35, $5: 5, $6: 4, $7:
+        300, $8: 1, $9: 0, $10: false, $11: 1}};
+    } else if (kind$0.$ === "Monk") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Monk"}, $1: {$: "CreatureStats", $0:
+        12, $1: 7, $2: 10, $3: 12, $4: 30, $5: 5, $6: 3, $7: 400, $8: 15, $9:
+        12, $10: false, $11: 1}};
+    } else if (kind$0.$ === "Cavalier") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Cavalier"}, $1: {$: "CreatureStats",
+        $0: 15, $1: 15, $2: 15, $3: 25, $4: 100, $5: 7, $6: 2, $7: 1000, $8: 1,
+        $9: 0, $10: false, $11: 1}};
+    } else if (kind$0.$ === "Angel") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Angel"}, $1: {$: "CreatureStats",
+        $0: 20, $1: 20, $2: 50, $3: 50, $4: 200, $5: 12, $6: 1, $7: 3000, $8: 1,
+        $9: 0, $10: true, $11: 1}};
+    } else if (kind$0.$ === "Skeleton") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Skeleton"}, $1: {$: "CreatureStats",
+        $0: 5, $1: 4, $2: 1, $3: 3, $4: 6, $5: 4, $6: 12, $7: 60, $8: 1, $9: 0,
+        $10: false, $11: 1}};
+    } else if (kind$0.$ === "WalkingDead") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "WalkingDead"}, $1: {$:
+        "CreatureStats", $0: 5, $1: 5, $2: 2, $3: 3, $4: 15, $5: 3, $6: 8, $7:
+        100, $8: 1, $9: 0, $10: false, $11: 1}};
+    } else if (kind$0.$ === "Wight") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Wight"}, $1: {$: "CreatureStats",
+        $0: 7, $1: 7, $2: 3, $3: 5, $4: 18, $5: 5, $6: 7, $7: 200, $8: 1, $9: 0,
+        $10: true, $11: 1}};
+    } else if (kind$0.$ === "Vampire") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Vampire"}, $1: {$: "CreatureStats",
+        $0: 10, $1: 9, $2: 5, $3: 8, $4: 30, $5: 6, $6: 4, $7: 360, $8: 1, $9:
+        0, $10: true, $11: 1}};
+    } else if (kind$0.$ === "Lich") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Lich"}, $1: {$: "CreatureStats", $0:
+        13, $1: 10, $2: 11, $3: 13, $4: 30, $5: 6, $6: 3, $7: 500, $8: 15, $9:
+        12, $10: false, $11: 1}};
+    } else if (kind$0.$ === "BlackKnight") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "BlackKnight"}, $1: {$:
+        "CreatureStats", $0: 16, $1: 16, $2: 15, $3: 30, $4: 120, $5: 7, $6: 2,
+        $7: 1200, $8: 1, $9: 0, $10: false, $11: 1}};
+    } else if (kind$0.$ === "BoneDragon") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "BoneDragon"}, $1: {$:
+        "CreatureStats", $0: 17, $1: 15, $2: 25, $3: 50, $4: 150, $5: 9, $6: 1,
+        $7: 1800, $8: 1, $9: 0, $10: true, $11: 1}};
+    } else if (kind$0.$ === "Imp") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Imp"}, $1: {$: "CreatureStats", $0:
+        2, $1: 3, $2: 1, $3: 2, $4: 4, $5: 5, $6: 15, $7: 50, $8: 1, $9: 0, $10:
+        false, $11: 1}};
+    } else if (kind$0.$ === "Gog") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Gog"}, $1: {$: "CreatureStats", $0:
+        6, $1: 4, $2: 2, $3: 4, $4: 13, $5: 4, $6: 8, $7: 125, $8: 15, $9: 12,
+        $10: false, $11: 1}};
+    } else if (kind$0.$ === "HellHound") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "HellHound"}, $1: {$:
+        "CreatureStats", $0: 10, $1: 6, $2: 2, $3: 7, $4: 25, $5: 7, $6: 5, $7:
+        200, $8: 1, $9: 0, $10: false, $11: 1}};
+    } else if (kind$0.$ === "Demon") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Demon"}, $1: {$: "CreatureStats",
+        $0: 10, $1: 10, $2: 7, $3: 9, $4: 35, $5: 5, $6: 4, $7: 250, $8: 1, $9:
+        0, $10: false, $11: 1}};
+    } else if (kind$0.$ === "PitFiend") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "PitFiend"}, $1: {$: "CreatureStats",
+        $0: 13, $1: 13, $2: 13, $3: 17, $4: 45, $5: 6, $6: 3, $7: 500, $8: 1,
+        $9: 0, $10: false, $11: 1}};
+    } else if (kind$0.$ === "Efreeti") {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Efreeti"}, $1: {$: "CreatureStats",
+        $0: 16, $1: 12, $2: 16, $3: 24, $4: 90, $5: 9, $6: 2, $7: 900, $8: 1,
+        $9: 0, $10: true, $11: 1}};
+    } else {
+      $t$0 = {$: "CreatureBundle", $0: {$: "Devil"}, $1: {$: "CreatureStats",
+        $0: 19, $1: 21, $2: 30, $3: 40, $4: 160, $5: 11, $6: 1, $7: 2700, $8: 1,
+        $9: 0, $10: true, $11: 1}};
+    }
+    const kept_kind$0 = $t$0.$0;
+    const $t$1 = $t$0.$1;
+    const attack$0 = $t$1.$0;
+    const defense$0 = $t$1.$1;
+    const damage_min$0 = $t$1.$2;
+    const damage_max$0 = $t$1.$3;
+    const hit_points$0 = $t$1.$4;
+    const speed$0 = $t$1.$5;
+    const growth$0 = $t$1.$6;
+    const cost$0 = $t$1.$7;
+    const range$0 = $t$1.$8;
+    const shots$0 = $t$1.$9;
+    const flying$0 = $t$1.$10;
+    const retaliations$0 = $t$1.$11;
+    return {$: "Troop", $0: kept_kind$0, $1: count$0, $2: hit_points$0};
   }
 }
 
-function $combat_spell_func$k82$(own_slot$0, hero_defense$0, mana$0, seed$0,
-  damage_output$0, enemy_after$0, retaliator$0, h$0) {
-  const player_keep$0 = h$0.$0;
-  const defender$0 = h$0.$1;
-  const h$1 = run_loop($attack_roll_func$(retaliator$0, defender$0, 0,
-    hero_defense$0, seed$0));
-  return run_jump($combat_spell_func$k83$, [own_slot$0, mana$0, damage_output$0,
-    enemy_after$0, player_keep$0, h$1]);
+function $army_formation_sync_func$k260$(s3$0, s4$0, s5$0, s6$0, p3$0, p4$0,
+  p5$0, p6$0, a0$0, q0$0, a1$0, q1$0, h$0) {
+  const a2$0 = h$0.$0;
+  const q2$0 = h$0.$1;
+  const h$1 = run_loop($stack_position_sync_func$(s3$0, p3$0));
+  return run_jump($army_formation_sync_func$k261$, [s4$0, s5$0, s6$0, p4$0,
+    p5$0, p6$0, a0$0, q0$0, a1$0, q1$0, a2$0, q2$0, h$1]);
 }
 
-function $army_check_func$k120$(f$0, g$0, a_keep$0, a_empty$0, b_keep$0,
+function $attack_roll_values_func$k293$(count$0, creature_attack$0,
+  damage_min$0, creature_defense$0, hero_attack$0, hero_defense$0, h$0) {
+  const roll$0 = h$0.$0;
+  const next_seed$0 = h$0.$1;
+  const rolled_damage$0 = ((damage_min$0 + roll$0) >>> 0);
+  const base_damage$0 = (Math.imul(count$0, rolled_damage$0) >>> 0);
+  const attack$0 = ((creature_attack$0 + hero_attack$0) >>> 0);
+  const defense$0 = ((creature_defense$0 + hero_defense$0) >>> 0);
+  let $t$0;
+  const $t$1 = (defense$0 < attack$0);
+  if ($t$1) {
+    const x$0 = ((attack$0 - defense$0) >>> 0);
+    const right$0 = (Math.imul(x$0, 5) >>> 0);
+    let $t$2;
+    const $t$3 = (300 <= right$0);
+    if ($t$3) {
+      $t$2 = 300;
+    } else {
+      $t$2 = right$0;
+    }
+    const bonus$0 = $t$2;
+    $t$0 = ((100 + bonus$0) >>> 0);
+  } else {
+    const x$1 = ((defense$0 - attack$0) >>> 0);
+    const right$1 = (Math.imul(x$1, 2) >>> 0);
+    let $t$4;
+    const $t$5 = (70 <= right$1);
+    if ($t$5) {
+      $t$4 = 70;
+    } else {
+      $t$4 = right$1;
+    }
+    const reduction$0 = $t$4;
+    $t$0 = ((100 - reduction$0) >>> 0);
+  }
+  const percent$0 = $t$0;
+  const x$2 = (Math.imul(base_damage$0, percent$0) >>> 0);
+  const value$0 = (100 === 0 ? 0 : (x$2 / 100) >>> 0);
+  let $t$6;
+  const $t$7 = (value$0 === 0);
+  if ($t$7) {
+    $t$6 = 1;
+  } else {
+    $t$6 = value$0;
+  }
+  return {$: "AttackRoll", $0: $t$6, $1: next_seed$0, $2: true};
+}
+
+function $rng_step_func$(seed$0, bound$0) {
+  const x$0 = (Math.imul(seed$0, 1664525) >>> 0);
+  const next$0 = ((x$0 + 1013904223) >>> 0);
+  const h$0 = run_loop($u32_pair_func$(next$0));
+  return run_jump($rng_step_func$k303$, [bound$0, h$0]);
+}
+
+function $Tactics$battlefield_move_friendly$k294$(friendly$0, enemy$0,
+  obstacle_seed$0, target_column$0, target_row$0, speed$0, flying$0, h$0) {
+  const slot_select$0 = h$0.$0;
+  const slot_place$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$formation_select$(friendly$0, slot_select$0));
+  return run_jump($Tactics$battlefield_move_friendly$k295$, [enemy$0,
+    obstacle_seed$0, target_column$0, target_row$0, speed$0, flying$0,
+    slot_place$0, h$1]);
+}
+
+function $Tactics$u32_max$k281$(left_test$0, left_live$0, h$0) {
+  const right_test$0 = h$0.$0;
+  const right_live$0 = h$0.$1;
+  const $t$0 = (left_test$0 <= right_test$0);
+  if ($t$0) {
+    return right_live$0;
+  } else {
+    return left_live$0;
+  }
+}
+
+function $army_ai_weakest_func$k78$(s6$0, h$0, h$1, h$2) {
+  const h$3 = run_loop($ai_candidate_min_func$(h$1, h$2));
+  return run_jump($army_ai_weakest_func$k79$, [s6$0, h$0, h$3]);
+}
+
+function $army_ai_strongest_func$k38$(s6$0, h$0, h$1) {
+  const h$2 = run_loop($stack_ai_candidate_func$(6, s6$0));
+  return run_jump($army_ai_strongest_func$k39$, [h$0, h$1, h$2]);
+}
+
+function $combat_ai_battle_candidates_func$k180$(battlefield$0, own_reach$0,
+  own_move$0, own_output$0, target_reach$0, target_move$0, target_output$0,
+  h$0) {
+  const player_keep$0 = h$0.$0;
+  const actor$0 = h$0.$1;
+  const h$1 = run_loop($stack_pair_func$(actor$0));
+  return run_jump($combat_ai_battle_candidates_func$k181$, [battlefield$0,
+    own_reach$0, own_move$0, own_output$0, target_reach$0, target_move$0,
+    target_output$0, h$1]);
+}
+
+function $army_check_func$k225$(f$0, g$0, a_keep$0, a_empty$0, b_keep$0,
   b_empty$0, c_keep$0, c_empty$0, d_keep$0, d_empty$0, h$0) {
   const e_keep$0 = h$0.$0;
   const e_empty$0 = h$0.$1;
   const h$1 = run_loop($stack_check_func$(f$0));
-  return run_jump($army_check_func$k121$, [g$0, a_keep$0, a_empty$0, b_keep$0,
+  return run_jump($army_check_func$k226$, [g$0, a_keep$0, a_empty$0, b_keep$0,
     b_empty$0, c_keep$0, c_empty$0, d_keep$0, d_empty$0, e_keep$0, e_empty$0,
     h$1]);
 }
@@ -7430,7 +10162,239 @@ function $stock_grow_func$(stock$0, mask$0, fort$0, growth1$0, growth2$0,
     ((f$0 + $t$10) >>> 0), $6: ((g$0 + $t$12) >>> 0)};
 }
 
-function $hero_gain_values_func$k169$(name$0, x$0, y$0, movement$0, attack$0,
+function $combat_enemy_action_func$k250$(hero_defense$0, seed$0, enemy_action$0,
+  player_action$0, battlefield_action$0, h$0) {
+  const h$1 = run_loop($Tactics$battlefield_flip$(battlefield_action$0));
+  return run_jump($combat_enemy_action_func$k251$, [hero_defense$0, seed$0,
+    enemy_action$0, player_action$0, h$0, h$1]);
+}
+
+function $Tactics$battlefield_pair$k284$(obstacle_seed$0, friendly_left$0,
+  friendly_right$0, h$0) {
+  const enemy_left$0 = h$0.$0;
+  const enemy_right$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(obstacle_seed$0));
+  return run_jump($Tactics$battlefield_pair$k285$, [friendly_left$0,
+    friendly_right$0, enemy_left$0, enemy_right$0, h$1]);
+}
+
+function $Tactics$formation_pair$k296$(s1$0, s2$0, s3$0, s4$0, s5$0, s6$0,
+  h$0) {
+  const l0$0 = h$0.$0;
+  const r0$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$slot_position_pair$(s1$0));
+  return run_jump($Tactics$formation_pair$k297$, [s2$0, s3$0, s4$0, s5$0, s6$0,
+    l0$0, r0$0, h$1]);
+}
+
+function $Tactics$slot_position_pair$(position$0) {
+  if (position$0.$ === "Tactics.OffBattlefield") {
+    return {$: "Tuple", $0: {$: "Tactics.OffBattlefield"}, $1: {$:
+      "Tactics.OffBattlefield"}};
+  } else {
+    const column$0 = position$0.$0;
+    const row$0 = position$0.$1;
+    const h$0 = run_loop($Tactics$u32_pair$(column$0));
+    return run_jump($Tactics$slot_position_pair$k304$, [row$0, h$0]);
+  }
+}
+
+function $combat_attack_func$k155$(hero_attack$0, hero_defense$0, mana$0,
+  seed$0, battlefield$0, own_reach$0, own_apply$0, target_reach$0,
+  target_apply$0, player_keep$0, enemy_keep$0, target$0, h$0) {
+  const actor_reach$0 = h$0.$0;
+  const actor_roll$0 = h$0.$1;
+  const h$1 = run_loop($stack_pair_func$(target$0));
+  return run_jump($combat_attack_func$k156$, [hero_attack$0, hero_defense$0,
+    mana$0, seed$0, battlefield$0, own_reach$0, own_apply$0, target_reach$0,
+    target_apply$0, player_keep$0, enemy_keep$0, actor_reach$0, actor_roll$0,
+    h$1]);
+}
+
+function $hero_gain_values_func$(name$0, x$0, y$0, movement$0, attack$0,
+  defense$0, power$0, knowledge$0, mana$0, level$0, experience$0, army$0,
+  reward$0) {
+  const next_experience$0 = ((experience$0 + reward$0) >>> 0);
+  const h$0 = run_loop($u32_pair_func$(next_experience$0));
+  return run_jump($hero_gain_values_func$k306$, [name$0, x$0, y$0, movement$0,
+    attack$0, defense$0, power$0, knowledge$0, mana$0, level$0, army$0, h$0]);
+}
+
+function $army_heal_func$k287$(c$0, d$0, e$0, f$0, g$0, h$0, h$1) {
+  const h$2 = run_loop($stack_heal_func$(c$0));
+  return run_jump($army_heal_func$k288$, [d$0, e$0, f$0, g$0, h$0, h$1, h$2]);
+}
+
+function $army_formation_sync_func$k261$(s4$0, s5$0, s6$0, p4$0, p5$0, p6$0,
+  a0$0, q0$0, a1$0, q1$0, a2$0, q2$0, h$0) {
+  const a3$0 = h$0.$0;
+  const q3$0 = h$0.$1;
+  const h$1 = run_loop($stack_position_sync_func$(s4$0, p4$0));
+  return run_jump($army_formation_sync_func$k262$, [s5$0, s6$0, p5$0, p6$0,
+    a0$0, q0$0, a1$0, q1$0, a2$0, q2$0, a3$0, q3$0, h$1]);
+}
+
+function $rng_step_func$k303$(bound$0, h$0) {
+  const value_seed$0 = h$0.$0;
+  const next_seed$0 = h$0.$1;
+  const $t$0 = (bound$0 === 0);
+  if ($t$0) {
+    return {$: "RngStep", $0: 0, $1: next_seed$0};
+  } else {
+    return {$: "RngStep", $0: (bound$0 === 0 ? value_seed$0 :
+      value_seed$0 % bound$0), $1: next_seed$0};
+  }
+}
+
+function $Tactics$battlefield_move_friendly$k295$(enemy$0, obstacle_seed$0,
+  target_column$0, target_row$0, speed$0, flying$0, slot_place$0, h$0) {
+  const friendly_keep$0 = h$0.$0;
+  const $t$0 = h$0.$1;
+  if ($t$0.$ === "Tactics.OffBattlefield") {
+    return {$: "Tactics.BattlefieldMove", $0: {$: "Tactics.Battlefield", $0:
+      friendly_keep$0, $1: enemy$0, $2: obstacle_seed$0}, $1: false};
+  } else {
+    const own_column$0 = $t$0.$0;
+    const own_row$0 = $t$0.$1;
+    return run_jump($Tactics$battlefield_move_from$, [friendly_keep$0, enemy$0,
+      obstacle_seed$0, slot_place$0, own_column$0, own_row$0, target_column$0,
+      target_row$0, speed$0, flying$0]);
+  }
+}
+
+function $Tactics$formation_select$(formation$0, slot$0) {
+  const s0$0 = formation$0.$0;
+  const s1$0 = formation$0.$1;
+  const s2$0 = formation$0.$2;
+  const s3$0 = formation$0.$3;
+  const s4$0 = formation$0.$4;
+  const s5$0 = formation$0.$5;
+  const s6$0 = formation$0.$6;
+  const $t$0 = BigInt(slot$0);
+  if ($t$0 === 0n) {
+    const h$0 = run_loop($Tactics$slot_position_pair$(s0$0));
+    return run_jump($Tactics$formation_select$k309$, [s1$0, s2$0, s3$0, s4$0,
+      s5$0, s6$0, h$0]);
+  } else {
+    const $t$1 = ($t$0 - 1n);
+    if ($t$1 === 0n) {
+      const h$1 = run_loop($Tactics$slot_position_pair$(s1$0));
+      return run_jump($Tactics$formation_select$k310$, [s0$0, s2$0, s3$0, s4$0,
+        s5$0, s6$0, h$1]);
+    } else {
+      const $t$2 = ($t$1 - 1n);
+      if ($t$2 === 0n) {
+        const h$2 = run_loop($Tactics$slot_position_pair$(s2$0));
+        return run_jump($Tactics$formation_select$k311$, [s0$0, s1$0, s3$0,
+          s4$0, s5$0, s6$0, h$2]);
+      } else {
+        const $t$3 = ($t$2 - 1n);
+        if ($t$3 === 0n) {
+          const h$3 = run_loop($Tactics$slot_position_pair$(s3$0));
+          return run_jump($Tactics$formation_select$k312$, [s0$0, s1$0, s2$0,
+            s4$0, s5$0, s6$0, h$3]);
+        } else {
+          const $t$4 = ($t$3 - 1n);
+          if ($t$4 === 0n) {
+            const h$4 = run_loop($Tactics$slot_position_pair$(s4$0));
+            return run_jump($Tactics$formation_select$k313$, [s0$0, s1$0, s2$0,
+              s3$0, s5$0, s6$0, h$4]);
+          } else {
+            const $t$5 = ($t$4 - 1n);
+            if ($t$5 === 0n) {
+              const h$5 = run_loop($Tactics$slot_position_pair$(s5$0));
+              return run_jump($Tactics$formation_select$k314$, [s0$0, s1$0,
+                s2$0, s3$0, s4$0, s6$0, h$5]);
+            } else {
+              const h$6 = run_loop($Tactics$slot_position_pair$(s6$0));
+              return run_jump($Tactics$formation_select$k315$, [s0$0, s1$0,
+                s2$0, s3$0, s4$0, s5$0, h$6]);
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+function $army_ai_weakest_func$k79$(s6$0, h$0, h$1) {
+  const h$2 = run_loop($stack_ai_candidate_func$(6, s6$0));
+  return run_jump($army_ai_weakest_func$k80$, [h$0, h$1, h$2]);
+}
+
+function $army_ai_strongest_func$k39$(h$0, h$1, h$2) {
+  const h$3 = run_loop($ai_candidate_max_func$(h$1, h$2));
+  return run_jump($army_ai_strongest_func$k40$, [h$0, h$3]);
+}
+
+function $combat_ai_battle_candidates_func$k181$(battlefield$0, own_reach$0,
+  own_move$0, own_output$0, target_reach$0, target_move$0, target_output$0,
+  h$0) {
+  const actor_reach$0 = h$0.$0;
+  const actor_move$0 = h$0.$1;
+  const h$1 = run_loop($stack_battle_reach_func$(actor_reach$0, battlefield$0,
+    own_reach$0, target_reach$0));
+  return run_jump($combat_ai_battle_candidates_func$k182$, [own_move$0,
+    own_output$0, target_move$0, target_output$0, actor_move$0, h$1]);
+}
+
+function $army_check_func$k226$(g$0, a_keep$0, a_empty$0, b_keep$0, b_empty$0,
+  c_keep$0, c_empty$0, d_keep$0, d_empty$0, e_keep$0, e_empty$0, h$0) {
+  const f_keep$0 = h$0.$0;
+  const f_empty$0 = h$0.$1;
+  const h$1 = run_loop($stack_check_func$(g$0));
+  return run_jump($army_check_func$k227$, [a_keep$0, a_empty$0, b_keep$0,
+    b_empty$0, c_keep$0, c_empty$0, d_keep$0, d_empty$0, e_keep$0, e_empty$0,
+    f_keep$0, f_empty$0, h$1]);
+}
+
+function $combat_enemy_action_func$k251$(hero_defense$0, seed$0, enemy_action$0,
+  player_action$0, h$0, h$1) {
+  return run_jump($combat_enemy_choice_apply_func$, [h$0, enemy_action$0,
+    player_action$0, hero_defense$0, seed$0, h$1]);
+}
+
+function $Tactics$battlefield_pair$k285$(friendly_left$0, friendly_right$0,
+  enemy_left$0, enemy_right$0, h$0) {
+  const seed_left$0 = h$0.$0;
+  const seed_right$0 = h$0.$1;
+  return {$: "Tactics.BattlefieldPair", $0: {$: "Tactics.Battlefield", $0:
+    friendly_left$0, $1: enemy_left$0, $2: seed_left$0}, $1: {$:
+    "Tactics.Battlefield", $0: friendly_right$0, $1: enemy_right$0, $2:
+    seed_right$0}};
+}
+
+function $Tactics$formation_pair$k297$(s2$0, s3$0, s4$0, s5$0, s6$0, l0$0, r0$0,
+  h$0) {
+  const l1$0 = h$0.$0;
+  const r1$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$slot_position_pair$(s2$0));
+  return run_jump($Tactics$formation_pair$k298$, [s3$0, s4$0, s5$0, s6$0, l0$0,
+    r0$0, l1$0, r1$0, h$1]);
+}
+
+function $Tactics$slot_position_pair$k304$(row$0, h$0) {
+  const left_column$0 = h$0.$0;
+  const right_column$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(row$0));
+  return run_jump($Tactics$slot_position_pair$k305$, [left_column$0,
+    right_column$0, h$1]);
+}
+
+function $combat_attack_func$k156$(hero_attack$0, hero_defense$0, mana$0,
+  seed$0, battlefield$0, own_reach$0, own_apply$0, target_reach$0,
+  target_apply$0, player_keep$0, enemy_keep$0, actor_reach$0, actor_roll$0,
+  h$0) {
+  const target_roll$0 = h$0.$0;
+  const target_retaliation$0 = h$0.$1;
+  const h$1 = run_loop($stack_battle_reach_func$(actor_reach$0, battlefield$0,
+    own_reach$0, target_reach$0));
+  return run_jump($combat_attack_func$k157$, [hero_attack$0, hero_defense$0,
+    mana$0, seed$0, own_apply$0, target_apply$0, player_keep$0, enemy_keep$0,
+    actor_roll$0, target_roll$0, target_retaliation$0, h$1]);
+}
+
+function $hero_gain_values_func$k306$(name$0, x$0, y$0, movement$0, attack$0,
   defense$0, power$0, knowledge$0, mana$0, level$0, army$0, h$0) {
   const experience_level$0 = h$0.$0;
   const experience_output$0 = h$0.$1;
@@ -7484,90 +10448,175 @@ function $hero_gain_values_func$k169$(name$0, x$0, y$0, movement$0, attack$0,
   }
   const next_level$0 = $t$0;
   const h$1 = run_loop($u32_pair_func$(next_level$0));
-  return run_jump($hero_gain_values_func$k170$, [name$0, x$0, y$0, movement$0,
+  return run_jump($hero_gain_values_func$k307$, [name$0, x$0, y$0, movement$0,
     attack$0, defense$0, power$0, knowledge$0, mana$0, level$0, army$0,
     experience_output$0, h$1]);
 }
 
-function $army_heal_func$k149$(d$0, e$0, f$0, g$0, h$0, h$1, h$2) {
+function $army_heal_func$k288$(d$0, e$0, f$0, g$0, h$0, h$1, h$2) {
   const h$3 = run_loop($stack_heal_func$(d$0));
-  return run_jump($army_heal_func$k150$, [e$0, f$0, g$0, h$0, h$1, h$2, h$3]);
+  return run_jump($army_heal_func$k289$, [e$0, f$0, g$0, h$0, h$1, h$2, h$3]);
 }
 
-function $combat_attack_func$k68$(own_slot$0, hero_defense$0, mana$0,
-  next_seed$0, damage_output$0, enemy_after$0, retaliator$0, h$0) {
-  const player_after$0 = h$0.$0;
-  const defender$0 = h$0.$1;
-  const h$1 = run_loop($attack_roll_func$(retaliator$0, defender$0, 0,
-    hero_defense$0, next_seed$0));
-  return run_jump($combat_attack_func$k69$, [own_slot$0, mana$0,
-    damage_output$0, enemy_after$0, player_after$0, h$1]);
+function $army_formation_sync_func$k262$(s5$0, s6$0, p5$0, p6$0, a0$0, q0$0,
+  a1$0, q1$0, a2$0, q2$0, a3$0, q3$0, h$0) {
+  const a4$0 = h$0.$0;
+  const q4$0 = h$0.$1;
+  const h$1 = run_loop($stack_position_sync_func$(s5$0, p5$0));
+  return run_jump($army_formation_sync_func$k263$, [s6$0, p6$0, a0$0, q0$0,
+    a1$0, q1$0, a2$0, q2$0, a3$0, q3$0, a4$0, q4$0, h$1]);
 }
 
-function $combat_spell_func$k83$(own_slot$0, mana$0, damage_output$0,
-  enemy_after$0, player_keep$0, h$0) {
-  const response$0 = h$0.$0;
-  const next_seed$0 = h$0.$1;
-  const response_valid$0 = h$0.$2;
-  const h$1 = run_loop($u32_pair_func$(response$0));
-  return run_jump($combat_spell_func$k84$, [own_slot$0, mana$0, damage_output$0,
-    enemy_after$0, player_keep$0, next_seed$0, h$1]);
+function $Tactics$battlefield_move_from$(friendly$0, enemy$0, obstacle_seed$0,
+  slot$0, own_column$0, own_row$0, target_column$0, target_row$0, speed$0,
+  flying$0) {
+  const h$0 = run_loop($Tactics$u32_pair$(target_column$0));
+  return run_jump($Tactics$battlefield_move_from$k321$, [friendly$0, enemy$0,
+    obstacle_seed$0, slot$0, own_column$0, own_row$0, target_row$0, speed$0,
+    flying$0, h$0]);
 }
 
-function $army_check_func$k121$(g$0, a_keep$0, a_empty$0, b_keep$0, b_empty$0,
-  c_keep$0, c_empty$0, d_keep$0, d_empty$0, e_keep$0, e_empty$0, h$0) {
-  const f_keep$0 = h$0.$0;
-  const f_empty$0 = h$0.$1;
-  const h$1 = run_loop($stack_check_func$(g$0));
-  return run_jump($army_check_func$k122$, [a_keep$0, a_empty$0, b_keep$0,
-    b_empty$0, c_keep$0, c_empty$0, d_keep$0, d_empty$0, e_keep$0, e_empty$0,
-    f_keep$0, f_empty$0, h$1]);
-}
-
-function $hero_gain_values_func$k170$(name$0, x$0, y$0, movement$0, attack$0,
-  defense$0, power$0, knowledge$0, mana$0, level$0, army$0, experience_output$0,
+function $Tactics$formation_select$k309$(s1$0, s2$0, s3$0, s4$0, s5$0, s6$0,
   h$0) {
-  const level_test$0 = h$0.$0;
-  const level_live$0 = h$0.$1;
-  const $t$0 = (level$0 < level_test$0);
-  if (!$t$0) {
-    return {$: "Hero", $0: name$0, $1: x$0, $2: y$0, $3: movement$0, $4:
-      attack$0, $5: defense$0, $6: power$0, $7: knowledge$0, $8: mana$0, $9:
-      level$0, $10: experience_output$0, $11: army$0};
+  const keep$0 = h$0.$0;
+  const selected$0 = h$0.$1;
+  return {$: "Tactics.FormationSelection", $0: {$: "Tactics.Formation", $0:
+    keep$0, $1: s1$0, $2: s2$0, $3: s3$0, $4: s4$0, $5: s5$0, $6: s6$0}, $1:
+    selected$0};
+}
+
+function $Tactics$formation_select$k310$(s0$0, s2$0, s3$0, s4$0, s5$0, s6$0,
+  h$0) {
+  const keep$0 = h$0.$0;
+  const selected$0 = h$0.$1;
+  return {$: "Tactics.FormationSelection", $0: {$: "Tactics.Formation", $0:
+    s0$0, $1: keep$0, $2: s2$0, $3: s3$0, $4: s4$0, $5: s5$0, $6: s6$0}, $1:
+    selected$0};
+}
+
+function $Tactics$formation_select$k311$(s0$0, s1$0, s3$0, s4$0, s5$0, s6$0,
+  h$0) {
+  const keep$0 = h$0.$0;
+  const selected$0 = h$0.$1;
+  return {$: "Tactics.FormationSelection", $0: {$: "Tactics.Formation", $0:
+    s0$0, $1: s1$0, $2: keep$0, $3: s3$0, $4: s4$0, $5: s5$0, $6: s6$0}, $1:
+    selected$0};
+}
+
+function $Tactics$formation_select$k312$(s0$0, s1$0, s2$0, s4$0, s5$0, s6$0,
+  h$0) {
+  const keep$0 = h$0.$0;
+  const selected$0 = h$0.$1;
+  return {$: "Tactics.FormationSelection", $0: {$: "Tactics.Formation", $0:
+    s0$0, $1: s1$0, $2: s2$0, $3: keep$0, $4: s4$0, $5: s5$0, $6: s6$0}, $1:
+    selected$0};
+}
+
+function $Tactics$formation_select$k313$(s0$0, s1$0, s2$0, s3$0, s5$0, s6$0,
+  h$0) {
+  const keep$0 = h$0.$0;
+  const selected$0 = h$0.$1;
+  return {$: "Tactics.FormationSelection", $0: {$: "Tactics.Formation", $0:
+    s0$0, $1: s1$0, $2: s2$0, $3: s3$0, $4: keep$0, $5: s5$0, $6: s6$0}, $1:
+    selected$0};
+}
+
+function $Tactics$formation_select$k314$(s0$0, s1$0, s2$0, s3$0, s4$0, s6$0,
+  h$0) {
+  const keep$0 = h$0.$0;
+  const selected$0 = h$0.$1;
+  return {$: "Tactics.FormationSelection", $0: {$: "Tactics.Formation", $0:
+    s0$0, $1: s1$0, $2: s2$0, $3: s3$0, $4: s4$0, $5: keep$0, $6: s6$0}, $1:
+    selected$0};
+}
+
+function $Tactics$formation_select$k315$(s0$0, s1$0, s2$0, s3$0, s4$0, s5$0,
+  h$0) {
+  const keep$0 = h$0.$0;
+  const selected$0 = h$0.$1;
+  return {$: "Tactics.FormationSelection", $0: {$: "Tactics.Formation", $0:
+    s0$0, $1: s1$0, $2: s2$0, $3: s3$0, $4: s4$0, $5: s5$0, $6: keep$0}, $1:
+    selected$0};
+}
+
+function $Tactics$formation_select$k316$(s0$0, s1$0, s2$0, s3$0, s4$0, s5$0,
+  h$0) {
+  const keep$0 = h$0.$0;
+  const selected$0 = h$0.$1;
+  return {$: "Tactics.FormationSelection", $0: {$: "Tactics.Formation", $0:
+    s0$0, $1: s1$0, $2: s2$0, $3: s3$0, $4: s4$0, $5: s5$0, $6: keep$0}, $1:
+    selected$0};
+}
+
+function $Tactics$formation_select$k317$(s0$0, s1$0, s2$0, s3$0, s4$0, s5$0,
+  h$0) {
+  const keep$0 = h$0.$0;
+  const selected$0 = h$0.$1;
+  return {$: "Tactics.FormationSelection", $0: {$: "Tactics.Formation", $0:
+    s0$0, $1: s1$0, $2: s2$0, $3: s3$0, $4: s4$0, $5: s5$0, $6: keep$0}, $1:
+    selected$0};
+}
+
+function $Tactics$formation_select$k318$(s0$0, s1$0, s2$0, s3$0, s4$0, s5$0,
+  h$0) {
+  const keep$0 = h$0.$0;
+  const selected$0 = h$0.$1;
+  return {$: "Tactics.FormationSelection", $0: {$: "Tactics.Formation", $0:
+    s0$0, $1: s1$0, $2: s2$0, $3: s3$0, $4: s4$0, $5: s5$0, $6: keep$0}, $1:
+    selected$0};
+}
+
+function $Tactics$formation_select$k319$(s0$0, s1$0, s2$0, s3$0, s4$0, s5$0,
+  h$0) {
+  const keep$0 = h$0.$0;
+  const selected$0 = h$0.$1;
+  return {$: "Tactics.FormationSelection", $0: {$: "Tactics.Formation", $0:
+    s0$0, $1: s1$0, $2: s2$0, $3: s3$0, $4: s4$0, $5: s5$0, $6: keep$0}, $1:
+    selected$0};
+}
+
+function $Tactics$formation_select$k320$(s0$0, s1$0, s2$0, s3$0, s4$0, s5$0,
+  h$0) {
+  const keep$0 = h$0.$0;
+  const selected$0 = h$0.$1;
+  return {$: "Tactics.FormationSelection", $0: {$: "Tactics.Formation", $0:
+    s0$0, $1: s1$0, $2: s2$0, $3: s3$0, $4: s4$0, $5: s5$0, $6: keep$0}, $1:
+    selected$0};
+}
+
+function $army_ai_weakest_func$k80$(h$0, h$1, h$2) {
+  const h$3 = run_loop($ai_candidate_min_func$(h$1, h$2));
+  return run_jump($army_ai_weakest_func$k81$, [h$0, h$3]);
+}
+
+function $army_ai_strongest_func$k40$(h$0, h$1) {
+  return run_jump($ai_candidate_max_func$, [h$0, h$1]);
+}
+
+function $combat_ai_battle_candidates_func$k182$(own_move$0, own_output$0,
+  target_move$0, target_output$0, actor_move$0, h$0) {
+  const battlefield_keep$0 = h$0.$0;
+  const $t$0 = h$0.$1;
+  if ($t$0.$ === "Tactics.MeleeAttack") {
+    return {$: "CombatAiChoice", $0: 20, $1: own_output$0, $2: target_output$0};
+  } else if ($t$0.$ === "Tactics.RangedAttack") {
+    const long_range_penalty$0 = $t$0.$0;
+    return {$: "CombatAiChoice", $0: 20, $1: own_output$0, $2: target_output$0};
   } else {
-    const h$1 = run_loop($u32_pair_func$(level_live$0));
-    return run_jump($hero_gain_values_func$k171$, [name$0, x$0, y$0, movement$0,
-      attack$0, defense$0, power$0, knowledge$0, mana$0, army$0,
-      experience_output$0, h$1]);
+    const h$1 = run_loop($stack_tactics_func$(actor_move$0));
+    return run_jump($combat_ai_battle_candidates_func$k183$, [own_move$0,
+      own_output$0, target_move$0, battlefield_keep$0, h$1]);
   }
 }
 
-function $army_heal_func$k150$(e$0, f$0, g$0, h$0, h$1, h$2, h$3) {
-  const h$4 = run_loop($stack_heal_func$(e$0));
-  return run_jump($army_heal_func$k151$, [f$0, g$0, h$0, h$1, h$2, h$3, h$4]);
+function $stack_battle_reach_func$(stack$0, battlefield$0, own_slot$0,
+  target_slot$0) {
+  const h$0 = run_loop($stack_tactics_func$(stack$0));
+  return run_jump($stack_battle_reach_func$k337$, [battlefield$0, own_slot$0,
+    target_slot$0, h$0]);
 }
 
-function $combat_attack_func$k69$(own_slot$0, mana$0, damage_output$0,
-  enemy_after$0, player_after$0, h$0) {
-  const response$0 = h$0.$0;
-  const final_seed$0 = h$0.$1;
-  const response_valid$0 = h$0.$2;
-  const h$1 = run_loop($u32_pair_func$(response$0));
-  return run_jump($combat_attack_func$k70$, [own_slot$0, mana$0,
-    damage_output$0, enemy_after$0, player_after$0, final_seed$0, h$1]);
-}
-
-function $combat_spell_func$k84$(own_slot$0, mana$0, damage_output$0,
-  enemy_after$0, player_keep$0, next_seed$0, h$0) {
-  const response_apply$0 = h$0.$0;
-  const response_output$0 = h$0.$1;
-  const h$1 = run_loop($army_damage_func$(player_keep$0, own_slot$0,
-    response_apply$0));
-  return run_jump($combat_spell_func$k85$, [mana$0, damage_output$0,
-    enemy_after$0, next_seed$0, response_output$0, h$1]);
-}
-
-function $army_check_func$k122$(a_keep$0, a_empty$0, b_keep$0, b_empty$0,
+function $army_check_func$k227$(a_keep$0, a_empty$0, b_keep$0, b_empty$0,
   c_keep$0, c_empty$0, d_keep$0, d_empty$0, e_keep$0, e_empty$0, f_keep$0,
   f_empty$0, h$0) {
   const g_keep$0 = h$0.$0;
@@ -7614,7 +10663,342 @@ function $army_check_func$k122$(a_keep$0, a_empty$0, b_keep$0, b_empty$0,
     empty$0};
 }
 
-function $hero_gain_values_func$k171$(name$0, x$0, y$0, movement$0, attack$0,
+function $combat_enemy_choice_apply_func$(choice$0, enemy$0, player$0,
+  hero_defense$0, seed$0, battlefield$0) {
+  const command$0 = choice$0.$0;
+  const own_slot$0 = choice$0.$1;
+  const target_slot$0 = choice$0.$2;
+  const $t$0 = BigInt(command$0);
+  if ($t$0 !== 0n) {
+    const $t$1 = ($t$0 - 1n);
+    if ($t$1 !== 0n) {
+      const $t$2 = ($t$1 - 1n);
+      if ($t$2 !== 0n) {
+        const $t$3 = ($t$2 - 1n);
+        if ($t$3 !== 0n) {
+          const $t$4 = ($t$3 - 1n);
+          if ($t$4 !== 0n) {
+            const $t$5 = ($t$4 - 1n);
+            if ($t$5 !== 0n) {
+              const $t$6 = ($t$5 - 1n);
+              if ($t$6 !== 0n) {
+                const $t$7 = ($t$6 - 1n);
+                if ($t$7 !== 0n) {
+                  const $t$8 = ($t$7 - 1n);
+                  if ($t$8 !== 0n) {
+                    const $t$9 = ($t$8 - 1n);
+                    if ($t$9 !== 0n) {
+                      const $t$10 = ($t$9 - 1n);
+                      if ($t$10 !== 0n) {
+                        const $t$11 = ($t$10 - 1n);
+                        if ($t$11 !== 0n) {
+                          const $t$12 = ($t$11 - 1n);
+                          if ($t$12 !== 0n) {
+                            const $t$13 = ($t$12 - 1n);
+                            if ($t$13 !== 0n) {
+                              const $t$14 = ($t$13 - 1n);
+                              if ($t$14 !== 0n) {
+                                const $t$15 = ($t$14 - 1n);
+                                if ($t$15 !== 0n) {
+                                  const $t$16 = ($t$15 - 1n);
+                                  if ($t$16 !== 0n) {
+                                    const $t$17 = ($t$16 - 1n);
+                                    if ($t$17 !== 0n) {
+                                      const $t$18 = ($t$17 - 1n);
+                                      if ($t$18 !== 0n) {
+                                        const $t$19 = ($t$18 - 1n);
+                                        if ($t$19 !== 0n) {
+                                          const $t$20 = ($t$19 - 1n);
+                                          if ($t$20 === 0n) {
+                                            return run_jump(
+                                              $combat_attack_func$, [enemy$0,
+                                              player$0, own_slot$0,
+                                              target_slot$0, 0, hero_defense$0,
+                                              0, seed$0, battlefield$0]);
+                                          } else {
+                                            const $t$21 = ($t$20 - 1n);
+                                            if ($t$21 !== 0n) {
+                                              const $t$22 = ($t$21 - 1n);
+                                              if ($t$22 !== 0n) {
+                                                const $t$23 = ($t$22 - 1n);
+                                                if ($t$23 !== 0n) {
+                                                  const $t$24 = ($t$23 - 1n);
+                                                  if ($t$24 === 0n) {
+                                                    return run_jump(
+                                                      $combat_move_func$,
+                                                      [enemy$0, player$0,
+                                                      own_slot$0, target_slot$0,
+                                                      0, seed$0,
+                                                      battlefield$0]);
+                                                  } else {
+                                                    return {$: "CombatTurn", $0:
+                                                      enemy$0, $1: player$0, $2:
+                                                      0, $3: seed$0, $4: 0, $5:
+                                                      0, $6: false, $7:
+                                                      battlefield$0};
+                                                  }
+                                                } else {
+                                                  return {$: "CombatTurn", $0:
+                                                    enemy$0, $1: player$0, $2:
+                                                    0, $3: seed$0, $4: 0, $5: 0,
+                                                    $6: false, $7:
+                                                    battlefield$0};
+                                                }
+                                              } else {
+                                                return {$: "CombatTurn", $0:
+                                                  enemy$0, $1: player$0, $2: 0,
+                                                  $3: seed$0, $4: 0, $5: 0, $6:
+                                                  false, $7: battlefield$0};
+                                              }
+                                            } else {
+                                              return {$: "CombatTurn", $0:
+                                                enemy$0, $1: player$0, $2: 0,
+                                                $3: seed$0, $4: 0, $5: 0, $6:
+                                                false, $7: battlefield$0};
+                                            }
+                                          }
+                                        } else {
+                                          return {$: "CombatTurn", $0: enemy$0,
+                                            $1: player$0, $2: 0, $3: seed$0, $4:
+                                            0, $5: 0, $6: false, $7:
+                                            battlefield$0};
+                                        }
+                                      } else {
+                                        return {$: "CombatTurn", $0: enemy$0,
+                                          $1: player$0, $2: 0, $3: seed$0, $4:
+                                          0, $5: 0, $6: false, $7:
+                                          battlefield$0};
+                                      }
+                                    } else {
+                                      return {$: "CombatTurn", $0: enemy$0, $1:
+                                        player$0, $2: 0, $3: seed$0, $4: 0, $5:
+                                        0, $6: false, $7: battlefield$0};
+                                    }
+                                  } else {
+                                    return {$: "CombatTurn", $0: enemy$0, $1:
+                                      player$0, $2: 0, $3: seed$0, $4: 0, $5: 0,
+                                      $6: false, $7: battlefield$0};
+                                  }
+                                } else {
+                                  return {$: "CombatTurn", $0: enemy$0, $1:
+                                    player$0, $2: 0, $3: seed$0, $4: 0, $5: 0,
+                                    $6: false, $7: battlefield$0};
+                                }
+                              } else {
+                                return {$: "CombatTurn", $0: enemy$0, $1:
+                                  player$0, $2: 0, $3: seed$0, $4: 0, $5: 0, $6:
+                                  false, $7: battlefield$0};
+                              }
+                            } else {
+                              return {$: "CombatTurn", $0: enemy$0, $1:
+                                player$0, $2: 0, $3: seed$0, $4: 0, $5: 0, $6:
+                                false, $7: battlefield$0};
+                            }
+                          } else {
+                            return {$: "CombatTurn", $0: enemy$0, $1: player$0,
+                              $2: 0, $3: seed$0, $4: 0, $5: 0, $6: false, $7:
+                              battlefield$0};
+                          }
+                        } else {
+                          return {$: "CombatTurn", $0: enemy$0, $1: player$0,
+                            $2: 0, $3: seed$0, $4: 0, $5: 0, $6: false, $7:
+                            battlefield$0};
+                        }
+                      } else {
+                        return {$: "CombatTurn", $0: enemy$0, $1: player$0, $2:
+                          0, $3: seed$0, $4: 0, $5: 0, $6: false, $7:
+                          battlefield$0};
+                      }
+                    } else {
+                      return {$: "CombatTurn", $0: enemy$0, $1: player$0, $2: 0,
+                        $3: seed$0, $4: 0, $5: 0, $6: false, $7: battlefield$0};
+                    }
+                  } else {
+                    return {$: "CombatTurn", $0: enemy$0, $1: player$0, $2: 0,
+                      $3: seed$0, $4: 0, $5: 0, $6: false, $7: battlefield$0};
+                  }
+                } else {
+                  return {$: "CombatTurn", $0: enemy$0, $1: player$0, $2: 0, $3:
+                    seed$0, $4: 0, $5: 0, $6: false, $7: battlefield$0};
+                }
+              } else {
+                return {$: "CombatTurn", $0: enemy$0, $1: player$0, $2: 0, $3:
+                  seed$0, $4: 0, $5: 0, $6: false, $7: battlefield$0};
+              }
+            } else {
+              return {$: "CombatTurn", $0: enemy$0, $1: player$0, $2: 0, $3:
+                seed$0, $4: 0, $5: 0, $6: false, $7: battlefield$0};
+            }
+          } else {
+            return {$: "CombatTurn", $0: enemy$0, $1: player$0, $2: 0, $3:
+              seed$0, $4: 0, $5: 0, $6: false, $7: battlefield$0};
+          }
+        } else {
+          return {$: "CombatTurn", $0: enemy$0, $1: player$0, $2: 0, $3: seed$0,
+            $4: 0, $5: 0, $6: false, $7: battlefield$0};
+        }
+      } else {
+        return {$: "CombatTurn", $0: enemy$0, $1: player$0, $2: 0, $3: seed$0,
+          $4: 0, $5: 0, $6: false, $7: battlefield$0};
+      }
+    } else {
+      return {$: "CombatTurn", $0: enemy$0, $1: player$0, $2: 0, $3: seed$0, $4:
+        0, $5: 0, $6: false, $7: battlefield$0};
+    }
+  } else {
+    return {$: "CombatTurn", $0: enemy$0, $1: player$0, $2: 0, $3: seed$0, $4:
+      0, $5: 0, $6: false, $7: battlefield$0};
+  }
+}
+
+function $Tactics$formation_pair$k298$(s3$0, s4$0, s5$0, s6$0, l0$0, r0$0, l1$0,
+  r1$0, h$0) {
+  const l2$0 = h$0.$0;
+  const r2$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$slot_position_pair$(s3$0));
+  return run_jump($Tactics$formation_pair$k299$, [s4$0, s5$0, s6$0, l0$0, r0$0,
+    l1$0, r1$0, l2$0, r2$0, h$1]);
+}
+
+function $Tactics$slot_position_pair$k305$(left_column$0, right_column$0, h$0) {
+  const left_row$0 = h$0.$0;
+  const right_row$0 = h$0.$1;
+  return {$: "Tuple", $0: {$: "Tactics.AtHex", $0: left_column$0, $1:
+    left_row$0}, $1: {$: "Tactics.AtHex", $0: right_column$0, $1: right_row$0}};
+}
+
+function $combat_attack_func$k157$(hero_attack$0, hero_defense$0, mana$0,
+  seed$0, own_apply$0, target_apply$0, player_keep$0, enemy_keep$0,
+  actor_roll$0, target_roll$0, target_retaliation$0, h$0) {
+  const battlefield_keep$0 = h$0.$0;
+  const $t$0 = h$0.$1;
+  if ($t$0.$ === "Tactics.IllegalAttack") {
+    return {$: "CombatTurn", $0: player_keep$0, $1: enemy_keep$0, $2: mana$0,
+      $3: seed$0, $4: 0, $5: 0, $6: false, $7: battlefield_keep$0};
+  } else if ($t$0.$ === "Tactics.RangedAttack") {
+    const long_range_penalty$0 = $t$0.$0;
+    return run_jump($combat_attack_without_retaliation_func$, [player_keep$0,
+      enemy_keep$0, actor_roll$0, target_roll$0, target_apply$0, hero_attack$0,
+      hero_defense$0, mana$0, seed$0, long_range_penalty$0,
+      battlefield_keep$0]);
+  } else {
+    const h$1 = run_loop($stack_retaliation_reach_func$(target_retaliation$0));
+    return run_jump($combat_attack_func$k158$, [hero_attack$0, hero_defense$0,
+      mana$0, seed$0, own_apply$0, target_apply$0, player_keep$0, enemy_keep$0,
+      actor_roll$0, target_roll$0, battlefield_keep$0, h$1]);
+  }
+}
+
+function $hero_gain_values_func$k307$(name$0, x$0, y$0, movement$0, attack$0,
+  defense$0, power$0, knowledge$0, mana$0, level$0, army$0, experience_output$0,
+  h$0) {
+  const level_test$0 = h$0.$0;
+  const level_live$0 = h$0.$1;
+  const $t$0 = (level$0 < level_test$0);
+  if (!$t$0) {
+    return {$: "Hero", $0: name$0, $1: x$0, $2: y$0, $3: movement$0, $4:
+      attack$0, $5: defense$0, $6: power$0, $7: knowledge$0, $8: mana$0, $9:
+      level$0, $10: experience_output$0, $11: army$0};
+  } else {
+    const h$1 = run_loop($u32_pair_func$(level_live$0));
+    return run_jump($hero_gain_values_func$k308$, [name$0, x$0, y$0, movement$0,
+      attack$0, defense$0, power$0, knowledge$0, mana$0, army$0,
+      experience_output$0, h$1]);
+  }
+}
+
+function $army_heal_func$k289$(e$0, f$0, g$0, h$0, h$1, h$2, h$3) {
+  const h$4 = run_loop($stack_heal_func$(e$0));
+  return run_jump($army_heal_func$k290$, [f$0, g$0, h$0, h$1, h$2, h$3, h$4]);
+}
+
+function $army_formation_sync_func$k263$(s6$0, p6$0, a0$0, q0$0, a1$0, q1$0,
+  a2$0, q2$0, a3$0, q3$0, a4$0, q4$0, h$0) {
+  const a5$0 = h$0.$0;
+  const q5$0 = h$0.$1;
+  const h$1 = run_loop($stack_position_sync_func$(s6$0, p6$0));
+  return run_jump($army_formation_sync_func$k264$, [a0$0, q0$0, a1$0, q1$0,
+    a2$0, q2$0, a3$0, q3$0, a4$0, q4$0, a5$0, q5$0, h$1]);
+}
+
+function $Tactics$battlefield_move_from$k321$(friendly$0, enemy$0,
+  obstacle_seed$0, slot$0, own_column$0, own_row$0, target_row$0, speed$0,
+  flying$0, h$0) {
+  const valid_column$0 = h$0.$0;
+  const column1$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(column1$0));
+  return run_jump($Tactics$battlefield_move_from$k322$, [friendly$0, enemy$0,
+    obstacle_seed$0, slot$0, own_column$0, own_row$0, target_row$0, speed$0,
+    flying$0, valid_column$0, h$1]);
+}
+
+function $army_ai_weakest_func$k81$(h$0, h$1) {
+  return run_jump($ai_candidate_min_func$, [h$0, h$1]);
+}
+
+function $combat_ai_battle_candidates_func$k183$(own_move$0, own_output$0,
+  target_move$0, battlefield_keep$0, h$0) {
+  const kept_stack$0 = h$0.$0;
+  const speed$0 = h$0.$1;
+  const range$0 = h$0.$2;
+  const shots$0 = h$0.$3;
+  const flying$0 = h$0.$4;
+  const retaliations$0 = h$0.$5;
+  const h$1 = run_loop($Tactics$battlefield_ai_target$(battlefield_keep$0,
+    own_move$0, target_move$0, speed$0));
+  return run_jump($combat_ai_battle_candidates_func$k184$, [own_output$0, h$1]);
+}
+
+function $stack_battle_reach_func$k337$(battlefield$0, own_slot$0,
+  target_slot$0, h$0) {
+  const kept_stack$0 = h$0.$0;
+  const speed$0 = h$0.$1;
+  const range$0 = h$0.$2;
+  const shots$0 = h$0.$3;
+  const flying$0 = h$0.$4;
+  const retaliations$0 = h$0.$5;
+  return run_jump($Tactics$battlefield_attack_reach$, [battlefield$0,
+    own_slot$0, target_slot$0, false, shots$0, range$0]);
+}
+
+function $Tactics$formation_pair$k299$(s4$0, s5$0, s6$0, l0$0, r0$0, l1$0, r1$0,
+  l2$0, r2$0, h$0) {
+  const l3$0 = h$0.$0;
+  const r3$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$slot_position_pair$(s4$0));
+  return run_jump($Tactics$formation_pair$k300$, [s5$0, s6$0, l0$0, r0$0, l1$0,
+    r1$0, l2$0, r2$0, l3$0, r3$0, h$1]);
+}
+
+function $combat_attack_func$k158$(hero_attack$0, hero_defense$0, mana$0,
+  seed$0, own_apply$0, target_apply$0, player_keep$0, enemy_keep$0,
+  actor_roll$0, target_roll$0, battlefield_keep$0, h$0) {
+  if (h$0.$ === "Tactics.NoRetaliation") {
+    return run_jump($combat_attack_without_retaliation_func$, [player_keep$0,
+      enemy_keep$0, actor_roll$0, target_roll$0, target_apply$0, hero_attack$0,
+      hero_defense$0, mana$0, seed$0, false, battlefield_keep$0]);
+  } else {
+    return run_jump($combat_attack_with_retaliation_func$, [player_keep$0,
+      enemy_keep$0, actor_roll$0, target_roll$0, own_apply$0, target_apply$0,
+      hero_attack$0, hero_defense$0, mana$0, seed$0, battlefield_keep$0]);
+  }
+}
+
+function $combat_attack_without_retaliation_func$(player$0, enemy$0, actor$0,
+  target$0, target_slot$0, hero_attack$0, hero_defense$0, mana$0, seed$0,
+  penalty$0, battlefield$0) {
+  const h$0 = run_loop($attack_roll_func$(actor$0, target$0, hero_attack$0, 0,
+    seed$0));
+  return run_jump($combat_attack_without_retaliation_func$k338$, [player$0,
+    enemy$0, target_slot$0, mana$0, penalty$0, battlefield$0, h$0]);
+}
+
+function $stack_retaliation_reach_func$(stack$0) {
+  const h$0 = run_loop($stack_tactics_func$(stack$0));
+  return run_jump($stack_retaliation_reach_func$k341$, [h$0]);
+}
+
+function $hero_gain_values_func$k308$(name$0, x$0, y$0, movement$0, attack$0,
   defense$0, power$0, knowledge$0, mana$0, army$0, experience_output$0, h$0) {
   const level_parity$0 = h$0.$0;
   const level_output$0 = h$0.$1;
@@ -7631,46 +11015,1495 @@ function $hero_gain_values_func$k171$(name$0, x$0, y$0, movement$0, attack$0,
   }
 }
 
-function $army_heal_func$k151$(f$0, g$0, h$0, h$1, h$2, h$3, h$4) {
+function $army_heal_func$k290$(f$0, g$0, h$0, h$1, h$2, h$3, h$4) {
   const h$5 = run_loop($stack_heal_func$(f$0));
-  return run_jump($army_heal_func$k152$, [g$0, h$0, h$1, h$2, h$3, h$4, h$5]);
+  return run_jump($army_heal_func$k291$, [g$0, h$0, h$1, h$2, h$3, h$4, h$5]);
 }
 
-function $combat_attack_func$k70$(own_slot$0, mana$0, damage_output$0,
-  enemy_after$0, player_after$0, final_seed$0, h$0) {
+function $army_formation_sync_func$k264$(a0$0, q0$0, a1$0, q1$0, a2$0, q2$0,
+  a3$0, q3$0, a4$0, q4$0, a5$0, q5$0, h$0) {
+  const a6$0 = h$0.$0;
+  const q6$0 = h$0.$1;
+  return {$: "ArmyFormation", $0: {$: "Army", $0: a0$0, $1: a1$0, $2: a2$0, $3:
+    a3$0, $4: a4$0, $5: a5$0, $6: a6$0}, $1: {$: "Tactics.Formation", $0: q0$0,
+    $1: q1$0, $2: q2$0, $3: q3$0, $4: q4$0, $5: q5$0, $6: q6$0}};
+}
+
+function $Tactics$battlefield_move_from$k322$(friendly$0, enemy$0,
+  obstacle_seed$0, slot$0, own_column$0, own_row$0, target_row$0, speed$0,
+  flying$0, valid_column$0, h$0) {
+  const friendly_column$0 = h$0.$0;
+  const column2$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(column2$0));
+  return run_jump($Tactics$battlefield_move_from$k323$, [friendly$0, enemy$0,
+    obstacle_seed$0, slot$0, own_column$0, own_row$0, target_row$0, speed$0,
+    flying$0, valid_column$0, friendly_column$0, h$1]);
+}
+
+function $combat_ai_battle_candidates_func$k184$(own_output$0, h$0) {
+  const battlefield_output$0 = h$0.$0;
+  const target_index$0 = h$0.$1;
+  return {$: "CombatAiChoice", $0: 24, $1: own_output$0, $2: target_index$0};
+}
+
+function $Tactics$battlefield_ai_target$(battlefield$0, own_slot$0,
+  target_slot$0, speed$0) {
+  const friendly$0 = battlefield$0.$0;
+  const enemy$0 = battlefield$0.$1;
+  const obstacle_seed$0 = battlefield$0.$2;
+  const h$0 = run_loop($Tactics$formation_select$(friendly$0, own_slot$0));
+  return run_jump($Tactics$battlefield_ai_target$k342$, [enemy$0,
+    obstacle_seed$0, target_slot$0, speed$0, h$0]);
+}
+
+function $Tactics$battlefield_attack_reach$(battlefield$0, own_slot$0,
+  target_slot$0, blocked$0, shots$0, range$0) {
+  const friendly$0 = battlefield$0.$0;
+  const enemy$0 = battlefield$0.$1;
+  const obstacle_seed$0 = battlefield$0.$2;
+  const h$0 = run_loop($Tactics$formation_select$(friendly$0, own_slot$0));
+  return run_jump($Tactics$battlefield_attack_reach$k349$, [enemy$0,
+    obstacle_seed$0, target_slot$0, blocked$0, shots$0, range$0, h$0]);
+}
+
+function $Tactics$formation_pair$k300$(s5$0, s6$0, l0$0, r0$0, l1$0, r1$0, l2$0,
+  r2$0, l3$0, r3$0, h$0) {
+  const l4$0 = h$0.$0;
+  const r4$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$slot_position_pair$(s5$0));
+  return run_jump($Tactics$formation_pair$k301$, [s6$0, l0$0, r0$0, l1$0, r1$0,
+    l2$0, r2$0, l3$0, r3$0, l4$0, r4$0, h$1]);
+}
+
+function $combat_attack_with_retaliation_func$(player$0, enemy$0, actor$0,
+  target$0, own_slot$0, target_slot$0, hero_attack$0, hero_defense$0, mana$0,
+  seed$0, battlefield$0) {
+  const h$0 = run_loop($attack_roll_func$(actor$0, target$0, hero_attack$0, 0,
+    seed$0));
+  return run_jump($combat_attack_with_retaliation_func$k353$, [player$0,
+    enemy$0, own_slot$0, target_slot$0, hero_defense$0, mana$0, battlefield$0,
+    h$0]);
+}
+
+function $combat_attack_without_retaliation_func$k338$(player$0, enemy$0,
+  target_slot$0, mana$0, penalty$0, battlefield$0, h$0) {
+  const damage$0 = h$0.$0;
+  const next_seed$0 = h$0.$1;
+  const $t$0 = h$0.$2;
+  if (!$t$0) {
+    return {$: "CombatTurn", $0: player$0, $1: enemy$0, $2: mana$0, $3:
+      next_seed$0, $4: 0, $5: 0, $6: false, $7: battlefield$0};
+  } else {
+    const damage$1 = damage$0;
+    let $t$1;
+    if (!penalty$0) {
+      $t$1 = damage$1;
+    } else {
+      const value$0 = (2 === 0 ? 0 : (damage$1 / 2) >>> 0);
+      const $t$2 = (value$0 === 0);
+      if ($t$2) {
+        $t$1 = 1;
+      } else {
+        $t$1 = value$0;
+      }
+    }
+    const penalized_damage$0 = $t$1;
+    const h$1 = run_loop($u32_pair_func$(penalized_damage$0));
+    return run_jump($combat_attack_without_retaliation_func$k339$, [player$0,
+      enemy$0, target_slot$0, mana$0, battlefield$0, next_seed$0, h$1]);
+  }
+}
+
+function $attack_roll_func$(actor$0, target$0, hero_attack$0, hero_defense$0,
+  seed$0) {
+  if (actor$0.$ === "EmptyStack") {
+    if (target$0.$ === "EmptyStack") {
+      return {$: "AttackRoll", $0: 0, $1: seed$0, $2: false};
+    } else {
+      const target_kind$0 = target$0.$0;
+      const target_count$0 = target$0.$1;
+      const target_first_hp$0 = target$0.$2;
+      return {$: "AttackRoll", $0: 0, $1: seed$0, $2: false};
+    }
+  } else {
+    const actor_kind$0 = actor$0.$0;
+    const actor_count$0 = actor$0.$1;
+    const actor_first_hp$0 = actor$0.$2;
+    if (target$0.$ === "EmptyStack") {
+      return {$: "AttackRoll", $0: 0, $1: seed$0, $2: false};
+    } else {
+      const target_kind$1 = target$0.$0;
+      const target_count$1 = target$0.$1;
+      const target_first_hp$1 = target$0.$2;
+      let $t$0;
+      if (actor_kind$0.$ === "Pikeman") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "Pikeman"}, $1: {$:
+          "CreatureStats", $0: 4, $1: 5, $2: 1, $3: 3, $4: 10, $5: 4, $6: 14,
+          $7: 60, $8: 1, $9: 0, $10: false, $11: 1}};
+      } else if (actor_kind$0.$ === "Archer") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "Archer"}, $1: {$: "CreatureStats",
+          $0: 6, $1: 3, $2: 2, $3: 3, $4: 10, $5: 4, $6: 9, $7: 100, $8: 15, $9:
+          12, $10: false, $11: 1}};
+      } else if (actor_kind$0.$ === "Griffin") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "Griffin"}, $1: {$:
+          "CreatureStats", $0: 8, $1: 8, $2: 3, $3: 6, $4: 25, $5: 6, $6: 7, $7:
+          200, $8: 1, $9: 0, $10: true, $11: 2}};
+      } else if (actor_kind$0.$ === "Swordsman") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "Swordsman"}, $1: {$:
+          "CreatureStats", $0: 10, $1: 12, $2: 6, $3: 9, $4: 35, $5: 5, $6: 4,
+          $7: 300, $8: 1, $9: 0, $10: false, $11: 1}};
+      } else if (actor_kind$0.$ === "Monk") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "Monk"}, $1: {$: "CreatureStats",
+          $0: 12, $1: 7, $2: 10, $3: 12, $4: 30, $5: 5, $6: 3, $7: 400, $8: 15,
+          $9: 12, $10: false, $11: 1}};
+      } else if (actor_kind$0.$ === "Cavalier") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "Cavalier"}, $1: {$:
+          "CreatureStats", $0: 15, $1: 15, $2: 15, $3: 25, $4: 100, $5: 7, $6:
+          2, $7: 1000, $8: 1, $9: 0, $10: false, $11: 1}};
+      } else if (actor_kind$0.$ === "Angel") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "Angel"}, $1: {$: "CreatureStats",
+          $0: 20, $1: 20, $2: 50, $3: 50, $4: 200, $5: 12, $6: 1, $7: 3000, $8:
+          1, $9: 0, $10: true, $11: 1}};
+      } else if (actor_kind$0.$ === "Skeleton") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "Skeleton"}, $1: {$:
+          "CreatureStats", $0: 5, $1: 4, $2: 1, $3: 3, $4: 6, $5: 4, $6: 12, $7:
+          60, $8: 1, $9: 0, $10: false, $11: 1}};
+      } else if (actor_kind$0.$ === "WalkingDead") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "WalkingDead"}, $1: {$:
+          "CreatureStats", $0: 5, $1: 5, $2: 2, $3: 3, $4: 15, $5: 3, $6: 8, $7:
+          100, $8: 1, $9: 0, $10: false, $11: 1}};
+      } else if (actor_kind$0.$ === "Wight") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "Wight"}, $1: {$: "CreatureStats",
+          $0: 7, $1: 7, $2: 3, $3: 5, $4: 18, $5: 5, $6: 7, $7: 200, $8: 1, $9:
+          0, $10: true, $11: 1}};
+      } else if (actor_kind$0.$ === "Vampire") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "Vampire"}, $1: {$:
+          "CreatureStats", $0: 10, $1: 9, $2: 5, $3: 8, $4: 30, $5: 6, $6: 4,
+          $7: 360, $8: 1, $9: 0, $10: true, $11: 1}};
+      } else if (actor_kind$0.$ === "Lich") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "Lich"}, $1: {$: "CreatureStats",
+          $0: 13, $1: 10, $2: 11, $3: 13, $4: 30, $5: 6, $6: 3, $7: 500, $8: 15,
+          $9: 12, $10: false, $11: 1}};
+      } else if (actor_kind$0.$ === "BlackKnight") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "BlackKnight"}, $1: {$:
+          "CreatureStats", $0: 16, $1: 16, $2: 15, $3: 30, $4: 120, $5: 7, $6:
+          2, $7: 1200, $8: 1, $9: 0, $10: false, $11: 1}};
+      } else if (actor_kind$0.$ === "BoneDragon") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "BoneDragon"}, $1: {$:
+          "CreatureStats", $0: 17, $1: 15, $2: 25, $3: 50, $4: 150, $5: 9, $6:
+          1, $7: 1800, $8: 1, $9: 0, $10: true, $11: 1}};
+      } else if (actor_kind$0.$ === "Imp") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "Imp"}, $1: {$: "CreatureStats",
+          $0: 2, $1: 3, $2: 1, $3: 2, $4: 4, $5: 5, $6: 15, $7: 50, $8: 1, $9:
+          0, $10: false, $11: 1}};
+      } else if (actor_kind$0.$ === "Gog") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "Gog"}, $1: {$: "CreatureStats",
+          $0: 6, $1: 4, $2: 2, $3: 4, $4: 13, $5: 4, $6: 8, $7: 125, $8: 15, $9:
+          12, $10: false, $11: 1}};
+      } else if (actor_kind$0.$ === "HellHound") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "HellHound"}, $1: {$:
+          "CreatureStats", $0: 10, $1: 6, $2: 2, $3: 7, $4: 25, $5: 7, $6: 5,
+          $7: 200, $8: 1, $9: 0, $10: false, $11: 1}};
+      } else if (actor_kind$0.$ === "Demon") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "Demon"}, $1: {$: "CreatureStats",
+          $0: 10, $1: 10, $2: 7, $3: 9, $4: 35, $5: 5, $6: 4, $7: 250, $8: 1,
+          $9: 0, $10: false, $11: 1}};
+      } else if (actor_kind$0.$ === "PitFiend") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "PitFiend"}, $1: {$:
+          "CreatureStats", $0: 13, $1: 13, $2: 13, $3: 17, $4: 45, $5: 6, $6: 3,
+          $7: 500, $8: 1, $9: 0, $10: false, $11: 1}};
+      } else if (actor_kind$0.$ === "Efreeti") {
+        $t$0 = {$: "CreatureBundle", $0: {$: "Efreeti"}, $1: {$:
+          "CreatureStats", $0: 16, $1: 12, $2: 16, $3: 24, $4: 90, $5: 9, $6: 2,
+          $7: 900, $8: 1, $9: 0, $10: true, $11: 1}};
+      } else {
+        $t$0 = {$: "CreatureBundle", $0: {$: "Devil"}, $1: {$: "CreatureStats",
+          $0: 19, $1: 21, $2: 30, $3: 40, $4: 160, $5: 11, $6: 1, $7: 2700, $8:
+          1, $9: 0, $10: true, $11: 1}};
+      }
+      const actor_keep$0 = $t$0.$0;
+      const $t$1 = $t$0.$1;
+      const creature_attack$0 = $t$1.$0;
+      const actor_defense$0 = $t$1.$1;
+      const damage_min$0 = $t$1.$2;
+      const damage_max$0 = $t$1.$3;
+      const actor_hp$0 = $t$1.$4;
+      const actor_speed$0 = $t$1.$5;
+      const actor_growth$0 = $t$1.$6;
+      const actor_cost$0 = $t$1.$7;
+      const actor_range$0 = $t$1.$8;
+      const actor_shots$0 = $t$1.$9;
+      const actor_flying$0 = $t$1.$10;
+      const actor_retaliations$0 = $t$1.$11;
+      let $t$2;
+      if (target_kind$1.$ === "Pikeman") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "Pikeman"}, $1: {$:
+          "CreatureStats", $0: 4, $1: 5, $2: 1, $3: 3, $4: 10, $5: 4, $6: 14,
+          $7: 60, $8: 1, $9: 0, $10: false, $11: 1}};
+      } else if (target_kind$1.$ === "Archer") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "Archer"}, $1: {$: "CreatureStats",
+          $0: 6, $1: 3, $2: 2, $3: 3, $4: 10, $5: 4, $6: 9, $7: 100, $8: 15, $9:
+          12, $10: false, $11: 1}};
+      } else if (target_kind$1.$ === "Griffin") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "Griffin"}, $1: {$:
+          "CreatureStats", $0: 8, $1: 8, $2: 3, $3: 6, $4: 25, $5: 6, $6: 7, $7:
+          200, $8: 1, $9: 0, $10: true, $11: 2}};
+      } else if (target_kind$1.$ === "Swordsman") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "Swordsman"}, $1: {$:
+          "CreatureStats", $0: 10, $1: 12, $2: 6, $3: 9, $4: 35, $5: 5, $6: 4,
+          $7: 300, $8: 1, $9: 0, $10: false, $11: 1}};
+      } else if (target_kind$1.$ === "Monk") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "Monk"}, $1: {$: "CreatureStats",
+          $0: 12, $1: 7, $2: 10, $3: 12, $4: 30, $5: 5, $6: 3, $7: 400, $8: 15,
+          $9: 12, $10: false, $11: 1}};
+      } else if (target_kind$1.$ === "Cavalier") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "Cavalier"}, $1: {$:
+          "CreatureStats", $0: 15, $1: 15, $2: 15, $3: 25, $4: 100, $5: 7, $6:
+          2, $7: 1000, $8: 1, $9: 0, $10: false, $11: 1}};
+      } else if (target_kind$1.$ === "Angel") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "Angel"}, $1: {$: "CreatureStats",
+          $0: 20, $1: 20, $2: 50, $3: 50, $4: 200, $5: 12, $6: 1, $7: 3000, $8:
+          1, $9: 0, $10: true, $11: 1}};
+      } else if (target_kind$1.$ === "Skeleton") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "Skeleton"}, $1: {$:
+          "CreatureStats", $0: 5, $1: 4, $2: 1, $3: 3, $4: 6, $5: 4, $6: 12, $7:
+          60, $8: 1, $9: 0, $10: false, $11: 1}};
+      } else if (target_kind$1.$ === "WalkingDead") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "WalkingDead"}, $1: {$:
+          "CreatureStats", $0: 5, $1: 5, $2: 2, $3: 3, $4: 15, $5: 3, $6: 8, $7:
+          100, $8: 1, $9: 0, $10: false, $11: 1}};
+      } else if (target_kind$1.$ === "Wight") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "Wight"}, $1: {$: "CreatureStats",
+          $0: 7, $1: 7, $2: 3, $3: 5, $4: 18, $5: 5, $6: 7, $7: 200, $8: 1, $9:
+          0, $10: true, $11: 1}};
+      } else if (target_kind$1.$ === "Vampire") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "Vampire"}, $1: {$:
+          "CreatureStats", $0: 10, $1: 9, $2: 5, $3: 8, $4: 30, $5: 6, $6: 4,
+          $7: 360, $8: 1, $9: 0, $10: true, $11: 1}};
+      } else if (target_kind$1.$ === "Lich") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "Lich"}, $1: {$: "CreatureStats",
+          $0: 13, $1: 10, $2: 11, $3: 13, $4: 30, $5: 6, $6: 3, $7: 500, $8: 15,
+          $9: 12, $10: false, $11: 1}};
+      } else if (target_kind$1.$ === "BlackKnight") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "BlackKnight"}, $1: {$:
+          "CreatureStats", $0: 16, $1: 16, $2: 15, $3: 30, $4: 120, $5: 7, $6:
+          2, $7: 1200, $8: 1, $9: 0, $10: false, $11: 1}};
+      } else if (target_kind$1.$ === "BoneDragon") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "BoneDragon"}, $1: {$:
+          "CreatureStats", $0: 17, $1: 15, $2: 25, $3: 50, $4: 150, $5: 9, $6:
+          1, $7: 1800, $8: 1, $9: 0, $10: true, $11: 1}};
+      } else if (target_kind$1.$ === "Imp") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "Imp"}, $1: {$: "CreatureStats",
+          $0: 2, $1: 3, $2: 1, $3: 2, $4: 4, $5: 5, $6: 15, $7: 50, $8: 1, $9:
+          0, $10: false, $11: 1}};
+      } else if (target_kind$1.$ === "Gog") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "Gog"}, $1: {$: "CreatureStats",
+          $0: 6, $1: 4, $2: 2, $3: 4, $4: 13, $5: 4, $6: 8, $7: 125, $8: 15, $9:
+          12, $10: false, $11: 1}};
+      } else if (target_kind$1.$ === "HellHound") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "HellHound"}, $1: {$:
+          "CreatureStats", $0: 10, $1: 6, $2: 2, $3: 7, $4: 25, $5: 7, $6: 5,
+          $7: 200, $8: 1, $9: 0, $10: false, $11: 1}};
+      } else if (target_kind$1.$ === "Demon") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "Demon"}, $1: {$: "CreatureStats",
+          $0: 10, $1: 10, $2: 7, $3: 9, $4: 35, $5: 5, $6: 4, $7: 250, $8: 1,
+          $9: 0, $10: false, $11: 1}};
+      } else if (target_kind$1.$ === "PitFiend") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "PitFiend"}, $1: {$:
+          "CreatureStats", $0: 13, $1: 13, $2: 13, $3: 17, $4: 45, $5: 6, $6: 3,
+          $7: 500, $8: 1, $9: 0, $10: false, $11: 1}};
+      } else if (target_kind$1.$ === "Efreeti") {
+        $t$2 = {$: "CreatureBundle", $0: {$: "Efreeti"}, $1: {$:
+          "CreatureStats", $0: 16, $1: 12, $2: 16, $3: 24, $4: 90, $5: 9, $6: 2,
+          $7: 900, $8: 1, $9: 0, $10: true, $11: 1}};
+      } else {
+        $t$2 = {$: "CreatureBundle", $0: {$: "Devil"}, $1: {$: "CreatureStats",
+          $0: 19, $1: 21, $2: 30, $3: 40, $4: 160, $5: 11, $6: 1, $7: 2700, $8:
+          1, $9: 0, $10: true, $11: 1}};
+      }
+      const target_keep$0 = $t$2.$0;
+      const $t$3 = $t$2.$1;
+      const target_attack$0 = $t$3.$0;
+      const creature_defense$0 = $t$3.$1;
+      const target_min$0 = $t$3.$2;
+      const target_max$0 = $t$3.$3;
+      const target_hp$0 = $t$3.$4;
+      const target_speed$0 = $t$3.$5;
+      const target_growth$0 = $t$3.$6;
+      const target_cost$0 = $t$3.$7;
+      const target_range$0 = $t$3.$8;
+      const target_shots$0 = $t$3.$9;
+      const target_flying$0 = $t$3.$10;
+      const target_retaliations$0 = $t$3.$11;
+      return run_jump($attack_roll_values_func$, [actor_count$0,
+        creature_attack$0, damage_min$0, damage_max$0, creature_defense$0,
+        hero_attack$0, hero_defense$0, seed$0]);
+    }
+  }
+}
+
+function $stack_retaliation_reach_func$k341$(h$0) {
+  const kept_stack$0 = h$0.$0;
+  const speed$0 = h$0.$1;
+  const range$0 = h$0.$2;
+  const shots$0 = h$0.$3;
+  const flying$0 = h$0.$4;
+  const retaliations$0 = h$0.$5;
+  const retaliations$1 = retaliations$0;
+  let $t$0;
+  const $t$1 = (retaliations$1 === 0);
+  if (!$t$1) {
+    $t$0 = true;
+  } else {
+    $t$0 = false;
+  }
+  if (!$t$0) {
+    return {$: "Tactics.NoRetaliation"};
+  } else {
+    if (false) {
+      return {$: "Tactics.NoRetaliation"};
+    } else {
+      return {$: "Tactics.MayRetaliate"};
+    }
+  }
+}
+
+function $army_heal_func$k291$(g$0, h$0, h$1, h$2, h$3, h$4, h$5) {
+  const h$6 = run_loop($stack_heal_func$(g$0));
+  return run_jump($army_heal_func$k292$, [h$0, h$1, h$2, h$3, h$4, h$5, h$6]);
+}
+
+function $Tactics$battlefield_move_from$k323$(friendly$0, enemy$0,
+  obstacle_seed$0, slot$0, own_column$0, own_row$0, target_row$0, speed$0,
+  flying$0, valid_column$0, friendly_column$0, h$0) {
+  const enemy_column$0 = h$0.$0;
+  const column3$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(column3$0));
+  return run_jump($Tactics$battlefield_move_from$k324$, [friendly$0, enemy$0,
+    obstacle_seed$0, slot$0, own_column$0, own_row$0, target_row$0, speed$0,
+    flying$0, valid_column$0, friendly_column$0, enemy_column$0, h$1]);
+}
+
+function $Tactics$battlefield_ai_target$k342$(enemy$0, obstacle_seed$0,
+  target_slot$0, speed$0, h$0) {
+  const friendly_keep$0 = h$0.$0;
+  const $t$0 = h$0.$1;
+  if ($t$0.$ === "Tactics.OffBattlefield") {
+    return {$: "Tactics.BattlefieldAiTarget", $0: {$: "Tactics.Battlefield", $0:
+      friendly_keep$0, $1: enemy$0, $2: obstacle_seed$0}, $1: 0};
+  } else {
+    const own_column$0 = $t$0.$0;
+    const own_row$0 = $t$0.$1;
+    const h$1 = run_loop($Tactics$formation_select$(enemy$0, target_slot$0));
+    return run_jump($Tactics$battlefield_ai_target$k343$, [obstacle_seed$0,
+      speed$0, friendly_keep$0, own_column$0, own_row$0, h$1]);
+  }
+}
+
+function $Tactics$battlefield_attack_reach$k349$(enemy$0, obstacle_seed$0,
+  target_slot$0, blocked$0, shots$0, range$0, h$0) {
+  const friendly_keep$0 = h$0.$0;
+  const $t$0 = h$0.$1;
+  if ($t$0.$ === "Tactics.OffBattlefield") {
+    return {$: "Tactics.BattlefieldReach", $0: {$: "Tactics.Battlefield", $0:
+      friendly_keep$0, $1: enemy$0, $2: obstacle_seed$0}, $1: {$:
+      "Tactics.IllegalAttack"}};
+  } else {
+    const own_column$0 = $t$0.$0;
+    const own_row$0 = $t$0.$1;
+    const h$1 = run_loop($Tactics$formation_select$(enemy$0, target_slot$0));
+    return run_jump($Tactics$battlefield_attack_reach$k350$, [obstacle_seed$0,
+      blocked$0, shots$0, range$0, friendly_keep$0, own_column$0, own_row$0,
+      h$1]);
+  }
+}
+
+function $Tactics$formation_pair$k301$(s6$0, l0$0, r0$0, l1$0, r1$0, l2$0, r2$0,
+  l3$0, r3$0, l4$0, r4$0, h$0) {
+  const l5$0 = h$0.$0;
+  const r5$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$slot_position_pair$(s6$0));
+  return run_jump($Tactics$formation_pair$k302$, [l0$0, r0$0, l1$0, r1$0, l2$0,
+    r2$0, l3$0, r3$0, l4$0, r4$0, l5$0, r5$0, h$1]);
+}
+
+function $combat_attack_with_retaliation_func$k353$(player$0, enemy$0,
+  own_slot$0, target_slot$0, hero_defense$0, mana$0, battlefield$0, h$0) {
+  const damage$0 = h$0.$0;
+  const next_seed$0 = h$0.$1;
+  const $t$0 = h$0.$2;
+  if (!$t$0) {
+    return {$: "CombatTurn", $0: player$0, $1: enemy$0, $2: mana$0, $3:
+      next_seed$0, $4: 0, $5: 0, $6: false, $7: battlefield$0};
+  } else {
+    const h$1 = run_loop($u32_pair_func$(damage$0));
+    return run_jump($combat_attack_with_retaliation_func$k354$, [player$0,
+      enemy$0, own_slot$0, target_slot$0, hero_defense$0, mana$0, battlefield$0,
+      next_seed$0, h$1]);
+  }
+}
+
+function $combat_attack_without_retaliation_func$k339$(player$0, enemy$0,
+  target_slot$0, mana$0, battlefield$0, next_seed$0, h$0) {
+  const damage_apply$0 = h$0.$0;
+  const damage_output$0 = h$0.$1;
+  const h$1 = run_loop($army_damage_func$(enemy$0, target_slot$0,
+    damage_apply$0));
+  return run_jump($combat_attack_without_retaliation_func$k340$, [player$0,
+    mana$0, battlefield$0, next_seed$0, damage_output$0, h$1]);
+}
+
+function $army_heal_func$k292$(h$0, h$1, h$2, h$3, h$4, h$5, h$6) {
+  return {$: "Army", $0: h$0, $1: h$1, $2: h$2, $3: h$3, $4: h$4, $5: h$5, $6:
+    h$6};
+}
+
+function $Tactics$battlefield_move_from$k324$(friendly$0, enemy$0,
+  obstacle_seed$0, slot$0, own_column$0, own_row$0, target_row$0, speed$0,
+  flying$0, valid_column$0, friendly_column$0, enemy_column$0, h$0) {
+  const obstacle_column$0 = h$0.$0;
+  const column4$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(column4$0));
+  return run_jump($Tactics$battlefield_move_from$k325$, [friendly$0, enemy$0,
+    obstacle_seed$0, slot$0, own_column$0, own_row$0, target_row$0, speed$0,
+    flying$0, valid_column$0, friendly_column$0, enemy_column$0,
+    obstacle_column$0, h$1]);
+}
+
+function $Tactics$battlefield_ai_target$k343$(obstacle_seed$0, speed$0,
+  friendly_keep$0, own_column$0, own_row$0, h$0) {
+  const enemy_keep$0 = h$0.$0;
+  const $t$0 = h$0.$1;
+  if ($t$0.$ === "Tactics.OffBattlefield") {
+    return {$: "Tactics.BattlefieldAiTarget", $0: {$: "Tactics.Battlefield", $0:
+      friendly_keep$0, $1: enemy_keep$0, $2: obstacle_seed$0}, $1: 0};
+  } else {
+    const target_column$0 = $t$0.$0;
+    const target_row$0 = $t$0.$1;
+    const h$1 = run_loop($Tactics$u32_pair$(own_column$0));
+    return run_jump($Tactics$battlefield_ai_target$k344$, [obstacle_seed$0,
+      speed$0, friendly_keep$0, own_row$0, enemy_keep$0, target_column$0,
+      target_row$0, h$1]);
+  }
+}
+
+function $Tactics$battlefield_attack_reach$k350$(obstacle_seed$0, blocked$0,
+  shots$0, range$0, friendly_keep$0, own_column$0, own_row$0, h$0) {
+  const enemy_keep$0 = h$0.$0;
+  const $t$0 = h$0.$1;
+  if ($t$0.$ === "Tactics.OffBattlefield") {
+    return {$: "Tactics.BattlefieldReach", $0: {$: "Tactics.Battlefield", $0:
+      friendly_keep$0, $1: enemy_keep$0, $2: obstacle_seed$0}, $1: {$:
+      "Tactics.IllegalAttack"}};
+  } else {
+    const target_column$0 = $t$0.$0;
+    const target_row$0 = $t$0.$1;
+    const h$1 = run_loop($Tactics$hex_distance_values$(own_column$0, own_row$0,
+      target_column$0, target_row$0));
+    return run_jump($Tactics$battlefield_attack_reach$k351$, [obstacle_seed$0,
+      blocked$0, shots$0, range$0, friendly_keep$0, enemy_keep$0, h$1]);
+  }
+}
+
+function $Tactics$formation_pair$k302$(l0$0, r0$0, l1$0, r1$0, l2$0, r2$0, l3$0,
+  r3$0, l4$0, r4$0, l5$0, r5$0, h$0) {
+  const l6$0 = h$0.$0;
+  const r6$0 = h$0.$1;
+  return {$: "Tactics.FormationPair", $0: {$: "Tactics.Formation", $0: l0$0, $1:
+    l1$0, $2: l2$0, $3: l3$0, $4: l4$0, $5: l5$0, $6: l6$0}, $1: {$:
+    "Tactics.Formation", $0: r0$0, $1: r1$0, $2: r2$0, $3: r3$0, $4: r4$0, $5:
+    r5$0, $6: r6$0}};
+}
+
+function $combat_attack_with_retaliation_func$k354$(player$0, enemy$0,
+  own_slot$0, target_slot$0, hero_defense$0, mana$0, battlefield$0, next_seed$0,
+  h$0) {
+  const damage_apply$0 = h$0.$0;
+  const damage_output$0 = h$0.$1;
+  const h$1 = run_loop($army_damage_func$(enemy$0, target_slot$0,
+    damage_apply$0));
+  return run_jump($combat_attack_with_retaliation_func$k355$, [player$0,
+    own_slot$0, target_slot$0, hero_defense$0, mana$0, battlefield$0,
+    next_seed$0, damage_output$0, h$1]);
+}
+
+function $combat_attack_without_retaliation_func$k340$(player$0, mana$0,
+  battlefield$0, next_seed$0, damage_output$0, h$0) {
+  const enemy_hit$0 = h$0.$0;
+  const kills$0 = h$0.$1;
+  return {$: "CombatTurn", $0: player$0, $1: enemy_hit$0, $2: mana$0, $3:
+    next_seed$0, $4: damage_output$0, $5: 0, $6: true, $7: battlefield$0};
+}
+
+function $Tactics$battlefield_move_from$k325$(friendly$0, enemy$0,
+  obstacle_seed$0, slot$0, own_column$0, own_row$0, target_row$0, speed$0,
+  flying$0, valid_column$0, friendly_column$0, enemy_column$0,
+  obstacle_column$0, h$0) {
+  const distance_column$0 = h$0.$0;
+  const output_column$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(target_row$0));
+  return run_jump($Tactics$battlefield_move_from$k326$, [friendly$0, enemy$0,
+    obstacle_seed$0, slot$0, own_column$0, own_row$0, speed$0, flying$0,
+    valid_column$0, friendly_column$0, enemy_column$0, obstacle_column$0,
+    distance_column$0, output_column$0, h$1]);
+}
+
+function $Tactics$battlefield_ai_target$k344$(obstacle_seed$0, speed$0,
+  friendly_keep$0, own_row$0, enemy_keep$0, target_column$0, target_row$0,
+  h$0) {
+  const own_column_plan$0 = h$0.$0;
+  const own_column_row$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(target_column$0));
+  return run_jump($Tactics$battlefield_ai_target$k345$, [obstacle_seed$0,
+    speed$0, friendly_keep$0, own_row$0, enemy_keep$0, target_row$0,
+    own_column_plan$0, own_column_row$0, h$1]);
+}
+
+function $Tactics$battlefield_attack_reach$k351$(obstacle_seed$0, blocked$0,
+  shots$0, range$0, friendly_keep$0, enemy_keep$0, h$0) {
+  const h$1 = run_loop($Tactics$attack_reach$(h$0, blocked$0, shots$0,
+    range$0));
+  return run_jump($Tactics$battlefield_attack_reach$k352$, [obstacle_seed$0,
+    friendly_keep$0, enemy_keep$0, h$1]);
+}
+
+function $combat_attack_with_retaliation_func$k355$(player$0, own_slot$0,
+  target_slot$0, hero_defense$0, mana$0, battlefield$0, next_seed$0,
+  damage_output$0, h$0) {
+  const enemy_hit$0 = h$0.$0;
+  const kills$0 = h$0.$1;
+  const h$1 = run_loop($army_select_func$(enemy_hit$0, target_slot$0));
+  return run_jump($combat_attack_with_retaliation_func$k356$, [player$0,
+    own_slot$0, hero_defense$0, mana$0, battlefield$0, next_seed$0,
+    damage_output$0, h$1]);
+}
+
+function $Tactics$battlefield_move_from$k326$(friendly$0, enemy$0,
+  obstacle_seed$0, slot$0, own_column$0, own_row$0, speed$0, flying$0,
+  valid_column$0, friendly_column$0, enemy_column$0, obstacle_column$0,
+  distance_column$0, output_column$0, h$0) {
+  const valid_row$0 = h$0.$0;
+  const row1$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(row1$0));
+  return run_jump($Tactics$battlefield_move_from$k327$, [friendly$0, enemy$0,
+    obstacle_seed$0, slot$0, own_column$0, own_row$0, speed$0, flying$0,
+    valid_column$0, friendly_column$0, enemy_column$0, obstacle_column$0,
+    distance_column$0, output_column$0, valid_row$0, h$1]);
+}
+
+function $Tactics$battlefield_ai_target$k345$(obstacle_seed$0, speed$0,
+  friendly_keep$0, own_row$0, enemy_keep$0, target_row$0, own_column_plan$0,
+  own_column_row$0, h$0) {
+  const target_column_plan$0 = h$0.$0;
+  const target_column_row$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(speed$0));
+  return run_jump($Tactics$battlefield_ai_target$k346$, [obstacle_seed$0,
+    friendly_keep$0, own_row$0, enemy_keep$0, target_row$0, own_column_plan$0,
+    own_column_row$0, target_column_plan$0, target_column_row$0, h$1]);
+}
+
+function $Tactics$battlefield_attack_reach$k352$(obstacle_seed$0,
+  friendly_keep$0, enemy_keep$0, h$0) {
+  return {$: "Tactics.BattlefieldReach", $0: {$: "Tactics.Battlefield", $0:
+    friendly_keep$0, $1: enemy_keep$0, $2: obstacle_seed$0}, $1: h$0};
+}
+
+function $combat_attack_with_retaliation_func$k356$(player$0, own_slot$0,
+  hero_defense$0, mana$0, battlefield$0, next_seed$0, damage_output$0, h$0) {
+  const enemy_after$0 = h$0.$0;
+  const retaliator$0 = h$0.$1;
+  const h$1 = run_loop($army_select_func$(player$0, own_slot$0));
+  return run_jump($combat_attack_with_retaliation_func$k357$, [own_slot$0,
+    hero_defense$0, mana$0, battlefield$0, next_seed$0, damage_output$0,
+    enemy_after$0, retaliator$0, h$1]);
+}
+
+function $Tactics$battlefield_move_from$k327$(friendly$0, enemy$0,
+  obstacle_seed$0, slot$0, own_column$0, own_row$0, speed$0, flying$0,
+  valid_column$0, friendly_column$0, enemy_column$0, obstacle_column$0,
+  distance_column$0, output_column$0, valid_row$0, h$0) {
+  const friendly_row$0 = h$0.$0;
+  const row2$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(row2$0));
+  return run_jump($Tactics$battlefield_move_from$k328$, [friendly$0, enemy$0,
+    obstacle_seed$0, slot$0, own_column$0, own_row$0, speed$0, flying$0,
+    valid_column$0, friendly_column$0, enemy_column$0, obstacle_column$0,
+    distance_column$0, output_column$0, valid_row$0, friendly_row$0, h$1]);
+}
+
+function $Tactics$battlefield_ai_target$k346$(obstacle_seed$0, friendly_keep$0,
+  own_row$0, enemy_keep$0, target_row$0, own_column_plan$0, own_column_row$0,
+  target_column_plan$0, target_column_row$0, h$0) {
+  const speed_column$0 = h$0.$0;
+  const speed_row$0 = h$0.$1;
+  const candidate_column$0 = run_loop($Tactics$battlefield_ai_column$(
+    own_column_plan$0, target_column_plan$0, speed_column$0));
+  return run_jump($Tactics$battlefield_ai_target$k347$, [obstacle_seed$0,
+    friendly_keep$0, own_row$0, enemy_keep$0, target_row$0, own_column_row$0,
+    target_column_row$0, speed_row$0, candidate_column$0]);
+}
+
+function $combat_attack_with_retaliation_func$k357$(own_slot$0, hero_defense$0,
+  mana$0, battlefield$0, next_seed$0, damage_output$0, enemy_after$0,
+  retaliator$0, h$0) {
+  const player_after$0 = h$0.$0;
+  const defender$0 = h$0.$1;
+  const h$1 = run_loop($attack_roll_func$(retaliator$0, defender$0, 0,
+    hero_defense$0, next_seed$0));
+  return run_jump($combat_attack_with_retaliation_func$k358$, [own_slot$0,
+    mana$0, battlefield$0, damage_output$0, enemy_after$0, player_after$0,
+    h$1]);
+}
+
+function $Tactics$battlefield_move_from$k328$(friendly$0, enemy$0,
+  obstacle_seed$0, slot$0, own_column$0, own_row$0, speed$0, flying$0,
+  valid_column$0, friendly_column$0, enemy_column$0, obstacle_column$0,
+  distance_column$0, output_column$0, valid_row$0, friendly_row$0, h$0) {
+  const enemy_row$0 = h$0.$0;
+  const row3$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(row3$0));
+  return run_jump($Tactics$battlefield_move_from$k329$, [friendly$0, enemy$0,
+    obstacle_seed$0, slot$0, own_column$0, own_row$0, speed$0, flying$0,
+    valid_column$0, friendly_column$0, enemy_column$0, obstacle_column$0,
+    distance_column$0, output_column$0, valid_row$0, friendly_row$0,
+    enemy_row$0, h$1]);
+}
+
+function $Tactics$battlefield_ai_target$k347$(obstacle_seed$0, friendly_keep$0,
+  own_row$0, enemy_keep$0, target_row$0, own_column_row$0, target_column_row$0,
+  speed_row$0, candidate_column$0) {
+  const candidate_row$0 = run_loop($Tactics$battlefield_ai_row$(
+    own_column_row$0, own_row$0, target_column_row$0, target_row$0,
+    speed_row$0));
+  return run_jump($Tactics$battlefield_ai_target$k348$, [obstacle_seed$0,
+    friendly_keep$0, enemy_keep$0, candidate_column$0, candidate_row$0]);
+}
+
+function $Tactics$battlefield_ai_column$(own_column$0, target_column$0,
+  speed$0) {
+  const h$0 = run_loop($Tactics$u32_pair$(own_column$0));
+  return run_jump($Tactics$battlefield_ai_column$k361$, [target_column$0,
+    speed$0, h$0]);
+}
+
+function $combat_attack_with_retaliation_func$k358$(own_slot$0, mana$0,
+  battlefield$0, damage_output$0, enemy_after$0, player_after$0, h$0) {
+  const response$0 = h$0.$0;
+  const final_seed$0 = h$0.$1;
+  const response_valid$0 = h$0.$2;
+  const h$1 = run_loop($u32_pair_func$(response$0));
+  return run_jump($combat_attack_with_retaliation_func$k359$, [own_slot$0,
+    mana$0, battlefield$0, damage_output$0, enemy_after$0, player_after$0,
+    final_seed$0, h$1]);
+}
+
+function $Tactics$battlefield_move_from$k329$(friendly$0, enemy$0,
+  obstacle_seed$0, slot$0, own_column$0, own_row$0, speed$0, flying$0,
+  valid_column$0, friendly_column$0, enemy_column$0, obstacle_column$0,
+  distance_column$0, output_column$0, valid_row$0, friendly_row$0, enemy_row$0,
+  h$0) {
+  const obstacle_row$0 = h$0.$0;
+  const row4$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(row4$0));
+  return run_jump($Tactics$battlefield_move_from$k330$, [friendly$0, enemy$0,
+    obstacle_seed$0, slot$0, own_column$0, own_row$0, speed$0, flying$0,
+    valid_column$0, friendly_column$0, enemy_column$0, obstacle_column$0,
+    distance_column$0, output_column$0, valid_row$0, friendly_row$0,
+    enemy_row$0, obstacle_row$0, h$1]);
+}
+
+function $Tactics$battlefield_ai_target$k348$(obstacle_seed$0, friendly_keep$0,
+  enemy_keep$0, candidate_column$0, candidate_row$0) {
+  return run_jump($Tactics$battlefield_ai_validate_target$, [friendly_keep$0,
+    enemy_keep$0, obstacle_seed$0, candidate_column$0, candidate_row$0]);
+}
+
+function $Tactics$battlefield_ai_row$(own_column$0, own_row$0, target_column$0,
+  target_row$0, speed$0) {
+  const h$0 = run_loop($Tactics$u32_abs_diff$(own_column$0, target_column$0));
+  return run_jump($Tactics$battlefield_ai_row$k367$, [own_row$0, target_row$0,
+    speed$0, h$0]);
+}
+
+function $Tactics$battlefield_ai_column$k361$(target_column$0, speed$0, h$0) {
+  const own_test$0 = h$0.$0;
+  const own_live$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(target_column$0));
+  return run_jump($Tactics$battlefield_ai_column$k362$, [speed$0, own_test$0,
+    own_live$0, h$1]);
+}
+
+function $combat_attack_with_retaliation_func$k359$(own_slot$0, mana$0,
+  battlefield$0, damage_output$0, enemy_after$0, player_after$0, final_seed$0,
+  h$0) {
   const response_apply$0 = h$0.$0;
   const response_output$0 = h$0.$1;
   const h$1 = run_loop($army_damage_func$(player_after$0, own_slot$0,
     response_apply$0));
-  return run_jump($combat_attack_func$k71$, [mana$0, damage_output$0,
-    enemy_after$0, final_seed$0, response_output$0, h$1]);
+  return run_jump($combat_attack_with_retaliation_func$k360$, [mana$0,
+    battlefield$0, damage_output$0, enemy_after$0, final_seed$0,
+    response_output$0, h$1]);
 }
 
-function $combat_spell_func$k85$(mana$0, damage_output$0, enemy_after$0,
-  next_seed$0, response_output$0, h$0) {
-  const player_hit$0 = h$0.$0;
-  const losses$0 = h$0.$1;
-  return {$: "CombatTurn", $0: player_hit$0, $1: enemy_after$0, $2: ((
-    mana$0 - 5) >>> 0), $3: next_seed$0, $4: damage_output$0, $5:
-    response_output$0, $6: true};
+function $Tactics$battlefield_move_from$k330$(friendly$0, enemy$0,
+  obstacle_seed$0, slot$0, own_column$0, own_row$0, speed$0, flying$0,
+  valid_column$0, friendly_column$0, enemy_column$0, obstacle_column$0,
+  distance_column$0, output_column$0, valid_row$0, friendly_row$0, enemy_row$0,
+  obstacle_row$0, h$0) {
+  const distance_row$0 = h$0.$0;
+  const output_row$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(obstacle_seed$0));
+  return run_jump($Tactics$battlefield_move_from$k331$, [friendly$0, enemy$0,
+    slot$0, own_column$0, own_row$0, speed$0, flying$0, valid_column$0,
+    friendly_column$0, enemy_column$0, obstacle_column$0, distance_column$0,
+    output_column$0, valid_row$0, friendly_row$0, enemy_row$0, obstacle_row$0,
+    distance_row$0, output_row$0, h$1]);
 }
 
-function $army_heal_func$k152$(g$0, h$0, h$1, h$2, h$3, h$4, h$5) {
-  const h$6 = run_loop($stack_heal_func$(g$0));
-  return run_jump($army_heal_func$k153$, [h$0, h$1, h$2, h$3, h$4, h$5, h$6]);
+function $Tactics$battlefield_ai_validate_target$(friendly$0, enemy$0,
+  obstacle_seed$0, candidate_column$0, candidate_row$0) {
+  const h$0 = run_loop($Tactics$u32_pair$(candidate_column$0));
+  return run_jump($Tactics$battlefield_ai_validate_target$k368$, [friendly$0,
+    enemy$0, obstacle_seed$0, candidate_row$0, h$0]);
 }
 
-function $combat_attack_func$k71$(mana$0, damage_output$0, enemy_after$0,
-  final_seed$0, response_output$0, h$0) {
+function $Tactics$battlefield_ai_row$k367$(own_row$0, target_row$0, speed$0,
+  h$0) {
+  const $t$0 = (h$0 <= speed$0);
+  if ($t$0) {
+    return target_row$0;
+  } else {
+    return own_row$0;
+  }
+}
+
+function $Tactics$battlefield_ai_column$k362$(speed$0, own_test$0, own_live$0,
+  h$0) {
+  const target_test$0 = h$0.$0;
+  const target_live$0 = h$0.$1;
+  const $t$0 = (own_test$0 <= target_test$0);
+  if ($t$0) {
+    const desired_column$0 = ((target_live$0 - 1) >>> 0);
+    const maximum_column$0 = ((own_live$0 + speed$0) >>> 0);
+    const h$1 = run_loop($Tactics$u32_pair$(desired_column$0));
+    return run_jump($Tactics$battlefield_ai_column$k363$, [maximum_column$0,
+      h$1]);
+  } else {
+    const desired_column$1 = ((target_live$0 + 1) >>> 0);
+    const minimum_column$0 = ((own_live$0 - speed$0) >>> 0);
+    const h$2 = run_loop($Tactics$u32_pair$(desired_column$1));
+    return run_jump($Tactics$battlefield_ai_column$k365$, [minimum_column$0,
+      h$2]);
+  }
+}
+
+function $combat_attack_with_retaliation_func$k360$(mana$0, battlefield$0,
+  damage_output$0, enemy_after$0, final_seed$0, response_output$0, h$0) {
   const player_hit$0 = h$0.$0;
   const losses$0 = h$0.$1;
   return {$: "CombatTurn", $0: player_hit$0, $1: enemy_after$0, $2: mana$0, $3:
-    final_seed$0, $4: damage_output$0, $5: response_output$0, $6: true};
+    final_seed$0, $4: damage_output$0, $5: response_output$0, $6: true, $7:
+    battlefield$0};
 }
 
-function $army_heal_func$k153$(h$0, h$1, h$2, h$3, h$4, h$5, h$6) {
-  return {$: "Army", $0: h$0, $1: h$1, $2: h$2, $3: h$3, $4: h$4, $5: h$5, $6:
-    h$6};
+function $Tactics$battlefield_move_from$k331$(friendly$0, enemy$0, slot$0,
+  own_column$0, own_row$0, speed$0, flying$0, valid_column$0, friendly_column$0,
+  enemy_column$0, obstacle_column$0, distance_column$0, output_column$0,
+  valid_row$0, friendly_row$0, enemy_row$0, obstacle_row$0, distance_row$0,
+  output_row$0, h$0) {
+  const seed_test$0 = h$0.$0;
+  const seed_keep$0 = h$0.$1;
+  const column$0 = valid_column$0;
+  const row$0 = valid_row$0;
+  let $t$0;
+  const $t$1 = (column$0 < 15);
+  if (!$t$1) {
+    const b$0 = (row$0 < 11);
+    $t$0 = false;
+  } else {
+    const b$1 = (row$0 < 11);
+    $t$0 = b$1;
+  }
+  if (!$t$0) {
+    return {$: "Tactics.BattlefieldMove", $0: {$: "Tactics.Battlefield", $0:
+      friendly$0, $1: enemy$0, $2: seed_keep$0}, $1: false};
+  } else {
+    const h$1 = run_loop($Tactics$formation_occupied$(friendly$0,
+      friendly_column$0, friendly_row$0));
+    return run_jump($Tactics$battlefield_move_from$k332$, [enemy$0, slot$0,
+      own_column$0, own_row$0, speed$0, flying$0, enemy_column$0,
+      obstacle_column$0, distance_column$0, output_column$0, enemy_row$0,
+      obstacle_row$0, distance_row$0, output_row$0, seed_test$0, seed_keep$0,
+      h$1]);
+  }
+}
+
+function $Tactics$battlefield_ai_validate_target$k368$(friendly$0, enemy$0,
+  obstacle_seed$0, candidate_row$0, h$0) {
+  const primary_column$0 = h$0.$0;
+  const column_tail$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(column_tail$0));
+  return run_jump($Tactics$battlefield_ai_validate_target$k369$, [friendly$0,
+    enemy$0, obstacle_seed$0, candidate_row$0, primary_column$0, h$1]);
+}
+
+function $Tactics$battlefield_ai_column$k363$(maximum_column$0, h$0) {
+  const desired_test$0 = h$0.$0;
+  const desired_output$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(maximum_column$0));
+  return run_jump($Tactics$battlefield_ai_column$k364$, [desired_test$0,
+    desired_output$0, h$1]);
+}
+
+function $Tactics$battlefield_ai_column$k365$(minimum_column$0, h$0) {
+  const desired_test$0 = h$0.$0;
+  const desired_output$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(minimum_column$0));
+  return run_jump($Tactics$battlefield_ai_column$k366$, [desired_test$0,
+    desired_output$0, h$1]);
+}
+
+function $Tactics$battlefield_move_from$k332$(enemy$0, slot$0, own_column$0,
+  own_row$0, speed$0, flying$0, enemy_column$0, obstacle_column$0,
+  distance_column$0, output_column$0, enemy_row$0, obstacle_row$0,
+  distance_row$0, output_row$0, seed_test$0, seed_keep$0, h$0) {
+  const friendly_keep$0 = h$0.$0;
+  const friendly_occupied$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$formation_occupied$(enemy$0, enemy_column$0,
+    enemy_row$0));
+  return run_jump($Tactics$battlefield_move_from$k333$, [slot$0, own_column$0,
+    own_row$0, speed$0, flying$0, obstacle_column$0, distance_column$0,
+    output_column$0, obstacle_row$0, distance_row$0, output_row$0, seed_test$0,
+    seed_keep$0, friendly_keep$0, friendly_occupied$0, h$1]);
+}
+
+function $Tactics$formation_occupied$(formation$0, column$0, row$0) {
+  const h$0 = run_loop($Tactics$u32_pair$(column$0));
+  return run_jump($Tactics$formation_occupied$k378$, [formation$0, row$0, h$0]);
+}
+
+function $Tactics$battlefield_ai_validate_target$k369$(friendly$0, enemy$0,
+  obstacle_seed$0, candidate_row$0, primary_column$0, h$0) {
+  const upper_column$0 = h$0.$0;
+  const column_tail2$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(column_tail2$0));
+  return run_jump($Tactics$battlefield_ai_validate_target$k370$, [friendly$0,
+    enemy$0, obstacle_seed$0, candidate_row$0, primary_column$0, upper_column$0,
+    h$1]);
+}
+
+function $Tactics$battlefield_ai_column$k364$(desired_test$0, desired_output$0,
+  h$0) {
+  const maximum_test$0 = h$0.$0;
+  const maximum_output$0 = h$0.$1;
+  const $t$0 = (desired_test$0 <= maximum_test$0);
+  if ($t$0) {
+    return desired_output$0;
+  } else {
+    return maximum_output$0;
+  }
+}
+
+function $Tactics$battlefield_ai_column$k366$(desired_test$0, desired_output$0,
+  h$0) {
+  const minimum_test$0 = h$0.$0;
+  const minimum_output$0 = h$0.$1;
+  const $t$0 = (minimum_test$0 <= desired_test$0);
+  if ($t$0) {
+    return desired_output$0;
+  } else {
+    return minimum_output$0;
+  }
+}
+
+function $Tactics$battlefield_move_from$k333$(slot$0, own_column$0, own_row$0,
+  speed$0, flying$0, obstacle_column$0, distance_column$0, output_column$0,
+  obstacle_row$0, distance_row$0, output_row$0, seed_test$0, seed_keep$0,
+  friendly_keep$0, friendly_occupied$0, h$0) {
+  const enemy_keep$0 = h$0.$0;
+  const enemy_occupied$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$hex_distance_values$(own_column$0, own_row$0,
+    distance_column$0, distance_row$0));
+  return run_jump($Tactics$battlefield_move_from$k334$, [slot$0, speed$0,
+    flying$0, obstacle_column$0, output_column$0, obstacle_row$0, output_row$0,
+    seed_test$0, seed_keep$0, friendly_keep$0, friendly_occupied$0,
+    enemy_keep$0, enemy_occupied$0, h$1]);
+}
+
+function $Tactics$formation_occupied$k378$(formation$0, row$0, h$0) {
+  const c0$0 = h$0.$0;
+  const column1$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(column1$0));
+  return run_jump($Tactics$formation_occupied$k379$, [formation$0, row$0, c0$0,
+    h$1]);
+}
+
+function $Tactics$battlefield_ai_validate_target$k370$(friendly$0, enemy$0,
+  obstacle_seed$0, candidate_row$0, primary_column$0, upper_column$0, h$0) {
+  const lower_column$0 = h$0.$0;
+  const output_column$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(candidate_row$0));
+  return run_jump($Tactics$battlefield_ai_validate_target$k371$, [friendly$0,
+    enemy$0, obstacle_seed$0, primary_column$0, upper_column$0, lower_column$0,
+    output_column$0, h$1]);
+}
+
+function $Tactics$battlefield_move_from$k334$(slot$0, speed$0, flying$0,
+  obstacle_column$0, output_column$0, obstacle_row$0, output_row$0, seed_test$0,
+  seed_keep$0, friendly_keep$0, friendly_occupied$0, enemy_keep$0,
+  enemy_occupied$0, h$0) {
+  const distance$0 = h$0;
+  const speed$1 = speed$0;
+  const occupied$0 = (friendly_occupied$0 || enemy_occupied$0);
+  const h$1 = run_loop($Tactics$battlefield_obstacle$(obstacle_column$0,
+    obstacle_row$0, seed_test$0));
+  return run_jump($Tactics$battlefield_move_from$k335$, [slot$0, flying$0,
+    output_column$0, output_row$0, seed_keep$0, friendly_keep$0, enemy_keep$0,
+    distance$0, speed$1, occupied$0, h$1]);
+}
+
+function $Tactics$formation_occupied$k379$(formation$0, row$0, c0$0, h$0) {
+  const c1$0 = h$0.$0;
+  const column2$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(column2$0));
+  return run_jump($Tactics$formation_occupied$k380$, [formation$0, row$0, c0$0,
+    c1$0, h$1]);
+}
+
+function $Tactics$battlefield_ai_validate_target$k371$(friendly$0, enemy$0,
+  obstacle_seed$0, primary_column$0, upper_column$0, lower_column$0,
+  output_column$0, h$0) {
+  const primary_row$0 = h$0.$0;
+  const row_tail$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(row_tail$0));
+  return run_jump($Tactics$battlefield_ai_validate_target$k372$, [friendly$0,
+    enemy$0, obstacle_seed$0, primary_column$0, upper_column$0, lower_column$0,
+    output_column$0, primary_row$0, h$1]);
+}
+
+function $Tactics$battlefield_move_from$k335$(slot$0, flying$0, output_column$0,
+  output_row$0, seed_keep$0, friendly_keep$0, enemy_keep$0, distance$0, speed$0,
+  occupied$0, h$0) {
+  const obstacle$0 = h$0;
+  const flying$1 = flying$0;
+  let $t$0;
+  let $t$1;
+  if (!obstacle$0) {
+    $t$1 = true;
+  } else {
+    $t$1 = false;
+  }
+  const $t$2 = (distance$0 <= speed$0);
+  if (!$t$2) {
+    const terrain_clear$0 = ($t$1 || flying$1);
+    $t$0 = {$: "Tactics.IllegalMove"};
+  } else {
+    if (occupied$0) {
+      const terrain_clear$1 = ($t$1 || flying$1);
+      $t$0 = {$: "Tactics.IllegalMove"};
+    } else {
+      const $t$3 = ($t$1 || flying$1);
+      if (!$t$3) {
+        $t$0 = {$: "Tactics.IllegalMove"};
+      } else {
+        $t$0 = {$: "Tactics.LegalMove"};
+      }
+    }
+  }
+  if ($t$0.$ === "Tactics.IllegalMove") {
+    return {$: "Tactics.BattlefieldMove", $0: {$: "Tactics.Battlefield", $0:
+      friendly_keep$0, $1: enemy_keep$0, $2: seed_keep$0}, $1: false};
+  } else {
+    const h$1 = run_loop($Tactics$formation_place$(friendly_keep$0, slot$0, {$:
+      "Tactics.AtHex", $0: output_column$0, $1: output_row$0}));
+    return run_jump($Tactics$battlefield_move_from$k336$, [seed_keep$0,
+      enemy_keep$0, h$1]);
+  }
+}
+
+function $Tactics$formation_occupied$k380$(formation$0, row$0, c0$0, c1$0,
+  h$0) {
+  const c2$0 = h$0.$0;
+  const column3$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(column3$0));
+  return run_jump($Tactics$formation_occupied$k381$, [formation$0, row$0, c0$0,
+    c1$0, c2$0, h$1]);
+}
+
+function $Tactics$battlefield_ai_validate_target$k372$(friendly$0, enemy$0,
+  obstacle_seed$0, primary_column$0, upper_column$0, lower_column$0,
+  output_column$0, primary_row$0, h$0) {
+  const upper_row_source$0 = h$0.$0;
+  const lower_row_source$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$battlefield_target_check$({$:
+    "Tactics.Battlefield", $0: friendly$0, $1: enemy$0, $2: obstacle_seed$0},
+    primary_column$0, primary_row$0));
+  return run_jump($Tactics$battlefield_ai_validate_target$k373$,
+    [upper_column$0, lower_column$0, output_column$0, upper_row_source$0,
+    lower_row_source$0, h$1]);
+}
+
+function $Tactics$battlefield_move_from$k336$(seed_keep$0, enemy_keep$0, h$0) {
+  return {$: "Tactics.BattlefieldMove", $0: {$: "Tactics.Battlefield", $0: h$0,
+    $1: enemy_keep$0, $2: seed_keep$0}, $1: true};
+}
+
+function $Tactics$formation_place$(formation$0, slot$0, position$0) {
+  const s0$0 = formation$0.$0;
+  const s1$0 = formation$0.$1;
+  const s2$0 = formation$0.$2;
+  const s3$0 = formation$0.$3;
+  const s4$0 = formation$0.$4;
+  const s5$0 = formation$0.$5;
+  const s6$0 = formation$0.$6;
+  const $t$0 = BigInt(slot$0);
+  if ($t$0 === 0n) {
+    return {$: "Tactics.Formation", $0: position$0, $1: s1$0, $2: s2$0, $3:
+      s3$0, $4: s4$0, $5: s5$0, $6: s6$0};
+  } else {
+    const $t$1 = ($t$0 - 1n);
+    if ($t$1 === 0n) {
+      return {$: "Tactics.Formation", $0: s0$0, $1: position$0, $2: s2$0, $3:
+        s3$0, $4: s4$0, $5: s5$0, $6: s6$0};
+    } else {
+      const $t$2 = ($t$1 - 1n);
+      if ($t$2 === 0n) {
+        return {$: "Tactics.Formation", $0: s0$0, $1: s1$0, $2: position$0, $3:
+          s3$0, $4: s4$0, $5: s5$0, $6: s6$0};
+      } else {
+        const $t$3 = ($t$2 - 1n);
+        if ($t$3 === 0n) {
+          return {$: "Tactics.Formation", $0: s0$0, $1: s1$0, $2: s2$0, $3:
+            position$0, $4: s4$0, $5: s5$0, $6: s6$0};
+        } else {
+          const $t$4 = ($t$3 - 1n);
+          if ($t$4 === 0n) {
+            return {$: "Tactics.Formation", $0: s0$0, $1: s1$0, $2: s2$0, $3:
+              s3$0, $4: position$0, $5: s5$0, $6: s6$0};
+          } else {
+            const $t$5 = ($t$4 - 1n);
+            if ($t$5 === 0n) {
+              return {$: "Tactics.Formation", $0: s0$0, $1: s1$0, $2: s2$0, $3:
+                s3$0, $4: s4$0, $5: position$0, $6: s6$0};
+            } else {
+              return {$: "Tactics.Formation", $0: s0$0, $1: s1$0, $2: s2$0, $3:
+                s3$0, $4: s4$0, $5: s5$0, $6: position$0};
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+function $Tactics$formation_occupied$k381$(formation$0, row$0, c0$0, c1$0, c2$0,
+  h$0) {
+  const c3$0 = h$0.$0;
+  const column4$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(column4$0));
+  return run_jump($Tactics$formation_occupied$k382$, [formation$0, row$0, c0$0,
+    c1$0, c2$0, c3$0, h$1]);
+}
+
+function $Tactics$battlefield_ai_validate_target$k373$(upper_column$0,
+  lower_column$0, output_column$0, upper_row_source$0, lower_row_source$0,
+  h$0) {
+  const primary_battlefield$0 = h$0.$0;
+  const $t$0 = h$0.$1;
+  if (!$t$0) {
+    const column$0 = upper_column$0;
+    const row$0 = upper_row_source$0;
+    const x$0 = (Math.imul(row$0, 15) >>> 0);
+    return {$: "Tactics.BattlefieldAiTarget", $0: primary_battlefield$0, $1: ((
+      x$0 + column$0) >>> 0)};
+  } else {
+    const upper_row$0 = ((upper_row_source$0 + 1) >>> 0);
+    const h$1 = run_loop($Tactics$u32_pair$(upper_row$0));
+    return run_jump($Tactics$battlefield_ai_validate_target$k374$,
+      [upper_column$0, lower_column$0, output_column$0, lower_row_source$0,
+      primary_battlefield$0, h$1]);
+  }
+}
+
+function $Tactics$battlefield_target_check$(battlefield$0, column$0, row$0) {
+  const friendly$0 = battlefield$0.$0;
+  const enemy$0 = battlefield$0.$1;
+  const obstacle_seed$0 = battlefield$0.$2;
+  const h$0 = run_loop($Tactics$u32_pair$(column$0));
+  return run_jump($Tactics$battlefield_target_check$k390$, [friendly$0, enemy$0,
+    obstacle_seed$0, row$0, h$0]);
+}
+
+function $Tactics$formation_occupied$k382$(formation$0, row$0, c0$0, c1$0, c2$0,
+  c3$0, h$0) {
+  const c4$0 = h$0.$0;
+  const column5$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(column5$0));
+  return run_jump($Tactics$formation_occupied$k383$, [formation$0, row$0, c0$0,
+    c1$0, c2$0, c3$0, c4$0, h$1]);
+}
+
+function $Tactics$battlefield_ai_validate_target$k374$(upper_column$0,
+  lower_column$0, output_column$0, lower_row_source$0, primary_battlefield$0,
+  h$0) {
+  const upper_row_check$0 = h$0.$0;
+  const upper_row_output$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$battlefield_target_check$(primary_battlefield$0,
+    upper_column$0, upper_row_check$0));
+  return run_jump($Tactics$battlefield_ai_validate_target$k375$,
+    [lower_column$0, output_column$0, lower_row_source$0, upper_row_output$0,
+    h$1]);
+}
+
+function $Tactics$battlefield_target_check$k390$(friendly$0, enemy$0,
+  obstacle_seed$0, row$0, h$0) {
+  const valid_column$0 = h$0.$0;
+  const column1$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(column1$0));
+  return run_jump($Tactics$battlefield_target_check$k391$, [friendly$0, enemy$0,
+    obstacle_seed$0, row$0, valid_column$0, h$1]);
+}
+
+function $Tactics$formation_occupied$k383$(formation$0, row$0, c0$0, c1$0, c2$0,
+  c3$0, c4$0, h$0) {
+  const c5$0 = h$0.$0;
+  const c6$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(row$0));
+  return run_jump($Tactics$formation_occupied$k384$, [formation$0, c0$0, c1$0,
+    c2$0, c3$0, c4$0, c5$0, c6$0, h$1]);
+}
+
+function $Tactics$battlefield_ai_validate_target$k375$(lower_column$0,
+  output_column$0, lower_row_source$0, upper_row_output$0, h$0) {
+  const upper_battlefield$0 = h$0.$0;
+  const $t$0 = h$0.$1;
+  if (!$t$0) {
+    const column$0 = lower_column$0;
+    const row$0 = upper_row_output$0;
+    const x$0 = (Math.imul(row$0, 15) >>> 0);
+    return {$: "Tactics.BattlefieldAiTarget", $0: upper_battlefield$0, $1: ((
+      x$0 + column$0) >>> 0)};
+  } else {
+    const lower_row$0 = ((lower_row_source$0 - 1) >>> 0);
+    const h$1 = run_loop($Tactics$u32_pair$(lower_row$0));
+    return run_jump($Tactics$battlefield_ai_validate_target$k376$,
+      [lower_column$0, output_column$0, upper_battlefield$0, h$1]);
+  }
+}
+
+function $Tactics$battlefield_target_check$k391$(friendly$0, enemy$0,
+  obstacle_seed$0, row$0, valid_column$0, h$0) {
+  const friendly_column$0 = h$0.$0;
+  const column2$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(column2$0));
+  return run_jump($Tactics$battlefield_target_check$k392$, [friendly$0, enemy$0,
+    obstacle_seed$0, row$0, valid_column$0, friendly_column$0, h$1]);
+}
+
+function $Tactics$formation_occupied$k384$(formation$0, c0$0, c1$0, c2$0, c3$0,
+  c4$0, c5$0, c6$0, h$0) {
+  const r0$0 = h$0.$0;
+  const row1$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(row1$0));
+  return run_jump($Tactics$formation_occupied$k385$, [formation$0, c0$0, c1$0,
+    c2$0, c3$0, c4$0, c5$0, c6$0, r0$0, h$1]);
+}
+
+function $Tactics$battlefield_ai_validate_target$k376$(lower_column$0,
+  output_column$0, upper_battlefield$0, h$0) {
+  const lower_row_check$0 = h$0.$0;
+  const lower_row_output$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$battlefield_target_check$(upper_battlefield$0,
+    lower_column$0, lower_row_check$0));
+  return run_jump($Tactics$battlefield_ai_validate_target$k377$,
+    [output_column$0, lower_row_output$0, h$1]);
+}
+
+function $Tactics$battlefield_target_check$k392$(friendly$0, enemy$0,
+  obstacle_seed$0, row$0, valid_column$0, friendly_column$0, h$0) {
+  const enemy_column$0 = h$0.$0;
+  const obstacle_column$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(row$0));
+  return run_jump($Tactics$battlefield_target_check$k393$, [friendly$0, enemy$0,
+    obstacle_seed$0, valid_column$0, friendly_column$0, enemy_column$0,
+    obstacle_column$0, h$1]);
+}
+
+function $Tactics$formation_occupied$k385$(formation$0, c0$0, c1$0, c2$0, c3$0,
+  c4$0, c5$0, c6$0, r0$0, h$0) {
+  const r1$0 = h$0.$0;
+  const row2$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(row2$0));
+  return run_jump($Tactics$formation_occupied$k386$, [formation$0, c0$0, c1$0,
+    c2$0, c3$0, c4$0, c5$0, c6$0, r0$0, r1$0, h$1]);
+}
+
+function $Tactics$battlefield_ai_validate_target$k377$(output_column$0,
+  lower_row_output$0, h$0) {
+  const lower_battlefield$0 = h$0.$0;
+  const lower_blocked$0 = h$0.$1;
+  const column$0 = output_column$0;
+  const row$0 = lower_row_output$0;
+  const x$0 = (Math.imul(row$0, 15) >>> 0);
+  return {$: "Tactics.BattlefieldAiTarget", $0: lower_battlefield$0, $1: ((
+    x$0 + column$0) >>> 0)};
+}
+
+function $Tactics$battlefield_target_check$k393$(friendly$0, enemy$0,
+  obstacle_seed$0, valid_column$0, friendly_column$0, enemy_column$0,
+  obstacle_column$0, h$0) {
+  const valid_row$0 = h$0.$0;
+  const row1$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(row1$0));
+  return run_jump($Tactics$battlefield_target_check$k394$, [friendly$0, enemy$0,
+    obstacle_seed$0, valid_column$0, friendly_column$0, enemy_column$0,
+    obstacle_column$0, valid_row$0, h$1]);
+}
+
+function $Tactics$formation_occupied$k386$(formation$0, c0$0, c1$0, c2$0, c3$0,
+  c4$0, c5$0, c6$0, r0$0, r1$0, h$0) {
+  const r2$0 = h$0.$0;
+  const row3$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(row3$0));
+  return run_jump($Tactics$formation_occupied$k387$, [formation$0, c0$0, c1$0,
+    c2$0, c3$0, c4$0, c5$0, c6$0, r0$0, r1$0, r2$0, h$1]);
+}
+
+function $Tactics$battlefield_target_check$k394$(friendly$0, enemy$0,
+  obstacle_seed$0, valid_column$0, friendly_column$0, enemy_column$0,
+  obstacle_column$0, valid_row$0, h$0) {
+  const friendly_row$0 = h$0.$0;
+  const row2$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(row2$0));
+  return run_jump($Tactics$battlefield_target_check$k395$, [friendly$0, enemy$0,
+    obstacle_seed$0, valid_column$0, friendly_column$0, enemy_column$0,
+    obstacle_column$0, valid_row$0, friendly_row$0, h$1]);
+}
+
+function $Tactics$formation_occupied$k387$(formation$0, c0$0, c1$0, c2$0, c3$0,
+  c4$0, c5$0, c6$0, r0$0, r1$0, r2$0, h$0) {
+  const r3$0 = h$0.$0;
+  const row4$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(row4$0));
+  return run_jump($Tactics$formation_occupied$k388$, [formation$0, c0$0, c1$0,
+    c2$0, c3$0, c4$0, c5$0, c6$0, r0$0, r1$0, r2$0, r3$0, h$1]);
+}
+
+function $Tactics$battlefield_target_check$k395$(friendly$0, enemy$0,
+  obstacle_seed$0, valid_column$0, friendly_column$0, enemy_column$0,
+  obstacle_column$0, valid_row$0, friendly_row$0, h$0) {
+  const enemy_row$0 = h$0.$0;
+  const obstacle_row$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(obstacle_seed$0));
+  return run_jump($Tactics$battlefield_target_check$k396$, [friendly$0, enemy$0,
+    valid_column$0, friendly_column$0, enemy_column$0, obstacle_column$0,
+    valid_row$0, friendly_row$0, enemy_row$0, obstacle_row$0, h$1]);
+}
+
+function $Tactics$formation_occupied$k388$(formation$0, c0$0, c1$0, c2$0, c3$0,
+  c4$0, c5$0, c6$0, r0$0, r1$0, r2$0, r3$0, h$0) {
+  const r4$0 = h$0.$0;
+  const row5$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(row5$0));
+  return run_jump($Tactics$formation_occupied$k389$, [formation$0, c0$0, c1$0,
+    c2$0, c3$0, c4$0, c5$0, c6$0, r0$0, r1$0, r2$0, r3$0, r4$0, h$1]);
+}
+
+function $Tactics$battlefield_target_check$k396$(friendly$0, enemy$0,
+  valid_column$0, friendly_column$0, enemy_column$0, obstacle_column$0,
+  valid_row$0, friendly_row$0, enemy_row$0, obstacle_row$0, h$0) {
+  const seed_test$0 = h$0.$0;
+  const seed_output$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$formation_occupied$(friendly$0,
+    friendly_column$0, friendly_row$0));
+  return run_jump($Tactics$battlefield_target_check$k397$, [enemy$0,
+    valid_column$0, enemy_column$0, obstacle_column$0, valid_row$0, enemy_row$0,
+    obstacle_row$0, seed_test$0, seed_output$0, h$1]);
+}
+
+function $Tactics$formation_occupied$k389$(formation$0, c0$0, c1$0, c2$0, c3$0,
+  c4$0, c5$0, c6$0, r0$0, r1$0, r2$0, r3$0, r4$0, h$0) {
+  const r5$0 = h$0.$0;
+  const r6$0 = h$0.$1;
+  return run_jump($Tactics$formation_occupied_values$, [formation$0, c0$0, r0$0,
+    c1$0, r1$0, c2$0, r2$0, c3$0, r3$0, c4$0, r4$0, c5$0, r5$0, c6$0, r6$0]);
+}
+
+function $Tactics$battlefield_target_check$k397$(enemy$0, valid_column$0,
+  enemy_column$0, obstacle_column$0, valid_row$0, enemy_row$0, obstacle_row$0,
+  seed_test$0, seed_output$0, h$0) {
+  const friendly_keep$0 = h$0.$0;
+  const friendly_occupied$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$formation_occupied$(enemy$0, enemy_column$0,
+    enemy_row$0));
+  return run_jump($Tactics$battlefield_target_check$k398$, [valid_column$0,
+    obstacle_column$0, valid_row$0, obstacle_row$0, seed_test$0, seed_output$0,
+    friendly_keep$0, friendly_occupied$0, h$1]);
+}
+
+function $Tactics$formation_occupied_values$(formation$0, c0$0, r0$0, c1$0,
+  r1$0, c2$0, r2$0, c3$0, r3$0, c4$0, r4$0, c5$0, r5$0, c6$0, r6$0) {
+  const s0$0 = formation$0.$0;
+  const s1$0 = formation$0.$1;
+  const s2$0 = formation$0.$2;
+  const s3$0 = formation$0.$3;
+  const s4$0 = formation$0.$4;
+  const s5$0 = formation$0.$5;
+  const s6$0 = formation$0.$6;
+  const h$0 = run_loop($Tactics$slot_position_occupied$(s0$0, c0$0, r0$0));
+  return run_jump($Tactics$formation_occupied_values$k400$, [s1$0, s2$0, s3$0,
+    s4$0, s5$0, s6$0, c1$0, r1$0, c2$0, r2$0, c3$0, r3$0, c4$0, r4$0, c5$0,
+    r5$0, c6$0, r6$0, h$0]);
+}
+
+function $Tactics$battlefield_target_check$k398$(valid_column$0,
+  obstacle_column$0, valid_row$0, obstacle_row$0, seed_test$0, seed_output$0,
+  friendly_keep$0, friendly_occupied$0, h$0) {
+  const enemy_keep$0 = h$0.$0;
+  const enemy_occupied$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$battlefield_obstacle$(obstacle_column$0,
+    obstacle_row$0, seed_test$0));
+  return run_jump($Tactics$battlefield_target_check$k399$, [valid_column$0,
+    valid_row$0, seed_output$0, friendly_keep$0, friendly_occupied$0,
+    enemy_keep$0, enemy_occupied$0, h$1]);
+}
+
+function $Tactics$formation_occupied_values$k400$(s1$0, s2$0, s3$0, s4$0, s5$0,
+  s6$0, c1$0, r1$0, c2$0, r2$0, c3$0, r3$0, c4$0, r4$0, c5$0, r5$0, c6$0, r6$0,
+  h$0) {
+  const p0$0 = h$0.$0;
+  const o0$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$slot_position_occupied$(s1$0, c1$0, r1$0));
+  return run_jump($Tactics$formation_occupied_values$k401$, [s2$0, s3$0, s4$0,
+    s5$0, s6$0, c2$0, r2$0, c3$0, r3$0, c4$0, r4$0, c5$0, r5$0, c6$0, r6$0,
+    p0$0, o0$0, h$1]);
+}
+
+function $Tactics$slot_position_occupied$(position$0, column$0, row$0) {
+  if (position$0.$ === "Tactics.OffBattlefield") {
+    return {$: "Tactics.PositionOccupied", $0: {$: "Tactics.OffBattlefield"},
+      $1: false};
+  } else {
+    const old_column$0 = position$0.$0;
+    const old_row$0 = position$0.$1;
+    const h$0 = run_loop($Tactics$u32_pair$(old_column$0));
+    return run_jump($Tactics$slot_position_occupied$k407$, [old_row$0, column$0,
+      row$0, h$0]);
+  }
+}
+
+function $Tactics$battlefield_target_check$k399$(valid_column$0, valid_row$0,
+  seed_output$0, friendly_keep$0, friendly_occupied$0, enemy_keep$0,
+  enemy_occupied$0, h$0) {
+  let $t$0;
+  const column$0 = valid_column$0;
+  const row$0 = valid_row$0;
+  let $t$1;
+  const $t$2 = (column$0 < 15);
+  if (!$t$2) {
+    const b$0 = (row$0 < 11);
+    $t$1 = false;
+  } else {
+    const b$1 = (row$0 < 11);
+    $t$1 = b$1;
+  }
+  if (!$t$1) {
+    $t$0 = true;
+  } else {
+    $t$0 = false;
+  }
+  const x$0 = (enemy_occupied$0 || h$0);
+  const x$1 = (friendly_occupied$0 || x$0);
+  return {$: "Tactics.BattlefieldTargetCheck", $0: {$: "Tactics.Battlefield",
+    $0: friendly_keep$0, $1: enemy_keep$0, $2: seed_output$0}, $1: (
+    $t$0 || x$1)};
+}
+
+function $Tactics$formation_occupied_values$k401$(s2$0, s3$0, s4$0, s5$0, s6$0,
+  c2$0, r2$0, c3$0, r3$0, c4$0, r4$0, c5$0, r5$0, c6$0, r6$0, p0$0, o0$0, h$0) {
+  const p1$0 = h$0.$0;
+  const o1$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$slot_position_occupied$(s2$0, c2$0, r2$0));
+  return run_jump($Tactics$formation_occupied_values$k402$, [s3$0, s4$0, s5$0,
+    s6$0, c3$0, r3$0, c4$0, r4$0, c5$0, r5$0, c6$0, r6$0, p0$0, o0$0, p1$0,
+    o1$0, h$1]);
+}
+
+function $Tactics$slot_position_occupied$k407$(old_row$0, column$0, row$0,
+  h$0) {
+  const old_column_test$0 = h$0.$0;
+  const old_column_keep$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$u32_pair$(old_row$0));
+  return run_jump($Tactics$slot_position_occupied$k408$, [column$0, row$0,
+    old_column_test$0, old_column_keep$0, h$1]);
+}
+
+function $Tactics$formation_occupied_values$k402$(s3$0, s4$0, s5$0, s6$0, c3$0,
+  r3$0, c4$0, r4$0, c5$0, r5$0, c6$0, r6$0, p0$0, o0$0, p1$0, o1$0, h$0) {
+  const p2$0 = h$0.$0;
+  const o2$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$slot_position_occupied$(s3$0, c3$0, r3$0));
+  return run_jump($Tactics$formation_occupied_values$k403$, [s4$0, s5$0, s6$0,
+    c4$0, r4$0, c5$0, r5$0, c6$0, r6$0, p0$0, o0$0, p1$0, o1$0, p2$0, o2$0,
+    h$1]);
+}
+
+function $Tactics$slot_position_occupied$k408$(column$0, row$0,
+  old_column_test$0, old_column_keep$0, h$0) {
+  const old_row_test$0 = h$0.$0;
+  const old_row_keep$0 = h$0.$1;
+  let $t$0;
+  const $t$1 = (old_column_test$0 === column$0);
+  if (!$t$1) {
+    const b$0 = (old_row_test$0 === row$0);
+    $t$0 = false;
+  } else {
+    const b$1 = (old_row_test$0 === row$0);
+    $t$0 = b$1;
+  }
+  return {$: "Tactics.PositionOccupied", $0: {$: "Tactics.AtHex", $0:
+    old_column_keep$0, $1: old_row_keep$0}, $1: $t$0};
+}
+
+function $Tactics$formation_occupied_values$k403$(s4$0, s5$0, s6$0, c4$0, r4$0,
+  c5$0, r5$0, c6$0, r6$0, p0$0, o0$0, p1$0, o1$0, p2$0, o2$0, h$0) {
+  const p3$0 = h$0.$0;
+  const o3$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$slot_position_occupied$(s4$0, c4$0, r4$0));
+  return run_jump($Tactics$formation_occupied_values$k404$, [s5$0, s6$0, c5$0,
+    r5$0, c6$0, r6$0, p0$0, o0$0, p1$0, o1$0, p2$0, o2$0, p3$0, o3$0, h$1]);
+}
+
+function $Tactics$formation_occupied_values$k404$(s5$0, s6$0, c5$0, r5$0, c6$0,
+  r6$0, p0$0, o0$0, p1$0, o1$0, p2$0, o2$0, p3$0, o3$0, h$0) {
+  const p4$0 = h$0.$0;
+  const o4$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$slot_position_occupied$(s5$0, c5$0, r5$0));
+  return run_jump($Tactics$formation_occupied_values$k405$, [s6$0, c6$0, r6$0,
+    p0$0, o0$0, p1$0, o1$0, p2$0, o2$0, p3$0, o3$0, p4$0, o4$0, h$1]);
+}
+
+function $Tactics$formation_occupied_values$k405$(s6$0, c6$0, r6$0, p0$0, o0$0,
+  p1$0, o1$0, p2$0, o2$0, p3$0, o3$0, p4$0, o4$0, h$0) {
+  const p5$0 = h$0.$0;
+  const o5$0 = h$0.$1;
+  const h$1 = run_loop($Tactics$slot_position_occupied$(s6$0, c6$0, r6$0));
+  return run_jump($Tactics$formation_occupied_values$k406$, [p0$0, o0$0, p1$0,
+    o1$0, p2$0, o2$0, p3$0, o3$0, p4$0, o4$0, p5$0, o5$0, h$1]);
+}
+
+function $Tactics$formation_occupied_values$k406$(p0$0, o0$0, p1$0, o1$0, p2$0,
+  o2$0, p3$0, o3$0, p4$0, o4$0, p5$0, o5$0, h$0) {
+  const p6$0 = h$0.$0;
+  const o6$0 = h$0.$1;
+  const x$0 = (o5$0 || o6$0);
+  const x$1 = (o4$0 || x$0);
+  const x$2 = (o3$0 || x$1);
+  const x$3 = (o2$0 || x$2);
+  const x$4 = (o1$0 || x$3);
+  return {$: "Tactics.FormationOccupied", $0: {$: "Tactics.Formation", $0: p0$0,
+    $1: p1$0, $2: p2$0, $3: p3$0, $4: p4$0, $5: p5$0, $6: p6$0}, $1: (
+    o0$0 || x$4)};
 }
 
 function $IO$print$(text$0, k$0) {
@@ -7678,5 +12511,5 @@ function $IO$print$(text$0, k$0) {
 }
 
 globalThis.BEND_HEROES_DATA = run_loop($main_value$());
-globalThis.BEND_HEROES_DATA_CORE = Object.freeze({"newGame":(...args)=>run_loop($heroes_initial_func$(...args)),"step":(...args)=>run_loop($heroes_browser_step_func$(...args)),"cell":(...args)=>run_loop($heroes_cell_func$(...args)),"damageProbe":(...args)=>run_loop($heroes_damage_probe_func$(...args))});
-globalThis.BEND_HEROES_DATA_META = Object.freeze({"compiler":"Bend2 Core","source":"heroes.bend","deterministic":true,"browserCoreTransitions":true,"presentation":"bend-engine-webgl2","engineRenderer":"Bend Engine/bend_engine_webgl.js","factions":["Castle","Necropolis"],"map":[9,7]});
+globalThis.BEND_HEROES_DATA_CORE = Object.freeze({"newGame":(...args)=>run_loop($heroes_initial_func$(...args)),"newScenario":(...args)=>run_loop($heroes_initial_faction_func$(...args)),"step":(...args)=>run_loop($heroes_browser_step_func$(...args)),"cell":(...args)=>run_loop($heroes_cell_func$(...args)),"damageProbe":(...args)=>run_loop($heroes_damage_probe_func$(...args)),"battleObstacle":(...args)=>run_loop($heroes_battle_obstacle_func$(...args)),"battlefieldNew":(...args)=>run_loop($heroes_battlefield_new_func$(...args)),"hexDistance":(...args)=>run_loop($heroes_hex_distance_func$(...args)),"attackReach":(...args)=>run_loop($heroes_attack_reach_func$(...args)),"combatAi":(...args)=>run_loop($combat_ai_choice_func$(...args)),"combatAiBattle":(...args)=>run_loop($combat_ai_battle_func$(...args))});
+globalThis.BEND_HEROES_DATA_META = Object.freeze({"compiler":"Bend2 Core","source":"heroes.bend","deterministic":true,"browserCoreTransitions":true,"presentation":"bend-engine-webgl2","engineRenderer":"Bend Engine/bend_engine_webgl.js","factions":["Castle","Necropolis","Inferno"],"map":[9,7]});

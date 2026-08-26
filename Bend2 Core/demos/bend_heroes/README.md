@@ -1,9 +1,11 @@
 # Bend Heroes
 
-Bend Heroes is a deterministic Castle-versus-Necropolis strategy scenario
-written as a pure Bend2 Core state machine and rendered in WebGL2 with the
-repository's Bend Engine. It uses the browser feedback protocol requested for
-interactive Core programs:
+Bend Heroes is a deterministic, reduced Heroes-style strategy game written as
+a pure Bend2 Core state machine and rendered in WebGL2 with the repository's
+Bend Engine. Castle, Necropolis, and Inferno are the deliberately retained
+factions; campaigns, networking, and audio are outside this package's chosen
+scope. It uses the browser feedback protocol requested for interactive Core
+programs:
 
 ```text
 initial Game
@@ -24,9 +26,10 @@ the resulting value is the complete authoritative state.
 
 The browser projects immutable Core values through the shared
 `Bend Engine/bend_engine_webgl.js` renderer. It provides an orbitable 3D
-adventure map, animated procedural terrain and sites, separate Castle and
-Necropolis town views, a tactical battle scene, creature representations,
-clickable adjacent-tile beacons, and attack/spell feedback. All geometry,
+adventure map, animated procedural terrain and sites, distinct Castle,
+Necropolis, and Inferno town views, a 15 × 11 tactical battle scene, procedural
+creature representations, clickable adjacent-tile beacons, and action/spell
+feedback. All geometry,
 materials, lighting, fog, camera work, and animation are presentation-only;
 none of them can advance or alter the game.
 
@@ -36,8 +39,11 @@ assets are included.
 
 ## Playable rules
 
-The included scenario is a two-player hot-seat game on a 9 × 7 map. It
-implements these interlocking systems from `heroes_properties.md`:
+Each new game lets Red choose Castle, Necropolis, or Inferno; Blue receives the
+next rival in the Castle → Necropolis → Inferno cycle. The result is a
+two-force game on a 9 × 7 adventure map. Both sides remain controllable for
+hot-seat play, while Core-owned strategic and tactical actions can drive them.
+It implements these interlocking systems from `heroes_properties.md`:
 
 - sequential Red and Blue turns, day/week/month time, daily income, movement
   and mana refresh, and weekly creature growth;
@@ -45,19 +51,26 @@ implements these interlocking systems from `heroes_properties.md`:
   Swamp, Water, and Rock terrain and their configured movement costs;
 - persistent one-shot gold, wood, shrine, and artifact sites, plus capturable
   Sawmill and Gold Mine ownership and daily income;
-- Castle and Necropolis towns with hall and fort lines, one construction per
-  town per day, prerequisite-ordered tier 1–7 dwellings, accumulated stock,
-  recruitment, seven resources, and seven army slots;
-- all seven base Castle creatures and all seven base Necropolis creatures with
-  canonical attack, defense, damage, health, speed, growth, cost, and shooter
-  flags;
-- two persistent heroes with primary statistics, mana, movement, canonical
+- Castle, Necropolis, and Inferno towns with hall and fort lines, one
+  construction per town per day, prerequisite-ordered tier 1–7 dwellings,
+  accumulated stock, recruitment, seven resources, and seven army slots;
+- all seven base creatures of each retained faction, with attack, defense,
+  damage, health, speed, growth, cost, numeric range, shots, flight, and
+  retaliation capacity;
+- one representative persistent hero per retained faction, with primary
+  statistics, mana, movement, canonical
   experience thresholds through level 10, deterministic level gains, armies,
   and map position;
+- an odd-column 15 × 11 hex battlefield with Core-owned deployment formations,
+  deterministic interior obstacles, speed-bounded movement, occupancy checks,
+  numeric melee/ranged reach, ammunition capability, long-range half damage,
+  melee-only retaliation, and removal of destroyed stacks from formation;
 - seeded per-creature damage rolls, attack/defense scaling and caps, exact
-  first-creature health across casualties, no invented ranged modifier,
-  20%-defense Defend, Magic Arrow, Retreat, rewards, and healed surviving
-  stacks after victory;
+  first-creature health across casualties, 20%-defense Defend, Magic Arrow,
+  Retreat, rewards, and healed surviving stacks after victory;
+- deterministic enemy tactical responses that attack when in reach and advance
+  otherwise, plus town investment and route-following strategic AI steps for
+  either active side;
 - neutral bridge guardians, enemy-town garrisons, town capture, and scenario
   victory; and
 - browser save/load and undo as serialization/value selection only. These host
@@ -76,8 +89,10 @@ The command protocol is:
 | 9–12 | North-east, South-east, South-west, North-west | ignored | ignored |
 | 20 | Attack | own slot 0–6 | enemy slot 0–6 |
 | 21 | Defend | own slot 0–6 | attacking enemy slot 0–6 |
-| 22 | Magic Arrow | own response slot 0–6 | enemy target slot 0–6 |
+| 22 | Magic Arrow | ignored | enemy target slot 0–6 |
 | 23 | Retreat | ignored | ignored |
+| 24 | Move combat stack | own slot 0–6 | destination `row * 15 + column` |
+| 30 | Strategic AI step | ignored | ignored |
 
 Unknown or phase-inappropriate commands return an explanatory notice while
 preserving the relevant game values.
@@ -85,24 +100,22 @@ preserving the relevant game values.
 ## Fidelity boundary
 
 The mechanics above are implemented in Core rather than approximated by the
-viewer, but this package is not yet a byte-for-byte implementation of the
-entire Heroes of Might and Magic III: Shadow of Death product. Full parity
-would also require:
+viewer. This is intentionally a reduced complete gameplay loop, not a
+byte-for-byte implementation of Heroes of Might and Magic III: Shadow of
+Death. Features outside the selected scope include:
 
-- seven more factions, upgrades, neutral creatures, the complete hero,
+- the other factions, upgraded and neutral creatures, and the complete hero,
   artifact, spell, skill, building, and adventure-object catalogues;
-- a positional 15 × 11 hex battlefield with speed queue, Wait, obstacles,
-  retaliation state, shots, double-wide creatures, statuses, morale, luck,
-  war machines, and siege machinery;
+- per-round speed queues, Wait, decrementing shot/retaliation counters,
+  double-wide creatures, statuses, morale, luck, war machines, and siege
+  machinery;
 - multiple heroes and towns per player, meetings and exchanges, garrisons,
-  taverns, fog of war, boats, quests, Grail, AI, campaigns, map loading, and
-  multiplayer transport; and
+  taverns, fog of war, boats, quests, Grail, campaigns, general map loading,
+  multiplayer transport, audio, and networking; and
 - the original game's complete data and edge-case compatibility suite.
 
-Current battle commands therefore resolve a selected stack exchange plus one
-deterministic enemy response instead of replaying the original positional
-battle loop. This limitation is ordinary application scope, not a Bend issue,
-so the package intentionally has no `unexpected_behavior/` directory.
+Those reductions are ordinary application scope, not Bend issues, so the
+package intentionally has no `unexpected_behavior/` directory.
 
 Creature records and combat-formula checks were cross-checked against VCMI's
 open-source [Castle data](https://github.com/vcmi/vcmi/blob/develop/config/creatures/castle.json),
@@ -121,12 +134,14 @@ BEND2_CORE=/path/to/bend2-core bun test.mjs
 
 `build.mjs` stages browser roots, invokes `bun bend2/comp.ts`, regenerates
 `heroes_data.js`, and synchronizes the Bend Engine renderer. `test.mjs`
-validates all 63 map cells, cardinal and diagonal movement, first-creature
-health, persistent pickups, construction, recruitment, turn/day income, a
-complete guardian battle, progression, artifact pickup, town-capture victory,
-equal-seed determinism, renderer boundaries, generated JavaScript execution,
-C emission, clang build, and native execution. The Bend book is structurally
-terminating.
+validates all 63 adventure cells, all three playable faction pairings and
+Inferno recruitment, strategic AI routes, 165-hex battlefield rules, numeric
+range, legal and illegal tactical movement, enemy movement, retaliation
+behavior, first-creature health, persistent pickups, construction,
+recruitment, turn/day income, complete guardian and town battles, progression,
+artifact pickup, victory, equal-seed determinism, renderer boundaries,
+generated JavaScript execution, C emission, clang build, and native execution.
+The Bend book is structurally terminating.
 
 Serve this directory with any static HTTP server and open `index.html`; no
 application server or package installation is required after generation.
@@ -134,6 +149,10 @@ application server or package installation is required after generation.
 ## Files
 
 - `heroes.bend` — authoritative pure game state and transitions;
+- `heroes_tactics.bend` — reusable hex geometry, formations, obstacles,
+  movement, range, retaliation, and tactical planning;
+- `gameplay_audit.md` — fixed bugs, deliberate reductions, and Bend-issue
+  classification from the implementation pass;
 - `build.mjs` / `build.sh` — reproducible browser artifact generation;
 - `heroes_data.js` — checked-in generated Bend2 Core JavaScript;
 - `bend_engine_webgl.js` — synchronized shared Bend Engine renderer;

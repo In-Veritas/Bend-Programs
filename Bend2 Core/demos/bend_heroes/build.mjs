@@ -22,7 +22,7 @@ buildBrowser({
     browserCoreTransitions: true,
     presentation: "bend-engine-webgl2",
     engineRenderer: "Bend Engine/bend_engine_webgl.js",
-    factions: ["Castle", "Necropolis"],
+    factions: ["Castle", "Necropolis", "Inferno"],
     map: [9, 7]
   },
   runtimeExports: {
@@ -30,6 +30,12 @@ buildBrowser({
       emitted: "$heroes_initial_func$",
       bend: "heroes_initial_func",
       sample: ["1337"],
+      returns: "Game"
+    },
+    newScenario: {
+      emitted: "$heroes_initial_faction_func$",
+      bend: "heroes_initial_faction_func",
+      sample: ["1337", "2"],
       returns: "Game"
     },
     step: {
@@ -49,6 +55,42 @@ buildBrowser({
       bend: "heroes_damage_probe_func",
       sample: ["4"],
       returns: "StackDamage"
+    },
+    battleObstacle: {
+      emitted: "$heroes_battle_obstacle_func$",
+      bend: "heroes_battle_obstacle_func",
+      sample: ["7", "5", "1337"],
+      returns: "Bool"
+    },
+    battlefieldNew: {
+      emitted: "$heroes_battlefield_new_func$",
+      bend: "heroes_battlefield_new_func",
+      sample: ["0"],
+      returns: "Tactics.Battlefield"
+    },
+    hexDistance: {
+      emitted: "$heroes_hex_distance_func$",
+      bend: "heroes_hex_distance_func",
+      sample: ["1", "5", "13", "5"],
+      returns: "U32"
+    },
+    attackReach: {
+      emitted: "$heroes_attack_reach_func$",
+      bend: "heroes_attack_reach_func",
+      sample: ["Archer{}", "1", "5", "13", "5", "False{}"],
+      returns: "Tactics.AttackReach"
+    },
+    combatAi: {
+      emitted: "$combat_ai_choice_func$",
+      bend: "combat_ai_choice_func",
+      sample: ["10", "red_army_func()", "blue_army_func()"],
+      returns: "CombatAiChoice"
+    },
+    combatAiBattle: {
+      emitted: "$combat_ai_battle_func$",
+      bend: "combat_ai_battle_func",
+      sample: ["0", "red_army_func()", "blue_army_func()", "Tactics.battlefield_new(0)"],
+      returns: "CombatAiChoice"
     }
   }
 });

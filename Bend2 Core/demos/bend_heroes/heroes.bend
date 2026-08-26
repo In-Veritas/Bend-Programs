@@ -1,4 +1,5 @@
 import Base
+import ./heroes_tactics.bend as Tactics
 
 # Heroes of Might and Magic III logic kernel for Bend2 Core.
 # The browser passes the complete immutable Game value back to
@@ -17,6 +18,7 @@ type Owner:
 type Faction:
   Castle{}
   Necropolis{}
+  Inferno{}
 
 type Direction:
   North{}
@@ -72,9 +74,16 @@ type CreatureKind:
   Lich{}
   BlackKnight{}
   BoneDragon{}
+  Imp{}
+  Gog{}
+  HellHound{}
+  Demon{}
+  PitFiend{}
+  Efreeti{}
+  Devil{}
 
 type CreatureStats:
-  CreatureStats{attack: U32, defense: U32, damage_min: U32, damage_max: U32, hit_points: U32, speed: U32, growth: U32, cost: U32, ranged: Bool}
+  CreatureStats{attack: U32, defense: U32, damage_min: U32, damage_max: U32, hit_points: U32, speed: U32, growth: U32, cost: U32, range: U32, shots: U32, flying: Bool, retaliations: U32}
 
 type CreatureBundle:
   CreatureBundle{kind: CreatureKind, stats: CreatureStats}
@@ -92,6 +101,12 @@ type StackCheck:
 type StackDamage:
   StackDamage{stack: Stack, kills: U32}
 
+type StackTactics:
+  StackTactics{stack: Stack, speed: U32, range: U32, shots: U32, flying: Bool, retaliations: U32}
+
+type StackPosition:
+  StackPosition{stack: Stack, position: Tactics.SlotPosition}
+
 type Army:
   Army{s0: Stack, s1: Stack, s2: Stack, s3: Stack, s4: Stack, s5: Stack, s6: Stack}
 
@@ -100,6 +115,12 @@ type ArmySelection:
 
 type ArmyDamage:
   ArmyDamage{army: Army, kills: U32}
+
+type ArmyPair:
+  ArmyPair{left: Army, right: Army}
+
+type ArmyFormation:
+  ArmyFormation{army: Army, formation: Tactics.Formation}
 
 type ArmyCheck:
   ArmyCheck{army: Army, empty: Bool}
@@ -134,6 +155,9 @@ type TownAction:
 type Kingdom:
   Kingdom{resources: Resources, hero: Hero, town: Town}
 
+type KingdomGarrison:
+  KingdomGarrison{kingdom: Kingdom, garrison: Army}
+
 type World:
   World{gold_pile: Bool, wood_pile: Bool, shrine: Bool, artifact: Bool, sawmill: Owner, gold_mine: Owner, guardian: Army}
 
@@ -142,7 +166,7 @@ type BattleSource:
   EnemyTownBattle{}
 
 type Battle:
-  Battle{attacker: Owner, source: BattleSource, enemy: Army, round: U32}
+  Battle{attacker: Owner, source: BattleSource, enemy: Army, round: U32, battlefield: Tactics.Battlefield}
 
 type Phase:
   Adventure{}
@@ -159,7 +183,13 @@ type AttackRoll:
   AttackRoll{damage: U32, next_seed: U32, valid: Bool}
 
 type CombatTurn:
-  CombatTurn{player: Army, enemy: Army, mana: U32, next_seed: U32, dealt: U32, received: U32, valid: Bool}
+  CombatTurn{player: Army, enemy: Army, mana: U32, next_seed: U32, dealt: U32, received: U32, valid: Bool, battlefield: Tactics.Battlefield}
+
+type AiCandidate:
+  AiCandidate{slot: U32, value: U32, valid: Bool}
+
+type CombatAiChoice:
+  CombatAiChoice{command: U32, own_slot: U32, target_slot: U32}
 
 type BattleOutcome:
   BattleContinues{battle: Battle}
@@ -192,7 +222,7 @@ assert heroes_zero_stats_func:
   CreatureStats
 
 def heroes_zero_stats_func():
-  CreatureStats{0, 0, 0, 0, 1, 0, 0, 0, False{}}
+  CreatureStats{0, 0, 0, 0, 1, 0, 0, 0, 1, 0, False{}, 1}
 
 # U32-Section
 # ===========
@@ -275,6 +305,7 @@ def faction_pair_func(faction):
   match faction:
     case Castle{}: (Castle{}, Castle{})
     case Necropolis{}: (Necropolis{}, Necropolis{})
+    case Inferno{}: (Inferno{}, Inferno{})
 
 # Resources-Section
 # =================
@@ -355,6 +386,13 @@ def creature_kind_pair_func(kind):
     case Lich{}: (Lich{}, Lich{})
     case BlackKnight{}: (BlackKnight{}, BlackKnight{})
     case BoneDragon{}: (BoneDragon{}, BoneDragon{})
+    case Imp{}: (Imp{}, Imp{})
+    case Gog{}: (Gog{}, Gog{})
+    case HellHound{}: (HellHound{}, HellHound{})
+    case Demon{}: (Demon{}, Demon{})
+    case PitFiend{}: (PitFiend{}, PitFiend{})
+    case Efreeti{}: (Efreeti{}, Efreeti{})
+    case Devil{}: (Devil{}, Devil{})
 
 assert creature_kind_stats_func:
   forall kind: CreatureKind
@@ -362,20 +400,27 @@ assert creature_kind_stats_func:
 
 def creature_kind_stats_func(kind):
   match kind:
-    case Pikeman{}: CreatureBundle{Pikeman{}, CreatureStats{4, 5, 1, 3, 10, 4, 14, 60, False{}}}
-    case Archer{}: CreatureBundle{Archer{}, CreatureStats{6, 3, 2, 3, 10, 4, 9, 100, True{}}}
-    case Griffin{}: CreatureBundle{Griffin{}, CreatureStats{8, 8, 3, 6, 25, 6, 7, 200, False{}}}
-    case Swordsman{}: CreatureBundle{Swordsman{}, CreatureStats{10, 12, 6, 9, 35, 5, 4, 300, False{}}}
-    case Monk{}: CreatureBundle{Monk{}, CreatureStats{12, 7, 10, 12, 30, 5, 3, 400, True{}}}
-    case Cavalier{}: CreatureBundle{Cavalier{}, CreatureStats{15, 15, 15, 25, 100, 7, 2, 1000, False{}}}
-    case Angel{}: CreatureBundle{Angel{}, CreatureStats{20, 20, 50, 50, 200, 12, 1, 3000, False{}}}
-    case Skeleton{}: CreatureBundle{Skeleton{}, CreatureStats{5, 4, 1, 3, 6, 4, 12, 60, False{}}}
-    case WalkingDead{}: CreatureBundle{WalkingDead{}, CreatureStats{5, 5, 2, 3, 15, 3, 8, 100, False{}}}
-    case Wight{}: CreatureBundle{Wight{}, CreatureStats{7, 7, 3, 5, 18, 5, 7, 200, False{}}}
-    case Vampire{}: CreatureBundle{Vampire{}, CreatureStats{10, 9, 5, 8, 30, 6, 4, 360, False{}}}
-    case Lich{}: CreatureBundle{Lich{}, CreatureStats{13, 10, 11, 13, 30, 6, 3, 500, True{}}}
-    case BlackKnight{}: CreatureBundle{BlackKnight{}, CreatureStats{16, 16, 15, 30, 120, 7, 2, 1200, False{}}}
-    case BoneDragon{}: CreatureBundle{BoneDragon{}, CreatureStats{17, 15, 25, 50, 150, 9, 1, 1800, False{}}}
+    case Pikeman{}: CreatureBundle{Pikeman{}, CreatureStats{4, 5, 1, 3, 10, 4, 14, 60, 1, 0, False{}, 1}}
+    case Archer{}: CreatureBundle{Archer{}, CreatureStats{6, 3, 2, 3, 10, 4, 9, 100, 15, 12, False{}, 1}}
+    case Griffin{}: CreatureBundle{Griffin{}, CreatureStats{8, 8, 3, 6, 25, 6, 7, 200, 1, 0, True{}, 2}}
+    case Swordsman{}: CreatureBundle{Swordsman{}, CreatureStats{10, 12, 6, 9, 35, 5, 4, 300, 1, 0, False{}, 1}}
+    case Monk{}: CreatureBundle{Monk{}, CreatureStats{12, 7, 10, 12, 30, 5, 3, 400, 15, 12, False{}, 1}}
+    case Cavalier{}: CreatureBundle{Cavalier{}, CreatureStats{15, 15, 15, 25, 100, 7, 2, 1000, 1, 0, False{}, 1}}
+    case Angel{}: CreatureBundle{Angel{}, CreatureStats{20, 20, 50, 50, 200, 12, 1, 3000, 1, 0, True{}, 1}}
+    case Skeleton{}: CreatureBundle{Skeleton{}, CreatureStats{5, 4, 1, 3, 6, 4, 12, 60, 1, 0, False{}, 1}}
+    case WalkingDead{}: CreatureBundle{WalkingDead{}, CreatureStats{5, 5, 2, 3, 15, 3, 8, 100, 1, 0, False{}, 1}}
+    case Wight{}: CreatureBundle{Wight{}, CreatureStats{7, 7, 3, 5, 18, 5, 7, 200, 1, 0, True{}, 1}}
+    case Vampire{}: CreatureBundle{Vampire{}, CreatureStats{10, 9, 5, 8, 30, 6, 4, 360, 1, 0, True{}, 1}}
+    case Lich{}: CreatureBundle{Lich{}, CreatureStats{13, 10, 11, 13, 30, 6, 3, 500, 15, 12, False{}, 1}}
+    case BlackKnight{}: CreatureBundle{BlackKnight{}, CreatureStats{16, 16, 15, 30, 120, 7, 2, 1200, 1, 0, False{}, 1}}
+    case BoneDragon{}: CreatureBundle{BoneDragon{}, CreatureStats{17, 15, 25, 50, 150, 9, 1, 1800, 1, 0, True{}, 1}}
+    case Imp{}: CreatureBundle{Imp{}, CreatureStats{2, 3, 1, 2, 4, 5, 15, 50, 1, 0, False{}, 1}}
+    case Gog{}: CreatureBundle{Gog{}, CreatureStats{6, 4, 2, 4, 13, 4, 8, 125, 15, 12, False{}, 1}}
+    case HellHound{}: CreatureBundle{HellHound{}, CreatureStats{10, 6, 2, 7, 25, 7, 5, 200, 1, 0, False{}, 1}}
+    case Demon{}: CreatureBundle{Demon{}, CreatureStats{10, 10, 7, 9, 35, 5, 4, 250, 1, 0, False{}, 1}}
+    case PitFiend{}: CreatureBundle{PitFiend{}, CreatureStats{13, 13, 13, 17, 45, 6, 3, 500, 1, 0, False{}, 1}}
+    case Efreeti{}: CreatureBundle{Efreeti{}, CreatureStats{16, 12, 16, 24, 90, 9, 2, 900, 1, 0, True{}, 1}}
+    case Devil{}: CreatureBundle{Devil{}, CreatureStats{19, 21, 30, 40, 160, 11, 1, 2700, 1, 0, True{}, 1}}
 
 assert creature_tier_func:
   forall faction: Faction
@@ -400,6 +445,67 @@ def creature_tier_func(faction, tier):
     case Necropolis{} 5n: creature_kind_stats_func(Lich{})
     case Necropolis{} 6n: creature_kind_stats_func(BlackKnight{})
     case Necropolis{} other: creature_kind_stats_func(BoneDragon{})
+    case Inferno{} 0n: creature_kind_stats_func(Imp{})
+    case Inferno{} 1n: creature_kind_stats_func(Imp{})
+    case Inferno{} 2n: creature_kind_stats_func(Gog{})
+    case Inferno{} 3n: creature_kind_stats_func(HellHound{})
+    case Inferno{} 4n: creature_kind_stats_func(Demon{})
+    case Inferno{} 5n: creature_kind_stats_func(PitFiend{})
+    case Inferno{} 6n: creature_kind_stats_func(Efreeti{})
+    case Inferno{} other: creature_kind_stats_func(Devil{})
+
+assert creature_attack_reach_func:
+  forall kind: CreatureKind
+  forall actor_column: U32
+  forall actor_row: U32
+  forall target_column: U32
+  forall target_row: U32
+  forall blocked: Bool
+  Tactics.AttackReach
+
+def creature_attack_reach_func(kind, actor_column, actor_row, target_column, target_row, blocked):
+  match creature_kind_stats_func(kind):
+    case CreatureBundle{
+      kept_kind,
+      CreatureStats{
+        attack,
+        defense,
+        damage_min,
+        damage_max,
+        hit_points,
+        speed,
+        growth,
+        cost,
+        range,
+        shots,
+        flying,
+        retaliations
+      }
+    }:
+      Tactics.attack_reach(
+        Tactics.hex_distance_values(actor_column, actor_row, target_column, target_row),
+        blocked,
+        shots,
+        range
+      )
+
+assert tactics_catalog_self_check_func:
+  Bool
+
+def tactics_catalog_self_check_func():
+  match creature_attack_reach_func(Archer{}, 1, 5, 13, 5, False{}):
+    case Tactics.RangedAttack{long_range_penalty}:
+      match creature_attack_reach_func(Pikeman{}, 1, 5, 13, 5, False{}):
+        case Tactics.IllegalAttack{}:
+          True{}
+        case Tactics.MeleeAttack{}:
+          False{}
+        case Tactics.RangedAttack{pikeman_penalty}:
+          False{}
+    case Tactics.IllegalAttack{}:
+      False{}
+    case Tactics.MeleeAttack{}:
+      False{}
 
 # Stack-Section
 # =============
@@ -417,6 +523,19 @@ def stack_pair_func(stack):
       (left_count, right_count) = u32_pair_func(count)
       (left_hp, right_hp) = u32_pair_func(first_unit_hp)
       StackPair{Troop{left_kind, left_count, left_hp}, Troop{right_kind, right_count, right_hp}}
+
+assert stack_tactics_func:
+  forall stack: Stack
+  StackTactics
+
+def stack_tactics_func(stack):
+  match stack:
+    case EmptyStack{}:
+      StackTactics{EmptyStack{}, 0, 1, 0, False{}, 0}
+    case Troop{kind, count, first_unit_hp}:
+      match creature_kind_stats_func(kind):
+        case CreatureBundle{kept_kind, CreatureStats{attack, defense, damage_min, damage_max, hit_points, speed, growth, cost, range, shots, flying, retaliations}}:
+          StackTactics{Troop{kept_kind, count, first_unit_hp}, speed, range, shots, flying, retaliations}
 
 assert stack_check_func:
   forall stack: Stack
@@ -463,7 +582,7 @@ def stack_damage_func(stack, damage):
       StackDamage{EmptyStack{}, 0}
     case Troop{kind, count, first_unit_hp}:
       match creature_kind_stats_func(kind):
-        case CreatureBundle{kept_kind, CreatureStats{attack, defense, damage_min, damage_max, hit_points, speed, growth, cost, ranged}}:
+        case CreatureBundle{kept_kind, CreatureStats{attack, defense, damage_min, damage_max, hit_points, speed, growth, cost, range, shots, flying, retaliations}}:
           stack_damage_values_func(kept_kind, count, first_unit_hp, hit_points, damage)
 
 assert stack_heal_func:
@@ -475,7 +594,7 @@ def stack_heal_func(stack):
     case EmptyStack{}: EmptyStack{}
     case Troop{kind, count, first_unit_hp}:
       match creature_kind_stats_func(kind):
-        case CreatureBundle{kept_kind, CreatureStats{attack, defense, damage_min, damage_max, hit_points, speed, growth, cost, ranged}}:
+        case CreatureBundle{kept_kind, CreatureStats{attack, defense, damage_min, damage_max, hit_points, speed, growth, cost, range, shots, flying, retaliations}}:
           Troop{kept_kind, count, hit_points}
 
 # Army-Section
@@ -486,6 +605,22 @@ assert army_empty_func:
 
 def army_empty_func():
   Army{EmptyStack{}, EmptyStack{}, EmptyStack{}, EmptyStack{}, EmptyStack{}, EmptyStack{}, EmptyStack{}}
+
+assert army_pair_func:
+  forall army: Army
+  ArmyPair
+
+def army_pair_func(army):
+  match army:
+    case Army{s0, s1, s2, s3, s4, s5, s6}:
+      StackPair{l0, r0} = stack_pair_func(s0)
+      StackPair{l1, r1} = stack_pair_func(s1)
+      StackPair{l2, r2} = stack_pair_func(s2)
+      StackPair{l3, r3} = stack_pair_func(s3)
+      StackPair{l4, r4} = stack_pair_func(s4)
+      StackPair{l5, r5} = stack_pair_func(s5)
+      StackPair{l6, r6} = stack_pair_func(s6)
+      ArmyPair{Army{l0, l1, l2, l3, l4, l5, l6}, Army{r0, r1, r2, r3, r4, r5, r6}}
 
 assert army_select_func:
   forall army: Army
@@ -563,6 +698,35 @@ def army_check_func(army):
       empty = Bool.and(a_empty, Bool.and(b_empty, Bool.and(c_empty, Bool.and(d_empty, Bool.and(e_empty, Bool.and(f_empty, g_empty))))))
       ArmyCheck{Army{a_keep, b_keep, c_keep, d_keep, e_keep, f_keep, g_keep}, empty}
 
+assert stack_position_sync_func:
+  forall stack: Stack
+  forall position: Tactics.SlotPosition
+  StackPosition
+
+def stack_position_sync_func(stack, position):
+  match stack_check_func(stack):
+    case StackCheck{kept_stack, False{}}:
+      StackPosition{kept_stack, position}
+    case StackCheck{kept_stack, True{}}:
+      StackPosition{kept_stack, Tactics.OffBattlefield{}}
+
+assert army_formation_sync_func:
+  forall army: Army
+  forall formation: Tactics.Formation
+  ArmyFormation
+
+def army_formation_sync_func(army, formation):
+  match army formation:
+    case Army{s0, s1, s2, s3, s4, s5, s6} Tactics.Formation{p0, p1, p2, p3, p4, p5, p6}:
+      StackPosition{a0, q0} = stack_position_sync_func(s0, p0)
+      StackPosition{a1, q1} = stack_position_sync_func(s1, p1)
+      StackPosition{a2, q2} = stack_position_sync_func(s2, p2)
+      StackPosition{a3, q3} = stack_position_sync_func(s3, p3)
+      StackPosition{a4, q4} = stack_position_sync_func(s4, p4)
+      StackPosition{a5, q5} = stack_position_sync_func(s5, p5)
+      StackPosition{a6, q6} = stack_position_sync_func(s6, p6)
+      ArmyFormation{Army{a0, a1, a2, a3, a4, a5, a6}, Tactics.Formation{q0, q1, q2, q3, q4, q5, q6}}
+
 assert army_heal_func:
   forall army: Army
   Army
@@ -614,7 +778,7 @@ assert army_add_nat_func:
 
 def army_add_nat_func(tier, army, kind, amount):
   match creature_kind_stats_func(kind):
-    case CreatureBundle{kept_kind, CreatureStats{attack, defense, damage_min, damage_max, hit_points, speed, growth, cost, ranged}}:
+    case CreatureBundle{kept_kind, CreatureStats{attack, defense, damage_min, damage_max, hit_points, speed, growth, cost, range, shots, flying, retaliations}}:
       army_add_ready_nat_func(tier, army, kept_kind, amount, hit_points)
 
 assert army_add_func:
@@ -626,6 +790,115 @@ assert army_add_func:
 
 def army_add_func(army, tier, kind, amount):
   army_add_nat_func(U32.to_nat(tier), army, kind, amount)
+
+# Deterministic, inspectable combat-AI valuation.
+assert stack_ai_candidate_func:
+  forall slot: U32
+  forall stack: Stack
+  AiCandidate
+
+def stack_ai_candidate_func(slot, stack):
+  match stack:
+    case EmptyStack{}:
+      AiCandidate{slot, 0, False{}}
+    case Troop{kind, count, first_unit_hp}:
+      match creature_kind_stats_func(kind):
+        case CreatureBundle{kept_kind, CreatureStats{attack, defense, damage_min, damage_max, hit_points, speed, growth, cost, range, shots, flying, retaliations}}:
+          AiCandidate{slot, U32.mul(count, U32.add(hit_points, U32.add(attack, U32.add(defense, damage_max)))), True{}}
+
+assert ai_candidate_max_func:
+  forall left: AiCandidate
+  forall right: AiCandidate
+  AiCandidate
+
+def ai_candidate_max_func(left, right):
+  match left right:
+    case AiCandidate{left_slot, left_value, False{}} AiCandidate{right_slot, right_value, right_valid}:
+      AiCandidate{right_slot, right_value, right_valid}
+    case AiCandidate{left_slot, left_value, True{}} AiCandidate{right_slot, right_value, False{}}:
+      AiCandidate{left_slot, left_value, True{}}
+    case AiCandidate{left_slot, left_value, True{}} AiCandidate{right_slot, right_value, True{}}:
+      (left_test, left_keep) = u32_pair_func(left_value)
+      (right_test, right_keep) = u32_pair_func(right_value)
+      match U32.is_le(left_test, right_test):
+        case True{}: AiCandidate{right_slot, right_keep, True{}}
+        case False{}: AiCandidate{left_slot, left_keep, True{}}
+
+assert ai_candidate_min_func:
+  forall left: AiCandidate
+  forall right: AiCandidate
+  AiCandidate
+
+def ai_candidate_min_func(left, right):
+  match left right:
+    case AiCandidate{left_slot, left_value, False{}} AiCandidate{right_slot, right_value, right_valid}:
+      AiCandidate{right_slot, right_value, right_valid}
+    case AiCandidate{left_slot, left_value, True{}} AiCandidate{right_slot, right_value, False{}}:
+      AiCandidate{left_slot, left_value, True{}}
+    case AiCandidate{left_slot, left_value, True{}} AiCandidate{right_slot, right_value, True{}}:
+      (left_test, left_keep) = u32_pair_func(left_value)
+      (right_test, right_keep) = u32_pair_func(right_value)
+      match U32.is_le(left_test, right_test):
+        case True{}: AiCandidate{left_slot, left_keep, True{}}
+        case False{}: AiCandidate{right_slot, right_keep, True{}}
+
+assert army_ai_strongest_func:
+  forall army: Army
+  AiCandidate
+
+def army_ai_strongest_func(army):
+  match army:
+    case Army{s0, s1, s2, s3, s4, s5, s6}:
+      ai_candidate_max_func(
+        ai_candidate_max_func(
+          ai_candidate_max_func(stack_ai_candidate_func(0, s0), stack_ai_candidate_func(1, s1)),
+          ai_candidate_max_func(stack_ai_candidate_func(2, s2), stack_ai_candidate_func(3, s3))
+        ),
+        ai_candidate_max_func(
+          ai_candidate_max_func(stack_ai_candidate_func(4, s4), stack_ai_candidate_func(5, s5)),
+          stack_ai_candidate_func(6, s6)
+        )
+      )
+
+assert army_ai_weakest_func:
+  forall army: Army
+  AiCandidate
+
+def army_ai_weakest_func(army):
+  match army:
+    case Army{s0, s1, s2, s3, s4, s5, s6}:
+      ai_candidate_min_func(
+        ai_candidate_min_func(
+          ai_candidate_min_func(stack_ai_candidate_func(0, s0), stack_ai_candidate_func(1, s1)),
+          ai_candidate_min_func(stack_ai_candidate_func(2, s2), stack_ai_candidate_func(3, s3))
+        ),
+        ai_candidate_min_func(
+          ai_candidate_min_func(stack_ai_candidate_func(4, s4), stack_ai_candidate_func(5, s5)),
+          stack_ai_candidate_func(6, s6)
+        )
+      )
+
+assert combat_ai_choice_values_func:
+  forall use_spell: Bool
+  forall own: AiCandidate
+  forall target: AiCandidate
+  CombatAiChoice
+
+def combat_ai_choice_values_func(use_spell, own, target):
+  match use_spell own target:
+    case False{} AiCandidate{own_slot, own_value, own_valid} AiCandidate{target_slot, target_value, target_valid}:
+      CombatAiChoice{20, own_slot, target_slot}
+    case True{} AiCandidate{own_slot, own_value, own_valid} AiCandidate{target_slot, target_value, target_valid}:
+      CombatAiChoice{22, own_slot, target_slot}
+
+assert combat_ai_choice_func:
+  forall mana: U32
+  forall player: Army
+  forall enemy: Army
+  CombatAiChoice
+
+def combat_ai_choice_func(mana, player, enemy):
+  combat_ai_choice_values_func(U32.is_le(5, mana), army_ai_strongest_func(player), army_ai_weakest_func(enemy))
 
 # Stock-Section
 # =============
@@ -742,6 +1015,7 @@ def stock_grow_faction_func(stock, faction, mask, fort):
   match faction:
     case Castle{}: stock_grow_func(stock, mask, fort, 14, 9, 7, 4, 3, 2, 1)
     case Necropolis{}: stock_grow_func(stock, mask, fort, 12, 8, 7, 4, 3, 2, 1)
+    case Inferno{}: stock_grow_func(stock, mask, fort, 15, 8, 5, 4, 3, 2, 1)
 
 # Cell-Section
 # ============
@@ -947,12 +1221,23 @@ def hero_home_check_func(faction, hero):
     case Castle{} Hero{name, x, y, movement, attack, defense, power, knowledge, mana, level, experience, army}:
       (x_test, x_keep) = u32_pair_func(x)
       (y_test, y_keep) = u32_pair_func(y)
-      valid = Bool.and(U32.is_eq(x_test, 1), U32.is_eq(y_test, 5))
+      (x_red, x_blue) = u32_pair_func(x_test)
+      (y_red, y_blue) = u32_pair_func(y_test)
+      valid = Bool.or(Bool.and(U32.is_eq(x_red, 1), U32.is_eq(y_red, 5)), Bool.and(U32.is_eq(x_blue, 7), U32.is_eq(y_blue, 1)))
       HeroCheck{Hero{name, x_keep, y_keep, movement, attack, defense, power, knowledge, mana, level, experience, army}, valid}
     case Necropolis{} Hero{name, x, y, movement, attack, defense, power, knowledge, mana, level, experience, army}:
       (x_test, x_keep) = u32_pair_func(x)
       (y_test, y_keep) = u32_pair_func(y)
-      valid = Bool.and(U32.is_eq(x_test, 7), U32.is_eq(y_test, 1))
+      (x_red, x_blue) = u32_pair_func(x_test)
+      (y_red, y_blue) = u32_pair_func(y_test)
+      valid = Bool.or(Bool.and(U32.is_eq(x_red, 1), U32.is_eq(y_red, 5)), Bool.and(U32.is_eq(x_blue, 7), U32.is_eq(y_blue, 1)))
+      HeroCheck{Hero{name, x_keep, y_keep, movement, attack, defense, power, knowledge, mana, level, experience, army}, valid}
+    case Inferno{} Hero{name, x, y, movement, attack, defense, power, knowledge, mana, level, experience, army}:
+      (x_test, x_keep) = u32_pair_func(x)
+      (y_test, y_keep) = u32_pair_func(y)
+      (x_red, x_blue) = u32_pair_func(x_test)
+      (y_red, y_blue) = u32_pair_func(y_test)
+      valid = Bool.or(Bool.and(U32.is_eq(x_red, 1), U32.is_eq(y_red, 5)), Bool.and(U32.is_eq(x_blue, 7), U32.is_eq(y_blue, 1)))
       HeroCheck{Hero{name, x_keep, y_keep, movement, attack, defense, power, knowledge, mana, level, experience, army}, valid}
 
 # Town-Section
@@ -1025,7 +1310,7 @@ def town_build_fort_values_func(faction, hall, fort, dwellings, built_today, sto
     case True{}: TownAction{Town{faction, hall, fort, dwellings, True{}, stock}, resources, False{}, "Only one building may be constructed in a town each day."}
     case False{}:
       match U32.is_le(2, fort):
-        case True{}: TownAction{Town{faction, hall, fort, dwellings, False{}, stock}, resources, False{}, "The Castle fortification is already complete."}
+        case True{}: TownAction{Town{faction, hall, fort, dwellings, False{}, stock}, resources, False{}, "The town fortification is already complete."}
         case False{}:
           match resources_pay_func(resources, U32.mul(U32.inc(fort), 2500), 5, 5):
             case Payment{remaining, False{}}: TownAction{Town{faction, hall, fort, dwellings, False{}, stock}, remaining, False{}, "The kingdom lacks resources for fortification."}
@@ -1185,23 +1470,24 @@ assert kingdom_recruit_values_func:
 def kingdom_recruit_values_func(resources, hero, faction, hall, fort, dwellings, built_today, stock, tier, amount):
   match hero:
     case Hero{name, x, y, movement, hero_attack, hero_defense, power, knowledge, mana, level, experience, army}:
+      (tier_faction, output_faction) = faction_pair_func(faction)
       match stock_select_func(stock, tier):
         case StockSelection{kept_stock, available}:
-          match creature_tier_func(faction, tier):
-            case CreatureBundle{kind, CreatureStats{attack, defense, damage_min, damage_max, hit_points, speed, growth, cost, ranged}}:
+          match creature_tier_func(tier_faction, tier):
+            case CreatureBundle{kind, CreatureStats{attack, defense, damage_min, damage_max, hit_points, speed, growth, cost, range, shots, flying, retaliations}}:
               valid_tier = Bool.and(U32.is_le(1, tier), U32.is_le(tier, 7))
               enough_stock = Bool.and(valid_tier, Bool.and(U32.is_ne(amount, 0), U32.is_le(amount, available)))
               match enough_stock:
                 case False{}:
-                  (Kingdom{resources, Hero{name, x, y, movement, hero_attack, hero_defense, power, knowledge, mana, level, experience, army}, Town{Castle{}, hall, fort, dwellings, built_today, kept_stock}}, "The requested creatures are not available.")
+                  (Kingdom{resources, Hero{name, x, y, movement, hero_attack, hero_defense, power, knowledge, mana, level, experience, army}, Town{output_faction, hall, fort, dwellings, built_today, kept_stock}}, "The requested creatures are not available.")
                 case True{}:
                   match resources_pay_func(resources, U32.mul(cost, amount), 0, 0):
                     case Payment{remaining, False{}}:
-                      (Kingdom{remaining, Hero{name, x, y, movement, hero_attack, hero_defense, power, knowledge, mana, level, experience, army}, Town{Castle{}, hall, fort, dwellings, built_today, kept_stock}}, "The kingdom lacks gold for that recruitment.")
+                      (Kingdom{remaining, Hero{name, x, y, movement, hero_attack, hero_defense, power, knowledge, mana, level, experience, army}, Town{output_faction, hall, fort, dwellings, built_today, kept_stock}}, "The kingdom lacks gold for that recruitment.")
                     case Payment{remaining, True{}}:
                       next_army = army_add_func(army, tier, kind, amount)
                       next_stock = stock_sub_func(kept_stock, tier, amount)
-                      (Kingdom{remaining, Hero{name, x, y, movement, hero_attack, hero_defense, power, knowledge, mana, level, experience, next_army}, Town{Castle{}, hall, fort, dwellings, built_today, next_stock}}, "Creatures joined the active hero's army.")
+                      (Kingdom{remaining, Hero{name, x, y, movement, hero_attack, hero_defense, power, knowledge, mana, level, experience, next_army}, Town{output_faction, hall, fort, dwellings, built_today, next_stock}}, "Creatures joined the active hero's army.")
 
 assert kingdom_recruit_necropolis_values_func:
   forall resources: Resources
@@ -1221,7 +1507,7 @@ def kingdom_recruit_necropolis_values_func(resources, hero, hall, fort, dwelling
       match stock_select_func(stock, tier):
         case StockSelection{kept_stock, available}:
           match creature_tier_func(Necropolis{}, tier):
-            case CreatureBundle{kind, CreatureStats{attack, defense, damage_min, damage_max, hit_points, speed, growth, cost, ranged}}:
+            case CreatureBundle{kind, CreatureStats{attack, defense, damage_min, damage_max, hit_points, speed, growth, cost, range, shots, flying, retaliations}}:
               valid_tier = Bool.and(U32.is_le(1, tier), U32.is_le(tier, 7))
               enough_stock = Bool.and(valid_tier, Bool.and(U32.is_ne(amount, 0), U32.is_le(amount, available)))
               match enough_stock:
@@ -1235,6 +1521,39 @@ def kingdom_recruit_necropolis_values_func(resources, hero, hall, fort, dwelling
                       next_army = army_add_func(army, tier, kind, amount)
                       next_stock = stock_sub_func(kept_stock, tier, amount)
                       (Kingdom{remaining, Hero{name, x, y, movement, hero_attack, hero_defense, power, knowledge, mana, level, experience, next_army}, Town{Necropolis{}, hall, fort, dwellings, built_today, next_stock}}, "Creatures joined the active hero's army.")
+
+assert kingdom_recruit_inferno_values_func:
+  forall resources: Resources
+  forall hero: Hero
+  forall hall: U32
+  forall fort: U32
+  forall dwellings: U32
+  forall built_today: Bool
+  forall stock: Stock
+  forall +tier: +U32
+  forall +amount: +U32
+  Kingdom & String
+
+def kingdom_recruit_inferno_values_func(resources, hero, hall, fort, dwellings, built_today, stock, tier, amount):
+  match hero:
+    case Hero{name, x, y, movement, hero_attack, hero_defense, power, knowledge, mana, level, experience, army}:
+      match stock_select_func(stock, tier):
+        case StockSelection{kept_stock, available}:
+          match creature_tier_func(Inferno{}, tier):
+            case CreatureBundle{kind, CreatureStats{attack, defense, damage_min, damage_max, hit_points, speed, growth, cost, range, shots, flying, retaliations}}:
+              valid_tier = Bool.and(U32.is_le(1, tier), U32.is_le(tier, 7))
+              enough_stock = Bool.and(valid_tier, Bool.and(U32.is_ne(amount, 0), U32.is_le(amount, available)))
+              match enough_stock:
+                case False{}:
+                  (Kingdom{resources, Hero{name, x, y, movement, hero_attack, hero_defense, power, knowledge, mana, level, experience, army}, Town{Inferno{}, hall, fort, dwellings, built_today, kept_stock}}, "The requested creatures are not available.")
+                case True{}:
+                  match resources_pay_func(resources, U32.mul(cost, amount), 0, 0):
+                    case Payment{remaining, False{}}:
+                      (Kingdom{remaining, Hero{name, x, y, movement, hero_attack, hero_defense, power, knowledge, mana, level, experience, army}, Town{Inferno{}, hall, fort, dwellings, built_today, kept_stock}}, "The kingdom lacks gold for that recruitment.")
+                    case Payment{remaining, True{}}:
+                      next_army = army_add_func(army, tier, kind, amount)
+                      next_stock = stock_sub_func(kept_stock, tier, amount)
+                      (Kingdom{remaining, Hero{name, x, y, movement, hero_attack, hero_defense, power, knowledge, mana, level, experience, next_army}, Town{Inferno{}, hall, fort, dwellings, built_today, next_stock}}, "Creatures joined the active hero's army.")
 
 assert kingdom_recruit_func:
   forall kingdom: Kingdom
@@ -1255,7 +1574,13 @@ def kingdom_recruit_func(kingdom, tier, amount):
         case HeroCheck{kept_hero, False{}}:
           (Kingdom{resources, kept_hero, Town{Necropolis{}, hall, fort, dwellings, built_today, stock}}, "The active hero must be visiting the Necropolis to recruit into this army.")
         case HeroCheck{kept_hero, True{}}:
-          kingdom_recruit_necropolis_values_func(resources, kept_hero, hall, fort, dwellings, built_today, stock, tier, amount)
+          kingdom_recruit_values_func(resources, kept_hero, Necropolis{}, hall, fort, dwellings, built_today, stock, tier, amount)
+    case Kingdom{resources, hero, Town{Inferno{}, hall, fort, dwellings, built_today, stock}}:
+      match hero_home_check_func(Inferno{}, hero):
+        case HeroCheck{kept_hero, False{}}:
+          (Kingdom{resources, kept_hero, Town{Inferno{}, hall, fort, dwellings, built_today, stock}}, "The active hero must be visiting the Inferno to recruit into this army.")
+        case HeroCheck{kept_hero, True{}}:
+          kingdom_recruit_values_func(resources, kept_hero, Inferno{}, hall, fort, dwellings, built_today, stock, tier, amount)
 
 assert kingdom_new_day_func:
   forall kingdom: Kingdom
@@ -1450,6 +1775,45 @@ assert necropolis_garrison_func:
 def necropolis_garrison_func():
   Army{Troop{Skeleton{}, 30, 6}, Troop{WalkingDead{}, 12, 15}, Troop{Wight{}, 7, 18}, EmptyStack{}, EmptyStack{}, EmptyStack{}, EmptyStack{}}
 
+assert inferno_garrison_func:
+  Army
+
+def inferno_garrison_func():
+  Army{Troop{Imp{}, 35, 4}, Troop{Gog{}, 12, 13}, Troop{HellHound{}, 6, 25}, EmptyStack{}, EmptyStack{}, EmptyStack{}, EmptyStack{}}
+
+assert enemy_garrison_func:
+  forall owner: Owner
+  forall faction: Faction
+  Army
+
+def enemy_garrison_func(owner, faction):
+  match owner faction:
+    case Neutral{} Castle{}: guardian_army_func()
+    case Neutral{} Necropolis{}: guardian_army_func()
+    case Neutral{} Inferno{}: guardian_army_func()
+    # Red fights the next faction in the configured Castle -> Necropolis -> Inferno cycle.
+    case Red{} Castle{}: necropolis_garrison_func()
+    case Red{} Necropolis{}: inferno_garrison_func()
+    case Red{} Inferno{}: castle_garrison_func()
+    # Blue fights the preceding faction in that same cycle.
+    case Blue{} Castle{}: inferno_garrison_func()
+    case Blue{} Necropolis{}: castle_garrison_func()
+    case Blue{} Inferno{}: necropolis_garrison_func()
+
+assert kingdom_enemy_garrison_func:
+  forall kingdom: Kingdom
+  forall owner: Owner
+  KingdomGarrison
+
+def kingdom_enemy_garrison_func(kingdom, owner):
+  match kingdom:
+    case Kingdom{resources, hero, Town{faction, hall, fort, dwellings, built_today, stock}}:
+      (faction_keep, faction_enemy) = faction_pair_func(faction)
+      KingdomGarrison{
+        Kingdom{resources, hero, Town{faction_keep, hall, fort, dwellings, built_today, stock}},
+        enemy_garrison_func(owner, faction_enemy)
+      }
+
 # Visit
 # =====
 
@@ -1489,17 +1853,23 @@ def kingdom_visit_site_func(site, world, kingdom, owner):
         case ArmyCheck{kept_guardian, True{}}:
           MoveResult{kingdom, World{gold, wood, shrine, artifact, sawmill, gold_mine, kept_guardian}, Adventure{}, "The guarded bridge is now clear."}
         case ArmyCheck{kept_guardian, False{}}:
-          MoveResult{kingdom, World{gold, wood, shrine, artifact, sawmill, gold_mine, army_empty_func()}, Combat{Battle{owner, GuardianBattle{}, kept_guardian, 1}}, "Ten Griffins block the bridge. Combat begins."}
+          MoveResult{kingdom, World{gold, wood, shrine, artifact, sawmill, gold_mine, army_empty_func()}, Combat{Battle{owner, GuardianBattle{}, kept_guardian, 1, Tactics.battlefield_new(0)}}, "Ten Griffins block the bridge. Combat begins."}
     case RedTownSite{} World{gold, wood, shrine, artifact, sawmill, gold_mine, guardian}:
       match owner:
         case Neutral{}: MoveResult{kingdom, World{gold, wood, shrine, artifact, sawmill, gold_mine, guardian}, Adventure{}, "The town gate is closed."}
-        case Red{}: MoveResult{kingdom, World{gold, wood, shrine, artifact, sawmill, gold_mine, guardian}, Adventure{}, "The hero returned to the Castle."}
-        case Blue{}: MoveResult{kingdom, World{gold, wood, shrine, artifact, sawmill, gold_mine, guardian}, Combat{Battle{Blue{}, EnemyTownBattle{}, castle_garrison_func(), 1}}, "The Necropolis hero attacks the Castle garrison."}
+        case Red{}: MoveResult{kingdom, World{gold, wood, shrine, artifact, sawmill, gold_mine, guardian}, Adventure{}, "The hero returned to the allied town."}
+        case Blue{}:
+          match kingdom_enemy_garrison_func(kingdom, Blue{}):
+            case KingdomGarrison{kingdom_keep, garrison}:
+              MoveResult{kingdom_keep, World{gold, wood, shrine, artifact, sawmill, gold_mine, guardian}, Combat{Battle{Blue{}, EnemyTownBattle{}, garrison, 1, Tactics.battlefield_new(1)}}, "The Blue hero attacks the Red town garrison."}
     case BlueTownSite{} World{gold, wood, shrine, artifact, sawmill, gold_mine, guardian}:
       match owner:
         case Neutral{}: MoveResult{kingdom, World{gold, wood, shrine, artifact, sawmill, gold_mine, guardian}, Adventure{}, "The town gate is closed."}
-        case Red{}: MoveResult{kingdom, World{gold, wood, shrine, artifact, sawmill, gold_mine, guardian}, Combat{Battle{Red{}, EnemyTownBattle{}, necropolis_garrison_func(), 1}}, "The Castle hero attacks the Necropolis garrison."}
-        case Blue{}: MoveResult{kingdom, World{gold, wood, shrine, artifact, sawmill, gold_mine, guardian}, Adventure{}, "The hero returned to the Necropolis."}
+        case Red{}:
+          match kingdom_enemy_garrison_func(kingdom, Red{}):
+            case KingdomGarrison{kingdom_keep, garrison}:
+              MoveResult{kingdom_keep, World{gold, wood, shrine, artifact, sawmill, gold_mine, guardian}, Combat{Battle{Red{}, EnemyTownBattle{}, garrison, 1, Tactics.battlefield_new(2)}}, "The Red hero attacks the Blue town garrison."}
+        case Blue{}: MoveResult{kingdom, World{gold, wood, shrine, artifact, sawmill, gold_mine, guardian}, Adventure{}, "The hero returned to the allied town."}
 
 assert kingdom_visit_func:
   forall +x: +U32
@@ -1587,16 +1957,6 @@ def damage_percent_func(attack, defense):
       reduction = u32_min_func(70, U32.mul(U32.sub(defense, attack), 2))
       U32.sub(100, reduction)
 
-assert ranged_percent_func:
-  forall ranged: Bool
-  forall percent: U32
-  U32
-
-def ranged_percent_func(ranged, percent):
-  match ranged:
-    case False{}: percent
-    case True{}: percent
-
 assert attack_roll_values_func:
   forall +count: +U32
   forall creature_attack: U32
@@ -1606,18 +1966,16 @@ assert attack_roll_values_func:
   forall hero_attack: U32
   forall hero_defense: U32
   forall seed: U32
-  forall ranged: Bool
   AttackRoll
 
-def attack_roll_values_func(count, creature_attack, damage_min, damage_max, creature_defense, hero_attack, hero_defense, seed, ranged):
+def attack_roll_values_func(count, creature_attack, damage_min, damage_max, creature_defense, hero_attack, hero_defense, seed):
   span = U32.inc(U32.sub(damage_max, damage_min))
   match rng_step_func(seed, span):
     case RngStep{roll, next_seed}:
       rolled_damage = U32.add(damage_min, roll)
       base_damage = U32.mul(count, rolled_damage)
       percent = damage_percent_func(U32.add(creature_attack, hero_attack), U32.add(creature_defense, hero_defense))
-      final_percent = ranged_percent_func(ranged, percent)
-      AttackRoll{u32_at_least_one_func(U32.div(U32.mul(base_damage, final_percent), 100)), next_seed, True{}}
+      AttackRoll{u32_at_least_one_func(U32.div(U32.mul(base_damage, percent), 100)), next_seed, True{}}
 
 assert attack_roll_func:
   forall actor: Stack
@@ -1634,10 +1992,10 @@ def attack_roll_func(actor, target, hero_attack, hero_defense, seed):
     case Troop{actor_kind, actor_count, actor_first_hp} EmptyStack{}: AttackRoll{0, seed, False{}}
     case Troop{actor_kind, actor_count, actor_first_hp} Troop{target_kind, target_count, target_first_hp}:
       match creature_kind_stats_func(actor_kind):
-        case CreatureBundle{actor_keep, CreatureStats{creature_attack, actor_defense, damage_min, damage_max, actor_hp, actor_speed, actor_growth, actor_cost, ranged}}:
+        case CreatureBundle{actor_keep, CreatureStats{creature_attack, actor_defense, damage_min, damage_max, actor_hp, actor_speed, actor_growth, actor_cost, actor_range, actor_shots, actor_flying, actor_retaliations}}:
           match creature_kind_stats_func(target_kind):
-            case CreatureBundle{target_keep, CreatureStats{target_attack, creature_defense, target_min, target_max, target_hp, target_speed, target_growth, target_cost, target_ranged}}:
-              attack_roll_values_func(actor_count, creature_attack, damage_min, damage_max, creature_defense, hero_attack, hero_defense, seed, ranged)
+            case CreatureBundle{target_keep, CreatureStats{target_attack, creature_defense, target_min, target_max, target_hp, target_speed, target_growth, target_cost, target_range, target_shots, target_flying, target_retaliations}}:
+              attack_roll_values_func(actor_count, creature_attack, damage_min, damage_max, creature_defense, hero_attack, hero_defense, seed)
 
 assert attack_roll_defend_func:
   forall actor: Stack
@@ -1654,12 +2012,101 @@ def attack_roll_defend_func(actor, target, hero_attack, hero_defense, seed):
     case Troop{actor_kind, actor_count, actor_first_hp} EmptyStack{}: AttackRoll{0, seed, False{}}
     case Troop{actor_kind, actor_count, actor_first_hp} Troop{target_kind, target_count, target_first_hp}:
       match creature_kind_stats_func(actor_kind):
-        case CreatureBundle{actor_keep, CreatureStats{creature_attack, actor_defense, damage_min, damage_max, actor_hp, actor_speed, actor_growth, actor_cost, ranged}}:
+        case CreatureBundle{actor_keep, CreatureStats{creature_attack, actor_defense, damage_min, damage_max, actor_hp, actor_speed, actor_growth, actor_cost, actor_range, actor_shots, actor_flying, actor_retaliations}}:
           match creature_kind_stats_func(target_kind):
-            case CreatureBundle{target_keep, CreatureStats{target_attack, creature_defense, target_min, target_max, target_hp, target_speed, target_growth, target_cost, target_ranged}}:
+            case CreatureBundle{target_keep, CreatureStats{target_attack, creature_defense, target_min, target_max, target_hp, target_speed, target_growth, target_cost, target_range, target_shots, target_flying, target_retaliations}}:
               (defense_for_bonus, defense_for_roll) = u32_pair_func(creature_defense)
               defend_bonus = U32.div(U32.add(defense_for_bonus, hero_defense), 5)
-              attack_roll_values_func(actor_count, creature_attack, damage_min, damage_max, defense_for_roll, hero_attack, U32.add(hero_defense, defend_bonus), seed, ranged)
+              attack_roll_values_func(actor_count, creature_attack, damage_min, damage_max, defense_for_roll, hero_attack, U32.add(hero_defense, defend_bonus), seed)
+
+assert stack_battle_reach_func:
+  forall stack: Stack
+  forall battlefield: Tactics.Battlefield
+  forall own_slot: U32
+  forall target_slot: U32
+  Tactics.BattlefieldReach
+
+def stack_battle_reach_func(stack, battlefield, own_slot, target_slot):
+  match stack_tactics_func(stack):
+    case StackTactics{kept_stack, speed, range, shots, flying, retaliations}:
+      Tactics.battlefield_attack_reach(battlefield, own_slot, target_slot, False{}, shots, range)
+
+assert stack_retaliation_reach_func:
+  forall stack: Stack
+  Tactics.RetaliationReach
+
+def stack_retaliation_reach_func(stack):
+  match stack_tactics_func(stack):
+    case StackTactics{kept_stack, speed, range, shots, flying, retaliations}:
+      Tactics.retaliation_reach(Tactics.MeleeAttack{}, retaliations, False{})
+
+assert combat_damage_penalty_func:
+  forall damage: U32
+  forall penalty: Bool
+  U32
+
+def combat_damage_penalty_func(damage, penalty):
+  match penalty:
+    case False{}: damage
+    case True{}: u32_at_least_one_func(U32.div(damage, 2))
+
+assert combat_attack_without_retaliation_func:
+  forall player: Army
+  forall enemy: Army
+  forall actor: Stack
+  forall target: Stack
+  forall target_slot: U32
+  forall hero_attack: U32
+  forall hero_defense: U32
+  forall mana: U32
+  forall seed: U32
+  forall penalty: Bool
+  forall battlefield: Tactics.Battlefield
+  CombatTurn
+
+def combat_attack_without_retaliation_func(player, enemy, actor, target, target_slot, hero_attack, hero_defense, mana, seed, penalty, battlefield):
+  match attack_roll_func(actor, target, hero_attack, 0, seed):
+    case AttackRoll{damage, next_seed, False{}}:
+      CombatTurn{player, enemy, mana, next_seed, 0, 0, False{}, battlefield}
+    case AttackRoll{damage, next_seed, True{}}:
+      penalized_damage = combat_damage_penalty_func(damage, penalty)
+      (damage_apply, damage_output) = u32_pair_func(penalized_damage)
+      match army_damage_func(enemy, target_slot, damage_apply):
+        case ArmyDamage{enemy_hit, kills}:
+          CombatTurn{player, enemy_hit, mana, next_seed, damage_output, 0, True{}, battlefield}
+
+assert combat_attack_with_retaliation_func:
+  forall player: Army
+  forall enemy: Army
+  forall actor: Stack
+  forall target: Stack
+  forall +own_slot: +U32
+  forall +target_slot: +U32
+  forall hero_attack: U32
+  forall hero_defense: U32
+  forall mana: U32
+  forall seed: U32
+  forall battlefield: Tactics.Battlefield
+  CombatTurn
+
+def combat_attack_with_retaliation_func(player, enemy, actor, target, own_slot, target_slot, hero_attack, hero_defense, mana, seed, battlefield):
+  match attack_roll_func(actor, target, hero_attack, 0, seed):
+    case AttackRoll{damage, next_seed, False{}}:
+      CombatTurn{player, enemy, mana, next_seed, 0, 0, False{}, battlefield}
+    case AttackRoll{damage, next_seed, True{}}:
+      (damage_apply, damage_output) = u32_pair_func(damage)
+      match army_damage_func(enemy, target_slot, damage_apply):
+        case ArmyDamage{enemy_hit, kills}:
+          match army_select_func(enemy_hit, target_slot):
+            case ArmySelection{enemy_after, retaliator}:
+              match army_select_func(player, own_slot):
+                case ArmySelection{player_after, defender}:
+                  match attack_roll_func(retaliator, defender, 0, hero_defense, next_seed):
+                    case AttackRoll{response, final_seed, response_valid}:
+                      (response_apply, response_output) = u32_pair_func(response)
+                      match army_damage_func(player_after, own_slot, response_apply):
+                        case ArmyDamage{player_hit, losses}:
+                          CombatTurn{player_hit, enemy_after, mana, final_seed, damage_output, response_output, True{}, battlefield}
 
 assert combat_attack_func:
   forall player: Army
@@ -1670,30 +2117,33 @@ assert combat_attack_func:
   forall hero_defense: U32
   forall mana: U32
   forall seed: U32
+  forall battlefield: Tactics.Battlefield
   CombatTurn
 
-def combat_attack_func(player, enemy, own_slot, target_slot, hero_attack, hero_defense, mana, seed):
-  match army_select_func(player, own_slot):
+def combat_attack_func(player, enemy, own_slot, target_slot, hero_attack, hero_defense, mana, seed, battlefield):
+  (own_select, own_tail) = u32_pair_func(own_slot)
+  (own_reach, own_apply) = u32_pair_func(own_tail)
+  (target_select, target_tail) = u32_pair_func(target_slot)
+  (target_reach, target_apply) = u32_pair_func(target_tail)
+  match army_select_func(player, own_select):
     case ArmySelection{player_keep, actor}:
-      match army_select_func(enemy, target_slot):
+      match army_select_func(enemy, target_select):
         case ArmySelection{enemy_keep, target}:
-          match attack_roll_func(actor, target, hero_attack, 0, seed):
-            case AttackRoll{damage, next_seed, False{}}:
-              CombatTurn{player_keep, enemy_keep, mana, next_seed, 0, 0, False{}}
-            case AttackRoll{damage, next_seed, True{}}:
-              (damage_apply, damage_output) = u32_pair_func(damage)
-              match army_damage_func(enemy_keep, target_slot, damage_apply):
-                case ArmyDamage{enemy_hit, kills}:
-                  match army_select_func(enemy_hit, target_slot):
-                    case ArmySelection{enemy_after, retaliator}:
-                      match army_select_func(player_keep, own_slot):
-                        case ArmySelection{player_after, defender}:
-                          match attack_roll_func(retaliator, defender, 0, hero_defense, next_seed):
-                            case AttackRoll{response, final_seed, response_valid}:
-                              (response_apply, response_output) = u32_pair_func(response)
-                              match army_damage_func(player_after, own_slot, response_apply):
-                                case ArmyDamage{player_hit, losses}:
-                                  CombatTurn{player_hit, enemy_after, mana, final_seed, damage_output, response_output, True{}}
+          match stack_pair_func(actor):
+            case StackPair{actor_reach, actor_roll}:
+              match stack_pair_func(target):
+                case StackPair{target_roll, target_retaliation}:
+                  match stack_battle_reach_func(actor_reach, battlefield, own_reach, target_reach):
+                    case Tactics.BattlefieldReach{battlefield_keep, Tactics.IllegalAttack{}}:
+                      CombatTurn{player_keep, enemy_keep, mana, seed, 0, 0, False{}, battlefield_keep}
+                    case Tactics.BattlefieldReach{battlefield_keep, Tactics.RangedAttack{long_range_penalty}}:
+                      combat_attack_without_retaliation_func(player_keep, enemy_keep, actor_roll, target_roll, target_apply, hero_attack, hero_defense, mana, seed, long_range_penalty, battlefield_keep)
+                    case Tactics.BattlefieldReach{battlefield_keep, Tactics.MeleeAttack{}}:
+                      match stack_retaliation_reach_func(target_retaliation):
+                        case Tactics.NoRetaliation{}:
+                          combat_attack_without_retaliation_func(player_keep, enemy_keep, actor_roll, target_roll, target_apply, hero_attack, hero_defense, mana, seed, False{}, battlefield_keep)
+                        case Tactics.MayRetaliate{}:
+                          combat_attack_with_retaliation_func(player_keep, enemy_keep, actor_roll, target_roll, own_apply, target_apply, hero_attack, hero_defense, mana, seed, battlefield_keep)
 
 assert combat_defend_func:
   forall player: Army
@@ -1703,21 +2153,22 @@ assert combat_defend_func:
   forall hero_defense: U32
   forall mana: U32
   forall seed: U32
+  forall battlefield: Tactics.Battlefield
   CombatTurn
 
-def combat_defend_func(player, enemy, own_slot, target_slot, hero_defense, mana, seed):
+def combat_defend_func(player, enemy, own_slot, target_slot, hero_defense, mana, seed, battlefield):
   match army_select_func(enemy, target_slot):
     case ArmySelection{enemy_keep, attacker}:
       match army_select_func(player, own_slot):
         case ArmySelection{player_keep, defender}:
           match attack_roll_defend_func(attacker, defender, 0, hero_defense, seed):
             case AttackRoll{response, next_seed, False{}}:
-              CombatTurn{player_keep, enemy_keep, mana, next_seed, 0, 0, False{}}
+              CombatTurn{player_keep, enemy_keep, mana, next_seed, 0, 0, False{}, battlefield}
             case AttackRoll{response, next_seed, True{}}:
               (response_apply, response_output) = u32_pair_func(response)
               match army_damage_func(player_keep, own_slot, response_apply):
                 case ArmyDamage{player_hit, losses}:
-                  CombatTurn{player_hit, enemy_keep, mana, next_seed, 0, response_output, True{}}
+                  CombatTurn{player_hit, enemy_keep, mana, next_seed, 0, response_output, True{}, battlefield}
 
 assert combat_spell_func:
   forall player: Army
@@ -1728,32 +2179,212 @@ assert combat_spell_func:
   forall hero_defense: U32
   forall +mana: +U32
   forall seed: U32
+  forall battlefield: Tactics.Battlefield
   CombatTurn
 
-def combat_spell_func(player, enemy, own_slot, target_slot, power, hero_defense, mana, seed):
+def combat_spell_func(player, enemy, own_slot, target_slot, power, hero_defense, mana, seed, battlefield):
   match U32.is_le(5, mana):
-    case False{}: CombatTurn{player, enemy, mana, seed, 0, 0, False{}}
+    case False{}: CombatTurn{player, enemy, mana, seed, 0, 0, False{}, battlefield}
     case True{}:
       match army_select_func(enemy, target_slot):
         case ArmySelection{enemy_keep, target}:
           match stack_check_func(target):
             case StackCheck{target_keep, True{}}:
-              CombatTurn{player, enemy_keep, mana, seed, 0, 0, False{}}
+              CombatTurn{player, enemy_keep, mana, seed, 0, 0, False{}, battlefield}
             case StackCheck{target_keep, False{}}:
               spell_damage = U32.add(10, U32.mul(power, 10))
               (damage_apply, damage_output) = u32_pair_func(spell_damage)
               match army_damage_func(enemy_keep, target_slot, damage_apply):
                 case ArmyDamage{enemy_hit, kills}:
-                  match army_select_func(enemy_hit, target_slot):
-                    case ArmySelection{enemy_after, retaliator}:
-                      match army_select_func(player, own_slot):
-                        case ArmySelection{player_keep, defender}:
-                          match attack_roll_func(retaliator, defender, 0, hero_defense, seed):
-                            case AttackRoll{response, next_seed, response_valid}:
-                              (response_apply, response_output) = u32_pair_func(response)
-                              match army_damage_func(player_keep, own_slot, response_apply):
-                                case ArmyDamage{player_hit, losses}:
-                                  CombatTurn{player_hit, enemy_after, U32.sub(mana, 5), next_seed, damage_output, response_output, True{}}
+                  CombatTurn{player, enemy_hit, U32.sub(mana, 5), seed, damage_output, 0, True{}, battlefield}
+
+assert combat_move_func:
+  forall player: Army
+  forall enemy: Army
+  forall +own_slot: +U32
+  forall target_index: U32
+  forall mana: U32
+  forall seed: U32
+  forall battlefield: Tactics.Battlefield
+  CombatTurn
+
+def combat_move_func(player, enemy, own_slot, target_index, mana, seed, battlefield):
+  (own_select, own_move) = u32_pair_func(own_slot)
+  match army_select_func(player, own_select):
+    case ArmySelection{player_keep, stack}:
+      match stack_tactics_func(stack):
+        case StackTactics{kept_stack, speed, range, shots, flying, retaliations}:
+          match Tactics.hex_from_index(target_index):
+            case Tactics.InvalidHex{}:
+              CombatTurn{player_keep, enemy, mana, seed, 0, 0, False{}, battlefield}
+            case Tactics.ValidHex{Tactics.Hex{target_column, target_row}}:
+              match Tactics.battlefield_move_friendly(battlefield, own_move, target_column, target_row, speed, flying):
+                case Tactics.BattlefieldMove{next_battlefield, moved}:
+                  CombatTurn{player_keep, enemy, mana, seed, 0, 0, moved, next_battlefield}
+
+assert combat_ai_battle_candidates_func:
+  forall own: AiCandidate
+  forall target: AiCandidate
+  forall player: Army
+  forall battlefield: Tactics.Battlefield
+  CombatAiChoice
+
+def combat_ai_battle_candidates_func(own, target, player, battlefield):
+  match own target:
+    case AiCandidate{own_slot, own_value, False{}} AiCandidate{target_slot, target_value, target_valid}:
+      CombatAiChoice{20, own_slot, target_slot}
+    case AiCandidate{own_slot, own_value, True{}} AiCandidate{target_slot, target_value, False{}}:
+      CombatAiChoice{20, own_slot, target_slot}
+    case AiCandidate{own_slot, own_value, True{}} AiCandidate{target_slot, target_value, True{}}:
+      (own_select, own_tail) = u32_pair_func(own_slot)
+      (own_reach, own_tail2) = u32_pair_func(own_tail)
+      (own_move, own_output) = u32_pair_func(own_tail2)
+      (target_reach, target_tail) = u32_pair_func(target_slot)
+      (target_move, target_output) = u32_pair_func(target_tail)
+      match army_select_func(player, own_select):
+        case ArmySelection{player_keep, actor}:
+          match stack_pair_func(actor):
+            case StackPair{actor_reach, actor_move}:
+              match stack_battle_reach_func(actor_reach, battlefield, own_reach, target_reach):
+                case Tactics.BattlefieldReach{battlefield_keep, Tactics.MeleeAttack{}}:
+                  CombatAiChoice{20, own_output, target_output}
+                case Tactics.BattlefieldReach{battlefield_keep, Tactics.RangedAttack{long_range_penalty}}:
+                  CombatAiChoice{20, own_output, target_output}
+                case Tactics.BattlefieldReach{battlefield_keep, Tactics.IllegalAttack{}}:
+                  match stack_tactics_func(actor_move):
+                    case StackTactics{kept_stack, speed, range, shots, flying, retaliations}:
+                      match Tactics.battlefield_ai_target(battlefield_keep, own_move, target_move, speed):
+                        case Tactics.BattlefieldAiTarget{battlefield_output, target_index}:
+                          CombatAiChoice{24, own_output, target_index}
+
+assert combat_ai_battle_no_spell_func:
+  forall player: Army
+  forall enemy: Army
+  forall battlefield: Tactics.Battlefield
+  CombatAiChoice
+
+def combat_ai_battle_no_spell_func(player, enemy, battlefield):
+  match army_pair_func(player):
+    case ArmyPair{player_rank, player_select}:
+      combat_ai_battle_candidates_func(army_ai_strongest_func(player_rank), army_ai_strongest_func(enemy), player_select, battlefield)
+
+assert combat_ai_battle_func:
+  forall mana: U32
+  forall player: Army
+  forall enemy: Army
+  forall battlefield: Tactics.Battlefield
+  CombatAiChoice
+
+def combat_ai_battle_func(mana, player, enemy, battlefield):
+  match U32.is_le(5, mana):
+    case True{}:
+      combat_ai_choice_values_func(True{}, army_ai_strongest_func(player), army_ai_weakest_func(enemy))
+    case False{}:
+      combat_ai_battle_no_spell_func(player, enemy, battlefield)
+
+assert combat_enemy_choice_apply_func:
+  forall choice: CombatAiChoice
+  forall enemy: Army
+  forall player: Army
+  forall hero_defense: U32
+  forall seed: U32
+  forall battlefield: Tactics.Battlefield
+  CombatTurn
+
+def combat_enemy_choice_apply_func(choice, enemy, player, hero_defense, seed, battlefield):
+  match choice:
+    case CombatAiChoice{command, own_slot, target_slot}:
+      match U32.to_nat(command):
+        case 20n:
+          combat_attack_func(enemy, player, own_slot, target_slot, 0, hero_defense, 0, seed, battlefield)
+        case 24n:
+          combat_move_func(enemy, player, own_slot, target_slot, 0, seed, battlefield)
+        case other:
+          CombatTurn{enemy, player, 0, seed, 0, 0, False{}, battlefield}
+
+assert combat_enemy_action_func:
+  forall enemy: Army
+  forall player: Army
+  forall hero_defense: U32
+  forall seed: U32
+  forall battlefield: Tactics.Battlefield
+  CombatTurn
+
+def combat_enemy_action_func(enemy, player, hero_defense, seed, battlefield):
+  match army_pair_func(enemy):
+    case ArmyPair{enemy_plan, enemy_action}:
+      match army_pair_func(player):
+        case ArmyPair{player_plan, player_action}:
+          match Tactics.battlefield_pair(battlefield):
+            case Tactics.BattlefieldPair{battlefield_plan, battlefield_action}:
+              combat_enemy_choice_apply_func(
+                combat_ai_battle_no_spell_func(enemy_plan, player_plan, Tactics.battlefield_flip(battlefield_plan)),
+                enemy_action,
+                player_action,
+                hero_defense,
+                seed,
+                Tactics.battlefield_flip(battlefield_action)
+              )
+
+assert combat_enemy_merge_func:
+  forall turn: CombatTurn
+  forall mana: U32
+  forall dealt: U32
+  forall received: U32
+  CombatTurn
+
+def combat_enemy_merge_func(turn, mana, dealt, received):
+  match turn:
+    case CombatTurn{enemy_after, player_after, enemy_mana, next_seed, enemy_dealt, enemy_received, enemy_valid, battlefield}:
+      CombatTurn{
+        player_after,
+        enemy_after,
+        mana,
+        next_seed,
+        dealt,
+        U32.add(received, enemy_dealt),
+        True{},
+        Tactics.battlefield_flip(battlefield)
+      }
+
+assert combat_enemy_response_func:
+  forall turn: CombatTurn
+  forall hero_defense: U32
+  CombatTurn
+
+def combat_enemy_response_func(turn, hero_defense):
+  match turn:
+    case CombatTurn{player, enemy, mana, next_seed, dealt, received, False{}, battlefield}:
+      CombatTurn{player, enemy, mana, next_seed, dealt, received, False{}, battlefield}
+    case CombatTurn{player, enemy, mana, next_seed, dealt, received, True{}, battlefield}:
+      combat_enemy_merge_func(
+        combat_enemy_action_func(enemy, player, hero_defense, next_seed, battlefield),
+        mana,
+        dealt,
+        received
+      )
+
+assert combat_turn_sync_func:
+  forall turn: CombatTurn
+  CombatTurn
+
+def combat_turn_sync_func(turn):
+  match turn:
+    case CombatTurn{player, enemy, mana, next_seed, dealt, received, valid, Tactics.Battlefield{friendly, hostile, obstacle_seed}}:
+      match army_formation_sync_func(player, friendly):
+        case ArmyFormation{player_keep, friendly_keep}:
+          match army_formation_sync_func(enemy, hostile):
+            case ArmyFormation{enemy_keep, hostile_keep}:
+              CombatTurn{
+                player_keep,
+                enemy_keep,
+                mana,
+                next_seed,
+                dealt,
+                received,
+                valid,
+                Tactics.Battlefield{friendly_keep, hostile_keep, obstacle_seed}
+              }
 
 assert hero_rebuild_func:
   forall name: String
@@ -1798,9 +2429,9 @@ def kingdom_defeat_func(attacker, resources, name, x, y, attack, defense, power,
     case Neutral{}:
       KingdomBattle{Kingdom{resources, hero_rebuild_func(name, x, y, 0, attack, defense, power, knowledge, mana, level, experience, player), town}, BattleEnded{Neutral{}, source, enemy}, seed, "Defeat: the hero's army was destroyed."}
     case Red{}:
-      KingdomBattle{Kingdom{resources, hero_rebuild_func(name, 1, 5, 0, attack, defense, power, knowledge, mana, level, experience, player), town}, BattleEnded{Red{}, source, enemy}, seed, "Defeat: the hero escaped to the Castle without an army."}
+      KingdomBattle{Kingdom{resources, hero_rebuild_func(name, 1, 5, 0, attack, defense, power, knowledge, mana, level, experience, player), town}, BattleEnded{Red{}, source, enemy}, seed, "Defeat: the hero escaped to the Red town without an army."}
     case Blue{}:
-      KingdomBattle{Kingdom{resources, hero_rebuild_func(name, 7, 1, 0, attack, defense, power, knowledge, mana, level, experience, player), town}, BattleEnded{Blue{}, source, enemy}, seed, "Defeat: the hero escaped to the Necropolis without an army."}
+      KingdomBattle{Kingdom{resources, hero_rebuild_func(name, 7, 1, 0, attack, defense, power, knowledge, mana, level, experience, player), town}, BattleEnded{Blue{}, source, enemy}, seed, "Defeat: the hero escaped to the Blue town without an army."}
 
 assert kingdom_finish_combat_func:
   forall resources: Resources
@@ -1822,15 +2453,15 @@ assert kingdom_finish_combat_func:
   KingdomBattle
 
 def kingdom_finish_combat_func(resources, name, x, y, movement, attack, defense, power, knowledge, level, experience, town, attacker, source, round, turn):
-  match turn:
-    case CombatTurn{player, enemy, mana, next_seed, dealt, received, False{}}:
+  match combat_turn_sync_func(turn):
+    case CombatTurn{player, enemy, mana, next_seed, dealt, received, False{}, battlefield}:
       KingdomBattle{
         Kingdom{resources, hero_rebuild_func(name, x, y, movement, attack, defense, power, knowledge, mana, level, experience, player), town},
-        BattleContinues{Battle{attacker, source, enemy, round}},
+        BattleContinues{Battle{attacker, source, enemy, round, battlefield}},
         next_seed,
         "Choose occupied army slots; the rejected combat command changed nothing."
       }
-    case CombatTurn{player, enemy, mana, next_seed, dealt, received, True{}}:
+    case CombatTurn{player, enemy, mana, next_seed, dealt, received, True{}, battlefield}:
       match army_check_func(enemy):
         case ArmyCheck{enemy_keep, True{}}:
           KingdomBattle{
@@ -1850,9 +2481,9 @@ def kingdom_finish_combat_func(resources, name, x, y, movement, attack, defense,
             case ArmyCheck{player_keep, False{}}:
               KingdomBattle{
                 Kingdom{resources, hero_rebuild_func(name, x, y, movement, attack, defense, power, knowledge, mana, level, experience, player_keep), town},
-                BattleContinues{Battle{attacker, source, enemy_keep, U32.inc(round)}},
+                BattleContinues{Battle{attacker, source, enemy_keep, U32.inc(round), battlefield}},
                 next_seed,
-                "The exchange resolved using Core's attack/defense damage formula."
+                "The tactical action resolved on Core's 15 x 11 hex battlefield."
               }
 
 assert kingdom_retreat_func:
@@ -1877,9 +2508,9 @@ def kingdom_retreat_func(attacker, resources, name, attack, defense, power, know
     case Neutral{}:
       KingdomBattle{Kingdom{resources, Hero{name, 0, 0, 0, attack, defense, power, knowledge, mana, level, experience, army_empty_func()}, town}, BattleEnded{Neutral{}, source, enemy}, seed, "The hero retreated and lost the whole army."}
     case Red{}:
-      KingdomBattle{Kingdom{resources, Hero{name, 1, 5, 0, attack, defense, power, knowledge, mana, level, experience, army_empty_func()}, town}, BattleEnded{Red{}, source, enemy}, seed, "The hero retreated to the Castle and lost the whole army."}
+      KingdomBattle{Kingdom{resources, Hero{name, 1, 5, 0, attack, defense, power, knowledge, mana, level, experience, army_empty_func()}, town}, BattleEnded{Red{}, source, enemy}, seed, "The hero retreated to the Red town and lost the whole army."}
     case Blue{}:
-      KingdomBattle{Kingdom{resources, Hero{name, 7, 1, 0, attack, defense, power, knowledge, mana, level, experience, army_empty_func()}, town}, BattleEnded{Blue{}, source, enemy}, seed, "The hero retreated to the Necropolis and lost the whole army."}
+      KingdomBattle{Kingdom{resources, Hero{name, 7, 1, 0, attack, defense, power, knowledge, mana, level, experience, army_empty_func()}, town}, BattleEnded{Blue{}, source, enemy}, seed, "The hero retreated to the Blue town and lost the whole army."}
 
 assert kingdom_combat_attack_case_func:
   forall resources: Resources
@@ -1900,13 +2531,14 @@ assert kingdom_combat_attack_case_func:
   forall source: BattleSource
   forall enemy: Army
   forall round: U32
+  forall battlefield: Tactics.Battlefield
   forall own_slot: U32
   forall target_slot: U32
   forall seed: U32
   KingdomBattle
 
-def kingdom_combat_attack_case_func(resources, name, x, y, movement, attack, defense, power, knowledge, mana, level, experience, army, town, attacker, source, enemy, round, own_slot, target_slot, seed):
-  kingdom_finish_combat_func(resources, name, x, y, movement, attack, defense, power, knowledge, level, experience, town, attacker, source, round, combat_attack_func(army, enemy, own_slot, target_slot, attack, defense, mana, seed))
+def kingdom_combat_attack_case_func(resources, name, x, y, movement, attack, defense, power, knowledge, mana, level, experience, army, town, attacker, source, enemy, round, battlefield, own_slot, target_slot, seed):
+  kingdom_finish_combat_func(resources, name, x, y, movement, attack, defense, power, knowledge, level, experience, town, attacker, source, round, combat_enemy_response_func(combat_attack_func(army, enemy, own_slot, target_slot, attack, defense, mana, seed, battlefield), defense))
 
 assert kingdom_combat_defend_case_func:
   forall resources: Resources
@@ -1927,13 +2559,14 @@ assert kingdom_combat_defend_case_func:
   forall source: BattleSource
   forall enemy: Army
   forall round: U32
+  forall battlefield: Tactics.Battlefield
   forall own_slot: U32
   forall target_slot: U32
   forall seed: U32
   KingdomBattle
 
-def kingdom_combat_defend_case_func(resources, name, x, y, movement, attack, defense, power, knowledge, mana, level, experience, army, town, attacker, source, enemy, round, own_slot, target_slot, seed):
-  kingdom_finish_combat_func(resources, name, x, y, movement, attack, defense, power, knowledge, level, experience, town, attacker, source, round, combat_defend_func(army, enemy, own_slot, target_slot, defense, mana, seed))
+def kingdom_combat_defend_case_func(resources, name, x, y, movement, attack, defense, power, knowledge, mana, level, experience, army, town, attacker, source, enemy, round, battlefield, own_slot, target_slot, seed):
+  kingdom_finish_combat_func(resources, name, x, y, movement, attack, defense, power, knowledge, level, experience, town, attacker, source, round, combat_defend_func(army, enemy, own_slot, target_slot, defense, mana, seed, battlefield))
 
 assert kingdom_combat_spell_case_func:
   forall resources: Resources
@@ -1954,13 +2587,42 @@ assert kingdom_combat_spell_case_func:
   forall source: BattleSource
   forall enemy: Army
   forall round: U32
+  forall battlefield: Tactics.Battlefield
   forall own_slot: U32
   forall target_slot: U32
   forall seed: U32
   KingdomBattle
 
-def kingdom_combat_spell_case_func(resources, name, x, y, movement, attack, defense, power, knowledge, mana, level, experience, army, town, attacker, source, enemy, round, own_slot, target_slot, seed):
-  kingdom_finish_combat_func(resources, name, x, y, movement, attack, defense, power, knowledge, level, experience, town, attacker, source, round, combat_spell_func(army, enemy, own_slot, target_slot, power, defense, mana, seed))
+def kingdom_combat_spell_case_func(resources, name, x, y, movement, attack, defense, power, knowledge, mana, level, experience, army, town, attacker, source, enemy, round, battlefield, own_slot, target_slot, seed):
+  kingdom_finish_combat_func(resources, name, x, y, movement, attack, defense, power, knowledge, level, experience, town, attacker, source, round, combat_enemy_response_func(combat_spell_func(army, enemy, own_slot, target_slot, power, defense, mana, seed, battlefield), defense))
+
+assert kingdom_combat_move_case_func:
+  forall resources: Resources
+  forall name: String
+  forall x: U32
+  forall y: U32
+  forall movement: U32
+  forall attack: U32
+  forall +defense: +U32
+  forall power: U32
+  forall knowledge: U32
+  forall mana: U32
+  forall level: U32
+  forall experience: U32
+  forall army: Army
+  forall town: Town
+  forall attacker: Owner
+  forall source: BattleSource
+  forall enemy: Army
+  forall round: U32
+  forall battlefield: Tactics.Battlefield
+  forall own_slot: U32
+  forall target_index: U32
+  forall seed: U32
+  KingdomBattle
+
+def kingdom_combat_move_case_func(resources, name, x, y, movement, attack, defense, power, knowledge, mana, level, experience, army, town, attacker, source, enemy, round, battlefield, own_slot, target_index, seed):
+  kingdom_finish_combat_func(resources, name, x, y, movement, attack, defense, power, knowledge, level, experience, town, attacker, source, round, combat_enemy_response_func(combat_move_func(army, enemy, own_slot, target_index, mana, seed, battlefield), defense))
 
 assert kingdom_battle_command_func:
   forall kingdom: Kingdom
@@ -1973,18 +2635,20 @@ assert kingdom_battle_command_func:
 
 def kingdom_battle_command_func(kingdom, battle, command, own_slot, target_slot, seed):
   match kingdom battle:
-    case Kingdom{resources, Hero{name, x, y, movement, attack, defense, power, knowledge, mana, level, experience, army}, town} Battle{attacker, source, enemy, round}:
+    case Kingdom{resources, Hero{name, x, y, movement, attack, defense, power, knowledge, mana, level, experience, army}, town} Battle{attacker, source, enemy, round, battlefield}:
       match U32.to_nat(command):
         case 20n:
-          kingdom_combat_attack_case_func(resources, name, x, y, movement, attack, defense, power, knowledge, mana, level, experience, army, town, attacker, source, enemy, round, own_slot, target_slot, seed)
+          kingdom_combat_attack_case_func(resources, name, x, y, movement, attack, defense, power, knowledge, mana, level, experience, army, town, attacker, source, enemy, round, battlefield, own_slot, target_slot, seed)
         case 21n:
-          kingdom_combat_defend_case_func(resources, name, x, y, movement, attack, defense, power, knowledge, mana, level, experience, army, town, attacker, source, enemy, round, own_slot, target_slot, seed)
+          kingdom_combat_defend_case_func(resources, name, x, y, movement, attack, defense, power, knowledge, mana, level, experience, army, town, attacker, source, enemy, round, battlefield, own_slot, target_slot, seed)
         case 22n:
-          kingdom_combat_spell_case_func(resources, name, x, y, movement, attack, defense, power, knowledge, mana, level, experience, army, town, attacker, source, enemy, round, own_slot, target_slot, seed)
+          kingdom_combat_spell_case_func(resources, name, x, y, movement, attack, defense, power, knowledge, mana, level, experience, army, town, attacker, source, enemy, round, battlefield, own_slot, target_slot, seed)
         case 23n:
           kingdom_retreat_func(attacker, resources, name, attack, defense, power, knowledge, mana, level, experience, town, source, enemy, seed)
+        case 24n:
+          kingdom_combat_move_case_func(resources, name, x, y, movement, attack, defense, power, knowledge, mana, level, experience, army, town, attacker, source, enemy, round, battlefield, own_slot, target_slot, seed)
         case other:
-          KingdomBattle{Kingdom{resources, Hero{name, x, y, movement, attack, defense, power, knowledge, mana, level, experience, army}, town}, BattleContinues{Battle{attacker, source, enemy, round}}, seed, "That command is not available during combat."}
+          KingdomBattle{Kingdom{resources, Hero{name, x, y, movement, attack, defense, power, knowledge, mana, level, experience, army}, town}, BattleContinues{Battle{attacker, source, enemy, round, battlefield}}, seed, "That command is not available during combat."}
 
 assert world_restore_battle_func:
   forall world: World
@@ -2021,7 +2685,13 @@ assert blue_army_func:
   Army
 
 def blue_army_func():
-  Army{Troop{Skeleton{}, 40, 6}, EmptyStack{}, Troop{Wight{}, 9, 18}, EmptyStack{}, EmptyStack{}, EmptyStack{}, EmptyStack{}}
+  Army{Troop{Skeleton{}, 70, 6}, EmptyStack{}, Troop{Wight{}, 15, 18}, EmptyStack{}, EmptyStack{}, EmptyStack{}, EmptyStack{}}
+
+assert inferno_army_func:
+  Army
+
+def inferno_army_func():
+  Army{Troop{Imp{}, 45, 4}, Troop{Gog{}, 14, 13}, Troop{HellHound{}, 5, 25}, EmptyStack{}, EmptyStack{}, EmptyStack{}, EmptyStack{}}
 
 assert initial_resources_func:
   Resources
@@ -2032,40 +2702,97 @@ def initial_resources_func():
 assert red_kingdom_func:
   Kingdom
 
+assert red_kingdom_faction_func:
+  forall faction: Faction
+  Kingdom
+
+def red_kingdom_faction_func(faction):
+  match faction:
+    case Castle{}:
+      Kingdom{
+        initial_resources_func(),
+        Hero{"Catherine", 1, 5, 1600, 3, 3, 1, 1, 10, 1, 0, red_army_func()},
+        Town{Castle{}, 1, 0, 3, False{}, Stock{14, 9, 0, 0, 0, 0, 0}}
+      }
+    case Necropolis{}:
+      Kingdom{
+        initial_resources_func(),
+        Hero{"Sandro", 1, 5, 1600, 2, 2, 2, 2, 20, 1, 0, blue_army_func()},
+        Town{Necropolis{}, 1, 0, 7, False{}, Stock{12, 8, 7, 0, 0, 0, 0}}
+      }
+    case Inferno{}:
+      Kingdom{
+        initial_resources_func(),
+        Hero{"Xeron", 1, 5, 1600, 4, 2, 2, 1, 10, 1, 0, inferno_army_func()},
+        Town{Inferno{}, 1, 0, 7, False{}, Stock{15, 8, 5, 0, 0, 0, 0}}
+      }
+
 def red_kingdom_func():
-  Kingdom{
-    initial_resources_func(),
-    Hero{"Catherine", 1, 5, 1600, 3, 3, 1, 1, 10, 1, 0, red_army_func()},
-    Town{Castle{}, 1, 0, 3, False{}, Stock{14, 9, 0, 0, 0, 0, 0}}
-  }
+  red_kingdom_faction_func(Castle{})
 
 assert blue_kingdom_func:
   Kingdom
 
+assert blue_kingdom_faction_func:
+  forall faction: Faction
+  Kingdom
+
+def blue_kingdom_faction_func(faction):
+  match faction:
+    case Castle{}:
+      Kingdom{
+        initial_resources_func(),
+        Hero{"Catherine", 7, 1, 1600, 3, 3, 1, 1, 10, 1, 0, red_army_func()},
+        Town{Castle{}, 1, 0, 3, False{}, Stock{14, 9, 0, 0, 0, 0, 0}}
+      }
+    case Necropolis{}:
+      Kingdom{
+        initial_resources_func(),
+        Hero{"Sandro", 7, 1, 1600, 2, 2, 2, 2, 20, 1, 0, blue_army_func()},
+        Town{Necropolis{}, 1, 0, 7, False{}, Stock{12, 8, 7, 0, 0, 0, 0}}
+      }
+    case Inferno{}:
+      Kingdom{
+        initial_resources_func(),
+        Hero{"Xeron", 7, 1, 1600, 4, 2, 2, 1, 10, 1, 0, inferno_army_func()},
+        Town{Inferno{}, 1, 0, 7, False{}, Stock{15, 8, 5, 0, 0, 0, 0}}
+      }
+
 def blue_kingdom_func():
-  Kingdom{
-    initial_resources_func(),
-    Hero{"Sandro", 7, 1, 1600, 2, 2, 2, 2, 20, 1, 0, blue_army_func()},
-    Town{Necropolis{}, 1, 0, 7, False{}, Stock{12, 8, 7, 0, 0, 0, 0}}
-  }
+  blue_kingdom_faction_func(Necropolis{})
+
+assert heroes_initial_faction_func:
+  forall seed: U32
+  forall faction_index: U32
+  Game
+
+def heroes_initial_faction_func(seed, faction_index):
+  match U32.to_nat(faction_index):
+    case 0n:
+      Game{
+        0, 1, Red{}, red_kingdom_faction_func(Castle{}), blue_kingdom_faction_func(Necropolis{}),
+        World{True{}, True{}, True{}, True{}, Neutral{}, Neutral{}, guardian_army_func()},
+        Adventure{}, seed, 0, "Castle begins at the Red town against a Necropolis rival."
+      }
+    case 1n:
+      Game{
+        1, 1, Red{}, red_kingdom_faction_func(Necropolis{}), blue_kingdom_faction_func(Inferno{}),
+        World{True{}, True{}, True{}, True{}, Neutral{}, Neutral{}, guardian_army_func()},
+        Adventure{}, seed, 0, "Necropolis begins at the Red town against an Inferno rival."
+      }
+    case other:
+      Game{
+        2, 1, Red{}, red_kingdom_faction_func(Inferno{}), blue_kingdom_faction_func(Castle{}),
+        World{True{}, True{}, True{}, True{}, Neutral{}, Neutral{}, guardian_army_func()},
+        Adventure{}, seed, 0, "Inferno begins at the Red town against a Castle rival."
+      }
 
 assert heroes_initial_func:
   forall seed: U32
   Game
 
 def heroes_initial_func(seed):
-  Game{
-    3,
-    1,
-    Red{},
-    red_kingdom_func(),
-    blue_kingdom_func(),
-    World{True{}, True{}, True{}, True{}, Neutral{}, Neutral{}, guardian_army_func()},
-    Adventure{},
-    seed,
-    0,
-    "Red begins Month 1, Week 1, Day 1 at the Castle."
-  }
+  heroes_initial_faction_func(seed, 0)
 
 assert game_notice_func:
   forall game: Game
@@ -2232,7 +2959,7 @@ def game_red_battle_result_func(scenario, day, blue, world, turn, result):
     case KingdomBattle{red, BattleWon{attacker, GuardianBattle{}}, next_seed, notice}:
       Game{scenario, day, Red{}, red, blue, world, Adventure{}, next_seed, U32.inc(turn), notice}
     case KingdomBattle{red, BattleWon{attacker, EnemyTownBattle{}}, next_seed, notice}:
-      Game{scenario, day, Red{}, red, blue, world, Victory{Red{}}, next_seed, U32.inc(turn), "Red captured the Necropolis and won the scenario."}
+      Game{scenario, day, Red{}, red, blue, world, Victory{Red{}}, next_seed, U32.inc(turn), "Red captured the Blue stronghold and won the scenario."}
     case KingdomBattle{red, BattleEnded{attacker, GuardianBattle{}, enemy}, next_seed, notice}:
       Game{scenario, day, Red{}, red, blue, world_restore_battle_func(world, GuardianBattle{}, enemy), Adventure{}, next_seed, U32.inc(turn), notice}
     case KingdomBattle{red, BattleEnded{attacker, EnemyTownBattle{}, enemy}, next_seed, notice}:
@@ -2254,7 +2981,7 @@ def game_blue_battle_result_func(scenario, day, red, world, turn, result):
     case KingdomBattle{blue, BattleWon{attacker, GuardianBattle{}}, next_seed, notice}:
       Game{scenario, day, Blue{}, red, blue, world, Adventure{}, next_seed, U32.inc(turn), notice}
     case KingdomBattle{blue, BattleWon{attacker, EnemyTownBattle{}}, next_seed, notice}:
-      Game{scenario, day, Blue{}, red, blue, world, Victory{Blue{}}, next_seed, U32.inc(turn), "Blue captured the Castle and won the scenario."}
+      Game{scenario, day, Blue{}, red, blue, world, Victory{Blue{}}, next_seed, U32.inc(turn), "Blue captured the Red stronghold and won the scenario."}
     case KingdomBattle{blue, BattleEnded{attacker, GuardianBattle{}, enemy}, next_seed, notice}:
       Game{scenario, day, Blue{}, red, blue, world_restore_battle_func(world, GuardianBattle{}, enemy), Adventure{}, next_seed, U32.inc(turn), notice}
     case KingdomBattle{blue, BattleEnded{attacker, EnemyTownBattle{}, enemy}, next_seed, notice}:
@@ -2277,6 +3004,79 @@ def game_combat_func(game, command, own_slot, target_slot):
       Game{scenario, day, Neutral{}, red, blue, world, phase, seed, turn, "No player controls this battle."}
     case Game{scenario, day, active, red, blue, world, Adventure{}, seed, turn, notice}:
       Game{scenario, day, active, red, blue, world, Adventure{}, seed, turn, "Combat commands are only legal while a battle is active."}
+    case Game{scenario, day, active, red, blue, world, Victory{winner}, seed, turn, notice}:
+      Game{scenario, day, active, red, blue, world, Victory{winner}, seed, turn, "The scenario is already complete."}
+
+assert strategic_red_direction_func:
+  forall +x: +U32
+  forall +y: +U32
+  Direction
+
+def strategic_red_direction_func(x, y):
+  match Bool.or(u32_coord_func(x, y, 3, 5), u32_coord_func(x, y, 3, 4)):
+    case True{}: North{}
+    case False{}:
+      match Bool.or(u32_coord_func(x, y, 6, 3), u32_coord_func(x, y, 6, 2)):
+        case True{}: North{}
+        case False{}: East{}
+
+assert strategic_blue_direction_func:
+  forall +x: +U32
+  forall +y: +U32
+  Direction
+
+def strategic_blue_direction_func(x, y):
+  match Bool.or(u32_coord_func(x, y, 6, 1), u32_coord_func(x, y, 6, 2)):
+    case True{}: South{}
+    case False{}:
+      match Bool.or(u32_coord_func(x, y, 3, 3), u32_coord_func(x, y, 3, 4)):
+        case True{}: South{}
+        case False{}: West{}
+
+assert strategic_ai_direction_func:
+  forall owner: Owner
+  forall x: U32
+  forall y: U32
+  Direction
+
+def strategic_ai_direction_func(owner, x, y):
+  match owner:
+    case Red{}: strategic_red_direction_func(x, y)
+    case Blue{}: strategic_blue_direction_func(x, y)
+    case Neutral{}: North{}
+
+assert game_strategic_ai_func:
+  forall game: Game
+  Game
+
+def game_strategic_ai_func(game):
+  match game:
+    case Game{scenario, day, Red{}, Kingdom{resources, Hero{name, x, y, movement, attack, defense, power, knowledge, mana, level, experience, army}, Town{faction, hall, fort, dwellings, built_today, stock}}, blue, world, Adventure{}, seed, turn, notice}:
+      (x_home, x_tail) = u32_pair_func(x)
+      (x_ai, x_keep) = u32_pair_func(x_tail)
+      (y_home, y_tail) = u32_pair_func(y)
+      (y_ai, y_keep) = u32_pair_func(y_tail)
+      (built_test, built_keep) = bool_pair_func(built_today)
+      match Bool.and(Bool.and(U32.is_eq(x_home, 1), U32.is_eq(y_home, 5)), Bool.not(built_test)):
+        case True{}:
+          game_build_hall_func(Game{scenario, day, Red{}, Kingdom{resources, Hero{name, x_keep, y_keep, movement, attack, defense, power, knowledge, mana, level, experience, army}, Town{faction, hall, fort, dwellings, built_keep, stock}}, blue, world, Adventure{}, seed, turn, notice})
+        case False{}:
+          game_move_func(Game{scenario, day, Red{}, Kingdom{resources, Hero{name, x_keep, y_keep, movement, attack, defense, power, knowledge, mana, level, experience, army}, Town{faction, hall, fort, dwellings, built_keep, stock}}, blue, world, Adventure{}, seed, turn, notice}, strategic_ai_direction_func(Red{}, x_ai, y_ai))
+    case Game{scenario, day, Blue{}, red, Kingdom{resources, Hero{name, x, y, movement, attack, defense, power, knowledge, mana, level, experience, army}, Town{faction, hall, fort, dwellings, built_today, stock}}, world, Adventure{}, seed, turn, notice}:
+      (x_home, x_tail) = u32_pair_func(x)
+      (x_ai, x_keep) = u32_pair_func(x_tail)
+      (y_home, y_tail) = u32_pair_func(y)
+      (y_ai, y_keep) = u32_pair_func(y_tail)
+      (built_test, built_keep) = bool_pair_func(built_today)
+      match Bool.and(Bool.and(U32.is_eq(x_home, 7), U32.is_eq(y_home, 1)), Bool.not(built_test)):
+        case True{}:
+          game_build_hall_func(Game{scenario, day, Blue{}, red, Kingdom{resources, Hero{name, x_keep, y_keep, movement, attack, defense, power, knowledge, mana, level, experience, army}, Town{faction, hall, fort, dwellings, built_keep, stock}}, world, Adventure{}, seed, turn, notice})
+        case False{}:
+          game_move_func(Game{scenario, day, Blue{}, red, Kingdom{resources, Hero{name, x_keep, y_keep, movement, attack, defense, power, knowledge, mana, level, experience, army}, Town{faction, hall, fort, dwellings, built_keep, stock}}, world, Adventure{}, seed, turn, notice}, strategic_ai_direction_func(Blue{}, x_ai, y_ai))
+    case Game{scenario, day, Neutral{}, red, blue, world, phase, seed, turn, notice}:
+      Game{scenario, day, Neutral{}, red, blue, world, phase, seed, turn, "Strategic AI needs an active player."}
+    case Game{scenario, day, active, red, blue, world, Combat{battle}, seed, turn, notice}:
+      Game{scenario, day, active, red, blue, world, Combat{battle}, seed, turn, "Use tactical AI while combat is active."}
     case Game{scenario, day, active, red, blue, world, Victory{winner}, seed, turn, notice}:
       Game{scenario, day, active, red, blue, world, Victory{winner}, seed, turn, "The scenario is already complete."}
 
@@ -2306,6 +3106,8 @@ def heroes_step_nat_func(command, game, arg0, arg1):
     case 21n: game_combat_func(game, 21, arg0, arg1)
     case 22n: game_combat_func(game, 22, arg0, arg1)
     case 23n: game_combat_func(game, 23, arg0, arg1)
+    case 24n: game_combat_func(game, 24, arg0, arg1)
+    case 30n: game_strategic_ai_func(game)
     case other: game_notice_func(game, "Unknown command; the state was preserved.")
 
 assert heroes_browser_step_func:
@@ -2325,6 +3127,44 @@ assert heroes_damage_probe_func:
 def heroes_damage_probe_func(damage):
   stack_damage_func(Troop{Pikeman{}, 3, 10}, damage)
 
+assert heroes_battle_obstacle_func:
+  forall column: U32
+  forall row: U32
+  forall seed: U32
+  Bool
+
+def heroes_battle_obstacle_func(column, row, seed):
+  Tactics.battlefield_obstacle(column, row, seed)
+
+assert heroes_battlefield_new_func:
+  forall seed: U32
+  Tactics.Battlefield
+
+def heroes_battlefield_new_func(seed):
+  Tactics.battlefield_new(seed)
+
+assert heroes_hex_distance_func:
+  forall left_column: U32
+  forall left_row: U32
+  forall right_column: U32
+  forall right_row: U32
+  U32
+
+def heroes_hex_distance_func(left_column, left_row, right_column, right_row):
+  Tactics.hex_distance_values(left_column, left_row, right_column, right_row)
+
+assert heroes_attack_reach_func:
+  forall kind: CreatureKind
+  forall actor_column: U32
+  forall actor_row: U32
+  forall target_column: U32
+  forall target_row: U32
+  forall blocked: Bool
+  Tactics.AttackReach
+
+def heroes_attack_reach_func(kind, actor_column, actor_row, target_column, target_row, blocked):
+  creature_attack_reach_func(kind, actor_column, actor_row, target_column, target_row, blocked)
+
 # Verification
 # ============
 
@@ -2336,7 +3176,10 @@ def heroes_self_check_func():
     case Game{scenario, day, Red{}, red, blue, world, Adventure{}, seed, turn, notice}:
       match heroes_cell_func(4, 3):
         case Cell{Grass{}, GuardianSite{}, cost, True{}}:
-          Bool.and(U32.is_eq(cost, 100), Bool.and(U32.is_eq(scenario, 3), Bool.and(U32.is_eq(day, 1), U32.is_eq(seed, 17))))
+          Bool.and(
+            Bool.and(Tactics.battlefield_self_check(), tactics_catalog_self_check_func()),
+            Bool.and(U32.is_eq(cost, 100), Bool.and(U32.is_eq(scenario, 0), Bool.and(U32.is_eq(day, 1), U32.is_eq(seed, 17))))
+          )
         case Cell{terrain, site, cost, passable}: False{}
     case Game{scenario, day, active, red, blue, world, phase, seed, turn, notice}: False{}
 

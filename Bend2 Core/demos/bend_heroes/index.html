@@ -186,14 +186,16 @@
     <section id="adventure-controls" class="dock">
       <div class="directions"><button id="northwest" title="Move north-west">↖</button><button id="north" title="Move north">↑</button><button id="northeast" title="Move north-east">↗</button><button id="west" title="Move west">←</button><button id="east" title="Move east">→</button><button id="southwest" title="Move south-west">↙</button><button id="south" title="Move south">↓</button><button id="southeast" title="Move south-east">↘</button></div>
       <div class="dock-copy"><b>Adventure turn</b>Click a glowing adjacent tile, use the eight-way pad, arrows, or diagonal keypad keys.</div>
-      <div class="dock-main"><button id="end-turn">End turn</button></div>
+      <div class="dock-main"><button id="ai-adventure">AI step</button><button id="end-turn">End turn</button></div>
     </section>
 
     <section id="combat-controls" class="panel combat-panel" hidden>
       <div class="combat-grid">
         <label>Acting stack<select id="own-slot"></select></label>
         <label>Enemy target<select id="target-slot"></select></label>
-        <div class="combat-actions"><button data-combat="20">Attack</button><button data-combat="21">Defend</button><button data-combat="22">Magic Arrow</button><button class="danger" data-combat="23">Retreat</button></div>
+        <label>Move column<input id="move-column" type="number" min="0" max="14" value="5"></label>
+        <label>Move row<input id="move-row" type="number" min="0" max="10" value="5"></label>
+        <div class="combat-actions"><button data-combat="20">Attack</button><button data-combat="21">Defend</button><button data-combat="22">Magic Arrow</button><button id="combat-move">Move</button><button id="combat-ai">AI action</button><button class="danger" data-combat="23">Retreat</button></div>
       </div>
       <div class="battle-rosters"><div id="friendly-roster" class="roster"></div><div id="enemy-roster" class="roster enemy"></div></div>
     </section>
@@ -202,8 +204,8 @@
     <aside class="rail">
       <section class="panel"><div class="panel-head"><h2>Hero</h2><small id="hero-position"></small></div><div id="hero" class="panel-body"></div></section>
       <section class="panel"><div class="panel-head"><h2>Town</h2><small id="town-faction"></small></div><div id="town" class="panel-body"></div></section>
-      <section class="panel"><div class="panel-head"><h2>View</h2><small>drag · wheel</small></div><div class="panel-body"><div class="scene-tabs"><button id="view-map" aria-pressed="true">Adventure</button><button id="view-town" aria-pressed="false">Town</button></div><div class="save-actions" style="margin-top:7px"><button id="undo">Undo</button><button id="save">Save</button><button id="load">Load</button></div><div class="recruit-row"><input id="seed" type="number" min="0" max="4294967295" value="1337" aria-label="Random seed"><button id="new-game">New game</button></div></div></section>
-      <section class="panel"><div class="panel-head"><h2>Map legend</h2><small>Core sites</small></div><div class="panel-body legend"><span><b>TC</b> Castle</span><span><b>TN</b> Necropolis</span><span><b>$G</b> Gold</span><span><b>+W</b> Wood</span><span><b>SH</b> Shrine</span><span><b>AR</b> Artifact</span><span><b>SM</b> Sawmill</span><span><b>GM</b> Gold mine</span><span><b>!!</b> Guardians</span><span><b>◇</b> Move target</span></div></section>
+      <section class="panel"><div class="panel-head"><h2>View</h2><small>drag · wheel</small></div><div class="panel-body"><div class="scene-tabs"><button id="view-map" aria-pressed="true">Adventure</button><button id="view-town" aria-pressed="false">Town</button></div><div class="save-actions" style="margin-top:7px"><button id="undo">Undo</button><button id="save">Save</button><button id="load">Load</button></div><div class="recruit-row"><select id="new-faction" aria-label="Player faction"><option value="0">Castle</option><option value="1">Necropolis</option><option value="2">Inferno</option></select><input id="seed" type="number" min="0" max="4294967295" value="1337" aria-label="Random seed"><button id="new-game">New game</button></div></div></section>
+      <section class="panel"><div class="panel-head"><h2>Map legend</h2><small>Core sites</small></div><div class="panel-body legend"><span><b>TR</b> Red town</span><span><b>TB</b> Blue town</span><span><b>$G</b> Gold</span><span><b>+W</b> Wood</span><span><b>SH</b> Shrine</span><span><b>AR</b> Artifact</span><span><b>SM</b> Sawmill</span><span><b>GM</b> Gold mine</span><span><b>!!</b> Guardians</span><span><b>◇</b> Move target</span></div></section>
     </aside>
   </main>
 
