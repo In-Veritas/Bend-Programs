@@ -5,6 +5,7 @@
   "use strict";
 
   const state = {yaw:0, pitch:0, zoom:1};
+  const VIEW_HEIGHT=2.6, VIEW_RADIUS=12.5;
   const clamp = (value, low, high) => Math.max(low, Math.min(high, value));
   const radians = degrees => degrees * Math.PI / 180;
 
@@ -20,10 +21,10 @@
   }
 
   function pose() {
-    const yaw=radians(state.yaw), pitch=radians(state.pitch), radius=18/state.zoom;
+    const yaw=radians(state.yaw), pitch=radians(state.pitch), radius=VIEW_RADIUS/state.zoom;
     return {
-      eye:[Math.sin(yaw)*Math.cos(pitch)*radius,7+Math.sin(pitch)*radius,-Math.cos(yaw)*Math.cos(pitch)*radius],
-      target:[0,7,0], up:[0,1,0], fov:2*Math.atan(360/560),
+      eye:[Math.sin(yaw)*Math.cos(pitch)*radius,VIEW_HEIGHT+Math.sin(pitch)*radius,-Math.cos(yaw)*Math.cos(pitch)*radius],
+      target:[0,VIEW_HEIGHT,0], up:[0,1,0], fov:2*Math.atan(360/560),
     };
   }
 
@@ -32,7 +33,7 @@
     const world=unproject(point); if(!world.visible)return{x:640,y:360,depth:1,visible:false};
     const yaw=radians(state.yaw),cy=Math.cos(yaw),sy=Math.sin(yaw);
     const x=world.x*cy+world.z*sy,z=-world.x*sy+world.z*cy;
-    const ry=world.y-7,rz=z+18,pitch=radians(state.pitch),cp=Math.cos(pitch),sp=Math.sin(pitch);
+    const ry=world.y-VIEW_HEIGHT,rz=z+VIEW_RADIUS,pitch=radians(state.pitch),cp=Math.cos(pitch),sp=Math.sin(pitch);
     const y=ry*cp-rz*sp,depth=ry*sp+rz*cp;
     if(depth<=.4)return{x:640,y:360,depth,visible:false};
     return{x:640+x*560*state.zoom/depth,y:360-y*560*state.zoom/depth,depth,visible:true};

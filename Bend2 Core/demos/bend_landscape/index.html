@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Bend Landscape · Bend2 Core</title>
+  <style>
+    :root{color-scheme:dark;--ink:#f5f7ec;--mist:#b9d6d2;--sun:#ffd47d;--sea:#47c9df;--leaf:#9ed36f;--panel:#10262bd9}*{box-sizing:border-box}body{margin:0;color:var(--ink);font:14px/1.45 Inter,system-ui;background:linear-gradient(#17384b,#07191f 47%,#071317);min-height:100vh}header{display:flex;align-items:center;gap:13px;padding:13px 22px;border-bottom:1px solid #dfffff20;background:#092129e8}h1{margin:0;color:#fff3c6;font:900 27px Georgia;text-shadow:0 0 22px #ffcb6a5e}.badge{padding:5px 10px;border:1px solid #c9ffff4d;border-radius:999px;color:#d6f1ee}.stats{margin-left:auto;display:flex;gap:15px;color:var(--mist)}.stats b{display:block;color:white}.wrap{width:min(1600px,100%);margin:auto;padding:14px}.stage{position:relative;overflow:hidden;border:1px solid #bdf8ff44;border-radius:22px;background:#163c4a;box-shadow:0 34px 95px #000b,inset 0 0 90px #7be7dc0e}canvas{display:block;width:100%;aspect-ratio:16/9}.sector-labels{position:absolute;left:14px;top:14px;display:grid;gap:6px;pointer-events:none}.sector{padding:6px 10px;border:1px solid #ffffff2f;border-radius:9px;background:#06191dbd;font:800 11px/1 system-ui;letter-spacing:.15em}.sector.sky{color:#d7f1ff}.sector.land{color:#bfe99d}.sector.sea{color:#70e9ff}.verified{position:absolute;right:14px;top:14px;max-width:310px;padding:9px 12px;border:1px solid #7ef0b163;border-radius:11px;background:#061b18d9;color:#c8ffe0}.verified b{display:block;color:#7ff2ae}.controls{display:grid;grid-template-columns:minmax(235px,.65fr) auto auto minmax(180px,1fr) auto auto;align-items:center;gap:9px;padding:12px 2px}.seed{display:flex;gap:7px}.seed input{width:100%;min-width:0;padding:9px 10px;border:1px solid #ffffff27;border-radius:9px;color:white;background:#0b252c}.controls button,.controls select{padding:9px 12px;border:1px solid #72d8dd79;border-radius:9px;color:white;background:#124c57;font:inherit;font-weight:800}.controls input[type=range]{width:100%;accent-color:var(--sun)}.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:12px}.card{padding:16px;border:1px solid #ffffff1d;border-radius:15px;background:var(--panel);box-shadow:0 15px 40px #0003}h2{margin:0 0 8px;color:var(--sun);font-size:17px}.features{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.feature,.proof{padding:9px;border-radius:9px;background:#ffffff08}.feature b{color:#dcf5d0}.proofs{display:grid;grid-template-columns:1fr 1fr;gap:8px}.proof{border-left:3px solid #69dea0;font-size:12px}.method{margin-top:9px;color:#b7cfcc;font-size:12px}.hub{position:fixed;right:14px;bottom:14px;z-index:5;padding:9px 12px;border:1px solid #ffffff26;border-radius:9px;color:white;background:#09262be8;text-decoration:none}@media(max-width:940px){.stats{display:none}.controls{grid-template-columns:1fr 1fr}.controls input[type=range]{grid-column:1/-1}.grid{grid-template-columns:1fr}.features{grid-template-columns:1fr}}@media(max-width:620px){header{padding:10px}.badge{display:none}.wrap{padding:7px}.verified{max-width:220px;font-size:11px}.proofs{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <a class="hub" href="/core">← Core games</a>
+  <header><h1>Bend Landscape</h1><span class="badge">Keyed, indefinitely scrolling Bend2 Core world</span><div class="stats"><span>Chunk <b id="chunk">0</b></span><span>Distance <b id="distance">0 u</b></span><span>Tide <b id="tide">—</b></span><span>Weather <b id="weather">—</b></span><span>Sand layers <b id="sand">—</b></span><span>Triangles <b id="triangles">—</b></span></div></header>
+  <main class="wrap">
+    <section class="stage">
+      <canvas id="landscape" width="1600" height="900"></canvas>
+      <div class="sector-labels"><span class="sector sky">SKY</span><span class="sector land">LAND</span><span class="sector sea">SEA</span></div>
+      <div class="verified"><b>12 UNIVERSAL PROOFS · 6 CERTIFICATES</b>Every rendered chunk comes from the generated Core continuation, not a browser-authored randomizer.</div>
+    </section>
+    <div class="controls">
+      <label class="seed"><input id="key" type="number" min="0" max="4294967295" value="731" aria-label="Landscape key"><button id="generate">Generate key</button></label>
+      <button id="pause">Pause scroll</button>
+      <select id="pov" aria-label="Point of view"><option value="side">Cinematic side</option><option value="sea">Sea level</option><option value="sky">Sky tracking</option><option value="orbit">Free orbit</option></select>
+      <input id="speed" type="range" min="0.2" max="5" step="0.1" value="1" aria-label="Scroll speed"><strong id="speedValue">1.0×</strong>
+      <button id="sound">Enable Core bird calls</button>
+    </div>
+    <section class="grid">
+      <article class="card"><h2>One coherent world, three deep sectors</h2><div class="features"><div class="feature"><b>Sea</b><br>Bounded whale emergence and spouts, faceted rocks, twelve fish species, cohesive fleeing schools, layered sand and a smooth seven-state tide.</div><div class="feature"><b>Land</b><br>Eight tree species respond to wind and light; fruit falls in strong weather. Hills remain continuous while human personalities choose contextual work, shelter and gathering.</div><div class="feature"><b>Sky and weather</b><br>Eight bird species fly, call, perch or shelter. Clouds form, charge, merge, rain, shrink and dissipate while wind, sunlight and tide advance softly.</div></div><p class="method">The browser retains the returned affine <code>Boundary</code> and asks generated <code>landscape_next_chunk_func</code> for the next immutable chunk. It performs WebGL rasterization, camera control and optional Web Audio only.</p></article>
+      <article class="card"><h2>Proofs constrain the generator</h2><div class="proofs"><div class="proof">Structural induction: every arbitrary scrolling prefix has exactly its requested number of chunks.</div><div class="proof">Arbitrary tide and terrain horizons are lists of exact transitions carrying constructive ≤12 and ≤36 distance witnesses.</div><div class="proof">Sand and human parties carry erased arithmetic slack witnesses—bounds are not inferred from an enum test table.</div><div class="proof">Whale emergence and spout volume carry constructive equations to the 30% and 110-unit caps.</div><div class="proof">School members are generated with an exact dependent length proof; arbitrary school steps and histories preserve their ordered identities.</div><div class="proof">Arbitrary cloud histories carry the exact next phase and its derived rain and sunlight state at every recursive step.</div></div></article>
+    </section>
+  </main>
+  <script src="landscape_data.js"></script>
+  <script src="bend_engine_webgl.js"></script>
+  <script src="landscape_viewer.js"></script>
+</body>
+</html>

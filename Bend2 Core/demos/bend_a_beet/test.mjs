@@ -1,37 +1,70 @@
 import { readFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 
 const here = import.meta.url;
+const packageDirectory = dirname(fileURLToPath(import.meta.url));
+const core = resolve(process.env.BEND2_CORE || join(packageDirectory, "../../../../bend2-core"));
+const revision = spawnSync("git", ["rev-parse", "HEAD"], { cwd: core, encoding: "utf8" });
+if (revision.status !== 0 || !revision.stdout.trim().startsWith("c5d69a1")) {
+  throw new Error(`Bend-a-Beet targets Bend c5d69a1, found ${revision.stdout.trim() || revision.stderr.trim()}`);
+}
 const source = readFileSync(new URL("./bend_a_beet.bend", here), "utf8");
 const physics = readFileSync(new URL("./physics.bend", here), "utf8");
 const graphics = readFileSync(new URL("./graphics3d.bend", here), "utf8");
 const rays = readFileSync(new URL("./raytrace.bend", here), "utf8");
+const sceneProofs = readFileSync(new URL("./scene_proofs.bend", here), "utf8");
+const physicsProofs = readFileSync(new URL("./physics_history_proofs.bend", here), "utf8");
+const engineFeatures = readFileSync(new URL("./engine_features.bend", here), "utf8");
 const html = readFileSync(new URL("./index.html", here), "utf8");
 const generated = readFileSync(new URL("./bend_a_beet_data.js", here), "utf8");
 const camera = readFileSync(new URL("./bend_a_beet_camera.js", here), "utf8");
 const webgl = readFileSync(new URL("./bend_a_beet_webgl.js", here), "utf8");
 const viewerSource = readFileSync(new URL("./bend_a_beet_viewer.js", here), "utf8");
 
-for (const [name, text] of [["game", source], ["physics", physics], ["graphics", graphics], ["raytrace", rays]]) {
+for (const [name, text] of [["game", source], ["physics", physics], ["graphics", graphics], ["raytrace", rays], ["scene proofs", sceneProofs], ["physics history proofs", physicsProofs], ["engine features", engineFeatures]]) {
   if (/^\s*#\[halts\]/m.test(text)) throw new Error(`${name} unexpectedly disables termination checking`);
 }
-for (const imported of ["./physics.bend", "./graphics3d.bend", "./raytrace.bend"]) {
+for (const imported of ["./physics.bend", "./graphics3d.bend", "./raytrace.bend", "./scene_proofs.bend", "./physics_history_proofs.bend", "./engine_features.bend"]) {
   if (!source.includes(imported)) throw new Error(`game does not import ${imported}`);
 }
-if (!physics.includes("PhysicsProofAudit") || !graphics.includes("GraphicsProofSuite") || !rays.includes("RaytraceProofs")) {
-  throw new Error("one or more library proof suites are missing");
+if (!physics.includes("PhysicsVerificationAudit") || !graphics.includes("GraphicsVerificationAudit") || !rays.includes("RaytraceVerificationAudit")) {
+  throw new Error("one or more library verification audits are missing");
+}
+for (const [name, text] of [["physics", physics], ["graphics", graphics], ["raytrace", rays]]) {
+  if (!text.includes("general_theorems") || !text.includes("certified_cases")) {
+    throw new Error(`${name} does not distinguish quantified theorems from closed certificates`);
+  }
+}
+for (const entry of ["physics_test.bend", "graphics3d_test.bend", "raytrace_test.bend", "scene_proofs_test.bend", "physics_history_proofs_test.bend", "engine_features_test.bend"]) {
+  const stem = entry.replace(/\.bend$/, "");
+  const generatedTest = join(process.env.TMPDIR || "/tmp", `bend2-core-${stem}.js`);
+  const generatedC = join(process.env.TMPDIR || "/tmp", `bend2-core-${stem}.c`);
+  const generatedBin = join(process.env.TMPDIR || "/tmp", `bend2-core-${stem}`);
+  for (const output of [generatedTest, generatedC]) {
+    const compile = spawnSync("bun", [join(core, "bend2/comp.ts"), join(packageDirectory, entry), "--to", output], { cwd:core, encoding:"utf8" });
+    if (compile.status !== 0) throw new Error(`${entry} did not emit ${output}:\n${compile.stdout}${compile.stderr}`);
+  }
+  const run = spawnSync("bun", [generatedTest], { cwd:core, encoding:"utf8" });
+  if (run.status !== 0 || run.stdout.trim() !== "True{}") throw new Error(`${entry} JS did not return True{}:\n${run.stdout}${run.stderr}`);
+  const nativeBuild = spawnSync("clang", ["-O2", generatedC, "-o", generatedBin], { cwd:core, encoding:"utf8" });
+  if (nativeBuild.status !== 0) throw new Error(`${entry} C did not build:\n${nativeBuild.stdout}${nativeBuild.stderr}`);
+  const nativeRun = spawnSync(generatedBin, ["--parallel", "off", "--gpu", "off"], { cwd:core, encoding:"utf8" });
+  if (nativeRun.status !== 0 || !/^True\{\}(?:\n|$)/.test(nativeRun.stdout)) throw new Error(`${entry} native did not return True{}:\n${nativeRun.stdout}${nativeRun.stderr}`);
 }
 if (!html.includes('src="bend_a_beet_data.js"') || !html.includes('src="bend_a_beet_camera.js"') || !html.includes('src="bend_a_beet_webgl.js"') || !html.includes('src="bend_a_beet_viewer.js"') || !html.includes("WebGL rasterizes")) {
   throw new Error("viewer boundary or relative Core artifact note missing");
 }
-for (const rendererFeature of ["ellipsoid", "tube", "leaf", "disc", "responseCable"]) {
+for (const rendererFeature of ["ellipsoid", "tube", "leaf", "disc", "fur", "facet", "responseCable", "beetBody", "soilClod", "serratedLeaf", "rootNetwork", "petal", "butterfly"]) {
   if (!webgl.includes(`function ${rendererFeature}`)) throw new Error(`missing 3D renderer feature ${rendererFeature}`);
 }
 for (const script of [camera, webgl, viewerSource]) new Function(script);
 if (!camera.includes("pointermove") || !camera.includes("function unproject") || !camera.includes("function pose") || !camera.includes("BEND_A_BEET_CAMERA")) {
   throw new Error("orbit camera implementation is incomplete");
 }
-for (const shaderFeature of ["uViewProjection", "uCamera", "uSun", "uShine", "reflect(-l,n)", "DEPTH_TEST"]) {
+for (const shaderFeature of ["uViewProjection", "uCamera", "uSun", "uShine", "uReflection", "uFuzz", "uMetallic", "uTexture", "uFog", "reflect(-l,n)", "DEPTH_TEST"]) {
   if (!webgl.includes(shaderFeature)) throw new Error(`missing WebGL lighting/depth contract ${shaderFeature}`);
 }
 
@@ -42,18 +75,32 @@ if (!raw || raw.$ !== "GameReport") throw new Error("missing Bend-a-Beet GameRep
 
 const list = xs => { const out=[]; while (xs && xs.$ === "Con") { out.push(xs.$0); xs=xs.$1; } return out; };
 const point = p => ({ x:p.$0, y:p.$1, depth:p.$2, visible:p.$3 });
+const appearance = a => ({
+  color:[a.$0.$0,a.$0.$1,a.$0.$2],texture:a.$1.$0,textureSeed:a.$1.$1,
+  roughness:a.$1.$2,metallic:a.$1.$3,reflection:a.$1.$4.$0+1,
+  fuzz:a.$1.$5,furLength:a.$1.$6,furDensity:a.$1.$7.$0+1,
+  shadowSoftness:a.$2,shadowSamples:a.$3,fog:a.$4,
+});
+const engineProfiles = list(raw.$8).map(profile => ({tile:profile.$0,...appearance(profile.$1)}));
+const engineByTile = new Map(engineProfiles.map(profile => [profile.tile, profile]));
 const beet = b => ({
   tile:b.$0,row:b.$1,column:b.$2,planted:b.$3,water:b.$4,sugar:b.$5,fiber:b.$6,size:b.$7,magic:b.$8,
   pulled:b.$9,outcome:b.$10,detail:b.$11,state:b.$12,bend:b.$13,integrity:b.$14,growth:b.$15,wind:b.$16,
   tileLight:b.$17,beetLight:b.$18,shadowed:b.$19,body:point(b.$20),root:point(b.$21),control:point(b.$22),
   tip:point(b.$23),left:point(b.$24),right:point(b.$25),radius:b.$26,broken:b.$27,
   maxBend:b.$32,period:b.$33,responseDuration:b.$34,signature:b.$35,breakAt:b.$36,
-  shine:b.$37,specular:b.$38,absorbed:b.$39,shadow:point(b.$40),radial:b.$41,vertical:b.$42,leafSegments:b.$43,
+  shine:b.$37,specular:b.$38,absorbed:b.$39,shadow:point(b.$40),radial:b.$41,vertical:b.$42,leafSegments:b.$43,engine:engineByTile.get(b.$0),
 });
 const frame = f => ({ time:f.$0,duration:f.$1,phase:f.$2,note:f.$3,active:f.$4,beets:list(f.$5).map(beet) });
-const report = { seed:raw.$1,rows:raw.$2,columns:raw.$3,planted:raw.$4,broken:raw.$5,spring:raw.$6,recover:raw.$7,frames:list(raw.$8).map(frame) };
+const report = { seed:raw.$1,rows:raw.$2,columns:raw.$3,planted:raw.$4,broken:raw.$5,spring:raw.$6,recover:raw.$7,engineProfiles,frames:list(raw.$9).map(frame) };
 
 if (report.seed !== 48823 || report.rows !== 8 || report.columns !== 3) throw new Error("wrong deterministic farm header");
+if (report.engineProfiles.length !== 24 || new Set(report.engineProfiles.map(profile=>profile.tile)).size !== 24) throw new Error("Engine profiles do not cover all 24 tiles exactly");
+if (new Set(report.engineProfiles.map(profile=>profile.texture)).size !== 4) throw new Error("Engine procedural texture classes are not represented");
+for (const profile of report.engineProfiles) {
+  if (profile.reflection < 1 || profile.furDensity < 1 || profile.shadowSamples !== 8 || profile.shadowSoftness !== 42) throw new Error(`invalid Engine material/light contract at ${profile.tile}`);
+  if ([...profile.color,profile.roughness,profile.metallic,profile.fuzz,profile.fog].some(value=>value<0||value>255)) throw new Error(`Engine channel outside 0..255 at ${profile.tile}`);
+}
 if (report.frames.length !== 1086) throw new Error(`expected 1086 frames, got ${report.frames.length}`);
 for (const f of report.frames) {
   if (f.beets.length !== 24) throw new Error(`${f.phase}: expected 24 tiles`);
@@ -135,4 +182,4 @@ if (liveBreak<0||liveSpring<0) throw new Error("viewer report lacks fracture or 
 for (const index of [108, liveSpring, liveBreak, viewer.report.frames.length-1]) viewer.select(index);
 if (rendered.length<5||viewer.stats.triangles!==12345) throw new Error("viewer did not drive the WebGL render boundary");
 
-console.log(`Bend-a-Beet verified: ${report.frames.length} Core frames, ${report.planted} beets (${report.broken} break, ${report.spring} spring, ${report.recover} recover), shine/high-poly/shadow contracts, 33 checked library theorems`);
+console.log(`Bend-a-Beet verified: ${report.frames.length} Core frames, ${report.planted} beets (${report.broken} break, ${report.spring} spring, ${report.recover} recover), Engine textures/fur/fuzz/four-light/fog/soft-shadow contracts, 20 general theorems, and 35 closed certificates`);

@@ -1,7 +1,7 @@
 import Base
 
 # Pure fixed-point ray intersection and directional-lighting support for
-# Bend-a-Beet.  There is no IO and no unsafe termination license in this file.
+# Bend-a-Beet. There is no IO, and every recursion is structurally terminating.
 #
 # Public units
 # ------------
@@ -22,8 +22,9 @@ import Base
 # farm_light(ground,ground_normal,beet_surface,beet_normal,sun,beet)
 # -> FarmLight.  Intersections, occlusion and Lambert lighting are all computed
 # here in Bend; a browser renderer only decodes the resulting constructors.
-# raytrace_proofs() packages ten erased, machine-checked reference theorems for
-# arithmetic, intersections, lighting, and the combined farm sample.
+# raytrace_verification() packages one quantified theorem plus twelve erased,
+# machine-checked reference certificates for arithmetic, intersections,
+# lighting, and the combined farm sample.
 
 type Fix:
   FixNeg{magnitude: U32}
@@ -69,16 +70,29 @@ type ShadowProjection:
 # U32 helpers
 # ===========
 
-def u32_pair(value: U32) -> U32 & U32:
+assert u32_pair:
+  forall value: U32
+  U32 & U32
+
+def u32_pair(value):
   ((left, left_exact), (right, right_exact)) = U32.copy(value)
   (left, right)
 
-def u32_triple(value: U32) -> U32 & (U32 & U32):
+assert u32_triple:
+  forall value: U32
+  U32 & (U32 & U32)
+
+def u32_triple(value):
   (first, rest) = u32_pair(value)
   (second, third) = u32_pair(rest)
   (first, (second, third))
 
-def u32_clamp(value: U32, maximum: U32) -> U32:
+assert u32_clamp:
+  forall value: U32
+  forall maximum: U32
+  U32
+
+def u32_clamp(value, maximum):
   (test, keep) = u32_pair(value)
   (maximum_test, maximum_keep) = u32_pair(maximum)
   match U32.is_le(test, maximum_test):
@@ -90,8 +104,15 @@ def u32_clamp(value: U32, maximum: U32) -> U32:
 # A 16-bit trial root covers every possible U32 square root.  Trying one bit
 # per step avoids Base's unary-Nat U32.div specification and remains practical
 # in both the normalizer and compiled backends.  The first live argument
-# decreases structurally, so this requires no #[halts] escape hatch.
-def u32_sqrt_bits(fuel: Nat, value: U32, root: U32, bit: U32) -> U32:
+# decreases structurally, as required by the checker.
+assert u32_sqrt_bits:
+  forall fuel: Nat
+  forall value: U32
+  forall root: U32
+  forall bit: U32
+  U32
+
+def u32_sqrt_bits(fuel, value, root, bit):
   match fuel:
     case 0n:
       root
@@ -106,19 +127,25 @@ def u32_sqrt_bits(fuel: Nat, value: U32, root: U32, bit: U32) -> U32:
         case False{}:
           u32_sqrt_bits(rest, value_next, root_keep, U32.shr(bit_next))
 
-def u32_sqrt(value: U32) -> U32:
-  u32_sqrt_bits(16n, value, U32.zero(), U32.shln(15n, U32.one()))
+assert u32_sqrt:
+  forall value: U32
+  U32
+
+def u32_sqrt(value):
+  u32_sqrt_bits(16n, value, 0, U32.shln(15n, 1))
 
 # Bitwise unsigned division.  Base's specification converts through unary Nat;
 # this equivalent fixed 32-step form keeps ray arithmetic usable when directly
 # normalized as well as when U32 operations are backend-intrinsic.
-def u32_div_bits(
-  fuel: Nat,
-  dividend: U32,
-  divisor: U32,
-  quotient: U32,
-  remainder: U32
-) -> U32:
+assert u32_div_bits:
+  forall fuel: Nat
+  forall dividend: U32
+  forall divisor: U32
+  forall quotient: U32
+  forall remainder: U32
+  U32
+
+def u32_div_bits(fuel, dividend, divisor, quotient, remainder):
   match fuel:
     case 0n:
       quotient
@@ -134,7 +161,7 @@ def u32_div_bits(
             rest,
             U32.shl(input_next),
             divisor_next,
-            U32.or(U32.shl(quotient), U32.one()),
+            U32.or(U32.shl(quotient), 1),
             U32.sub(remainder_keep, divisor_sub)
           )
         case False{}:
@@ -146,35 +173,58 @@ def u32_div_bits(
             remainder_keep
           )
 
-def u32_div(dividend: U32, divisor: U32) -> U32:
+assert u32_div:
+  forall dividend: U32
+  forall divisor: U32
+  U32
+
+def u32_div(dividend, divisor):
   (divisor_test, divisor_keep) = u32_pair(divisor)
   match U32.is_zero(divisor_test):
     case True{}:
-      U32.zero()
+      0
     case False{}:
-      u32_div_bits(32n, dividend, divisor_keep, U32.zero(), U32.zero())
+      u32_div_bits(32n, dividend, divisor_keep, 0, 0)
 
 # Fixed point
 # ===========
 
-def fix_pos(raw: U32) -> Fix:
+assert fix_pos:
+  forall raw: U32
+  Fix
+
+def fix_pos(raw):
   FixPos{raw}
 
-def fix_neg(raw: U32) -> Fix:
+assert fix_neg:
+  forall raw: U32
+  Fix
+
+def fix_neg(raw):
   (test, keep) = u32_pair(raw)
   match U32.is_zero(test):
     case True{}:
-      FixPos{U32.zero()}
+      FixPos{0}
     case False{}:
       FixNeg{keep}
 
-def fix_zero() -> Fix:
-  FixPos{U32.zero()}
+assert fix_zero:
+  Fix
 
-def fix_one() -> Fix:
+def fix_zero():
+  FixPos{0}
+
+assert fix_one:
+  Fix
+
+def fix_one():
   FixPos{U32.from_nat(256n)}
 
-def fix_copy(value: Fix) -> Fix & Fix:
+assert fix_copy:
+  forall value: Fix
+  Fix & Fix
+
+def fix_copy(value):
   match value:
     case FixNeg{magnitude}:
       (left, right) = u32_pair(magnitude)
@@ -183,19 +233,32 @@ def fix_copy(value: Fix) -> Fix & Fix:
       (left, right) = u32_pair(magnitude)
       (FixPos{left}, FixPos{right})
 
-def fix_triple(value: Fix) -> Fix & (Fix & Fix):
+assert fix_triple:
+  forall value: Fix
+  Fix & (Fix & Fix)
+
+def fix_triple(value):
   (first, rest) = fix_copy(value)
   (second, third) = fix_copy(rest)
   (first, (second, third))
 
-def fix_negate(value: Fix) -> Fix:
+assert fix_negate:
+  forall value: Fix
+  Fix
+
+def fix_negate(value):
   match value:
     case FixNeg{magnitude}:
       FixPos{magnitude}
     case FixPos{magnitude}:
       fix_neg(magnitude)
 
-def fix_mixed_difference(positive: U32, negative: U32) -> Fix:
+assert fix_mixed_difference:
+  forall positive: U32
+  forall negative: U32
+  Fix
+
+def fix_mixed_difference(positive, negative):
   (positive_test, positive_keep) = u32_pair(positive)
   (negative_test, negative_keep) = u32_pair(negative)
   match U32.is_le(negative_test, positive_test):
@@ -204,7 +267,12 @@ def fix_mixed_difference(positive: U32, negative: U32) -> Fix:
     case False{}:
       FixNeg{U32.sub(negative_keep, positive_keep)}
 
-def fix_add(left: Fix, right: Fix) -> Fix:
+assert fix_add:
+  forall left: Fix
+  forall right: Fix
+  Fix
+
+def fix_add(left, right):
   match left right:
     case FixNeg{a} FixNeg{b}:
       FixNeg{U32.add(a, b)}
@@ -215,10 +283,20 @@ def fix_add(left: Fix, right: Fix) -> Fix:
     case FixPos{a} FixPos{b}:
       FixPos{U32.add(a, b)}
 
-def fix_sub(left: Fix, right: Fix) -> Fix:
+assert fix_sub:
+  forall left: Fix
+  forall right: Fix
+  Fix
+
+def fix_sub(left, right):
   fix_add(left, fix_negate(right))
 
-def fix_mul(left: Fix, right: Fix) -> Fix:
+assert fix_mul:
+  forall left: Fix
+  forall right: Fix
+  Fix
+
+def fix_mul(left, right):
   match left right:
     case FixNeg{a} FixNeg{b}:
       FixPos{U32.shrn(8n, U32.mul(a, b))}
@@ -229,7 +307,12 @@ def fix_mul(left: Fix, right: Fix) -> Fix:
     case FixPos{a} FixPos{b}:
       FixPos{U32.shrn(8n, U32.mul(a, b))}
 
-def fix_div(left: Fix, right: Fix) -> Fix:
+assert fix_div:
+  forall left: Fix
+  forall right: Fix
+  Fix
+
+def fix_div(left, right):
   match left right:
     case FixNeg{a} FixNeg{b}:
       FixPos{u32_div(U32.shln(8n, a), b)}
@@ -240,18 +323,30 @@ def fix_div(left: Fix, right: Fix) -> Fix:
     case FixPos{a} FixPos{b}:
       FixPos{u32_div(U32.shln(8n, a), b)}
 
-def fix_square(value: Fix) -> Fix:
+assert fix_square:
+  forall value: Fix
+  Fix
+
+def fix_square(value):
   (left, right) = fix_copy(value)
   fix_mul(left, right)
 
-def fix_sqrt(value: Fix) -> Fix:
+assert fix_sqrt:
+  forall value: Fix
+  Fix
+
+def fix_sqrt(value):
   match value:
     case FixNeg{magnitude}:
-      FixPos{U32.zero()}
+      FixPos{0}
     case FixPos{magnitude}:
       FixPos{u32_sqrt(U32.shln(8n, magnitude))}
 
-def fix_positive_distance(value: Fix) -> PositiveDistance:
+assert fix_positive_distance:
+  forall value: Fix
+  PositiveDistance
+
+def fix_positive_distance(value):
   match value:
     case FixNeg{magnitude}:
       NoDistance{}
@@ -263,23 +358,53 @@ def fix_positive_distance(value: Fix) -> PositiveDistance:
         case False{}:
           HasDistance{keep}
 
-def fix_unit_clamp(value: Fix) -> U32:
+# Mathematical theorem over every negative fixed-point magnitude: a negative
+# ray parameter can never be promoted to a forward hit. The magnitude is an
+# arbitrary U32, not one of the closed reference-scene constants below.
+assert negative_distance_rejected_theorem:
+  forall magnitude: U32
+  { fix_positive_distance(FixNeg{magnitude}) == NoDistance{} : PositiveDistance }
+
+def negative_distance_rejected_theorem(magnitude):
+  {==}
+
+assert fix_unit_clamp:
+  forall value: Fix
+  U32
+
+def fix_unit_clamp(value):
   match value:
     case FixNeg{magnitude}:
-      U32.zero()
+      0
     case FixPos{magnitude}:
       u32_clamp(magnitude, U32.from_nat(256n))
 
 # Vectors and constructors
 # ========================
 
-def vec3(x: Fix, y: Fix, z: Fix) -> Vec3:
+assert vec3:
+  forall x: Fix
+  forall y: Fix
+  forall z: Fix
+  Vec3
+
+def vec3(x, y, z):
   Vec3{x, y, z}
 
-def vec3_raw(x: U32, y: U32, z: U32) -> Vec3:
+assert vec3_raw:
+  forall x: U32
+  forall y: U32
+  forall z: U32
+  Vec3
+
+def vec3_raw(x, y, z):
   Vec3{FixPos{x}, FixPos{y}, FixPos{z}}
 
-def vec3_copy(value: Vec3) -> Vec3 & Vec3:
+assert vec3_copy:
+  forall value: Vec3
+  Vec3 & Vec3
+
+def vec3_copy(value):
   match value:
     case Vec3{x, y, z}:
       (x_left, x_right) = fix_copy(x)
@@ -287,28 +412,52 @@ def vec3_copy(value: Vec3) -> Vec3 & Vec3:
       (z_left, z_right) = fix_copy(z)
       (Vec3{x_left, y_left, z_left}, Vec3{x_right, y_right, z_right})
 
-def vec3_triple(value: Vec3) -> Vec3 & (Vec3 & Vec3):
+assert vec3_triple:
+  forall value: Vec3
+  Vec3 & (Vec3 & Vec3)
+
+def vec3_triple(value):
   (first, rest) = vec3_copy(value)
   (second, third) = vec3_copy(rest)
   (first, (second, third))
 
-def vec3_add(left: Vec3, right: Vec3) -> Vec3:
+assert vec3_add:
+  forall left: Vec3
+  forall right: Vec3
+  Vec3
+
+def vec3_add(left, right):
   match left right:
     case Vec3{ax, ay, az} Vec3{bx, by, bz}:
       Vec3{fix_add(ax, bx), fix_add(ay, by), fix_add(az, bz)}
 
-def vec3_sub(left: Vec3, right: Vec3) -> Vec3:
+assert vec3_sub:
+  forall left: Vec3
+  forall right: Vec3
+  Vec3
+
+def vec3_sub(left, right):
   match left right:
     case Vec3{ax, ay, az} Vec3{bx, by, bz}:
       Vec3{fix_sub(ax, bx), fix_sub(ay, by), fix_sub(az, bz)}
 
-def vec3_scale(value: Vec3, scalar: Fix) -> Vec3:
+assert vec3_scale:
+  forall value: Vec3
+  forall scalar: Fix
+  Vec3
+
+def vec3_scale(value, scalar):
   match value:
     case Vec3{x, y, z}:
       (sx, (sy, sz)) = fix_triple(scalar)
       Vec3{fix_mul(x, sx), fix_mul(y, sy), fix_mul(z, sz)}
 
-def vec3_dot(left: Vec3, right: Vec3) -> Fix:
+assert vec3_dot:
+  forall left: Vec3
+  forall right: Vec3
+  Fix
+
+def vec3_dot(left, right):
   match left right:
     case Vec3{ax, ay, az} Vec3{bx, by, bz}:
       fix_add(
@@ -316,16 +465,35 @@ def vec3_dot(left: Vec3, right: Vec3) -> Fix:
         fix_mul(az, bz)
       )
 
-def ray(origin: Vec3, direction: Vec3) -> Ray:
+assert ray:
+  forall origin: Vec3
+  forall direction: Vec3
+  Ray
+
+def ray(origin, direction):
   Ray{origin, direction}
 
-def sphere(center: Vec3, radius: U32) -> Sphere:
+assert sphere:
+  forall center: Vec3
+  forall radius: U32
+  Sphere
+
+def sphere(center, radius):
   Sphere{center, radius}
 
-def sun(direction: Vec3, ambient: U32, strength: U32) -> Sun:
+assert sun:
+  forall direction: Vec3
+  forall ambient: U32
+  forall strength: U32
+  Sun
+
+def sun(direction, ambient, strength):
   Sun{direction, ambient, strength}
 
-def default_sun() -> Sun:
+assert default_sun:
+  Sun
+
+def default_sun():
   # A normalized-enough upward vector toward the upper-right/front sky.
   Sun{
     Vec3{FixPos{U32.from_nat(181n)}, FixPos{U32.from_nat(181n)}, FixPos{U32.from_nat(64n)}},
@@ -336,7 +504,12 @@ def default_sun() -> Sun:
 # Intersections
 # =============
 
-def nearest_positive(near: Fix, far: Fix) -> Hit:
+assert nearest_positive:
+  forall near: Fix
+  forall far: Fix
+  Hit
+
+def nearest_positive(near, far):
   match fix_positive_distance(near) fix_positive_distance(far):
     case NoDistance{} NoDistance{}:
       Miss{}
@@ -353,7 +526,12 @@ def nearest_positive(near: Fix, far: Fix) -> Hit:
         case False{}:
           Hit{right_keep}
 
-def ray_sphere(ray_value: Ray, sphere_value: Sphere) -> Hit:
+assert ray_sphere:
+  forall ray_value: Ray
+  forall sphere_value: Sphere
+  Hit
+
+def ray_sphere(ray_value, sphere_value):
   match ray_value sphere_value:
     case Ray{origin, direction} Sphere{center, radius}:
       (offset_half, (offset_len_left, offset_len_right)) = vec3_triple(vec3_sub(origin, center))
@@ -377,7 +555,12 @@ def ray_sphere(ray_value: Ray, sphere_value: Sphere) -> Hit:
           far = fix_div(fix_add(fix_negate(half_b_far), root_far), a_far)
           nearest_positive(near, far)
 
-def ray_plane_y(ray_value: Ray, height: Fix) -> Hit:
+assert ray_plane_y:
+  forall ray_value: Ray
+  forall height: Fix
+  Hit
+
+def ray_plane_y(ray_value, height):
   match ray_value:
     case Ray{Vec3{origin_x, origin_y, origin_z}, Vec3{direction_x, direction_y, direction_z}}:
       match fix_positive_distance(fix_div(fix_sub(height, origin_y), direction_y)):
@@ -389,26 +572,48 @@ def ray_plane_y(ray_value: Ray, height: Fix) -> Hit:
 # Directional sunlight and farm samples
 # ======================================
 
-def light_intensity(ambient: U32, strength: U32, lambert: U32) -> U32:
+assert light_intensity:
+  forall ambient: U32
+  forall strength: U32
+  forall lambert: U32
+  U32
+
+def light_intensity(ambient, strength, lambert):
   u32_clamp(
     U32.add(ambient, U32.shrn(8n, U32.mul(strength, lambert))),
     U32.from_nat(255n)
   )
 
-def reflected_direction(normal: Vec3, toward_light: Vec3) -> Vec3:
+assert reflected_direction:
+  forall normal: Vec3
+  forall toward_light: Vec3
+  Vec3
+
+def reflected_direction(normal, toward_light):
   (normal_dot, normal_scale) = vec3_copy(normal)
   (light_dot, light_subtract) = vec3_copy(toward_light)
   twice_lambert = fix_mul(
     vec3_dot(normal_dot, light_dot),
-    FixPos{U32.shln(9n, U32.one())}
+    FixPos{U32.shln(9n, 1)}
   )
   vec3_sub(vec3_scale(normal_scale, twice_lambert), light_subtract)
 
-def surface_light_finish(diffuse: U32, specular: U32, combined: U32) -> SurfaceLight:
+assert surface_light_finish:
+  forall diffuse: U32
+  forall specular: U32
+  forall combined: U32
+  SurfaceLight
+
+def surface_light_finish(diffuse, specular, combined):
   (combined_report, combined_absorb) = u32_pair(combined)
   SurfaceLight{diffuse, specular, combined_report, U32.sub(U32.from_nat(255n), combined_absorb)}
 
-def surface_light_parts(diffuse: U32, specular: U32) -> SurfaceLight:
+assert surface_light_parts:
+  forall diffuse: U32
+  forall specular: U32
+  SurfaceLight
+
+def surface_light_parts(diffuse, specular):
   match u32_pair(diffuse) u32_pair(specular):
     case (diffuse_report, diffuse_combined) (specular_report, specular_combined):
       surface_light_finish(
@@ -419,15 +624,17 @@ def surface_light_parts(diffuse: U32, specular: U32) -> SurfaceLight:
 
 # View-dependent Phong-style material response. Inputs are normalized Q24.8
 # directions. `shine` and `roughness` are 0..255 material channels.
-def surface_light(
-  normal: Vec3,
-  toward_light: Vec3,
-  toward_viewer: Vec3,
-  ambient: U32,
-  strength: U32,
-  shine: U32,
-  roughness: U32
-) -> SurfaceLight:
+assert surface_light:
+  forall normal: Vec3
+  forall toward_light: Vec3
+  forall toward_viewer: Vec3
+  forall ambient: U32
+  forall strength: U32
+  forall shine: U32
+  forall roughness: U32
+  SurfaceLight
+
+def surface_light(normal, toward_light, toward_viewer, ambient, strength, shine, roughness):
   (normal_diffuse, normal_reflect) = vec3_copy(normal)
   (light_diffuse, light_reflect) = vec3_copy(toward_light)
   lambert = fix_unit_clamp(vec3_dot(normal_diffuse, light_diffuse))
@@ -440,12 +647,17 @@ def surface_light(
 # Projects a world point along the direction travelled by sunlight onto Y=0.
 # The result is world-space and therefore camera-independent; a renderer's
 # view/projection matrix makes the visible shadow move correctly as it orbits.
-def shadow_to_ground(origin: Vec3, light_travel: Vec3) -> ShadowProjection:
+assert shadow_to_ground:
+  forall origin: Vec3
+  forall light_travel: Vec3
+  ShadowProjection
+
+def shadow_to_ground(origin, light_travel):
   (origin_ray, origin_result) = vec3_copy(origin)
   (direction_ray, direction_result) = vec3_copy(light_travel)
   match ray_plane_y(Ray{origin_ray, direction_ray}, fix_zero()):
     case Miss{}:
-      ShadowProjection{origin_result, False{}, U32.zero()}
+      ShadowProjection{origin_result, False{}, 0}
     case Hit{distance}:
       (distance_scale, distance_report) = u32_pair(distance)
       ShadowProjection{
@@ -454,7 +666,14 @@ def shadow_to_ground(origin: Vec3, light_travel: Vec3) -> ShadowProjection:
         distance_report
       }
 
-def shade_point(point: Vec3, normal: Vec3, sunlight: Sun, occluder: Sphere) -> ShadeSample:
+assert shade_point:
+  forall point: Vec3
+  forall normal: Vec3
+  forall sunlight: Sun
+  forall occluder: Sphere
+  ShadeSample
+
+def shade_point(point, normal, sunlight, occluder):
   match sunlight:
     case Sun{direction, ambient, strength}:
       (light_direction, ray_direction) = vec3_copy(direction)
@@ -463,17 +682,26 @@ def shade_point(point: Vec3, normal: Vec3, sunlight: Sun, occluder: Sphere) -> S
           ShadeSample{
             light_intensity(ambient, strength, fix_unit_clamp(vec3_dot(normal, light_direction))),
             False{},
-            U32.zero()
+            0
           }
         case Hit{distance}:
           ShadeSample{ambient, True{}, distance}
 
-def shade_unoccluded(normal: Vec3, sunlight: Sun) -> U32:
+assert shade_unoccluded:
+  forall normal: Vec3
+  forall sunlight: Sun
+  U32
+
+def shade_unoccluded(normal, sunlight):
   match sunlight:
     case Sun{direction, ambient, strength}:
       light_intensity(ambient, strength, fix_unit_clamp(vec3_dot(normal, direction)))
 
-def sun_copy(value: Sun) -> Sun & Sun:
+assert sun_copy:
+  forall value: Sun
+  Sun & Sun
+
+def sun_copy(value):
   match value:
     case Sun{direction, ambient, strength}:
       (direction_left, direction_right) = vec3_copy(direction)
@@ -484,14 +712,16 @@ def sun_copy(value: Sun) -> Sun & Sun:
         Sun{direction_right, ambient_right, strength_right}
       )
 
-def farm_light(
-  ground: Vec3,
-  ground_normal: Vec3,
-  beet_surface: Vec3,
-  beet_normal: Vec3,
-  sunlight: Sun,
-  beet: Sphere
-) -> FarmLight:
+assert farm_light:
+  forall ground: Vec3
+  forall ground_normal: Vec3
+  forall beet_surface: Vec3
+  forall beet_normal: Vec3
+  forall sunlight: Sun
+  forall beet: Sphere
+  FarmLight
+
+def farm_light(ground, ground_normal, beet_surface, beet_normal, sunlight, beet):
   (ground_sun, beet_sun) = sun_copy(sunlight)
   match shade_point(ground, ground_normal, ground_sun, beet):
     case ShadeSample{tile_intensity, tile_shadowed, tile_hit_distance}:
@@ -502,200 +732,205 @@ def farm_light(
         tile_hit_distance
       }
 
-# Machine-checked reference cases
-# ===============================
+# Mathematical theorem and closed certificates
+# ============================================
 #
-# Core's proof generator is unavailable, so these are explicit proof terms.
-# They establish exact results for the arithmetic primitives and a canonical
-# one-dimensional scene.  These claims are deliberately precise: they prove
-# the named cases, rather than claiming universal floating-point accuracy or a
+# `negative_distance_rejected_theorem` above is quantified over every U32
+# magnitude. The authored arithmetic and scene values below are closed
+# regression certificates, not general mathematical proofs. They establish
+# only the named values and do not claim universal fixed-point accuracy or a
 # complete renderer correctness theorem.
 
-def proof_origin() -> Vec3:
+assert certificate_origin:
+  Vec3
+
+def certificate_origin():
   Vec3{fix_zero(), fix_zero(), fix_zero()}
 
-def proof_x_normal() -> Vec3:
+assert certificate_x_normal:
+  Vec3
+
+def certificate_x_normal():
   Vec3{fix_one(), fix_zero(), fix_zero()}
 
-def proof_front_ray() -> Ray:
-  Ray{proof_origin(), proof_x_normal()}
+assert certificate_front_ray:
+  Ray
 
-def proof_back_ray() -> Ray:
+def certificate_front_ray():
+  Ray{certificate_origin(), certificate_x_normal()}
+
+assert certificate_back_ray:
+  Ray
+
+def certificate_back_ray():
   Ray{
-    proof_origin(),
-    Vec3{fix_neg(U32.shln(8n, U32.one())), fix_zero(), fix_zero()}
+    certificate_origin(),
+    Vec3{fix_neg(U32.shln(8n, 1)), fix_zero(), fix_zero()}
   }
 
-def proof_down_ray() -> Ray:
+assert certificate_down_ray:
+  Ray
+
+def certificate_down_ray():
   Ray{
-    Vec3{fix_zero(), FixPos{U32.shln(9n, U32.one())}, fix_zero()},
-    Vec3{fix_zero(), fix_neg(U32.shln(8n, U32.one())), fix_zero()}
+    Vec3{fix_zero(), FixPos{U32.shln(9n, 1)}, fix_zero()},
+    Vec3{fix_zero(), fix_neg(U32.shln(8n, 1)), fix_zero()}
   }
 
-def proof_front_sphere() -> Sphere:
+assert certificate_front_sphere:
+  Sphere
+
+def certificate_front_sphere():
   Sphere{
-    Vec3{FixPos{U32.shln(9n, U32.one())}, fix_zero(), fix_zero()},
-    U32.shln(8n, U32.one())
+    Vec3{FixPos{U32.shln(9n, 1)}, fix_zero(), fix_zero()},
+    U32.shln(8n, 1)
   }
 
-def proof_back_sphere() -> Sphere:
+assert certificate_back_sphere:
+  Sphere
+
+def certificate_back_sphere():
   Sphere{
-    Vec3{FixNeg{U32.shln(9n, U32.one())}, fix_zero(), fix_zero()},
-    U32.shln(8n, U32.one())
+    Vec3{FixNeg{U32.shln(9n, 1)}, fix_zero(), fix_zero()},
+    U32.shln(8n, 1)
   }
 
-def proof_x_sun() -> Sun:
-  Sun{proof_x_normal(), U32.from_nat(40n), U32.from_nat(215n)}
+assert certificate_x_sun:
+  Sun
 
-def proof_divider_power_of_two() -> {
-  u32_div(U32.shln(10n, U32.one()), U32.shln(8n, U32.one()))
-  == U32.from_nat(4n) : U32
-}:
+def certificate_x_sun():
+  Sun{certificate_x_normal(), U32.from_nat(40n), U32.from_nat(215n)}
+
+assert certificate_divider_power_of_two:
+  { u32_div(U32.shln(10n, 1), U32.shln(8n, 1)) == U32.from_nat(4n) : U32 }
+
+def certificate_divider_power_of_two():
   {==}
 
-def proof_sqrt_square() -> {
-  u32_sqrt(U32.shln(16n, U32.one())) == U32.shln(8n, U32.one()) : U32
-}:
+assert certificate_sqrt_square:
+  { u32_sqrt(U32.shln(16n, 1)) == U32.shln(8n, 1) : U32 }
+
+def certificate_sqrt_square():
   {==}
 
-def proof_sqrt_floor() -> {
-  u32_sqrt(U32.from_nat(90n)) == U32.from_nat(9n) : U32
-}:
+assert certificate_sqrt_floor:
+  { u32_sqrt(U32.from_nat(90n)) == U32.from_nat(9n) : U32 }
+
+def certificate_sqrt_floor():
   {==}
 
-def proof_fixed_half_product() -> {
-  fix_mul(fix_one(), FixPos{U32.shln(7n, U32.one())})
-  == FixPos{U32.shln(7n, U32.one())} : Fix
-}:
+assert certificate_fixed_half_product:
+  { fix_mul(fix_one(), FixPos{U32.shln(7n, 1)}) == FixPos{U32.shln(7n, 1)} : Fix }
+
+def certificate_fixed_half_product():
   {==}
 
-def proof_sphere_front_hit() -> {
-  ray_sphere(proof_front_ray(), proof_front_sphere())
-  == Hit{U32.shln(8n, U32.one())} : Hit
-}:
+assert certificate_sphere_front_hit:
+  { ray_sphere(certificate_front_ray(), certificate_front_sphere()) == Hit{U32.shln(8n, 1)} : Hit }
+
+def certificate_sphere_front_hit():
   {==}
 
-def proof_sphere_behind_miss() -> {
-  ray_sphere(proof_back_ray(), proof_front_sphere()) == Miss{} : Hit
-}:
+assert certificate_sphere_behind_miss:
+  { ray_sphere(certificate_back_ray(), certificate_front_sphere()) == Miss{} : Hit }
+
+def certificate_sphere_behind_miss():
   {==}
 
-def proof_plane_down_hit() -> {
-  ray_plane_y(proof_down_ray(), fix_zero())
-  == Hit{U32.shln(9n, U32.one())} : Hit
-}:
+assert certificate_plane_down_hit:
+  { ray_plane_y(certificate_down_ray(), fix_zero()) == Hit{U32.shln(9n, 1)} : Hit }
+
+def certificate_plane_down_hit():
   {==}
 
-def proof_shadow_expected() -> {
-  shade_point(proof_origin(), proof_x_normal(), proof_x_sun(), proof_front_sphere())
-  == ShadeSample{
-    U32.from_nat(40n),
-    True{},
-    U32.shln(8n, U32.one())
-  } : ShadeSample
-}:
+assert certificate_shadow_expected:
+  { shade_point(certificate_origin(), certificate_x_normal(), certificate_x_sun(), certificate_front_sphere()) == ShadeSample{ U32.from_nat(40n), True{}, U32.shln(8n, 1) } : ShadeSample }
+
+def certificate_shadow_expected():
   {==}
 
-def proof_clear_expected() -> {
-  shade_point(proof_origin(), proof_x_normal(), proof_x_sun(), proof_back_sphere())
-  == ShadeSample{U32.from_nat(255n), False{}, U32.zero()} : ShadeSample
-}:
+assert certificate_clear_expected:
+  { shade_point(certificate_origin(), certificate_x_normal(), certificate_x_sun(), certificate_back_sphere()) == ShadeSample{U32.from_nat(255n), False{}, 0} : ShadeSample }
+
+def certificate_clear_expected():
   {==}
 
-def proof_farm_expected() -> {
-  farm_light(
-    proof_origin(),
-    proof_x_normal(),
-    proof_origin(),
-    proof_x_normal(),
-    proof_x_sun(),
-    proof_front_sphere()
-  )
-  == FarmLight{
-    U32.from_nat(40n),
-    U32.from_nat(255n),
-    True{},
-    U32.shln(8n, U32.one())
-  } : FarmLight
-}:
+assert certificate_farm_expected:
+  { farm_light( certificate_origin(), certificate_x_normal(), certificate_origin(), certificate_x_normal(), certificate_x_sun(), certificate_front_sphere() ) == FarmLight{ U32.from_nat(40n), U32.from_nat(255n), True{}, U32.shln(8n, 1) } : FarmLight }
+
+def certificate_farm_expected():
   {==}
 
-def proof_surface_light_expected() -> {
-  surface_light(
-    proof_x_normal(), proof_x_normal(), proof_x_normal(),
-    U32.from_nat(20n), U32.from_nat(100n),
-    U32.from_nat(128n), U32.from_nat(64n)
-  ) == SurfaceLight{
-    U32.from_nat(120n), U32.from_nat(95n),
-    U32.from_nat(215n), U32.from_nat(40n)
-  } : SurfaceLight
-}:
+assert certificate_surface_light_expected:
+  { surface_light( certificate_x_normal(), certificate_x_normal(), certificate_x_normal(), U32.from_nat(20n), U32.from_nat(100n), U32.from_nat(128n), U32.from_nat(64n) ) == SurfaceLight{ U32.from_nat(120n), U32.from_nat(95n), U32.from_nat(215n), U32.from_nat(40n) } : SurfaceLight }
+
+def certificate_surface_light_expected():
   {==}
 
-def proof_shadow_projection_expected() -> {
-  shadow_to_ground(
-    Vec3{fix_zero(), FixPos{U32.shln(9n, U32.one())}, fix_zero()},
-    Vec3{fix_zero(), fix_neg(U32.shln(8n, U32.one())), fix_zero()}
-  ) == ShadowProjection{
-    proof_origin(), True{}, U32.shln(9n, U32.one())
-  } : ShadowProjection
-}:
+assert certificate_shadow_projection_expected:
+  { shadow_to_ground( Vec3{fix_zero(), FixPos{U32.shln(9n, 1)}, fix_zero()}, Vec3{fix_zero(), fix_neg(U32.shln(8n, 1)), fix_zero()} ) == ShadowProjection{ certificate_origin(), True{}, U32.shln(9n, 1) } : ShadowProjection }
+
+def certificate_shadow_projection_expected():
   {==}
 
-type RaytraceProofs:
-  RaytraceProofs{
+type RaytraceVerificationAudit:
+  RaytraceVerificationAudit{
+    -negative_distance_rejected: @magnitude: U32 -> {
+      fix_positive_distance(FixNeg{magnitude}) == NoDistance{}
+      : PositiveDistance
+    },
     -divider_power_of_two: {
-      u32_div(U32.shln(10n, U32.one()), U32.shln(8n, U32.one()))
+      u32_div(U32.shln(10n, 1), U32.shln(8n, 1))
       == U32.from_nat(4n) : U32
     },
     -sqrt_square: {
-      u32_sqrt(U32.shln(16n, U32.one())) == U32.shln(8n, U32.one()) : U32
+      u32_sqrt(U32.shln(16n, 1)) == U32.shln(8n, 1) : U32
     },
     -sqrt_floor: {
       u32_sqrt(U32.from_nat(90n)) == U32.from_nat(9n) : U32
     },
     -fixed_half_product: {
-      fix_mul(fix_one(), FixPos{U32.shln(7n, U32.one())})
-      == FixPos{U32.shln(7n, U32.one())} : Fix
+      fix_mul(fix_one(), FixPos{U32.shln(7n, 1)})
+      == FixPos{U32.shln(7n, 1)} : Fix
     },
     -sphere_front_hit: {
-      ray_sphere(proof_front_ray(), proof_front_sphere())
-      == Hit{U32.shln(8n, U32.one())} : Hit
+      ray_sphere(certificate_front_ray(), certificate_front_sphere())
+      == Hit{U32.shln(8n, 1)} : Hit
     },
     -sphere_behind_miss: {
-      ray_sphere(proof_back_ray(), proof_front_sphere()) == Miss{} : Hit
+      ray_sphere(certificate_back_ray(), certificate_front_sphere()) == Miss{} : Hit
     },
     -plane_down_hit: {
-      ray_plane_y(proof_down_ray(), fix_zero())
-      == Hit{U32.shln(9n, U32.one())} : Hit
+      ray_plane_y(certificate_down_ray(), fix_zero())
+      == Hit{U32.shln(9n, 1)} : Hit
     },
     -shadow_expected: {
-      shade_point(proof_origin(), proof_x_normal(), proof_x_sun(), proof_front_sphere())
-      == ShadeSample{U32.from_nat(40n), True{}, U32.shln(8n, U32.one())} : ShadeSample
+      shade_point(certificate_origin(), certificate_x_normal(), certificate_x_sun(), certificate_front_sphere())
+      == ShadeSample{U32.from_nat(40n), True{}, U32.shln(8n, 1)} : ShadeSample
     },
     -clear_expected: {
-      shade_point(proof_origin(), proof_x_normal(), proof_x_sun(), proof_back_sphere())
-      == ShadeSample{U32.from_nat(255n), False{}, U32.zero()} : ShadeSample
+      shade_point(certificate_origin(), certificate_x_normal(), certificate_x_sun(), certificate_back_sphere())
+      == ShadeSample{U32.from_nat(255n), False{}, 0} : ShadeSample
     },
     -farm_expected: {
       farm_light(
-        proof_origin(),
-        proof_x_normal(),
-        proof_origin(),
-        proof_x_normal(),
-        proof_x_sun(),
-        proof_front_sphere()
+        certificate_origin(),
+        certificate_x_normal(),
+        certificate_origin(),
+        certificate_x_normal(),
+        certificate_x_sun(),
+        certificate_front_sphere()
       )
       == FarmLight{
         U32.from_nat(40n),
         U32.from_nat(255n),
         True{},
-        U32.shln(8n, U32.one())
+        U32.shln(8n, 1)
       } : FarmLight
     },
     -surface_light_expected: {
       surface_light(
-        proof_x_normal(), proof_x_normal(), proof_x_normal(),
+        certificate_x_normal(), certificate_x_normal(), certificate_x_normal(),
         U32.from_nat(20n), U32.from_nat(100n),
         U32.from_nat(128n), U32.from_nat(64n)
       ) == SurfaceLight{
@@ -705,26 +940,34 @@ type RaytraceProofs:
     },
     -shadow_projection_expected: {
       shadow_to_ground(
-        Vec3{fix_zero(), FixPos{U32.shln(9n, U32.one())}, fix_zero()},
-        Vec3{fix_zero(), fix_neg(U32.shln(8n, U32.one())), fix_zero()}
+        Vec3{fix_zero(), FixPos{U32.shln(9n, 1)}, fix_zero()},
+        Vec3{fix_zero(), fix_neg(U32.shln(8n, 1)), fix_zero()}
       ) == ShadowProjection{
-        proof_origin(), True{}, U32.shln(9n, U32.one())
+        certificate_origin(), True{}, U32.shln(9n, 1)
       } : ShadowProjection
-    }
+    },
+    certified_cases: U32,
+    general_theorems: U32
   }
 
-def raytrace_proofs() -> RaytraceProofs:
-  RaytraceProofs{
-    proof_divider_power_of_two(),
-    proof_sqrt_square(),
-    proof_sqrt_floor(),
-    proof_fixed_half_product(),
-    proof_sphere_front_hit(),
-    proof_sphere_behind_miss(),
-    proof_plane_down_hit(),
-    proof_shadow_expected(),
-    proof_clear_expected(),
-    proof_farm_expected(),
-    proof_surface_light_expected(),
-    proof_shadow_projection_expected()
+assert raytrace_verification:
+  RaytraceVerificationAudit
+
+def raytrace_verification():
+  RaytraceVerificationAudit{
+    negative_distance_rejected_theorem,
+    certificate_divider_power_of_two(),
+    certificate_sqrt_square(),
+    certificate_sqrt_floor(),
+    certificate_fixed_half_product(),
+    certificate_sphere_front_hit(),
+    certificate_sphere_behind_miss(),
+    certificate_plane_down_hit(),
+    certificate_shadow_expected(),
+    certificate_clear_expected(),
+    certificate_farm_expected(),
+    certificate_surface_light_expected(),
+    certificate_shadow_projection_expected(),
+    U32.from_nat(12n),
+    U32.from_nat(1n)
   }

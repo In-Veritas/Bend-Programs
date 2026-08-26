@@ -79,9 +79,9 @@
       <div class="proof-head"><h2 id="proof-title"></h2><span class="proof-count" id="proof-count"></span></div>
       <p class="proof-scope" id="proof-scope"></p>
       <div class="proof-grid">
-        <article class="proof-item"><b>Fairness model</b><span id="proof-fairness"></span></article>
-        <article class="proof-item"><b>Not rigged</b><span id="proof-unrigged"></span></article>
-        <article class="proof-item"><b>Odds consistency</b><span id="proof-odds"></span></article>
+        <article class="proof-item"><b>Finite outcome witnesses</b><span id="proof-fairness"></span></article>
+        <article class="proof-item"><b>Seat-coverage certificates</b><span id="proof-unrigged"></span></article>
+        <article class="proof-item"><b>Table certificates</b><span id="proof-odds"></span></article>
       </div>
       <p class="proof-limit" id="proof-limit"></p>
     </section>
@@ -97,11 +97,11 @@
       const player = p => ({ seat:p.$0,name:p.$1,personality:p.$2,active:p.$3,stack:p.$4,cards:list(p.$5),best:p.$6,odds:odds(p.$7) });
       const step = s => ({ phase:s.$0,note:s.$1,actor:s.$2,action:s.$3,amount:s.$4,pot:s.$5,board:list(s.$6),players:list(s.$7).map(player) });
       const timeline = t => ({ variant:t.$0,seed:t.$1,dealer:t.$2,winner:t.$3,steps:list(t.$4).map(step) });
-      const proofAudit = p => ({ title:p.$0,scope:p.$1,fairness:p.$2,unrigged:p.$3,odds:p.$4,limitation:p.$5,checkedCases:p.$6 });
+      const verificationAudit = p => ({ title:p.$0,scope:p.$1,fairness:p.$2,unrigged:p.$3,odds:p.$4,limitation:p.$5,certifiedCases:p.$6,generalTheorems:p.$7 });
       if (!globalThis.BEND2_POKER_DATA || globalThis.BEND2_POKER_DATA.$ !== "PokerReport") throw new Error("Bend2 Core poker artifact missing");
       const games={texas:timeline(BEND2_POKER_DATA.$0),omaha:timeline(BEND2_POKER_DATA.$1)};
-      const audit=proofAudit(BEND2_POKER_DATA.$2);
-      $("proof-title").textContent=audit.title; $("proof-count").textContent=`${audit.checkedCases} checked cases`;
+      const audit=verificationAudit(BEND2_POKER_DATA.$2);
+      $("proof-title").textContent=audit.title; $("proof-count").textContent=`${audit.generalTheorems} general theorems · ${audit.certifiedCases} closed certificates`;
       $("proof-scope").textContent=audit.scope; $("proof-fairness").textContent=audit.fairness;
       $("proof-unrigged").textContent=audit.unrigged; $("proof-odds").textContent=audit.odds; $("proof-limit").textContent=audit.limitation;
       const ranks="23456789TJQKA", suits=["♣","♦","♥","♠"];

@@ -34,6 +34,8 @@
     .camera-controls { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:10px; padding:0 13px 13px; color:var(--muted); font-size:12px; }
     .camera-controls label { display:flex; align-items:center; gap:6px; }
     .camera-controls input { width:110px; }
+    .camera-controls .engine-toggle input { width:auto; }
+    .engine-toggle { padding:4px 7px; border:1px solid #ffffff20; border-radius:7px; background:#0b1d1788; }
     .camera-hint { color:#d9c98f; }
     button { padding:7px 11px; border:1px solid #597965; border-radius:8px; color:var(--ink); background:#18392c; cursor:pointer; }
     button:disabled { opacity:.42; cursor:default; }
@@ -58,7 +60,7 @@
     <h1>Bend-a-Beet</h1><span class="badge">Bend2 Core · deterministic 3D farm</span>
     <div class="counts"><span><b id="planted"></b> planted</span><span><b id="breaks"></b> break</span><span><b id="springs"></b> boioioioing</span><span><b id="recovers"></b> recover</span></div>
   </header>
-  <div class="notice">Seed 48,823, physics, world geometry, mesh quality, ray intersections, projected shadows, absorption and shine come from Bend2 Core. WebGL rasterizes that immutable 3D report.</div>
+  <div class="notice">Seed 48,823, physics, Engine textures, four-source lighting, fog, reflection, fuzz, fur, mesh quality and soft-shadow controls come from Bend2 Core. WebGL rasterizes that immutable 3D report.</div>
   <main>
     <section class="stage">
       <canvas id="farm" width="1280" height="720" aria-label="3 by 8 three-dimensional beet farm"></canvas>
@@ -75,12 +77,16 @@
       <label>Tilt <input id="camera-pitch" type="range" min="-25" max="25" value="0"></label>
       <label>Zoom <input id="camera-zoom" type="range" min="75" max="135" value="100"></label>
       <button id="camera-reset">Reset camera</button>
+      <label class="engine-toggle"><input id="render-fur" type="checkbox" checked> Fur</label>
+      <label class="engine-toggle"><input id="render-shadows" type="checkbox" checked> Soft shadows</label>
+      <label class="engine-toggle"><input id="render-fog" type="checkbox" checked> Fog</label>
+      <label class="engine-toggle"><input id="render-facets" type="checkbox" checked> Facets</label>
     </div>
     <section class="details">
       <article><h2>Seeded response system</h2><div class="legend"><div><b>Snap</b>Persistent 3D fragments separate under the pull while roots and dirt follow through.</div><div><b>Boioioioing</b>The stem is a deforming 3D cable; magic controls oscillations and damping settles them.</div><div><b>Shine</b>Each beet reflects or absorbs the fixed world sun differently as the camera orbits.</div></div></article>
-      <article><h2>33 machine-checked library theorems</h2><div class="proofs"><div class="proof"><b>Physics · 10</b>All outcomes, growth clamps, response bounds, division/remainder and the shine channel.</div><div class="proof"><b>Graphics · 11</b>Grid/camera contracts plus exact high-quality mesh and shiny-material derivation.</div><div class="proof"><b>Ray tracing · 12</b>Hits and shadows plus exact view-dependent specular light and world shadow projection.</div></div></article>
+      <article><h2>20 general theorems · 35 closed certificates</h2><div class="proofs"><div class="proof"><b>Physics and scene · 5 + 21</b>Every motion history preserves beet identity/root, fracture is absorbing, and positive surface/light obligations have exact aligned responses.</div><div class="proof"><b>Engine integration · 12 + 2</b>Exact profile alignment/count, material/fur structure, texture, reflection, fog and shadow-query laws are consumed from the reusable Engine adapter.</div><div class="proof"><b>Original library support · 3 + 12</b>General fixed, tile-map and negative-distance lemmas support exact ray, light, specular and shadow certificates.</div></div></article>
     </section>
-    <footer>The camera never becomes Bend2 Core input. Core precomputes every selectable frame, world shadow anchor and material channel; WebGL applies depth testing, perspective and the selected view.</footer>
+    <footer>The camera and display toggles never become Bend2 Core input. Core precomputes every selectable frame, Engine material profile, world shadow anchor and light channel; WebGL applies depth testing, perspective and the selected view.</footer>
   </main>
   <script src="bend_a_beet_data.js"></script>
   <script src="bend_a_beet_camera.js"></script>

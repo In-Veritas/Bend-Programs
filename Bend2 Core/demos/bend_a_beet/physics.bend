@@ -2,7 +2,7 @@ import Base
 
 # Bend-a-Beet deterministic physics library.
 #
-# This module is pure: it performs no IO, has no `#[halts]` license, and gets
+# This module is pure: it performs no IO, is structurally terminating, and gets
 # all apparent randomness from explicit U32 seeds.  Distances and coefficients
 # use Q10 fixed point (1024 == 1.0).  Signed vector components use sign and
 # magnitude so negative wind/bend directions never depend on U32 underflow.
@@ -83,60 +83,48 @@ type BendFrame:
     integrity: U32
   }
 
-# Finite proof domain for the game's 3 x 8 board.  Runtime tile identifiers
-# remain U32; this type lets proofs cover every published tile structurally.
-type ProofTile:
-  Tile00{}
-  Tile01{}
-  Tile02{}
-  Tile03{}
-  Tile04{}
-  Tile05{}
-  Tile06{}
-  Tile07{}
-  Tile08{}
-  Tile09{}
-  Tile10{}
-  Tile11{}
-  Tile12{}
-  Tile13{}
-  Tile14{}
-  Tile15{}
-  Tile16{}
-  Tile17{}
-  Tile18{}
-  Tile19{}
-  Tile20{}
-  Tile21{}
-  Tile22{}
-  Tile23{}
-
-# Compact seed domain used only by the erased outcome proof suite. Each case
-# represents the branch decisions extracted from a deterministic U32 seed.
-type PhysicsProofSeed:
-  ProofBreakSeed{}
-  ProofSpringSeed{}
-  ProofRecoverySeed{}
+# Compact seed domain used only by the erased outcome certificates. Each case
+# represents branch decisions extracted from a deterministic U32 seed.
+type PhysicsCheckSeed:
+  CheckBreakSeed{}
+  CheckSpringSeed{}
+  CheckRecoverySeed{}
 
 # Affine helpers
 # ==============
 
-def u32_pair(value: U32) -> U32 & U32:
+assert u32_pair:
+  forall value: U32
+  U32 & U32
+
+def u32_pair(value):
   ((a, ea), (b, eb)) = U32.copy(value)
   (a, b)
 
-def u32_triple(value: U32) -> U32 & (U32 & U32):
+assert u32_triple:
+  forall value: U32
+  U32 & (U32 & U32)
+
+def u32_triple(value):
   (first, rest) = u32_pair(value)
   (second, third) = u32_pair(rest)
   (first, (second, third))
 
-def u32_four(value: U32) -> U32 & (U32 & (U32 & U32)):
+assert u32_four:
+  forall value: U32
+  U32 & (U32 & (U32 & U32))
+
+def u32_four(value):
   (a, right) = u32_pair(value)
   (b, more) = u32_pair(right)
   (c, d) = u32_pair(more)
   (a, (b, (c, d)))
 
-def u32_eight(value: U32) -> U32 & (U32 & (U32 & (U32 & (U32 & (U32 & (U32 & U32)))))):
+assert u32_eight:
+  forall value: U32
+  U32 & (U32 & (U32 & (U32 & (U32 & (U32 & (U32 & U32))))))
+
+def u32_eight(value):
   (left, right) = u32_pair(value)
   (a, (b, (c, d))) = u32_four(left)
   (e, (f, (g, h))) = u32_four(right)
@@ -147,13 +135,15 @@ def u32_eight(value: U32) -> U32 & (U32 & (U32 & (U32 & (U32 & (U32 & (U32 & U32
 # normalization impractical for seeded 32-bit physics values. These restoring
 # bitwise forms are equivalent, structurally terminate on Nat fuel, and keep
 # this library independent of the ray tracer's implementation.
-def u32_div_bits(
-  fuel: Nat,
-  dividend: U32,
-  divisor: U32,
-  quotient: U32,
-  remainder: U32
-) -> U32:
+assert u32_div_bits:
+  forall fuel: Nat
+  forall dividend: U32
+  forall divisor: U32
+  forall quotient: U32
+  forall remainder: U32
+  U32
+
+def u32_div_bits(fuel, dividend, divisor, quotient, remainder):
   match fuel:
     case 0n:
       quotient
@@ -169,7 +159,7 @@ def u32_div_bits(
             rest,
             U32.shl(input_next),
             divisor_next,
-            U32.or(U32.shl(quotient), U32.one()),
+            U32.or(U32.shl(quotient), 1),
             U32.sub(remainder_keep, divisor_sub)
           )
         case False{}:
@@ -181,15 +171,27 @@ def u32_div_bits(
             remainder_keep
           )
 
-def u32_div(dividend: U32, divisor: U32) -> U32:
+assert u32_div:
+  forall dividend: U32
+  forall divisor: U32
+  U32
+
+def u32_div(dividend, divisor):
   (divisor_test, divisor_keep) = u32_pair(divisor)
   match U32.is_zero(divisor_test):
     case True{}:
-      U32.zero()
+      0
     case False{}:
-      u32_div_bits(32n, dividend, divisor_keep, U32.zero(), U32.zero())
+      u32_div_bits(32n, dividend, divisor_keep, 0, 0)
 
-def u32_mod_bits(fuel: Nat, dividend: U32, divisor: U32, remainder: U32) -> U32:
+assert u32_mod_bits:
+  forall fuel: Nat
+  forall dividend: U32
+  forall divisor: U32
+  forall remainder: U32
+  U32
+
+def u32_mod_bits(fuel, dividend, divisor, remainder):
   match fuel:
     case 0n:
       remainder
@@ -210,18 +212,32 @@ def u32_mod_bits(fuel: Nat, dividend: U32, divisor: U32, remainder: U32) -> U32:
         case False{}:
           u32_mod_bits(rest, U32.shl(input_next), divisor_next, remainder_keep)
 
-def u32_mod(dividend: U32, divisor: U32) -> U32:
+assert u32_mod:
+  forall dividend: U32
+  forall divisor: U32
+  U32
+
+def u32_mod(dividend, divisor):
   (divisor_test, divisor_keep) = u32_pair(divisor)
   match U32.is_zero(divisor_test):
     case True{}:
-      U32.zero()
+      0
     case False{}:
-      u32_mod_bits(32n, dividend, divisor_keep, U32.zero())
+      u32_mod_bits(32n, dividend, divisor_keep, 0)
 
-def u32(value: Nat) -> U32:
+assert u32:
+  forall value: Nat
+  U32
+
+def u32(value):
   U32.from_nat(value)
 
-def u32_min(value: U32, ceiling: U32) -> U32:
+assert u32_min:
+  forall value: U32
+  forall ceiling: U32
+  U32
+
+def u32_min(value, ceiling):
   (test_value, keep_value) = u32_pair(value)
   (test_ceiling, keep_ceiling) = u32_pair(ceiling)
   match U32.is_gt(test_value, test_ceiling):
@@ -230,7 +246,12 @@ def u32_min(value: U32, ceiling: U32) -> U32:
     case False{}:
       keep_value
 
-def u32_saturating_sub(left: U32, right: U32) -> U32:
+assert u32_saturating_sub:
+  forall left: U32
+  forall right: U32
+  U32
+
+def u32_saturating_sub(left, right):
   (test_left, keep_left) = u32_pair(left)
   (test_right, keep_right) = u32_pair(right)
   match U32.is_le(test_left, test_right):
@@ -240,7 +261,13 @@ def u32_saturating_sub(left: U32, right: U32) -> U32:
       U32.sub(keep_left, keep_right)
 
 # A smooth triangle in 0..1024. Response periods are always nonzero.
-def triangle_finish(position: U32, half: U32, period: U32) -> U32:
+assert triangle_finish:
+  forall position: U32
+  forall half: U32
+  forall period: U32
+  U32
+
+def triangle_finish(position, half, period):
   (half_test, half_divisor) = u32_pair(half)
   (position_test, position_keep) = u32_pair(position)
   match U32.is_le(position_test, half_test):
@@ -249,50 +276,107 @@ def triangle_finish(position: U32, half: U32, period: U32) -> U32:
     case False{}:
       u32_div(U32.mul(U32.sub(period, position_keep), u32(1024n)), half_divisor)
 
-def triangle_parts(elapsed: U32, period_mod: U32, period_half: U32, period_tail: U32) -> U32:
+assert triangle_parts:
+  forall elapsed: U32
+  forall period_mod: U32
+  forall period_half: U32
+  forall period_tail: U32
+  U32
+
+def triangle_parts(elapsed, period_mod, period_half, period_tail):
   half = u32_div(period_half, u32(2n))
   position = u32_mod(elapsed, period_mod)
   triangle_finish(position, half, period_tail)
 
-def triangle_wave(elapsed: U32, period: U32) -> U32:
+assert triangle_wave:
+  forall elapsed: U32
+  forall period: U32
+  U32
+
+def triangle_wave(elapsed, period):
   (period_mod, period_rest) = u32_pair(period)
   (period_half, period_tail) = u32_pair(period_rest)
   triangle_parts(elapsed, period_mod, period_half, period_tail)
 
 # Deterministic xorshift32. Seed zero is valid because salts are added before
 # the mixer is used for independent lanes.
-def seed_mix_tail(seed: U32) -> U32:
+assert seed_mix_tail:
+  forall seed: U32
+  U32
+
+def seed_mix_tail(seed):
   (keep, shifted) = u32_pair(seed)
   U32.xor(keep, U32.shln(5n, shifted))
 
-def seed_mix_middle(seed: U32) -> U32:
+assert seed_mix_middle:
+  forall seed: U32
+  U32
+
+def seed_mix_middle(seed):
   (keep, shifted) = u32_pair(seed)
   seed_mix_tail(U32.xor(keep, U32.shrn(17n, shifted)))
 
-def seed_mix(seed: U32) -> U32:
+assert seed_mix:
+  forall seed: U32
+  U32
+
+def seed_mix(seed):
   (keep, shifted) = u32_pair(seed)
   seed_mix_middle(U32.xor(keep, U32.shln(13n, shifted)))
 
-def seed_lane(seed: U32, salt: U32) -> U32:
+assert seed_lane:
+  forall seed: U32
+  forall salt: U32
+  U32
+
+def seed_lane(seed, salt):
   seed_mix(U32.add(seed, salt))
 
 # Fixed-point and vector API
 # ==========================
 
-def fix_zero() -> Fix:
+assert fix_zero:
+  Fix
+
+def fix_zero():
   FixPos{u32(0n)}
 
-def fix_from_u32(value: U32) -> Fix:
+assert fix_from_u32:
+  forall value: U32
+  Fix
+
+def fix_from_u32(value):
   FixPos{value}
 
-def fix_negate(value: Fix) -> Fix:
+assert fix_negate:
+  forall value: Fix
+  Fix
+
+def fix_negate(value):
   match value:
     case FixPos{magnitude}:
       FixNeg{magnitude}
     case FixNeg{magnitude}:
       FixPos{magnitude}
 
-def fix_copy(value: Fix) -> Fix & Fix:
+# Mathematical theorem over every signed Q10 value. The proof is constructor
+# induction on Fix; the U32 magnitude remains arbitrary in both branches.
+assert fix_negate_involution_theorem:
+  forall value: Fix
+  {fix_negate(fix_negate(value)) == value : Fix}
+
+def fix_negate_involution_theorem(value):
+  match value:
+    case FixPos{magnitude}:
+      {==}
+    case FixNeg{magnitude}:
+      {==}
+
+assert fix_copy:
+  forall value: Fix
+  Fix & Fix
+
+def fix_copy(value):
   match value:
     case FixPos{magnitude}:
       (a, b) = u32_pair(magnitude)
@@ -301,7 +385,12 @@ def fix_copy(value: Fix) -> Fix & Fix:
       (a, b) = u32_pair(magnitude)
       (FixNeg{a}, FixNeg{b})
 
-def fix_difference(positive: U32, negative: U32) -> Fix:
+assert fix_difference:
+  forall positive: U32
+  forall negative: U32
+  Fix
+
+def fix_difference(positive, negative):
   (positive_test, positive_keep) = u32_pair(positive)
   (negative_test, negative_keep) = u32_pair(negative)
   match U32.cmp(positive_test, negative_test):
@@ -312,7 +401,12 @@ def fix_difference(positive: U32, negative: U32) -> Fix:
     case GT{}:
       FixPos{U32.sub(positive_keep, negative_keep)}
 
-def fix_add(left: Fix, right: Fix) -> Fix:
+assert fix_add:
+  forall left: Fix
+  forall right: Fix
+  Fix
+
+def fix_add(left, right):
   match left right:
     case FixPos{a} FixPos{b}:
       FixPos{U32.add(a, b)}
@@ -323,11 +417,21 @@ def fix_add(left: Fix, right: Fix) -> Fix:
     case FixNeg{a} FixNeg{b}:
       FixNeg{U32.add(a, b)}
 
-def fix_sub(left: Fix, right: Fix) -> Fix:
+assert fix_sub:
+  forall left: Fix
+  forall right: Fix
+  Fix
+
+def fix_sub(left, right):
   fix_add(left, fix_negate(right))
 
 # Q10 multiplication: 1024 * 1024 becomes 1024.
-def fix_mul(left: Fix, right: Fix) -> Fix:
+assert fix_mul:
+  forall left: Fix
+  forall right: Fix
+  Fix
+
+def fix_mul(left, right):
   match left right:
     case FixPos{a} FixPos{b}:
       FixPos{u32_div(U32.mul(a, b), u32(1024n))}
@@ -338,7 +442,11 @@ def fix_mul(left: Fix, right: Fix) -> Fix:
     case FixNeg{a} FixNeg{b}:
       FixPos{u32_div(U32.mul(a, b), u32(1024n))}
 
-def centered_raw(raw: U32) -> Fix:
+assert centered_raw:
+  forall raw: U32
+  Fix
+
+def centered_raw(raw):
   (test, keep) = u32_pair(raw)
   match U32.is_le(test, u32(1024n)):
     case True{}:
@@ -346,13 +454,24 @@ def centered_raw(raw: U32) -> Fix:
     case False{}:
       FixNeg{U32.sub(keep, u32(1025n))}
 
-def centered_fix(value: U32) -> Fix:
+assert centered_fix:
+  forall value: U32
+  Fix
+
+def centered_fix(value):
   centered_raw(u32_mod(value, u32(2049n)))
 
-def vec3_zero() -> Vec3:
+assert vec3_zero:
+  Vec3
+
+def vec3_zero():
   Vec3{fix_zero(), fix_zero(), fix_zero()}
 
-def vec3_copy(vector: Vec3) -> Vec3 & Vec3:
+assert vec3_copy:
+  forall vector: Vec3
+  Vec3 & Vec3
+
+def vec3_copy(vector):
   match vector:
     case Vec3{x, y, z}:
       (x1, x2) = fix_copy(x)
@@ -360,12 +479,22 @@ def vec3_copy(vector: Vec3) -> Vec3 & Vec3:
       (z1, z2) = fix_copy(z)
       (Vec3{x1, y1, z1}, Vec3{x2, y2, z2})
 
-def vec3_add(left: Vec3, right: Vec3) -> Vec3:
+assert vec3_add:
+  forall left: Vec3
+  forall right: Vec3
+  Vec3
+
+def vec3_add(left, right):
   match left right:
     case Vec3{ax, ay, az} Vec3{bx, by, bz}:
       Vec3{fix_add(ax, bx), fix_add(ay, by), fix_add(az, bz)}
 
-def vec3_scale(vector: Vec3, scalar: Fix) -> Vec3:
+assert vec3_scale:
+  forall vector: Vec3
+  forall scalar: Fix
+  Vec3
+
+def vec3_scale(vector, scalar):
   match vector:
     case Vec3{x, y, z}:
       (sx, tail) = fix_copy(scalar)
@@ -375,7 +504,11 @@ def vec3_scale(vector: Vec3, scalar: Fix) -> Vec3:
 # Attributes and seeded variation
 # ===============================
 
-def attributes_copy(attributes: BeetAttributes) -> BeetAttributes & BeetAttributes:
+assert attributes_copy:
+  forall attributes: BeetAttributes
+  BeetAttributes & BeetAttributes
+
+def attributes_copy(attributes):
   match attributes:
     case BeetAttributes{water, sugar, fiber, size, magic, shine}:
       (w1, w2) = u32_pair(water)
@@ -386,26 +519,46 @@ def attributes_copy(attributes: BeetAttributes) -> BeetAttributes & BeetAttribut
       (h1, h2) = u32_pair(shine)
       (BeetAttributes{w1, s1, f1, z1, m1, h1}, BeetAttributes{w2, s2, f2, z2, m2, h2})
 
-def attributes_four(attributes: BeetAttributes) -> BeetAttributes & (BeetAttributes & (BeetAttributes & BeetAttributes)):
+assert attributes_four:
+  forall attributes: BeetAttributes
+  BeetAttributes & (BeetAttributes & (BeetAttributes & BeetAttributes))
+
+def attributes_four(attributes):
   (a, right) = attributes_copy(attributes)
   (b, more) = attributes_copy(right)
   (c, d) = attributes_copy(more)
   (a, (b, (c, d)))
 
-def attributes_eight(attributes: BeetAttributes) -> BeetAttributes & (BeetAttributes & (BeetAttributes & (BeetAttributes & (BeetAttributes & (BeetAttributes & (BeetAttributes & BeetAttributes)))))):
+assert attributes_eight:
+  forall attributes: BeetAttributes
+  BeetAttributes & (BeetAttributes & (BeetAttributes & (BeetAttributes & (BeetAttributes & (BeetAttributes & (BeetAttributes & BeetAttributes))))))
+
+def attributes_eight(attributes):
   (left, right) = attributes_copy(attributes)
   (a, (b, (c, d))) = attributes_four(left)
   (e, (f, (g, h))) = attributes_four(right)
   (a, (b, (c, (d, (e, (f, (g, h)))))))
 
-def attribute_lane(seed: U32, salt: Nat) -> U32:
+assert attribute_lane:
+  forall seed: U32
+  forall salt: Nat
+  U32
+
+def attribute_lane(seed, salt):
   u32_mod(seed_lane(seed, u32(salt)), u32(1001n))
 
 # 7919 encoded from small bytes avoids normalizing U32.from_nat(7919n).
-def attribute_tile_stride() -> U32:
+assert attribute_tile_stride:
+  U32
+
+def attribute_tile_stride():
   U32.or(U32.shln(8n, u32(30n)), u32(239n))
 
-def attributes_from_root(root: U32) -> BeetAttributes:
+assert attributes_from_root:
+  forall root: U32
+  BeetAttributes
+
+def attributes_from_root(root):
   (a, (b, (c, (d, (e, (f, rest)))))) = u32_eight(root)
   BeetAttributes{
     attribute_lane(a, 101n),
@@ -416,29 +569,57 @@ def attributes_from_root(root: U32) -> BeetAttributes:
     attribute_lane(f, 607n)
   }
 
-def attributes_from_seed(seed: U32, tile: U32) -> BeetAttributes:
+assert attributes_from_seed:
+  forall seed: U32
+  forall tile: U32
+  BeetAttributes
+
+def attributes_from_seed(seed, tile):
   attributes_from_root(seed_mix(U32.add(seed, U32.mul(tile, attribute_tile_stride()))))
 
-def break_decision(attributes: BeetAttributes, roll: U32) -> Bool:
+assert break_decision:
+  forall attributes: BeetAttributes
+  forall roll: U32
+  Bool
+
+def break_decision(attributes, roll):
   match attributes:
     case BeetAttributes{water, sugar, fiber, size, magic, shine}:
       load = U32.add(U32.add(sugar, size), u32_mod(roll, u32(501n)))
       resistance = U32.add(U32.add(water, U32.mul(fiber, u32(2n))), u32_div(magic, u32(4n)))
       U32.is_gt(load, resistance)
 
-def spring_decision(attributes: BeetAttributes, roll: U32) -> Bool:
+assert spring_decision:
+  forall attributes: BeetAttributes
+  forall roll: U32
+  Bool
+
+def spring_decision(attributes, roll):
   match attributes:
     case BeetAttributes{water, sugar, fiber, size, magic, shine}:
       spark = U32.add(U32.add(U32.mul(magic, u32(2n)), sugar), u32_mod(roll, u32(301n)))
       calm = U32.add(U32.add(water, fiber), u32_div(size, u32(2n)))
       U32.is_gt(spark, calm)
 
-def boing_count(attributes: BeetAttributes, roll: U32) -> U32:
+assert boing_count:
+  forall attributes: BeetAttributes
+  forall roll: U32
+  U32
+
+def boing_count(attributes, roll):
   match attributes:
     case BeetAttributes{water, sugar, fiber, size, magic, shine}:
       U32.add(U32.add(u32(2n), u32_div(magic, u32(100n))), u32_mod(roll, u32(4n)))
 
-def outcome_select(breaks: Bool, springs: Bool, piece_roll: U32, boing_roll: U32, attributes: BeetAttributes) -> BendOutcome:
+assert outcome_select:
+  forall breaks: Bool
+  forall springs: Bool
+  forall piece_roll: U32
+  forall boing_roll: U32
+  forall attributes: BeetAttributes
+  BendOutcome
+
+def outcome_select(breaks, springs, piece_roll, boing_roll, attributes):
   match breaks:
     case True{}:
       BeetBreak{U32.add(u32(2n), u32_mod(piece_roll, u32(3n)))}
@@ -449,7 +630,12 @@ def outcome_select(breaks: Bool, springs: Bool, piece_roll: U32, boing_roll: U32
         case False{}:
           BeetRecover{}
 
-def beet_outcome(seed: U32, attributes: BeetAttributes) -> BendOutcome:
+assert beet_outcome:
+  forall seed: U32
+  forall attributes: BeetAttributes
+  BendOutcome
+
+def beet_outcome(seed, attributes):
   (seed_break, (seed_spring, (seed_piece, seed_boing))) = u32_four(seed)
   (attr_break, (attr_spring, (attr_boing, attr_rest))) = attributes_four(attributes)
   breaks = break_decision(attr_break, seed_lane(seed_break, u32(601n)))
@@ -459,7 +645,11 @@ def beet_outcome(seed: U32, attributes: BeetAttributes) -> BendOutcome:
 # Response derivation
 # ===================
 
-def response_axis(seed: U32) -> Vec3:
+assert response_axis:
+  forall seed: U32
+  Vec3
+
+def response_axis(seed):
   (x_seed, (z_seed, (tilt_seed, rest))) = u32_four(seed)
   Vec3{
     centered_fix(seed_lane(x_seed, u32(811n))),
@@ -467,50 +657,96 @@ def response_axis(seed: U32) -> Vec3:
     centered_fix(seed_lane(z_seed, u32(823n)))
   }
 
-def response_impulse(attributes: BeetAttributes, roll: U32) -> U32:
+assert response_impulse:
+  forall attributes: BeetAttributes
+  forall roll: U32
+  U32
+
+def response_impulse(attributes, roll):
   match attributes:
     case BeetAttributes{water, sugar, fiber, size, magic, shine}:
       U32.add(U32.add(U32.add(u32(256n), size), u32_div(sugar, u32(2n))), U32.add(u32_div(magic, u32(4n)), u32_mod(roll, u32(257n))))
 
-def response_stiffness(attributes: BeetAttributes) -> U32:
+assert response_stiffness:
+  forall attributes: BeetAttributes
+  U32
+
+def response_stiffness(attributes):
   match attributes:
     case BeetAttributes{water, sugar, fiber, size, magic, shine}:
       U32.add(u32(128n), U32.add(fiber, u32_div(sugar, u32(2n))))
 
-def response_damping(attributes: BeetAttributes) -> U32:
+assert response_damping:
+  forall attributes: BeetAttributes
+  U32
+
+def response_damping(attributes):
   match attributes:
     case BeetAttributes{water, sugar, fiber, size, magic, shine}:
       U32.add(u32(64n), U32.add(u32_div(water, u32(2n)), u32_div(fiber, u32(4n))))
 
-def response_flexibility(attributes: BeetAttributes) -> U32:
+assert response_flexibility:
+  forall attributes: BeetAttributes
+  U32
+
+def response_flexibility(attributes):
   match attributes:
     case BeetAttributes{water, sugar, fiber, size, magic, shine}:
       U32.add(u32(128n), U32.add(u32_div(water, u32(2n)), u32_div(magic, u32(2n))))
 
-def response_max_bend(attributes: BeetAttributes, roll: U32) -> U32:
+assert response_max_bend:
+  forall attributes: BeetAttributes
+  forall roll: U32
+  U32
+
+def response_max_bend(attributes, roll):
   match attributes:
     case BeetAttributes{water, sugar, fiber, size, magic, shine}:
       U32.add(U32.add(u32(256n), u32_div(size, u32(2n))), U32.add(u32_div(water, u32(4n)), u32_mod(roll, u32(257n))))
 
-def response_period(attributes: BeetAttributes, roll: U32) -> U32:
+assert response_period:
+  forall attributes: BeetAttributes
+  forall roll: U32
+  U32
+
+def response_period(attributes, roll):
   match attributes:
     case BeetAttributes{water, sugar, fiber, size, magic, shine}:
       U32.add(U32.add(u32(120n), u32_div(u32_saturating_sub(u32(1000n), magic), u32(5n))), U32.add(u32_div(fiber, u32(8n)), u32_mod(roll, u32(61n))))
 
-def response_duration(attributes: BeetAttributes, roll: U32) -> U32:
+assert response_duration:
+  forall attributes: BeetAttributes
+  forall roll: U32
+  U32
+
+def response_duration(attributes, roll):
   match attributes:
     case BeetAttributes{water, sugar, fiber, size, magic, shine}:
       U32.add(U32.add(u32(900n), U32.add(water, fiber)), U32.add(u32_div(magic, u32(2n)), u32_mod(roll, u32(401n))))
 
-def response_break_at(attributes: BeetAttributes, roll: U32) -> U32:
+assert response_break_at:
+  forall attributes: BeetAttributes
+  forall roll: U32
+  U32
+
+def response_break_at(attributes, roll):
   match attributes:
     case BeetAttributes{water, sugar, fiber, size, magic, shine}:
       U32.add(u32(180n), U32.add(u32_div(u32_saturating_sub(u32(1000n), sugar), u32(8n)), U32.add(u32_div(size, u32(10n)), u32_mod(roll, u32(91n)))))
 
-def response_phase_from_seed(seed: U32) -> U32:
+assert response_phase_from_seed:
+  forall seed: U32
+  U32
+
+def response_phase_from_seed(seed):
   u32_mod(seed_lane(seed, u32(937n)), u32(1024n))
 
-def beet_response(seed: U32, attributes: BeetAttributes) -> BeetPhysics:
+assert beet_response:
+  forall seed: U32
+  forall attributes: BeetAttributes
+  BeetPhysics
+
+def beet_response(seed, attributes):
   (s0, (s1, (s2, (s3, (s4, (s5, (s6, s7))))))) = u32_eight(seed)
   (a0, (a1, (a2, (a3, (a4, (a5, (a6, a7))))))) = attributes_eight(attributes)
   (a7_duration, a7_break) = attributes_copy(a7)
@@ -531,7 +767,13 @@ def beet_response(seed: U32, attributes: BeetAttributes) -> BeetPhysics:
 # Wind and growth
 # ===============
 
-def wind_finish(sx: U32, sz: U32, strength: U32) -> WindFrame:
+assert wind_finish:
+  forall sx: U32
+  forall sz: U32
+  forall strength: U32
+  WindFrame
+
+def wind_finish(sx, sz, strength):
   (strength_vector, strength_report) = u32_pair(strength)
   WindFrame{
     vec3_scale(
@@ -541,38 +783,78 @@ def wind_finish(sx: U32, sz: U32, strength: U32) -> WindFrame:
     strength_report
   }
 
-def wind_parts(sx: U32, sz: U32, sphase: U32, speriod: U32, elapsed: U32) -> WindFrame:
+assert wind_parts:
+  forall sx: U32
+  forall sz: U32
+  forall sphase: U32
+  forall speriod: U32
+  forall elapsed: U32
+  WindFrame
+
+def wind_parts(sx, sz, sphase, speriod, elapsed):
   phase = u32_mod(seed_lane(sphase, u32(1009n)), u32(1800n))
   period = U32.add(u32(1200n), u32_mod(seed_lane(speriod, u32(1013n)), u32(1001n)))
   strength = U32.add(u32(192n), u32_div(triangle_wave(U32.add(elapsed, phase), period), u32(2n)))
   wind_finish(sx, sz, strength)
 
-def wind_at(seed: U32, elapsed: U32) -> WindFrame:
+assert wind_at:
+  forall seed: U32
+  forall elapsed: U32
+  WindFrame
+
+def wind_at(seed, elapsed):
   (sx, (sz, (sphase, speriod))) = u32_four(seed)
   wind_parts(sx, sz, sphase, speriod, elapsed)
 
-def growth_height(attributes: BeetAttributes, progress: U32) -> U32:
+assert growth_height:
+  forall attributes: BeetAttributes
+  forall progress: U32
+  U32
+
+def growth_height(attributes, progress):
   match attributes:
     case BeetAttributes{water, sugar, fiber, size, magic, shine}:
       target = U32.add(u32(1024n), U32.mul(size, u32(3n)))
       u32_div(U32.mul(target, progress), u32(1024n))
 
-def growth_root_depth(attributes: BeetAttributes) -> U32:
+assert growth_root_depth:
+  forall attributes: BeetAttributes
+  U32
+
+def growth_root_depth(attributes):
   match attributes:
     case BeetAttributes{water, sugar, fiber, size, magic, shine}:
       U32.add(u32(256n), U32.add(u32_div(fiber, u32(2n)), u32_div(water, u32(4n))))
 
-def growth_stem_radius(attributes: BeetAttributes) -> U32:
+assert growth_stem_radius:
+  forall attributes: BeetAttributes
+  U32
+
+def growth_stem_radius(attributes):
   match attributes:
     case BeetAttributes{water, sugar, fiber, size, magic, shine}:
       U32.add(u32(96n), U32.add(u32_div(size, u32(5n)), u32_div(sugar, u32(10n))))
 
-def growth_compliance(attributes: BeetAttributes) -> Fix:
+assert growth_compliance:
+  forall attributes: BeetAttributes
+  Fix
+
+def growth_compliance(attributes):
   match attributes:
     case BeetAttributes{water, sugar, fiber, size, magic, shine}:
       FixPos{U32.add(u32(128n), U32.add(u32_div(water, u32(2n)), u32_div(magic, u32(8n))))}
 
-def growth_finish(seed: U32, elapsed_wind: U32, attr_height: BeetAttributes, attr_root: BeetAttributes, attr_stem: BeetAttributes, attr_sway: BeetAttributes, progress: U32) -> GrowthFrame:
+assert growth_finish:
+  forall seed: U32
+  forall elapsed_wind: U32
+  forall attr_height: BeetAttributes
+  forall attr_root: BeetAttributes
+  forall attr_stem: BeetAttributes
+  forall attr_sway: BeetAttributes
+  forall progress: U32
+  GrowthFrame
+
+def growth_finish(seed, elapsed_wind, attr_height, attr_root, attr_stem, attr_sway, progress):
   match wind_at(seed, elapsed_wind):
     case WindFrame{force, strength}:
       GrowthFrame{
@@ -582,7 +864,13 @@ def growth_finish(seed: U32, elapsed_wind: U32, attr_height: BeetAttributes, att
         vec3_scale(force, growth_compliance(attr_sway))
       }
 
-def beet_growth(seed: U32, attributes: BeetAttributes, elapsed: U32) -> GrowthFrame:
+assert beet_growth:
+  forall seed: U32
+  forall attributes: BeetAttributes
+  forall elapsed: U32
+  GrowthFrame
+
+def beet_growth(seed, attributes, elapsed):
   (elapsed_progress, elapsed_wind) = u32_pair(elapsed)
   (attr_height, (attr_root, (attr_stem, attr_sway))) = attributes_four(attributes)
   growth_finish(
@@ -598,11 +886,28 @@ def beet_growth(seed: U32, attributes: BeetAttributes, elapsed: U32) -> GrowthFr
 # Bend trajectories
 # =================
 
-def bend_frame_make(state: BendState, axis: Vec3, amount: U32, height: U32, integrity: U32) -> BendFrame:
+assert bend_frame_make:
+  forall state: BendState
+  forall axis: Vec3
+  forall amount: U32
+  forall height: U32
+  forall integrity: U32
+  BendFrame
+
+def bend_frame_make(state, axis, amount, height, integrity):
   (amount_vector, amount_report) = u32_pair(amount)
   BendFrame{state, vec3_scale(axis, FixPos{amount_vector}), amount_report, height, integrity}
 
-def broken_trajectory(pieces: U32, axis: Vec3, max_bend: U32, break_at: U32, elapsed: U32, height: U32) -> BendFrame:
+assert broken_trajectory:
+  forall pieces: U32
+  forall axis: Vec3
+  forall max_bend: U32
+  forall break_at: U32
+  forall elapsed: U32
+  forall height: U32
+  BendFrame
+
+def broken_trajectory(pieces, axis, max_bend, break_at, elapsed, height):
   (elapsed_test, elapsed_keep) = u32_pair(elapsed)
   (break_test, break_keep) = u32_pair(break_at)
   match U32.is_lt(elapsed_test, break_test):
@@ -612,14 +917,36 @@ def broken_trajectory(pieces: U32, axis: Vec3, max_bend: U32, break_at: U32, ela
     case False{}:
       bend_frame_make(BeetBroken{pieces}, axis, max_bend, height, u32(0n))
 
-def spring_active_frame(axis: Vec3, max_bend: U32, period: U32, phase: U32, elapsed: U32, remaining: U32, boings: U32, height: U32) -> BendFrame:
+assert spring_active_frame:
+  forall axis: Vec3
+  forall max_bend: U32
+  forall period: U32
+  forall phase: U32
+  forall elapsed: U32
+  forall remaining: U32
+  forall boings: U32
+  forall height: U32
+  BendFrame
+
+def spring_active_frame(axis, max_bend, period, phase, elapsed, remaining, boings, height):
   (remaining_scale, remaining_state) = u32_pair(remaining)
   wave = triangle_wave(U32.add(elapsed, phase), period)
   amount0 = u32_div(U32.mul(max_bend, wave), u32(1024n))
   amount = u32_div(U32.mul(amount0, remaining_scale), boings)
   bend_frame_make(BeetBoioioing{remaining_state}, axis, amount, height, u32(1024n))
 
-def spring_cycles_frame(boings: U32, axis: Vec3, max_bend: U32, period: U32, phase: U32, elapsed: U32, height: U32, cycles: U32) -> BendFrame:
+assert spring_cycles_frame:
+  forall boings: U32
+  forall axis: Vec3
+  forall max_bend: U32
+  forall period: U32
+  forall phase: U32
+  forall elapsed: U32
+  forall height: U32
+  forall cycles: U32
+  BendFrame
+
+def spring_cycles_frame(boings, axis, max_bend, period, phase, elapsed, height, cycles):
   (boings_test, boings_scale) = u32_pair(boings)
   (boings_remaining, boings_divisor) = u32_pair(boings_scale)
   (cycles_test, cycles_keep) = u32_pair(cycles)
@@ -630,12 +957,30 @@ def spring_cycles_frame(boings: U32, axis: Vec3, max_bend: U32, period: U32, pha
       remaining = U32.sub(boings_remaining, cycles_keep)
       spring_active_frame(axis, max_bend, period, phase, elapsed, remaining, boings_divisor, height)
 
-def spring_trajectory(boings: U32, axis: Vec3, max_bend: U32, period: U32, phase: U32, elapsed: U32, height: U32) -> BendFrame:
+assert spring_trajectory:
+  forall boings: U32
+  forall axis: Vec3
+  forall max_bend: U32
+  forall period: U32
+  forall phase: U32
+  forall elapsed: U32
+  forall height: U32
+  BendFrame
+
+def spring_trajectory(boings, axis, max_bend, period, phase, elapsed, height):
   (period_cycles, period_wave) = u32_pair(period)
   (elapsed_cycles, elapsed_wave) = u32_pair(elapsed)
   spring_cycles_frame(boings, axis, max_bend, period_wave, phase, elapsed_wave, height, u32_div(elapsed_cycles, period_cycles))
 
-def recovery_remaining(axis: Vec3, max_bend: U32, duration: U32, remaining: U32, height: U32) -> BendFrame:
+assert recovery_remaining:
+  forall axis: Vec3
+  forall max_bend: U32
+  forall duration: U32
+  forall remaining: U32
+  forall height: U32
+  BendFrame
+
+def recovery_remaining(axis, max_bend, duration, remaining, height):
   (remaining_test, remaining_amount) = u32_pair(remaining)
   match U32.is_zero(remaining_test):
     case True{}:
@@ -644,16 +989,40 @@ def recovery_remaining(axis: Vec3, max_bend: U32, duration: U32, remaining: U32,
       amount = u32_div(U32.mul(max_bend, remaining_amount), duration)
       bend_frame_make(BeetRecovering{}, axis, amount, height, u32(1024n))
 
-def recovery_trajectory(axis: Vec3, max_bend: U32, duration: U32, elapsed: U32, height: U32) -> BendFrame:
+assert recovery_trajectory:
+  forall axis: Vec3
+  forall max_bend: U32
+  forall duration: U32
+  forall elapsed: U32
+  forall height: U32
+  BendFrame
+
+def recovery_trajectory(axis, max_bend, duration, elapsed, height):
   (duration_left, duration_divisor) = u32_pair(duration)
   recovery_remaining(axis, max_bend, duration_divisor, u32_saturating_sub(duration_left, elapsed), height)
 
-def beet_height(attributes: BeetAttributes) -> U32:
+assert beet_height:
+  forall attributes: BeetAttributes
+  U32
+
+def beet_height(attributes):
   match attributes:
     case BeetAttributes{water, sugar, fiber, size, magic, shine}:
       U32.add(u32(1024n), U32.mul(size, u32(3n)))
 
-def bend_from_outcome(outcome: BendOutcome, axis: Vec3, max_bend: U32, period: U32, duration: U32, phase: U32, break_at: U32, elapsed: U32, height: U32) -> BendFrame:
+assert bend_from_outcome:
+  forall outcome: BendOutcome
+  forall axis: Vec3
+  forall max_bend: U32
+  forall period: U32
+  forall duration: U32
+  forall phase: U32
+  forall break_at: U32
+  forall elapsed: U32
+  forall height: U32
+  BendFrame
+
+def bend_from_outcome(outcome, axis, max_bend, period, duration, phase, break_at, elapsed, height):
   match outcome:
     case BeetBreak{pieces}:
       broken_trajectory(pieces, axis, max_bend, break_at, elapsed, height)
@@ -662,49 +1031,30 @@ def bend_from_outcome(outcome: BendOutcome, axis: Vec3, max_bend: U32, period: U
     case BeetRecover{}:
       recovery_trajectory(axis, max_bend, duration, elapsed, height)
 
-def beet_bend(seed: U32, attributes: BeetAttributes, elapsed: U32) -> BendFrame:
+assert beet_bend:
+  forall seed: U32
+  forall attributes: BeetAttributes
+  forall elapsed: U32
+  BendFrame
+
+def beet_bend(seed, attributes, elapsed):
   (attr_response, attr_height) = attributes_copy(attributes)
   match beet_response(seed, attr_response):
     case BeetPhysics{outcome, axis, impulse, stiffness, damping, flexibility, max_bend, period, duration, phase, break_at}:
       bend_from_outcome(outcome, axis, max_bend, period, duration, phase, break_at, elapsed, beet_height(attr_height))
 
-# Machine-checked physics proofs
-# ==============================
+# Physics theorem and closed certificates
+# =======================================
 #
-# Core's proof synthesizer is unavailable, so every theorem below contains an
-# explicit proof term. A finite seed-decision model proves deterministic exact
-# break, spring, and recovery results. Closed witnesses cover zero growth, both
-# clamp branches, and a low-energy response bound; they do not claim bounds for
-# unchecked, caller-constructed attributes.
+# `fix_negate_involution_theorem` above is quantified over every Fix and proved
+# by constructor induction. The cases below are closed regression certificates
+# for one authored fixture; they are deliberately not called general proofs.
 
-def tile_code(tile: ProofTile) -> U32:
-  match tile:
-    case Tile00{}: u32(0n)
-    case Tile01{}: u32(1n)
-    case Tile02{}: u32(2n)
-    case Tile03{}: u32(3n)
-    case Tile04{}: u32(4n)
-    case Tile05{}: u32(5n)
-    case Tile06{}: u32(6n)
-    case Tile07{}: u32(7n)
-    case Tile08{}: u32(8n)
-    case Tile09{}: u32(9n)
-    case Tile10{}: u32(10n)
-    case Tile11{}: u32(11n)
-    case Tile12{}: u32(12n)
-    case Tile13{}: u32(13n)
-    case Tile14{}: u32(14n)
-    case Tile15{}: u32(15n)
-    case Tile16{}: u32(16n)
-    case Tile17{}: u32(17n)
-    case Tile18{}: u32(18n)
-    case Tile19{}: u32(19n)
-    case Tile20{}: u32(20n)
-    case Tile21{}: u32(21n)
-    case Tile22{}: u32(22n)
-    case Tile23{}: u32(23n)
+assert attributes_bounded:
+  forall attributes: BeetAttributes
+  Bool
 
-def attributes_bounded(attributes: BeetAttributes) -> Bool:
+def attributes_bounded(attributes):
   match attributes:
     case BeetAttributes{water, sugar, fiber, size, magic, shine}:
       Bool.and(
@@ -718,21 +1068,35 @@ def attributes_bounded(attributes: BeetAttributes) -> Bool:
         )
       )
 
-def fix_bounded(value: Fix, limit: U32) -> Bool:
+assert fix_bounded:
+  forall value: Fix
+  forall limit: U32
+  Bool
+
+def fix_bounded(value, limit):
   match value:
     case FixPos{magnitude}:
       U32.is_le(magnitude, limit)
     case FixNeg{magnitude}:
       U32.is_le(magnitude, limit)
 
-def vec3_bounded(vector: Vec3, limit: U32) -> Bool:
+assert vec3_bounded:
+  forall vector: Vec3
+  forall limit: U32
+  Bool
+
+def vec3_bounded(vector, limit):
   match vector:
     case Vec3{x, y, z}:
       (lx, tail) = u32_pair(limit)
       (ly, lz) = u32_pair(tail)
       Bool.and(fix_bounded(x, lx), Bool.and(fix_bounded(y, ly), fix_bounded(z, lz)))
 
-def response_fields_bounded(response: BeetPhysics) -> Bool:
+assert response_fields_bounded:
+  forall response: BeetPhysics
+  Bool
+
+def response_fields_bounded(response):
   match response:
     case BeetPhysics{outcome, axis, impulse, stiffness, damping, flexibility, max_bend, period, duration, phase, break_at}:
       Bool.and(
@@ -761,12 +1125,20 @@ def response_fields_bounded(response: BeetPhysics) -> Bool:
         )
       )
 
-def growth_height_value(frame: GrowthFrame) -> U32:
+assert growth_height_value:
+  forall frame: GrowthFrame
+  U32
+
+def growth_height_value(frame):
   match frame:
     case GrowthFrame{height, root_depth, stem_radius, leaf_sway}:
       height
 
-def growth_frame_bounded(frame: GrowthFrame) -> Bool:
+assert growth_frame_bounded:
+  forall frame: GrowthFrame
+  Bool
+
+def growth_frame_bounded(frame):
   match frame:
     case GrowthFrame{height, root_depth, stem_radius, leaf_sway}:
       Bool.and(
@@ -777,55 +1149,96 @@ def growth_frame_bounded(frame: GrowthFrame) -> Bool:
         )
       )
 
-# Small proof fixtures keep integrated checking quick and reproducible.
-def ProofAttributes() -> BeetAttributes:
+# Small certificate fixtures keep integrated checking quick and reproducible.
+assert CertificateAttributes:
+  BeetAttributes
+
+def CertificateAttributes():
   BeetAttributes{u32(8n), u32(13n), u32(21n), u32(34n), u32(55n), u32(89n)}
 
-# Exact deterministic selector theorems establish that all three physical
-# response branches are reachable without normalizing through xorshift.
-def proof_seed_outcome(seed: PhysicsProofSeed) -> BendOutcome:
+# Closed deterministic selector certificates exercise all three physical
+# response branches without normalizing through xorshift.
+assert certificate_seed_outcome:
+  forall seed: PhysicsCheckSeed
+  BendOutcome
+
+def certificate_seed_outcome(seed):
   match seed:
-    case ProofBreakSeed{}:
-      outcome_select(True{}, False{}, u32(0n), u32(0n), ProofAttributes())
-    case ProofSpringSeed{}:
+    case CheckBreakSeed{}:
+      outcome_select(True{}, False{}, u32(0n), u32(0n), CertificateAttributes())
+    case CheckSpringSeed{}:
       outcome_select(False{}, True{}, u32(0n), u32(0n), BeetAttributes{u32(0n), u32(0n), u32(0n), u32(0n), u32(0n), u32(0n)})
-    case ProofRecoverySeed{}:
-      outcome_select(False{}, False{}, u32(0n), u32(0n), ProofAttributes())
+    case CheckRecoverySeed{}:
+      outcome_select(False{}, False{}, u32(0n), u32(0n), CertificateAttributes())
 
-def BreakPathExact() -> Type:
-  {proof_seed_outcome(ProofBreakSeed{}) == BeetBreak{u32(2n)} : BendOutcome}
+assert BreakPathExact:
+  Type
 
-def break_path_exact() -> BreakPathExact():
+def BreakPathExact():
+  {certificate_seed_outcome(CheckBreakSeed{}) == BeetBreak{u32(2n)} : BendOutcome}
+
+assert break_path_certificate:
+  BreakPathExact()
+
+def break_path_certificate():
   {==}
 
-def SpringPathExact() -> Type:
-  {proof_seed_outcome(ProofSpringSeed{}) == BeetSpring{u32(2n)} : BendOutcome}
+assert SpringPathExact:
+  Type
 
-def spring_path_exact() -> SpringPathExact():
+def SpringPathExact():
+  {certificate_seed_outcome(CheckSpringSeed{}) == BeetSpring{u32(2n)} : BendOutcome}
+
+assert spring_path_certificate:
+  SpringPathExact()
+
+def spring_path_certificate():
   {==}
 
-def RecoveryPathExact() -> Type:
-  {proof_seed_outcome(ProofRecoverySeed{}) == BeetRecover{} : BendOutcome}
+assert RecoveryPathExact:
+  Type
 
-def recovery_path_exact() -> RecoveryPathExact():
+def RecoveryPathExact():
+  {certificate_seed_outcome(CheckRecoverySeed{}) == BeetRecover{} : BendOutcome}
+
+assert recovery_path_certificate:
+  RecoveryPathExact()
+
+def recovery_path_certificate():
   {==}
 
 # The height component is exactly zero at zero normalized growth progress.
-def GrowthStartsAtZero() -> Type:
+assert GrowthStartsAtZero:
+  Type
+
+def GrowthStartsAtZero():
   {growth_height(BeetAttributes{u32(0n), u32(0n), u32(0n), u32(0n), u32(0n), u32(0n)}, u32(0n)) == u32(0n) : U32}
 
-def growth_starts_at_zero() -> GrowthStartsAtZero():
+assert growth_zero_certificate:
+  GrowthStartsAtZero()
+
+def growth_zero_certificate():
   {==}
 
 # Both sides of the saturating growth clamp are covered explicitly.
-def GrowthClampExact() -> Type:
+assert GrowthClampExact:
+  Type
+
+def GrowthClampExact():
   {u32_min(u32(7n), u32(5n)) == u32(5n) : U32} &
   {u32_min(u32(3n), u32(5n)) == u32(3n) : U32}
 
-def growth_clamp_exact() -> GrowthClampExact():
+assert growth_clamp_certificate:
+  GrowthClampExact()
+
+def growth_clamp_certificate():
   ({==}, {==})
 
-def response_within_100(response: BeetPhysics) -> Bool:
+assert response_within_100:
+  forall response: BeetPhysics
+  Bool
+
+def response_within_100(response):
   match response:
     case BeetPhysics{outcome, axis, impulse, stiffness, damping, flexibility, max_bend, period, duration, phase, break_at}:
       Bool.and(
@@ -854,7 +1267,10 @@ def response_within_100(response: BeetPhysics) -> Bool:
         )
       )
 
-def ProofResponse() -> BeetPhysics:
+assert CertificateResponse:
+  BeetPhysics
+
+def CertificateResponse():
   BeetPhysics{
     BeetRecover{},
     Vec3{FixPos{u32(40n)}, FixNeg{u32(60n)}, FixPos{u32(80n)}},
@@ -862,33 +1278,56 @@ def ProofResponse() -> BeetPhysics:
     u32(60n), u32(70n), u32(80n), u32(90n)
   }
 
-def ResponseWithin100() -> Type:
-  {response_within_100(ProofResponse()) == True{} : Bool}
+assert ResponseWithin100:
+  Type
 
-def response_within_100_proof() -> ResponseWithin100():
+def ResponseWithin100():
+  {response_within_100(CertificateResponse()) == True{} : Bool}
+
+assert response_bound_certificate:
+  ResponseWithin100()
+
+def response_bound_certificate():
   {==}
 
 # Regression facts for the local restoring divider and remainder.
-def DividerExact() -> Type:
+assert DividerExact:
+  Type
+
+def DividerExact():
   {u32_div(u32(37n), u32(5n)) == u32(7n) : U32} &
   {u32_mod(u32(37n), u32(5n)) == u32(2n) : U32}
 
-def divider_exact() -> DividerExact():
+assert divider_certificate:
+  DividerExact()
+
+def divider_certificate():
   ({==}, {==})
 
-def attribute_shine(attributes: BeetAttributes) -> U32:
+assert attribute_shine:
+  forall attributes: BeetAttributes
+  U32
+
+def attribute_shine(attributes):
   match attributes:
     case BeetAttributes{water, sugar, fiber, size, magic, shine}:
       shine
 
-def ShineAttributeExact() -> Type:
-  {attribute_shine(ProofAttributes()) == u32(89n) : U32}
+assert ShineAttributeExact:
+  Type
 
-def shine_attribute_exact_proof() -> ShineAttributeExact():
+def ShineAttributeExact():
+  {attribute_shine(CertificateAttributes()) == u32(89n) : U32}
+
+assert shine_attribute_certificate:
+  ShineAttributeExact()
+
+def shine_attribute_certificate():
   {==}
 
-type PhysicsProofAudit:
-  PhysicsProofAudit{
+type PhysicsVerificationAudit:
+  PhysicsVerificationAudit{
+    -negate_involution: @value: Fix -> {fix_negate(fix_negate(value)) == value : Fix},
     -break_path: BreakPathExact(),
     -spring_path: SpringPathExact(),
     -recovery_path: RecoveryPathExact(),
@@ -897,26 +1336,38 @@ type PhysicsProofAudit:
     -response_bound: ResponseWithin100(),
     -divider: DividerExact(),
     -shine_attribute: ShineAttributeExact(),
-    checked_cases: U32
+    certified_cases: U32,
+    general_theorems: U32
   }
 
-def physics_proofs() -> PhysicsProofAudit:
-  PhysicsProofAudit{
-    break_path_exact(),
-    spring_path_exact(),
-    recovery_path_exact(),
-    growth_starts_at_zero(),
-    growth_clamp_exact(),
-    response_within_100_proof(),
-    divider_exact(),
-    shine_attribute_exact_proof(),
-    u32(10n)
+assert physics_verification:
+  PhysicsVerificationAudit
+
+def physics_verification():
+  PhysicsVerificationAudit{
+    fix_negate_involution_theorem,
+    break_path_certificate(),
+    spring_path_certificate(),
+    recovery_path_certificate(),
+    growth_zero_certificate(),
+    growth_clamp_certificate(),
+    response_bound_certificate(),
+    divider_certificate(),
+    shine_attribute_certificate(),
+    u32(10n),
+    u32(1n)
   }
 
 # Pure smoke test used by physics_test.bend. The extreme attribute sets keep
 # the three outcome branches stable regardless of the selected deterministic
 # roll, while ordinary game attributes remain seed-sensitive.
-def physics_test_outcomes(broken: BeetAttributes, springy: BeetAttributes, calm: BeetAttributes) -> Bool:
+assert physics_test_outcomes:
+  forall broken: BeetAttributes
+  forall springy: BeetAttributes
+  forall calm: BeetAttributes
+  Bool
+
+def physics_test_outcomes(broken, springy, calm):
   match beet_outcome(u32(1n), broken):
     case BeetBreak{pieces}:
       match beet_outcome(u32(2n), springy):
@@ -931,7 +1382,11 @@ def physics_test_outcomes(broken: BeetAttributes, springy: BeetAttributes, calm:
     case other:
       False{}
 
-def physics_frame_smoke(attributes: BeetAttributes) -> Bool:
+assert physics_frame_smoke:
+  forall attributes: BeetAttributes
+  Bool
+
+def physics_frame_smoke(attributes):
   (growth_attributes, bend_attributes) = attributes_copy(attributes)
   match beet_growth(u32(77n), growth_attributes, u32(2500n)):
     case GrowthFrame{height, root_depth, stem_radius, leaf_sway}:
@@ -941,24 +1396,39 @@ def physics_frame_smoke(attributes: BeetAttributes) -> Bool:
             case WindFrame{force, strength}:
               True{}
 
-def physics_growth_smoke(attributes: BeetAttributes) -> Bool:
+assert physics_growth_smoke:
+  forall attributes: BeetAttributes
+  Bool
+
+def physics_growth_smoke(attributes):
   match beet_growth(u32(77n), attributes, u32(2500n)):
     case GrowthFrame{height, root_depth, stem_radius, leaf_sway}:
       True{}
 
-def physics_bend_smoke(attributes: BeetAttributes) -> Bool:
+assert physics_bend_smoke:
+  forall attributes: BeetAttributes
+  Bool
+
+def physics_bend_smoke(attributes):
   match beet_bend(u32(77n), attributes, u32(700n)):
     case BendFrame{state, tip_offset, bend_amount, frame_height, integrity}:
       True{}
 
-def physics_test_after(outcomes: Bool) -> Bool:
+assert physics_test_after:
+  forall outcomes: Bool
+  Bool
+
+def physics_test_after(outcomes):
   match outcomes:
     case False{}:
       False{}
     case True{}:
       physics_frame_smoke(attributes_from_seed(u32(77n), u32(13n)))
 
-def physics_self_test() -> Bool:
+assert physics_self_test:
+  Bool
+
+def physics_self_test():
   physics_test_after(physics_test_outcomes(
     BeetAttributes{u32(0n), u32(1000n), u32(0n), u32(1000n), u32(0n), u32(100n)},
     BeetAttributes{u32(1000n), u32(0n), u32(100n), u32(0n), u32(1000n), u32(900n)},

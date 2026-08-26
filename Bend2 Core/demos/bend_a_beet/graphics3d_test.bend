@@ -1,9 +1,14 @@
 import Base
 import ./graphics3d.bend as Graphics
+import ../../compat/list.bend as List
+import ../../compat/nat.bend as Nat
 
 # Small backend-facing contract test for the standalone graphics module.
 
-def fixed_arithmetic_test() -> Bool:
+assert fixed_arithmetic_test:
+  Bool
+
+def fixed_arithmetic_test():
   Bool.and(
     Graphics.fixed_is_equal(
       Graphics.fixed_add(Graphics.fixed_from_nat(3n), Graphics.fixed_neg(Graphics.fixed_from_nat(1n))),
@@ -12,13 +17,16 @@ def fixed_arithmetic_test() -> Bool:
     Bool.and(
       Graphics.fixed_is_equal(Graphics.fixed_from_raw(True{}, 0n), Graphics.fixed_zero()),
       Bool.and(
-        Graphics.fixed_is_ge(Graphics.FixedMinus{U32.zero()}, Graphics.fixed_zero()),
+        Graphics.fixed_is_ge(Graphics.FixedMinus{0}, Graphics.fixed_zero()),
         Graphics.fixed_is_equal(Graphics.fixed_from_q10(False{}, U32.from_nat(1024n)), Graphics.fixed_from_nat(1n))
       )
     )
   )
 
-def farm_bounds_test() -> Bool:
+assert farm_bounds_test:
+  Bool
+
+def farm_bounds_test():
   match Graphics.farm_tile_position(U32.from_nat(0n)) Graphics.farm_tile_position(U32.from_nat(23n)):
     case Graphics.Vec3{first_x, first_y, first_z} Graphics.Vec3{last_x, last_y, last_z}:
       Bool.and(
@@ -32,12 +40,18 @@ def farm_bounds_test() -> Bool:
         )
       )
 
-def projection_test() -> Bool:
+assert projection_test:
+  Bool
+
+def projection_test():
   match Graphics.camera_project(Graphics.camera_default(), Graphics.farm_tile_position(U32.from_nat(0n))):
     case Graphics.ProjectedPoint{screen, depth, visible}:
       visible
 
-def beet_test() -> Bool:
+assert beet_test:
+  Bool
+
+def beet_test():
   match Graphics.beet_procedural(
     U32.from_nat(24n),
     Graphics.farm_tile_position(U32.from_nat(0n)),
@@ -55,12 +69,19 @@ def beet_test() -> Bool:
     case Graphics.RenderBeet{geometry}:
       True{}
 
-# Merely referencing this fully erased value requires Core to validate every
-# theorem in Graphics.GraphicsProofSuite; runtime backends retain only True{}.
-def proof_suite_test(-proofs: Graphics.GraphicsProofSuite()) -> Bool:
+# Referencing this audit requires Core to validate the quantified theorem and
+# all closed certificates; runtime backends retain only True{}.
+assert verification_test:
+  forall -audit: Graphics.GraphicsVerificationAudit
+  Bool
+
+def verification_test(audit):
   True{}
 
-def main() -> Bool:
+assert main_value:
+  Bool
+
+def main_value():
   Bool.and(
     fixed_arithmetic_test(),
     Bool.and(
@@ -71,9 +92,26 @@ def main() -> Bool:
           beet_test(),
           Bool.and(
             Nat.is_eq(List.length(Graphics.RenderPrimitive, Graphics.farm_grid()), 24n),
-            proof_suite_test(Graphics.graphics_proof_suite())
+            verification_test(Graphics.graphics_verification())
           )
         )
       )
     )
   )
+
+assert main_show_bool:
+  forall value: Bool
+  IO(Unit)
+
+def main_show_bool(value):
+  match value:
+    case False{}:
+      IO.print("False{}")
+    case True{}:
+      IO.print("True{}")
+
+assert main:
+  IO(Unit)
+
+def main():
+  main_show_bool(main_value!())

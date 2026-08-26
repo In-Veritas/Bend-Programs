@@ -2,6 +2,9 @@ import Base
 import ./physics.bend as Physics
 import ./graphics3d.bend as Graphics
 import ./raytrace.bend as Rays
+import ./scene_proofs.bend as SceneProof
+import ./physics_history_proofs.bend as PhysicsProof
+import ./engine_features.bend as Engine
 
 # Bend-a-Beet is a pure deterministic Core game report.  Core computes every
 # farm tile, attribute, wind/growth pose, projected 3D point, ray-traced shade
@@ -143,6 +146,7 @@ type GameReport:
     broken: U32,
     spring: U32,
     recover: U32,
+    engine_profiles: List<Engine.EngineProfile>,
     frames: List<FarmFrame>
   }
 
@@ -163,47 +167,86 @@ type U32x16:
 # Affine helpers
 # ==============
 
-def u32(value: Nat) -> U32:
+assert u32:
+  forall value: Nat
+  U32
+
+def u32(value):
   U32.from_nat(value)
 
-def u32_pair(value: U32) -> U32 & U32:
+assert u32_pair:
+  forall value: U32
+  U32 & U32
+
+def u32_pair(value):
   ((left, left_exact), (right, right_exact)) = U32.copy(value)
   (left, right)
 
-def u32_four(value: U32) -> U32x4:
+assert u32_four:
+  forall value: U32
+  U32x4
+
+def u32_four(value):
   (left, right) = u32_pair(value)
   (a, b) = u32_pair(left)
   (c, d) = u32_pair(right)
   U32x4{a, b, c, d}
 
-def u32_eight(value: U32) -> U32x8:
+assert u32_eight:
+  forall value: U32
+  U32x8
+
+def u32_eight(value):
   (left, right) = u32_pair(value)
   match u32_four(left) u32_four(right):
     case U32x4{a, b, c, d} U32x4{e, f, g, h}:
       U32x8{a, b, c, d, e, f, g, h}
 
-def u32_sixteen(value: U32) -> U32x16:
+assert u32_sixteen:
+  forall value: U32
+  U32x16
+
+def u32_sixteen(value):
   (left, right) = u32_pair(value)
   match u32_eight(left) u32_eight(right):
     case U32x8{a, b, c, d, e, f, g, h} U32x8{i, j, k, l, m, n, o, p}:
       U32x16{a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p}
 
-def game_seed() -> U32:
+assert game_seed:
+  U32
+
+def game_seed():
   # 190 * 256 + 183, kept as U32 arithmetic so the source does not build a
   # 48,823-constructor unary Nat literal.
   U32.add(U32.shln(8n, u32(190n)), u32(183n))
 
-def kilo(multiplier: Nat) -> U32:
+assert kilo:
+  forall multiplier: Nat
+  U32
+
+def kilo(multiplier):
   U32.mul(u32(multiplier), u32(1000n))
 
-def beet_seed(tile: U32) -> U32:
+assert beet_seed:
+  forall tile: U32
+  U32
+
+def beet_seed(tile):
   U32.add(game_seed(), U32.mul(tile, U32.add(kilo(7n), u32(919n))))
 
-def attributes_for(tile: U32) -> Physics.BeetAttributes:
+assert attributes_for:
+  forall tile: U32
+  Physics.BeetAttributes
+
+def attributes_for(tile):
   (seed_tile, attribute_tile) = u32_pair(tile)
   Physics.attributes_from_seed(beet_seed(seed_tile), attribute_tile)
 
-def tile_planted(tile: U32) -> Bool:
+assert tile_planted:
+  forall tile: U32
+  Bool
+
+def tile_planted(tile):
   match U32.is_zero(U32.mod(U32.xor(beet_seed(tile), u32(313n)), u32(5n))):
     case True{}: False{}
     case False{}: True{}
@@ -211,84 +254,131 @@ def tile_planted(tile: U32) -> Bool:
 # Fixed-point bridges and projections
 # ===================================
 
-def physics_fixed(value: Physics.Fix) -> Graphics.Fixed:
+assert physics_fixed:
+  forall value: Physics.Fix
+  Graphics.Fixed
+
+def physics_fixed(value):
   match value:
     case Physics.FixPos{magnitude}:
       Graphics.fixed_from_q10(False{}, magnitude)
     case Physics.FixNeg{magnitude}:
       Graphics.fixed_from_q10(True{}, magnitude)
 
-def growth_wind_fixed(value: Physics.Fix) -> Graphics.Fixed:
+assert growth_wind_fixed:
+  forall value: Physics.Fix
+  Graphics.Fixed
+
+def growth_wind_fixed(value):
   Graphics.fixed_mul(physics_fixed(value), Graphics.fixed_from_nat(3n))
 
-def graphics_to_ray_fixed(value: Graphics.Fixed) -> Rays.Fix:
+assert graphics_to_ray_fixed:
+  forall value: Graphics.Fixed
+  Rays.Fix
+
+def graphics_to_ray_fixed(value):
   match value:
     case Graphics.FixedPlus{magnitude}:
       Rays.FixPos{magnitude}
     case Graphics.FixedMinus{magnitude}:
       Rays.FixNeg{magnitude}
 
-def graphics_to_ray_vec(value: Graphics.Vec3) -> Rays.Vec3:
+assert graphics_to_ray_vec:
+  forall value: Graphics.Vec3
+  Rays.Vec3
+
+def graphics_to_ray_vec(value):
   match value:
     case Graphics.Vec3{x, y, z}:
       Rays.Vec3{graphics_to_ray_fixed(x), graphics_to_ray_fixed(y), graphics_to_ray_fixed(z)}
 
-def ray_to_graphics_fixed(value: Rays.Fix) -> Graphics.Fixed:
+assert ray_to_graphics_fixed:
+  forall value: Rays.Fix
+  Graphics.Fixed
+
+def ray_to_graphics_fixed(value):
   match value:
     case Rays.FixPos{magnitude}:
       Graphics.FixedPlus{magnitude}
     case Rays.FixNeg{magnitude}:
       Graphics.FixedMinus{magnitude}
 
-def ray_to_graphics_vec(value: Rays.Vec3) -> Graphics.Vec3:
+assert ray_to_graphics_vec:
+  forall value: Rays.Vec3
+  Graphics.Vec3
+
+def ray_to_graphics_vec(value):
   match value:
     case Rays.Vec3{x, y, z}:
       Graphics.Vec3{ray_to_graphics_fixed(x), ray_to_graphics_fixed(y), ray_to_graphics_fixed(z)}
 
-def screen_magnitude(value: Graphics.Fixed) -> U32:
+assert screen_magnitude:
+  forall value: Graphics.Fixed
+  U32
+
+def screen_magnitude(value):
   match value:
     case Graphics.FixedPlus{magnitude}:
       Rays.u32_div(magnitude, u32(256n))
     case Graphics.FixedMinus{magnitude}:
-      U32.zero()
+      0
 
-def screen_point(point: Graphics.Vec3) -> ScreenPoint:
+assert screen_point:
+  forall point: Graphics.Vec3
+  ScreenPoint
+
+def screen_point(point):
   match Graphics.camera_project(Graphics.camera_default(), point):
     case Graphics.ProjectedPoint{Graphics.Vec2{x, y}, depth, visible}:
       ScreenPoint{screen_magnitude(x), screen_magnitude(y), screen_magnitude(depth), visible}
 
-def tile_point(tile: U32) -> ScreenPoint:
+assert tile_point:
+  forall tile: U32
+  ScreenPoint
+
+def tile_point(tile):
   screen_point(Graphics.farm_tile_position(tile))
 
 # Seeded response and poses
 # =========================
 
-def response_outcome(
-  outcome: Physics.BendOutcome,
-  impulse: U32,
-  stiffness: U32,
-  damping: U32,
-  flexibility: U32,
-  max_bend: U32,
-  period: U32,
-  duration: U32,
-  signature: U32,
-  break_at: U32
-) -> ResponseView:
+assert response_outcome:
+  forall outcome: Physics.BendOutcome
+  forall impulse: U32
+  forall stiffness: U32
+  forall damping: U32
+  forall flexibility: U32
+  forall max_bend: U32
+  forall period: U32
+  forall duration: U32
+  forall signature: U32
+  forall break_at: U32
+  ResponseView
+
+def response_outcome(outcome, impulse, stiffness, damping, flexibility, max_bend, period, duration, signature, break_at):
   match outcome:
     case Physics.BeetBreak{pieces}:
       ResponseView{"break", pieces, impulse, stiffness, damping, flexibility, max_bend, period, duration, signature, break_at}
     case Physics.BeetSpring{boings}:
       ResponseView{"boioioioing", boings, impulse, stiffness, damping, flexibility, max_bend, period, duration, signature, break_at}
     case Physics.BeetRecover{}:
-      ResponseView{"bend and recover", U32.zero(), impulse, stiffness, damping, flexibility, max_bend, period, duration, signature, break_at}
+      ResponseView{"bend and recover", 0, impulse, stiffness, damping, flexibility, max_bend, period, duration, signature, break_at}
 
-def response_finish(response: Physics.BeetPhysics, signature: U32) -> ResponseView:
+assert response_finish:
+  forall response: Physics.BeetPhysics
+  forall signature: U32
+  ResponseView
+
+def response_finish(response, signature):
   match response:
     case Physics.BeetPhysics{outcome, axis, impulse, stiffness, damping, flexibility, max_bend, period, duration, phase, break_at}:
       response_outcome(outcome, impulse, stiffness, damping, flexibility, max_bend, period, duration, signature, break_at)
 
-def response_view(tile: U32) -> ResponseView:
+assert response_view:
+  forall tile: U32
+  ResponseView
+
+def response_view(tile):
   match u32_four(tile):
     case U32x4{seed_tile, attribute_tile, signature_tile, spare_tile}:
       response_finish(
@@ -296,13 +386,22 @@ def response_view(tile: U32) -> ResponseView:
         beet_seed(signature_tile)
       )
 
-def graphics_growth(elapsed: U32) -> Graphics.Fixed:
+assert graphics_growth:
+  forall elapsed: U32
+  Graphics.Fixed
+
+def graphics_growth(elapsed):
   Graphics.fixed_from_q10(
     False{},
     Rays.u32_div(U32.shln(10n, elapsed), kilo(5n))
   )
 
-def growth_pose(tile: U32, elapsed: U32) -> Pose:
+assert growth_pose:
+  forall tile: U32
+  forall elapsed: U32
+  Pose
+
+def growth_pose(tile, elapsed):
   match u32_four(tile) u32_four(elapsed):
     case U32x4{seed_tile, attribute_tile, spare_tile, rest_tile} U32x4{growth_time, percent_time, spare_time, rest_time}:
       match Physics.beet_growth(beet_seed(seed_tile), attributes_for(attribute_tile), growth_time):
@@ -314,13 +413,21 @@ def growth_pose(tile: U32, elapsed: U32) -> Pose:
             growth_wind_fixed(sway_x),
             Graphics.fixed_zero(),
             Graphics.fixed_zero(),
-            False{}, False{}, False{}, "growing", U32.zero(), U32.shln(10n, U32.one()),
-            height_light, height_report, U32.zero(),
+            False{}, False{}, False{}, "growing", 0, U32.shln(10n, 1),
+            height_light, height_report, 0,
             Rays.u32_div(U32.mul(growth_percent_time, u32(100n)), kilo(5n)),
             Rays.u32_div(U32.add(root_depth, stem_radius), u32(2n))
           }
 
-def grown_pose(tile: U32, lift: Graphics.Fixed, lift_light: U32, pulled: Bool, state: String) -> Pose:
+assert grown_pose:
+  forall tile: U32
+  forall lift: Graphics.Fixed
+  forall lift_light: U32
+  forall pulled: Bool
+  forall state: String
+  Pose
+
+def grown_pose(tile, lift, lift_light, pulled, state):
   match u32_four(tile):
     case U32x4{seed_tile, attribute_tile, spare_tile, rest_tile}:
       match Physics.beet_growth(beet_seed(seed_tile), attributes_for(attribute_tile), kilo(5n)):
@@ -329,23 +436,33 @@ def grown_pose(tile: U32, lift: Graphics.Fixed, lift_light: U32, pulled: Bool, s
           Pose{
             Graphics.fixed_from_nat(1n), physics_fixed(sway_x),
             lift, Graphics.fixed_zero(),
-            pulled, False{}, False{}, state, U32.zero(), U32.shln(10n, U32.one()),
+            pulled, False{}, False{}, state, 0, U32.shln(10n, 1),
             height_light, height_report, lift_light, u32(100n),
             Rays.u32_div(U32.add(root_depth, stem_radius), u32(2n))
           }
 
-def full_growth_pose(tile: U32, pulled: Bool, state: String) -> Pose:
+assert full_growth_pose:
+  forall tile: U32
+  forall pulled: Bool
+  forall state: String
+  Pose
+
+def full_growth_pose(tile, pulled, state):
   grown_pose(tile, Graphics.fixed_from_raw(False{}, 410n), u32(410n), pulled, state)
 
 # The 800 ms uproot has a short downward load, an accelerating release,
 # overshoot, and damped return. Raw values are Q24.8 vertical displacement.
-def uproot_lift(elapsed: U32) -> UprootLift:
+assert uproot_lift:
+  forall elapsed: U32
+  UprootLift
+
+def uproot_lift(elapsed):
   match U32.to_nat(Rays.u32_div(elapsed, u32(50n))):
-    case 0n: UprootLift{Graphics.fixed_from_raw(True{}, 10n), U32.zero()}
-    case 1n: UprootLift{Graphics.fixed_from_raw(True{}, 18n), U32.zero()}
-    case 2n: UprootLift{Graphics.fixed_from_raw(True{}, 28n), U32.zero()}
-    case 3n: UprootLift{Graphics.fixed_from_raw(True{}, 20n), U32.zero()}
-    case 4n: UprootLift{Graphics.fixed_from_raw(False{}, 0n), U32.zero()}
+    case 0n: UprootLift{Graphics.fixed_from_raw(True{}, 10n), 0}
+    case 1n: UprootLift{Graphics.fixed_from_raw(True{}, 18n), 0}
+    case 2n: UprootLift{Graphics.fixed_from_raw(True{}, 28n), 0}
+    case 3n: UprootLift{Graphics.fixed_from_raw(True{}, 20n), 0}
+    case 4n: UprootLift{Graphics.fixed_from_raw(False{}, 0n), 0}
     case 5n: UprootLift{Graphics.fixed_from_raw(False{}, 45n), u32(45n)}
     case 6n: UprootLift{Graphics.fixed_from_raw(False{}, 110n), u32(110n)}
     case 7n: UprootLift{Graphics.fixed_from_raw(False{}, 205n), u32(205n)}
@@ -358,7 +475,11 @@ def uproot_lift(elapsed: U32) -> UprootLift:
     case 14n: UprootLift{Graphics.fixed_from_raw(False{}, 445n), u32(445n)}
     case other: UprootLift{Graphics.fixed_from_raw(False{}, 410n), u32(410n)}
 
-def uproot_state(elapsed: U32) -> String:
+assert uproot_state:
+  forall elapsed: U32
+  String
+
+def uproot_state(elapsed):
   match U32.to_nat(Rays.u32_div(elapsed, u32(50n))):
     case 0n: "roots loading"
     case 1n: "roots loading"
@@ -377,7 +498,12 @@ def uproot_state(elapsed: U32) -> String:
     case 14n: "settling"
     case other: "uprooted"
 
-def uproot_pose(tile: U32, elapsed: U32) -> Pose:
+assert uproot_pose:
+  forall tile: U32
+  forall elapsed: U32
+  Pose
+
+def uproot_pose(tile, elapsed):
   match u32_pair(elapsed):
     case (lift_time, state_time):
       match uproot_lift(lift_time):
@@ -387,7 +513,11 @@ def uproot_pose(tile: U32, elapsed: U32) -> Pose:
 type StateView:
   StateView{name: String, broken_geometry: Bool, broken_report: Bool}
 
-def bend_state_view(state: Physics.BendState) -> StateView:
+assert bend_state_view:
+  forall state: Physics.BendState
+  StateView
+
+def bend_state_view(state):
   match state:
     case Physics.BeetBreaking{}: StateView{"creak...", False{}, False{}}
     case Physics.BeetBroken{pieces}: StateView{"snap!", True{}, True{}}
@@ -395,7 +525,12 @@ def bend_state_view(state: Physics.BendState) -> StateView:
     case Physics.BeetRecovering{}: StateView{"bending", False{}, False{}}
     case Physics.BeetResting{}: StateView{"resting", False{}, False{}}
 
-def active_pose(tile: U32, elapsed: U32) -> Pose:
+assert active_pose:
+  forall tile: U32
+  forall elapsed: U32
+  Pose
+
+def active_pose(tile, elapsed):
   match u32_four(tile) u32_four(elapsed):
     case U32x4{seed_bend, attribute_bend, seed_wind, attribute_growth} U32x4{bend_time, wind_time, spare_time, rest_time}:
       match Physics.beet_bend(beet_seed(seed_bend), attributes_for(attribute_bend), bend_time):
@@ -413,7 +548,14 @@ def active_pose(tile: U32, elapsed: U32) -> Pose:
                     u32(100n), strength
                   }
 
-def beet_pose(stage: U32, tile: U32, active: U32, elapsed: U32) -> Pose:
+assert beet_pose:
+  forall stage: U32
+  forall tile: U32
+  forall active: U32
+  forall elapsed: U32
+  Pose
+
+def beet_pose(stage, tile, active, elapsed):
   match U32.to_nat(stage):
     case 0n:
       growth_pose(tile, elapsed)
@@ -435,7 +577,11 @@ def beet_pose(stage: U32, tile: U32, active: U32, elapsed: U32) -> Pose:
 # 3D geometry and ray lighting
 # ============================
 
-def point_geometry(tile: U32) -> GeometryView:
+assert point_geometry:
+  forall tile: U32
+  GeometryView
+
+def point_geometry(tile):
   match u32_eight(tile):
     case U32x8{a, b, c, d, e, f, g, h}:
       GeometryView{
@@ -444,17 +590,19 @@ def point_geometry(tile: U32) -> GeometryView:
         u32(28n), u32(14n), u32(10n)
       }
 
-def geometry_view(
-  tile: U32,
-  growth: Graphics.Fixed,
-  wind: Graphics.Fixed,
-  lift: Graphics.Fixed,
-  bend: Graphics.Fixed,
-  magic: U32,
-  shine: U32,
-  signature: U32,
-  broken: Bool
-) -> GeometryView:
+assert geometry_view:
+  forall tile: U32
+  forall growth: Graphics.Fixed
+  forall wind: Graphics.Fixed
+  forall lift: Graphics.Fixed
+  forall bend: Graphics.Fixed
+  forall magic: U32
+  forall shine: U32
+  forall signature: U32
+  forall broken: Bool
+  GeometryView
+
+def geometry_view(tile, growth, wind, lift, bend, magic, shine, signature, broken):
   (object_tile, position_tile) = u32_pair(tile)
   match Graphics.beet_procedural(
     object_tile,
@@ -485,19 +633,30 @@ def geometry_view(
         radial_segments, vertical_segments, leaf_segments
       }
 
-def ray_add_y(point: Rays.Vec3, y: Rays.Fix) -> Rays.Vec3:
+assert ray_add_y:
+  forall point: Rays.Vec3
+  forall y: Rays.Fix
+  Rays.Vec3
+
+def ray_add_y(point, y):
   match point:
     case Rays.Vec3{x, base_y, z}:
       Rays.Vec3{x, Rays.fix_add(base_y, y), z}
 
-def radius_from_size(size: U32) -> U32:
+assert radius_from_size:
+  forall size: U32
+  U32
+
+def radius_from_size(size):
   U32.add(u32(58n), Rays.u32_div(size, u32(8n)))
 
-def light_finish(
-  sample: Rays.FarmLight,
-  surface: Rays.SurfaceLight,
-  shadow: Rays.ShadowProjection
-) -> LightView:
+assert light_finish:
+  forall sample: Rays.FarmLight
+  forall surface: Rays.SurfaceLight
+  forall shadow: Rays.ShadowProjection
+  LightView
+
+def light_finish(sample, surface, shadow):
   match sample surface shadow:
     case Rays.FarmLight{tile_intensity, beet_intensity, tile_shadowed, tile_hit_distance}
          Rays.SurfaceLight{diffuse, specular, combined, absorbed}
@@ -507,29 +666,43 @@ def light_finish(
         specular, absorbed, screen_point(ray_to_graphics_vec(shadow_point))
       }
 
-def light_up() -> Rays.Vec3:
+assert light_up:
+  Rays.Vec3
+
+def light_up():
   Rays.Vec3{Rays.fix_zero(), Rays.fix_one(), Rays.fix_zero()}
 
-def light_toward_sun() -> Rays.Vec3:
+assert light_toward_sun:
+  Rays.Vec3
+
+def light_toward_sun():
   Rays.Vec3{
     Rays.FixPos{u32(181n)}, Rays.FixPos{u32(181n)}, Rays.FixPos{u32(64n)}
   }
 
-def light_toward_viewer() -> Rays.Vec3:
+assert light_toward_viewer:
+  Rays.Vec3
+
+def light_toward_viewer():
   Rays.Vec3{Rays.fix_zero(), Rays.FixPos{u32(181n)}, Rays.FixNeg{u32(181n)}}
 
-def light_travel() -> Rays.Vec3:
+assert light_travel:
+  Rays.Vec3
+
+def light_travel():
   Rays.Vec3{
     Rays.FixNeg{u32(181n)}, Rays.FixNeg{u32(181n)}, Rays.FixNeg{u32(64n)}
   }
 
-def light_sample_channels(
-  ground: Rays.Vec3,
-  surface: Rays.Vec3,
-  center: Rays.Vec3,
-  radius: U32,
-  mapped_shine: U32
-) -> LightView:
+assert light_sample_channels:
+  forall ground: Rays.Vec3
+  forall surface: Rays.Vec3
+  forall center: Rays.Vec3
+  forall radius: U32
+  forall mapped_shine: U32
+  LightView
+
+def light_sample_channels(ground, surface, center, radius, mapped_shine):
   match Rays.vec3_copy(center) u32_pair(mapped_shine):
     case (center_farm, center_shadow) (shine_channel, roughness_source):
       light_finish(
@@ -545,16 +718,26 @@ def light_sample_channels(
         Rays.shadow_to_ground(center_shadow, light_travel())
       )
 
-def light_sample(
-  ground: Rays.Vec3,
-  surface: Rays.Vec3,
-  center: Rays.Vec3,
-  radius: U32,
-  shine: U32
-) -> LightView:
+assert light_sample:
+  forall ground: Rays.Vec3
+  forall surface: Rays.Vec3
+  forall center: Rays.Vec3
+  forall radius: U32
+  forall shine: U32
+  LightView
+
+def light_sample(ground, surface, center, radius, shine):
   light_sample_channels(ground, surface, center, radius, Rays.u32_div(shine, u32(4n)))
 
-def light_view(tile: U32, height: U32, lift: U32, size: U32, shine: U32) -> LightView:
+assert light_view:
+  forall tile: U32
+  forall height: U32
+  forall lift: U32
+  forall size: U32
+  forall shine: U32
+  LightView
+
+def light_view(tile, height, lift, size, shine):
   match u32_four(tile) u32_four(height) u32_four(lift) u32_four(size):
     case U32x4{ground_tile, surface_tile, center_tile, spare_tile}
          U32x4{height_surface, height_spare, height_rest, height_last}
@@ -577,10 +760,18 @@ def light_view(tile: U32, height: U32, lift: U32, size: U32, shine: U32) -> Ligh
 # Farm views
 # ==========
 
-def empty_geometry(tile: U32) -> GeometryView:
+assert empty_geometry:
+  forall tile: U32
+  GeometryView
+
+def empty_geometry(tile):
   point_geometry(tile)
 
-def empty_beet(tile: U32) -> BeetView:
+assert empty_beet:
+  forall tile: U32
+  BeetView
+
+def empty_beet(tile):
   match u32_eight(tile):
     case U32x8{tile_out, row_tile, column_tile, geometry_tile, shadow_tile, t5, t6, t7}:
       match empty_geometry(geometry_tile):
@@ -588,17 +779,24 @@ def empty_beet(tile: U32) -> BeetView:
           BeetView{
             tile_out,
             Rays.u32_div(row_tile, u32(3n)), U32.mod(column_tile, u32(3n)), False{},
-            U32.zero(), U32.zero(), U32.zero(), U32.zero(), U32.zero(),
-            False{}, "empty", U32.zero(), "bare soil", U32.zero(), U32.zero(),
-            U32.zero(), U32.zero(), u32(220n), u32(220n), False{},
+            0, 0, 0, 0, 0,
+            False{}, "empty", 0, "bare soil", 0, 0,
+            0, 0, u32(220n), u32(220n), False{},
             body, root, control, tip, leaf_left, leaf_right, radius, False{},
-            U32.zero(), U32.zero(), U32.zero(), U32.zero(), U32.zero(),
-            U32.zero(), U32.zero(), U32.zero(), U32.zero(),
-            U32.zero(), U32.zero(), u32(255n), tile_point(shadow_tile),
+            0, 0, 0, 0, 0,
+            0, 0, 0, 0,
+            0, 0, u32(255n), tile_point(shadow_tile),
             radial_segments, vertical_segments, leaf_segments
           }
 
-def planted_beet(stage: U32, active: U32, elapsed: U32, tile: U32) -> BeetView:
+assert planted_beet:
+  forall stage: U32
+  forall active: U32
+  forall elapsed: U32
+  forall tile: U32
+  BeetView
+
+def planted_beet(stage, active, elapsed, tile):
   match u32_sixteen(tile) u32_four(stage) u32_four(active) u32_four(elapsed):
     case U32x16{t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t15}
          U32x4{s0,s1,s2,s3} U32x4{a0,a1,a2,a3} U32x4{e0,e1,e2,e3}:
@@ -628,7 +826,14 @@ def planted_beet(stage: U32, active: U32, elapsed: U32, tile: U32) -> BeetView:
                     radial_segments, vertical_segments, leaf_segments
                   }
 
-def beet_view(stage: U32, active: U32, elapsed: U32, tile: U32) -> BeetView:
+assert beet_view:
+  forall stage: U32
+  forall active: U32
+  forall elapsed: U32
+  forall tile: U32
+  BeetView
+
+def beet_view(stage, active, elapsed, tile):
   match u32_pair(tile):
     case (test_tile, keep_tile):
       match tile_planted(test_tile):
@@ -637,7 +842,15 @@ def beet_view(stage: U32, active: U32, elapsed: U32, tile: U32) -> BeetView:
         case True{}:
           planted_beet(stage, active, elapsed, keep_tile)
 
-def beet_views(fuel: Nat, tile: U32, stage: U32, active: U32, elapsed: U32) -> List<BeetView>:
+assert beet_views:
+  forall fuel: Nat
+  forall tile: U32
+  forall stage: U32
+  forall active: U32
+  forall elapsed: U32
+  List<BeetView>
+
+def beet_views(fuel, tile, stage, active, elapsed):
   match fuel:
     case 0n:
       Nil{}
@@ -651,18 +864,32 @@ def beet_views(fuel: Nat, tile: U32, stage: U32, active: U32, elapsed: U32) -> L
         beet_views(pred, U32.inc(tile_next), stage_next, active_next, elapsed_next)
       }
 
-def farm_frame(stage: U32, active: U32, time: U32, duration: U32, phase: String, note: String) -> FarmFrame:
+assert farm_frame:
+  forall stage: U32
+  forall active: U32
+  forall time: U32
+  forall duration: U32
+  forall phase: String
+  forall note: String
+  FarmFrame
+
+def farm_frame(stage, active, time, duration, phase, note):
   match u32_pair(active) u32_pair(time):
     case (active_report, active_views) (time_report, time_views):
       FarmFrame{
         time_report, duration, phase, note, active_report,
-        beet_views(24n, U32.zero(), stage, active_views, time_views)
+        beet_views(24n, 0, stage, active_views, time_views)
       }
 
 # Counts and timeline
 # ===================
 
-def count_add(outcome: Physics.BendOutcome, counts: Counts) -> Counts:
+assert count_add:
+  forall outcome: Physics.BendOutcome
+  forall counts: Counts
+  Counts
+
+def count_add(outcome, counts):
   match outcome counts:
     case Physics.BeetBreak{pieces} Counts{planted, broken, spring, recover}:
       Counts{U32.inc(planted), U32.inc(broken), spring, recover}
@@ -671,10 +898,15 @@ def count_add(outcome: Physics.BendOutcome, counts: Counts) -> Counts:
     case Physics.BeetRecover{} Counts{planted, broken, spring, recover}:
       Counts{U32.inc(planted), broken, spring, U32.inc(recover)}
 
-def farm_counts(fuel: Nat, tile: U32) -> Counts:
+assert farm_counts:
+  forall fuel: Nat
+  forall tile: U32
+  Counts
+
+def farm_counts(fuel, tile):
   match fuel:
     case 0n:
-      Counts{U32.zero(), U32.zero(), U32.zero(), U32.zero()}
+      Counts{0, 0, 0, 0}
     case 1n+pred:
       match u32_four(tile):
         case U32x4{test_tile, seed_tile, attribute_tile, next_tile}:
@@ -686,7 +918,14 @@ def farm_counts(fuel: Nat, tile: U32) -> Counts:
                 case Physics.BeetPhysics{outcome, axis, impulse, stiffness, damping, flexibility, max_bend, period, duration, phase, break_at}:
                   count_add(outcome, farm_counts(pred, U32.inc(next_tile)))
 
-def bend_frames_go(fuel: Nat, tile: U32, time: U32, tail: List<FarmFrame>) -> List<FarmFrame>:
+assert bend_frames_go:
+  forall fuel: Nat
+  forall tile: U32
+  forall time: U32
+  forall tail: List<FarmFrame>
+  List<FarmFrame>
+
+def bend_frames_go(fuel, tile, time, tail):
   match fuel:
     case 0n:
       Con{
@@ -707,17 +946,33 @@ def bend_frames_go(fuel: Nat, tile: U32, time: U32, tail: List<FarmFrame>) -> Li
             bend_frames_go(pred, next_tile, U32.add(next_time, u32(50n)), tail)
           }
 
-def bend_frames(tile: U32, tail: List<FarmFrame>) -> List<FarmFrame>:
-  bend_frames_go(50n, tile, U32.zero(), tail)
+assert bend_frames:
+  forall tile: U32
+  forall tail: List<FarmFrame>
+  List<FarmFrame>
 
-def bend_frames_if(planted: Bool, tile: U32, tail: List<FarmFrame>) -> List<FarmFrame>:
+def bend_frames(tile, tail):
+  bend_frames_go(50n, tile, 0, tail)
+
+assert bend_frames_if:
+  forall planted: Bool
+  forall tile: U32
+  forall tail: List<FarmFrame>
+  List<FarmFrame>
+
+def bend_frames_if(planted, tile, tail):
   match planted:
     case False{}:
       tail
     case True{}:
       bend_frames(tile, tail)
 
-def bend_sequence(fuel: Nat, tile: U32) -> List<FarmFrame>:
+assert bend_sequence:
+  forall fuel: Nat
+  forall tile: U32
+  List<FarmFrame>
+
+def bend_sequence(fuel, tile):
   match fuel:
     case 0n:
       Con{farm_frame(u32(2n),u32(24n),U32.mul(u32(100n),u32(100n)),U32.mul(u32(14n),u32(100n)),"Harvest complete", "Broken roots remain apart; every other beet has returned to rest."), Nil{}}
@@ -730,7 +985,13 @@ def bend_sequence(fuel: Nat, tile: U32) -> List<FarmFrame>:
             bend_sequence(pred, U32.inc(next_tile))
           )
 
-def uproot_frames_go(fuel: Nat, time: U32, tail: List<FarmFrame>) -> List<FarmFrame>:
+assert uproot_frames_go:
+  forall fuel: Nat
+  forall time: U32
+  forall tail: List<FarmFrame>
+  List<FarmFrame>
+
+def uproot_frames_go(fuel, time, tail):
   match fuel:
     case 0n:
       tail
@@ -745,7 +1006,13 @@ def uproot_frames_go(fuel: Nat, time: U32, tail: List<FarmFrame>) -> List<FarmFr
             uproot_frames_go(pred, U32.add(next_time, u32(50n)), tail)
           }
 
-def growth_frames_go(fuel: Nat, time: U32, tail: List<FarmFrame>) -> List<FarmFrame>:
+assert growth_frames_go:
+  forall fuel: Nat
+  forall time: U32
+  forall tail: List<FarmFrame>
+  List<FarmFrame>
+
+def growth_frames_go(fuel, time, tail):
   match fuel:
     case 0n:
       tail
@@ -754,24 +1021,91 @@ def growth_frames_go(fuel: Nat, time: U32, tail: List<FarmFrame>) -> List<FarmFr
         case (frame_time, next_time):
           Con{
             farm_frame(
-              U32.zero(), u32(24n), frame_time, u32(50n),
+              0, u32(24n), frame_time, u32(50n),
               "Growing", "Core wind, growth, projection and light update at 20 frames per second."
             ),
             growth_frames_go(pred, U32.add(next_time, u32(50n)), tail)
           }
 
-def growth_frames(tail: List<FarmFrame>) -> List<FarmFrame>:
+assert growth_frames:
+  forall tail: List<FarmFrame>
+  List<FarmFrame>
+
+def growth_frames(tail):
   growth_frames_go(
     100n,
-    U32.zero(),
+    0,
     uproot_frames_go(16n, kilo(5n), tail)
   )
 
-def main() -> GameReport:
-  match farm_counts(24n, U32.zero()):
+# The reusable Engine appearance is invariant across playback frames, so Core
+# computes one checked material/light profile per tile instead of repeating the
+# same multi-light calculation in all 1,086 immutable frames.
+assert engine_input:
+  forall tile: U32
+  Engine.EngineInput
+
+def engine_input(tile):
+  match u32_four(tile):
+    case U32x4{object_tile, planted_tile, attribute_tile, spare_tile}:
+      match tile_planted(planted_tile):
+        case False{}:
+          Engine.EngineInput{
+            object_tile, 0, 0, 0,
+            u32(256n), False{}
+          }
+        case True{}:
+          match attributes_for(attribute_tile):
+            case Physics.BeetAttributes{water, sugar, fiber, size, magic, shine}:
+              Engine.EngineInput{
+                object_tile, shine, fiber, magic, u32(512n), False{}
+              }
+
+assert engine_inputs_go:
+  forall fuel: Nat
+  forall tile: U32
+  List<Engine.EngineInput>
+
+def engine_inputs_go(fuel, tile):
+  match fuel:
+    case 0n:
+      Nil{}
+    case 1n+pred:
+      match u32_pair(tile):
+        case (input_tile, next_tile):
+          Con{
+            engine_input(input_tile),
+            engine_inputs_go(pred, U32.inc(next_tile))
+          }
+
+assert engine_profiles:
+  List<Engine.EngineProfile>
+
+def engine_profiles():
+  Engine.engine_profiles_func(engine_inputs_go(24n, 0))
+
+assert main_value:
+  GameReport
+
+def main_value():
+  match farm_counts(24n, 0):
     case Counts{planted, broken, spring, recover}:
       GameReport{
         "Bend-a-Beet", game_seed(), u32(8n), u32(3n),
         planted, broken, spring, recover,
-        growth_frames(bend_sequence(24n, U32.zero()))
+        engine_profiles(),
+        growth_frames(bend_sequence(24n, 0))
       }
+
+assert main_accept_value:
+  forall value: GameReport
+  IO(Unit)
+
+def main_accept_value(value):
+  IO.print("Ready{}")
+
+assert main:
+  IO(Unit)
+
+def main():
+  main_accept_value(main_value!())
