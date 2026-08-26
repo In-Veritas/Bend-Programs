@@ -112,5 +112,5 @@ for (const token of ["state = Core.step(state, command, arg0, arg1)", "Core.newG
 for (const token of ["Bend2 Core · Bend Engine", "bend_engine_webgl.js", "BEND ENGINE", "three-dimensional Heroes scene"] ) if (!html.includes(token)) throw new Error(`page misses ${token}`);
 for (const token of ["globalThis.BEND_ENGINE_WEBGL", "WebGL2 is required", "registerMesh", "bindOrbit"] ) if (!engine.includes(token)) throw new Error(`engine boundary misses ${token}`);
 
-verifyCoreEntries(ctx, ["heroes.bend"]);
+verifyCoreEntries(ctx, ["heroes.bend", "heroes_ranged_law_test.bend"]);
 console.log(`Bend Heroes verified: 63 Core map cells, first-unit HP, economy/recruitment/day cycle, ${exchanges} guardian exchanges, ${siegeRounds} siege exchanges, deterministic feedback state, Bend Engine boundary, JS+C`);
