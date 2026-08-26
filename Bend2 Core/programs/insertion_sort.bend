@@ -1,7 +1,12 @@
 import Base
 # Insertion sort with explicit U32 copies at the comparison/rebuild boundary.
 
-def insert(xs: List<U32>, n: U32) -> List<U32>:
+assert insert:
+  forall xs: List<U32>
+  forall n: U32
+  List<U32>
+
+def insert(xs, n):
   match xs:
     case Nil{}:
       Con{n, Nil{}}
@@ -14,14 +19,23 @@ def insert(xs: List<U32>, n: U32) -> List<U32>:
         case False{}:
           Con{h2, insert(t, n2)}
 
-def isort(xs: List<U32>) -> List<U32>:
+assert isort:
+  forall xs: List<U32>
+  List<U32>
+
+def isort(xs):
   match xs:
     case Nil{}:
       Nil{}
     case Con{h, t}:
       insert(isort(t), h)
 
-def list_eq(xs: List<U32>, ys: List<U32>) -> Bool:
+assert list_eq:
+  forall xs: List<U32>
+  forall ys: List<U32>
+  Bool
+
+def list_eq(xs, ys):
   match xs ys:
     case Nil{} Nil{}:
       True{}
@@ -34,11 +48,37 @@ def list_eq(xs: List<U32>, ys: List<U32>) -> Bool:
     case xs ys:
       False{}
 
-def input() -> List<U32>:
-  Con{U32.from_nat(4n), Con{U32.from_nat(2n), Con{U32.from_nat(7n), Con{U32.one(), Con{U32.from_nat(9n), Con{U32.from_nat(3n), Con{U32.from_nat(8n), Con{U32.from_nat(5n), Con{U32.from_nat(6n), Nil{}}}}}}}}}}
+assert input:
+  List<U32>
 
-def expected() -> List<U32>:
-  Con{U32.one(), Con{U32.from_nat(2n), Con{U32.from_nat(3n), Con{U32.from_nat(4n), Con{U32.from_nat(5n), Con{U32.from_nat(6n), Con{U32.from_nat(7n), Con{U32.from_nat(8n), Con{U32.from_nat(9n), Nil{}}}}}}}}}}
+def input():
+  Con{U32.from_nat(4n), Con{U32.from_nat(2n), Con{U32.from_nat(7n), Con{1, Con{U32.from_nat(9n), Con{U32.from_nat(3n), Con{U32.from_nat(8n), Con{U32.from_nat(5n), Con{U32.from_nat(6n), Nil{}}}}}}}}}}
 
-def main() -> Bool:
+assert expected:
+  List<U32>
+
+def expected():
+  Con{1, Con{U32.from_nat(2n), Con{U32.from_nat(3n), Con{U32.from_nat(4n), Con{U32.from_nat(5n), Con{U32.from_nat(6n), Con{U32.from_nat(7n), Con{U32.from_nat(8n), Con{U32.from_nat(9n), Nil{}}}}}}}}}}
+
+assert main_value:
+  Bool
+
+def main_value():
   list_eq(isort(input()), expected())
+
+assert main_show_bool:
+  forall value: Bool
+  IO(Unit)
+
+def main_show_bool(value):
+  match value:
+    case False{}:
+      IO.print("False{}")
+    case True{}:
+      IO.print("True{}")
+
+assert main:
+  IO(Unit)
+
+def main():
+  main_show_bool(main_value!())

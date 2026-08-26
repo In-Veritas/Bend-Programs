@@ -13,17 +13,17 @@ extensions are intentionally outside this program.
 
 ## Temporary ROM input
 
-Bend2 Core declares effect data but does not yet provide an IO runtime. For
-now, [`rom.bend`](rom.bend) exports `source()`, a whitespace-separated
-hexadecimal `String`. The emulator imports it, parses pairs of hex digits, and
-loads those bytes at CHIP-8 address `0x200`. Replace the string to run another
-ROM; malformed or odd-length hex is rejected.
+Core now has a real IO loop and file operations, but still exposes neither argv
+nor an interactive key/display API. For deterministic validation,
+[`rom.bend`](rom.bend) therefore continues to export `source()`, a
+whitespace-separated hexadecimal `String`. The emulator imports it, parses
+pairs of hex digits, and loads those bytes at CHIP-8 address `0x200`. Replace
+the string to test another ROM; malformed or odd-length hex is rejected.
 
-**Remove this embedded-ROM bridge when Bend2 Core gains implemented IO.** At
-that point a host/file loader should supply ROM bytes and `rom.bend` should no
-longer be part of the runtime path. The same future host integration can call
-`machine_key` to update the 16-key state and render the exposed 64×32 pixel
-array.
+**Remove this embedded-ROM bridge when a host argument/input seam exists.** A
+future application can use `File.read` after selecting a path, call
+`machine_key` to update the 16-key state, and render the exposed 64×32 pixel
+array. File IO alone does not provide those selection and realtime events.
 
 The current embedded ROM is a small deterministic smoke program. It exercises
 clear, loads, wrapping 8-bit addition and carry, BCD memory stores,
@@ -93,15 +93,16 @@ hex, `6` ROM overflow, and `7` an invalid host-supplied key index.
 From the sibling `bend2-core` checkout:
 
 ```sh
-bun src/main.ts "../Bend-Programs/Bend2 Core/programs/chip8/chip8.bend"
-bun src/main.ts "../Bend-Programs/Bend2 Core/programs/chip8/chip8.bend" --to /tmp/chip8.js
+bun bend2/comp.ts "../Bend-Programs/Bend2 Core/programs/chip8/chip8.bend"
+bun bend2/comp.ts "../Bend-Programs/Bend2 Core/programs/chip8/chip8.bend" --to /tmp/chip8.js
 bun /tmp/chip8.js
-bun src/main.ts "../Bend-Programs/Bend2 Core/programs/chip8/chip8.bend" --to /tmp/chip8.c
-clang -O2 /tmp/chip8.c -o /tmp/chip8
+bun bend2/comp.ts "../Bend-Programs/Bend2 Core/programs/chip8/chip8.bend" --to /tmp/chip8.c
+clang -O2 -DBEND_PARALLEL=0 -DBEND_GPU=0 /tmp/chip8.c -o /tmp/chip8
 /tmp/chip8
 ```
 
-The normalizer and both compiled backends should report `True{}`.
+The interpreter and both compiled backends should report `True{}` from the IO
+wrapper around the pure emulator self-check.
 For the native path alone, `./build.sh [output-path]` performs the C emission
 and clang build; it defaults to `/tmp/bend2-core-chip8`. Set
 `BEND2_CORE_REPO=/path/to/bend2-core` when the sibling checkout is elsewhere.

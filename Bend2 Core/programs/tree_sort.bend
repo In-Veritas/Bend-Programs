@@ -5,7 +5,12 @@ type Tree:
   Leaf{}
   Node{left: Tree, value: U32, right: Tree}
 
-def insert(tree: Tree, n: U32) -> Tree:
+assert insert:
+  forall tree: Tree
+  forall n: U32
+  Tree
+
+def insert(tree, n):
   match tree:
     case Leaf{}:
       Node{Leaf{}, n, Leaf{}}
@@ -18,21 +23,35 @@ def insert(tree: Tree, n: U32) -> Tree:
         case False{}:
           Node{left, v2, insert(right, n2)}
 
-def from_list(xs: List<U32>) -> Tree:
+assert from_list:
+  forall xs: List<U32>
+  Tree
+
+def from_list(xs):
   match xs:
     case Nil{}:
       Leaf{}
     case Con{h, t}:
       insert(from_list(t), h)
 
-def inorder(tree: Tree, acc: List<U32>) -> List<U32>:
+assert inorder:
+  forall tree: Tree
+  forall acc: List<U32>
+  List<U32>
+
+def inorder(tree, acc):
   match tree:
     case Leaf{}:
       acc
     case Node{left, value, right}:
       inorder(left, Con{value, inorder(right, acc)})
 
-def list_eq(xs: List<U32>, ys: List<U32>) -> Bool:
+assert list_eq:
+  forall xs: List<U32>
+  forall ys: List<U32>
+  Bool
+
+def list_eq(xs, ys):
   match xs ys:
     case Nil{} Nil{}:
       True{}
@@ -45,11 +64,37 @@ def list_eq(xs: List<U32>, ys: List<U32>) -> Bool:
     case xs ys:
       False{}
 
-def input() -> List<U32>:
-  Con{U32.from_nat(42n), Con{U32.from_nat(7n), Con{U32.from_nat(19n), Con{U32.from_nat(3n), Con{U32.from_nat(88n), Con{U32.one(), Con{U32.from_nat(56n), Con{U32.from_nat(24n), Con{U32.from_nat(61n), Con{U32.from_nat(10n), Nil{}}}}}}}}}}}
+assert input:
+  List<U32>
 
-def expected() -> List<U32>:
-  Con{U32.one(), Con{U32.from_nat(3n), Con{U32.from_nat(7n), Con{U32.from_nat(10n), Con{U32.from_nat(19n), Con{U32.from_nat(24n), Con{U32.from_nat(42n), Con{U32.from_nat(56n), Con{U32.from_nat(61n), Con{U32.from_nat(88n), Nil{}}}}}}}}}}}
+def input():
+  Con{U32.from_nat(42n), Con{U32.from_nat(7n), Con{U32.from_nat(19n), Con{U32.from_nat(3n), Con{U32.from_nat(88n), Con{1, Con{U32.from_nat(56n), Con{U32.from_nat(24n), Con{U32.from_nat(61n), Con{U32.from_nat(10n), Nil{}}}}}}}}}}}
 
-def main() -> Bool:
+assert expected:
+  List<U32>
+
+def expected():
+  Con{1, Con{U32.from_nat(3n), Con{U32.from_nat(7n), Con{U32.from_nat(10n), Con{U32.from_nat(19n), Con{U32.from_nat(24n), Con{U32.from_nat(42n), Con{U32.from_nat(56n), Con{U32.from_nat(61n), Con{U32.from_nat(88n), Nil{}}}}}}}}}}}
+
+assert main_value:
+  Bool
+
+def main_value():
   list_eq(inorder(from_list(input()), Nil{}), expected())
+
+assert main_show_bool:
+  forall value: Bool
+  IO(Unit)
+
+def main_show_bool(value):
+  match value:
+    case False{}:
+      IO.print("False{}")
+    case True{}:
+      IO.print("True{}")
+
+assert main:
+  IO(Unit)
+
+def main():
+  main_show_bool(main_value!())

@@ -10,7 +10,11 @@ type LeafTree:
   Leaf{value: U32}
   Node{left: LeafTree, right: LeafTree}
 
-def convert(tree: LeafTree) -> NodeTree & U32:
+assert convert:
+  forall tree: LeafTree
+  NodeTree & U32
+
+def convert(tree):
   match tree:
     case Leaf{value}:
       (Leaf_{}, value)
@@ -20,16 +24,44 @@ def convert(tree: LeafTree) -> NodeTree & U32:
       ((v1, ev1), (v2, ev2)) = U32.copy(value)
       (Node_{nl, nr, v1}, v2)
 
-def port(tree: LeafTree) -> NodeTree:
+assert port:
+  forall tree: LeafTree
+  NodeTree
+
+def port(tree):
   (result, value) = convert(tree)
   result
 
-def valid(tree: NodeTree) -> Bool:
+assert valid:
+  forall tree: NodeTree
+  Bool
+
+def valid(tree):
   match tree:
     case Node_{Node_{Leaf_{}, Leaf_{}, a}, Leaf_{}, b}:
-      Bool.and(U32.is_eq(a, U32.one()), U32.is_eq(b, U32.one()))
+      Bool.and(U32.is_eq(a, 1), U32.is_eq(b, 1))
     case tree:
       False{}
 
-def main() -> Bool:
-  valid(port(Node{Node{Leaf{U32.one()}, Leaf{U32.from_nat(2n)}}, Leaf{U32.from_nat(3n)}}))
+assert main_value:
+  Bool
+
+def main_value():
+  valid(port(Node{Node{Leaf{1}, Leaf{U32.from_nat(2n)}}, Leaf{U32.from_nat(3n)}}))
+
+assert main_show_bool:
+  forall value: Bool
+  IO(Unit)
+
+def main_show_bool(value):
+  match value:
+    case False{}:
+      IO.print("False{}")
+    case True{}:
+      IO.print("True{}")
+
+assert main:
+  IO(Unit)
+
+def main():
+  main_show_bool(main_value!())

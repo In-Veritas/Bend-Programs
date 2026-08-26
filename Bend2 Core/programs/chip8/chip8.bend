@@ -1,8 +1,9 @@
 import Base
 import ./rom.bend as ROM
 
-# A pure COSMAC VIP CHIP-8 emulator for Bend2 Core. The host-facing result is
-# a self-checking Bool because Core currently has no IO driver. See README.md.
+# A pure COSMAC VIP CHIP-8 emulator for Bend2 Core. The deterministic kernel
+# returns a self-checking Bool; its executable entry uses the standard IO loop
+# only to print that result. See README.md for the remaining input boundary.
 
 type Status:
   Running{}
@@ -49,46 +50,78 @@ type Decoded:
   Decoded{group: U32, x: U32, y: U32, n: U32, nn: U32, nnn: U32}
 
 # Core's affine U32 values need explicit fan-out.
-def u32_pair(value: U32) -> U32 & U32:
+assert u32_pair:
+  forall value: U32
+  U32 & U32
+
+def u32_pair(value):
   ((a, ea), (b, eb)) = U32.copy(value)
   (a, b)
 
-def u32_triple(value: U32) -> U32 & (U32 & U32):
+assert u32_triple:
+  forall value: U32
+  U32 & (U32 & U32)
+
+def u32_triple(value):
   (a, rest) = u32_pair(value)
   (b, c) = u32_pair(rest)
   (a, (b, c))
 
-def u32_quad(value: U32) -> U32 & (U32 & (U32 & U32)):
+assert u32_quad:
+  forall value: U32
+  U32 & (U32 & (U32 & U32))
+
+def u32_quad(value):
   (a, rest) = u32_pair(value)
   (b, more) = u32_pair(rest)
   (c, d) = u32_pair(more)
   (a, (b, (c, d)))
 
-def byte(value: U32) -> U32:
+assert byte:
+  forall value: U32
+  U32
+
+def byte(value):
   U32.and(value, U32.from_nat(255n))
 
-def address(value: U32) -> U32:
+assert address:
+  forall value: U32
+  U32
+
+def address(value):
   U32.and(value, U32.from_nat(4095n))
 
-def bool_byte(value: Bool) -> U32:
+assert bool_byte:
+  forall value: Bool
+  U32
+
+def bool_byte(value):
   match value:
     case False{}:
-      U32.zero()
+      0
     case True{}:
-      U32.one()
+      1
 
-def timer_tick(value: U32) -> U32:
+assert timer_tick:
+  forall value: U32
+  U32
+
+def timer_tick(value):
   (test, keep) = u32_pair(value)
   match U32.is_zero(test):
     case True{}:
       keep
     case False{}:
-      U32.sub(keep, U32.one())
+      U32.sub(keep, 1)
 
 # Structural array duplication. Building one subtree and copying it lets the
 # checker see one strictly decreasing recursive fill call instead of two calls
 # on proof-copies of the same predecessor.
-def array_copy(array: Array<U32>) -> Array<U32> & Array<U32>:
+assert array_copy:
+  forall array: Array<U32>
+  Array<U32> & Array<U32>
+
+def array_copy(array):
   match array:
     case ALeaf{value}:
       (v1, v2) = u32_pair(value)
@@ -99,7 +132,12 @@ def array_copy(array: Array<U32>) -> Array<U32> & Array<U32>:
       (ANode{l1, r1}, ANode{l2, r2})
 
 # A full binary Array of depth n. CHIP-8 uses depths 12, 11 and 4.
-def array_fill(depth: Nat, value: U32) -> Array<U32>:
+assert array_fill:
+  forall depth: Nat
+  forall value: U32
+  Array<U32>
+
+def array_fill(depth, value):
   match depth:
     case 0n:
       ALeaf{value}
@@ -107,18 +145,33 @@ def array_fill(depth: Nat, value: U32) -> Array<U32>:
       (left, right) = array_copy(array_fill(pred, value))
       ANode{left, right}
 
-def array_get(array: Array<U32>, slot: U32) -> Array<U32> & U32:
+assert array_get:
+  forall array: Array<U32>
+  forall slot: U32
+  Array<U32> & U32
+
+def array_get(array, slot):
   (s1, s2) = u32_pair(slot)
-  (array1, value) = Array.swap(U32, array, s1, U32.zero())
+  (array1, value) = Array.swap(U32, array, s1, 0)
   (v1, v2) = u32_pair(value)
   (array2, dropped) = Array.swap(U32, array1, s2, v1)
   (array2, v2)
 
-def array_put(array: Array<U32>, slot: U32, value: U32) -> Array<U32>:
+assert array_put:
+  forall array: Array<U32>
+  forall slot: U32
+  forall value: U32
+  Array<U32>
+
+def array_put(array, slot, value):
   (next, old) = Array.swap(U32, array, slot, value)
   next
 
-def hex_char(char: Char) -> HexChar:
+assert hex_char:
+  forall char: Char
+  HexChar
+
+def hex_char(char):
   match char:
     case Chr{code}:
       match U32.to_nat(code):
@@ -131,9 +184,9 @@ def hex_char(char: Char) -> HexChar:
         case 13n:
           HexSkip{}
         case 48n:
-          HexDigit{U32.zero()}
+          HexDigit{0}
         case 49n:
-          HexDigit{U32.one()}
+          HexDigit{1}
         case 50n:
           HexDigit{U32.from_nat(2n)}
         case 51n:
@@ -177,7 +230,14 @@ def hex_char(char: Char) -> HexChar:
         case other:
           HexBad{}
 
-def load_hex(text: String, high: Maybe<U32>, memory: Array<U32>, at: U32) -> LoadResult:
+assert load_hex:
+  forall text: String
+  forall high: Maybe<U32>
+  forall memory: Array<U32>
+  forall at: U32
+  LoadResult
+
+def load_hex(text, high, memory, at):
   match text high:
     case SNil{} None{}:
       LoadOK{memory, at}
@@ -206,14 +266,24 @@ def load_hex(text: String, high: Maybe<U32>, memory: Array<U32>, at: U32) -> Loa
               value = U32.or(U32.shln(4n, upper), digit)
               load_hex(tail, None{}, array_put(memory, slot, value), U32.inc(next))
 
-def font_source() -> String:
+assert font_source:
+  String
+
+def font_source():
   "F0 90 90 90 F0 20 60 20 20 70 F0 10 F0 80 F0 F0 10 F0 10 F0 90 90 F0 10 10 F0 80 F0 10 F0 F0 80 F0 90 F0 F0 10 20 40 40 F0 90 F0 90 F0 F0 90 F0 10 F0 F0 90 F0 90 90 E0 90 E0 90 E0 F0 80 80 80 F0 E0 90 90 90 E0 F0 80 F0 80 F0 F0 80 F0 80 80"
 
-def initial_rng() -> U32:
+assert initial_rng:
+  U32
+
+def initial_rng():
   U32.or(U32.shln(16n, U32.from_nat(192n)), U32.or(U32.shln(8n, U32.from_nat(255n)), U32.from_nat(238n)))
 
-def boot(text: String) -> BootResult:
-  match load_hex(font_source(), None{}, array_fill(12n, U32.zero()), U32.from_nat(80n)):
+assert boot:
+  forall text: String
+  BootResult
+
+def boot(text):
+  match load_hex(font_source(), None{}, array_fill(12n, 0), U32.from_nat(80n)):
     case LoadFail{code}:
       BootFail{code}
     case LoadOK{memory, font_end}:
@@ -223,102 +293,195 @@ def boot(text: String) -> BootResult:
         case LoadOK{memory, rom_end}:
           BootOK{Machine{Core{
             memory,
-            array_fill(4n, U32.zero()),
-            array_fill(4n, U32.zero()),
-            array_fill(11n, U32.zero()),
-            array_fill(4n, U32.zero()),
+            array_fill(4n, 0),
+            array_fill(4n, 0),
+            array_fill(11n, 0),
+            array_fill(4n, 0),
             U32.from_nat(512n),
-            U32.zero(),
-            U32.zero(),
-            U32.zero(),
-            U32.zero(),
+            0,
+            0,
+            0,
+            0,
             initial_rng()
           }, Running{}}}
 
-def core_running(core: Core) -> Machine:
+assert core_running:
+  forall core: Core
+  Machine
+
+def core_running(core):
   Machine{core, Running{}}
 
-def core_halted(core: Core, code: U32) -> Machine:
+assert core_halted:
+  forall core: Core
+  forall code: U32
+  Machine
+
+def core_halted(core, code):
   Machine{core, Halted{code}}
 
-def core_waiting(core: Core, register: U32) -> Machine:
+assert core_waiting:
+  forall core: Core
+  forall register: U32
+  Machine
+
+def core_waiting(core, register):
   Machine{core, Waiting{register}}
 
-def core_releasing(core: Core, register: U32, key: U32) -> Machine:
+assert core_releasing:
+  forall core: Core
+  forall register: U32
+  forall key: U32
+  Machine
+
+def core_releasing(core, register, key):
   Machine{core, Releasing{register, key}}
 
-def core_tick(core: Core) -> Core:
+assert core_tick:
+  forall core: Core
+  Core
+
+def core_tick(core):
   match core:
     case Core{memory, registers, stack, pixels, keys, pc, index, sp, delay, sound, rng}:
       Core{memory, registers, stack, pixels, keys, pc, index, sp, timer_tick(delay), timer_tick(sound), rng}
 
-def core_reg_get(core: Core, slot: U32) -> Core & U32:
+assert core_reg_get:
+  forall core: Core
+  forall slot: U32
+  Core & U32
+
+def core_reg_get(core, slot):
   match core:
     case Core{memory, registers, stack, pixels, keys, pc, index, sp, delay, sound, rng}:
       (registers, value) = array_get(registers, slot)
       (Core{memory, registers, stack, pixels, keys, pc, index, sp, delay, sound, rng}, value)
 
-def core_reg_put(core: Core, slot: U32, value: U32) -> Core:
+assert core_reg_put:
+  forall core: Core
+  forall slot: U32
+  forall value: U32
+  Core
+
+def core_reg_put(core, slot, value):
   match core:
     case Core{memory, registers, stack, pixels, keys, pc, index, sp, delay, sound, rng}:
       Core{memory, array_put(registers, slot, byte(value)), stack, pixels, keys, pc, index, sp, delay, sound, rng}
 
-def core_mem_get(core: Core, slot: U32) -> Core & U32:
+assert core_mem_get:
+  forall core: Core
+  forall slot: U32
+  Core & U32
+
+def core_mem_get(core, slot):
   match core:
     case Core{memory, registers, stack, pixels, keys, pc, index, sp, delay, sound, rng}:
       (memory, value) = array_get(memory, slot)
       (Core{memory, registers, stack, pixels, keys, pc, index, sp, delay, sound, rng}, value)
 
-def core_mem_put(core: Core, slot: U32, value: U32) -> Core:
+assert core_mem_put:
+  forall core: Core
+  forall slot: U32
+  forall value: U32
+  Core
+
+def core_mem_put(core, slot, value):
   match core:
     case Core{memory, registers, stack, pixels, keys, pc, index, sp, delay, sound, rng}:
       Core{array_put(memory, slot, byte(value)), registers, stack, pixels, keys, pc, index, sp, delay, sound, rng}
 
-def core_stack_get(core: Core, slot: U32) -> Core & U32:
+assert core_stack_get:
+  forall core: Core
+  forall slot: U32
+  Core & U32
+
+def core_stack_get(core, slot):
   match core:
     case Core{memory, registers, stack, pixels, keys, pc, index, sp, delay, sound, rng}:
       (stack, value) = array_get(stack, slot)
       (Core{memory, registers, stack, pixels, keys, pc, index, sp, delay, sound, rng}, value)
 
-def core_stack_put(core: Core, slot: U32, value: U32) -> Core:
+assert core_stack_put:
+  forall core: Core
+  forall slot: U32
+  forall value: U32
+  Core
+
+def core_stack_put(core, slot, value):
   match core:
     case Core{memory, registers, stack, pixels, keys, pc, index, sp, delay, sound, rng}:
       Core{memory, registers, array_put(stack, slot, value), pixels, keys, pc, index, sp, delay, sound, rng}
 
-def core_pixel_get(core: Core, slot: U32) -> Core & U32:
+assert core_pixel_get:
+  forall core: Core
+  forall slot: U32
+  Core & U32
+
+def core_pixel_get(core, slot):
   match core:
     case Core{memory, registers, stack, pixels, keys, pc, index, sp, delay, sound, rng}:
       (pixels, value) = array_get(pixels, slot)
       (Core{memory, registers, stack, pixels, keys, pc, index, sp, delay, sound, rng}, value)
 
-def core_pixel_put(core: Core, slot: U32, value: U32) -> Core:
+assert core_pixel_put:
+  forall core: Core
+  forall slot: U32
+  forall value: U32
+  Core
+
+def core_pixel_put(core, slot, value):
   match core:
     case Core{memory, registers, stack, pixels, keys, pc, index, sp, delay, sound, rng}:
-      Core{memory, registers, stack, array_put(pixels, slot, U32.and(value, U32.one())), keys, pc, index, sp, delay, sound, rng}
+      Core{memory, registers, stack, array_put(pixels, slot, U32.and(value, 1)), keys, pc, index, sp, delay, sound, rng}
 
-def core_key_get(core: Core, slot: U32) -> Core & U32:
+assert core_key_get:
+  forall core: Core
+  forall slot: U32
+  Core & U32
+
+def core_key_get(core, slot):
   match core:
     case Core{memory, registers, stack, pixels, keys, pc, index, sp, delay, sound, rng}:
       (keys, value) = array_get(keys, slot)
       (Core{memory, registers, stack, pixels, keys, pc, index, sp, delay, sound, rng}, value)
 
-def core_key_put(core: Core, slot: U32, value: U32) -> Core:
+assert core_key_put:
+  forall core: Core
+  forall slot: U32
+  forall value: U32
+  Core
+
+def core_key_put(core, slot, value):
   match core:
     case Core{memory, registers, stack, pixels, keys, pc, index, sp, delay, sound, rng}:
-      Core{memory, registers, stack, pixels, array_put(keys, slot, U32.and(value, U32.one())), pc, index, sp, delay, sound, rng}
+      Core{memory, registers, stack, pixels, array_put(keys, slot, U32.and(value, 1)), pc, index, sp, delay, sound, rng}
 
-def core_pc_get(core: Core) -> Core & U32:
+assert core_pc_get:
+  forall core: Core
+  Core & U32
+
+def core_pc_get(core):
   match core:
     case Core{memory, registers, stack, pixels, keys, pc, index, sp, delay, sound, rng}:
       (p1, p2) = u32_pair(pc)
       (Core{memory, registers, stack, pixels, keys, p1, index, sp, delay, sound, rng}, p2)
 
-def core_pc_set(core: Core, pc: U32) -> Core:
+assert core_pc_set:
+  forall core: Core
+  forall pc: U32
+  Core
+
+def core_pc_set(core, pc):
   match core:
     case Core{memory, registers, stack, pixels, keys, old, index, sp, delay, sound, rng}:
       Core{memory, registers, stack, pixels, keys, pc, index, sp, delay, sound, rng}
 
-def core_pc_skip(core: Core, condition: Bool) -> Core:
+assert core_pc_skip:
+  forall core: Core
+  forall condition: Bool
+  Core
+
+def core_pc_skip(core, condition):
   match condition:
     case False{}:
       core
@@ -326,71 +489,131 @@ def core_pc_skip(core: Core, condition: Bool) -> Core:
       (core, pc) = core_pc_get(core)
       core_pc_set(core, U32.add(pc, U32.from_nat(2n)))
 
-def core_index_get(core: Core) -> Core & U32:
+assert core_index_get:
+  forall core: Core
+  Core & U32
+
+def core_index_get(core):
   match core:
     case Core{memory, registers, stack, pixels, keys, pc, index, sp, delay, sound, rng}:
       (i1, i2) = u32_pair(index)
       (Core{memory, registers, stack, pixels, keys, pc, i1, sp, delay, sound, rng}, i2)
 
-def core_index_set(core: Core, index: U32) -> Core:
+assert core_index_set:
+  forall core: Core
+  forall index: U32
+  Core
+
+def core_index_set(core, index):
   match core:
     case Core{memory, registers, stack, pixels, keys, pc, old, sp, delay, sound, rng}:
       Core{memory, registers, stack, pixels, keys, pc, address(index), sp, delay, sound, rng}
 
-def core_sp_get(core: Core) -> Core & U32:
+assert core_sp_get:
+  forall core: Core
+  Core & U32
+
+def core_sp_get(core):
   match core:
     case Core{memory, registers, stack, pixels, keys, pc, index, sp, delay, sound, rng}:
       (s1, s2) = u32_pair(sp)
       (Core{memory, registers, stack, pixels, keys, pc, index, s1, delay, sound, rng}, s2)
 
-def core_sp_set(core: Core, sp: U32) -> Core:
+assert core_sp_set:
+  forall core: Core
+  forall sp: U32
+  Core
+
+def core_sp_set(core, sp):
   match core:
     case Core{memory, registers, stack, pixels, keys, pc, index, old, delay, sound, rng}:
       Core{memory, registers, stack, pixels, keys, pc, index, sp, delay, sound, rng}
 
-def core_delay_get(core: Core) -> Core & U32:
+assert core_delay_get:
+  forall core: Core
+  Core & U32
+
+def core_delay_get(core):
   match core:
     case Core{memory, registers, stack, pixels, keys, pc, index, sp, delay, sound, rng}:
       (d1, d2) = u32_pair(delay)
       (Core{memory, registers, stack, pixels, keys, pc, index, sp, d1, sound, rng}, d2)
 
-def core_delay_set(core: Core, delay: U32) -> Core:
+assert core_delay_set:
+  forall core: Core
+  forall delay: U32
+  Core
+
+def core_delay_set(core, delay):
   match core:
     case Core{memory, registers, stack, pixels, keys, pc, index, sp, old, sound, rng}:
       Core{memory, registers, stack, pixels, keys, pc, index, sp, byte(delay), sound, rng}
 
-def core_sound_set(core: Core, sound: U32) -> Core:
+assert core_sound_set:
+  forall core: Core
+  forall sound: U32
+  Core
+
+def core_sound_set(core, sound):
   match core:
     case Core{memory, registers, stack, pixels, keys, pc, index, sp, delay, old, rng}:
       Core{memory, registers, stack, pixels, keys, pc, index, sp, delay, byte(sound), rng}
 
-def rng_left13(rng: U32) -> U32:
+assert rng_left13:
+  forall rng: U32
+  U32
+
+def rng_left13(rng):
   (a1, a2) = u32_pair(rng)
   U32.xor(a1, U32.shln(13n, a2))
 
-def rng_right17(rng: U32) -> U32:
+assert rng_right17:
+  forall rng: U32
+  U32
+
+def rng_right17(rng):
   (a1, a2) = u32_pair(rng)
   U32.xor(a1, U32.shrn(17n, a2))
 
-def rng_left5(rng: U32) -> U32:
+assert rng_left5:
+  forall rng: U32
+  U32
+
+def rng_left5(rng):
   (a1, a2) = u32_pair(rng)
   U32.xor(a1, U32.shln(5n, a2))
 
-def rng_step(rng: U32) -> U32:
+assert rng_step:
+  forall rng: U32
+  U32
+
+def rng_step(rng):
   rng_left5(rng_right17(rng_left13(rng)))
 
-def core_random(core: Core) -> Core & U32:
+assert core_random:
+  forall core: Core
+  Core & U32
+
+def core_random(core):
   match core:
     case Core{memory, registers, stack, pixels, keys, pc, index, sp, delay, sound, rng}:
       (r1, r2) = u32_pair(rng_step(rng))
       (Core{memory, registers, stack, pixels, keys, pc, index, sp, delay, sound, r1}, byte(r2))
 
-def core_clear(core: Core) -> Core:
+assert core_clear:
+  forall core: Core
+  Core
+
+def core_clear(core):
   match core:
     case Core{memory, registers, stack, pixels, keys, pc, index, sp, delay, sound, rng}:
-      Core{memory, registers, stack, array_fill(11n, U32.zero()), keys, pc, index, sp, delay, sound, rng}
+      Core{memory, registers, stack, array_fill(11n, 0), keys, pc, index, sp, delay, sound, rng}
 
-def decode(opcode: U32) -> Decoded:
+assert decode:
+  forall opcode: U32
+  Decoded
+
+def decode(opcode):
   (whole, parts) = u32_pair(opcode)
   (a, (b, (c, rest))) = u32_quad(parts)
   (d, e) = u32_pair(rest)
@@ -403,7 +626,11 @@ def decode(opcode: U32) -> Decoded:
     U32.and(whole, U32.from_nat(4095n))
   }
 
-def fetch(core: Core) -> FetchResult:
+assert fetch:
+  forall core: Core
+  FetchResult
+
+def fetch(core):
   (core, pc) = core_pc_get(core)
   (bound, (first, next)) = u32_triple(pc)
   match U32.is_lt(bound, U32.from_nat(4095n)):
@@ -416,7 +643,13 @@ def fetch(core: Core) -> FetchResult:
       core = core_pc_set(core, U32.add(old_pc, U32.from_nat(2n)))
       Fetched{U32.or(U32.shln(8n, hi), lo), core}
 
-def find_key(fuel: Nat, slot: U32, core: Core) -> Core & Maybe<U32>:
+assert find_key:
+  forall fuel: Nat
+  forall slot: U32
+  forall core: Core
+  Core & Maybe<U32>
+
+def find_key(fuel, slot, core):
   match fuel:
     case 0n:
       (core, None{})
@@ -429,7 +662,14 @@ def find_key(fuel: Nat, slot: U32, core: Core) -> Core & Maybe<U32>:
         case True{}:
           find_key(pred, U32.inc(next_slot), core)
 
-def store_registers(fuel: Nat, reg: U32, at: U32, core: Core) -> Core & U32:
+assert store_registers:
+  forall fuel: Nat
+  forall reg: U32
+  forall at: U32
+  forall core: Core
+  Core & U32
+
+def store_registers(fuel, reg, at, core):
   match fuel:
     case 0n:
       (core, at)
@@ -440,7 +680,14 @@ def store_registers(fuel: Nat, reg: U32, at: U32, core: Core) -> Core & U32:
       core = core_mem_put(core, a1, value)
       store_registers(pred, U32.inc(r2), U32.inc(a2), core)
 
-def load_registers(fuel: Nat, reg: U32, at: U32, core: Core) -> Core & U32:
+assert load_registers:
+  forall fuel: Nat
+  forall reg: U32
+  forall at: U32
+  forall core: Core
+  Core & U32
+
+def load_registers(fuel, reg, at, core):
   match fuel:
     case 0n:
       (core, at)
@@ -451,7 +698,17 @@ def load_registers(fuel: Nat, reg: U32, at: U32, core: Core) -> Core & U32:
       core = core_reg_put(core, r1, value)
       load_registers(pred, U32.inc(r2), U32.inc(a2), core)
 
-def draw_bits(fuel: Nat, sprite: U32, x: U32, y: U32, mask: U32, core: Core, collision: Bool) -> Core & Bool:
+assert draw_bits:
+  forall fuel: Nat
+  forall sprite: U32
+  forall x: U32
+  forall y: U32
+  forall mask: U32
+  forall core: Core
+  forall collision: Bool
+  Core & Bool
+
+def draw_bits(fuel, sprite, x, y, mask, core, collision):
   match fuel:
     case 0n:
       (core, collision)
@@ -462,17 +719,26 @@ def draw_bits(fuel: Nat, sprite: U32, x: U32, y: U32, mask: U32, core: Core, col
       (m1, m2) = u32_pair(mask)
       match Bool.and(
         Bool.and(U32.is_lt(x1, U32.from_nat(64n)), U32.is_lt(y1, U32.from_nat(32n))),
-        U32.is_ne(U32.and(s1, m1), U32.zero())):
+        U32.is_ne(U32.and(s1, m1), 0)):
         case False{}:
           draw_bits(pred, s2, U32.inc(x2), y3, U32.shr(m2), core, collision)
         case True{}:
           (pixel1, pixel2) = u32_pair(U32.add(U32.shln(6n, y2), x3))
           (core, old) = core_pixel_get(core, pixel1)
           (old1, old2) = u32_pair(old)
-          core = core_pixel_put(core, pixel2, U32.xor(old1, U32.one()))
-          draw_bits(pred, s2, U32.inc(x2), y3, U32.shr(m2), core, Bool.or(collision, U32.is_ne(old2, U32.zero())))
+          core = core_pixel_put(core, pixel2, U32.xor(old1, 1))
+          draw_bits(pred, s2, U32.inc(x2), y3, U32.shr(m2), core, Bool.or(collision, U32.is_ne(old2, 0)))
 
-def draw_rows(fuel: Nat, at: U32, x: U32, y: U32, core: Core, collision: Bool) -> Core & Bool:
+assert draw_rows:
+  forall fuel: Nat
+  forall at: U32
+  forall x: U32
+  forall y: U32
+  forall core: Core
+  forall collision: Bool
+  Core & Bool
+
+def draw_rows(fuel, at, x, y, core, collision):
   match fuel:
     case 0n:
       (core, collision)
@@ -484,7 +750,12 @@ def draw_rows(fuel: Nat, at: U32, x: U32, y: U32, core: Core, collision: Bool) -
       (core, collision) = draw_bits(8n, sprite, x1, y1, U32.from_nat(128n), core, collision)
       draw_rows(pred, U32.inc(a2), x2, U32.inc(y2), core, collision)
 
-def execute_0(nnn: U32, core: Core) -> Machine:
+assert execute_0:
+  forall nnn: U32
+  forall core: Core
+  Machine
+
+def execute_0(nnn, core):
   match U32.to_nat(nnn):
     case 224n:
       core_running(core_clear(core))
@@ -495,13 +766,18 @@ def execute_0(nnn: U32, core: Core) -> Machine:
         case True{}:
           core_halted(core, U32.from_nat(3n))
         case False{}:
-          (s1, s2) = u32_pair(U32.sub(keep, U32.one()))
+          (s1, s2) = u32_pair(U32.sub(keep, 1))
           (core, target) = core_stack_get(core, s1)
           core_running(core_pc_set(core_sp_set(core, s2), target))
     case sys:
-      core_halted(core, U32.one())
+      core_halted(core, 1)
 
-def execute_call(target: U32, core: Core) -> Machine:
+assert execute_call:
+  forall target: U32
+  forall core: Core
+  Machine
+
+def execute_call(target, core):
   (core, sp) = core_sp_get(core)
   (bound, (slot, next)) = u32_triple(sp)
   match U32.is_lt(bound, U32.from_nat(12n)):
@@ -513,7 +789,14 @@ def execute_call(target: U32, core: Core) -> Machine:
       core = core_sp_set(core, U32.inc(next))
       core_running(core_pc_set(core, target))
 
-def execute_skip_byte(x: U32, nn: U32, equal: Bool, core: Core) -> Machine:
+assert execute_skip_byte:
+  forall x: U32
+  forall nn: U32
+  forall equal: Bool
+  forall core: Core
+  Machine
+
+def execute_skip_byte(x, nn, equal, core):
   match equal:
     case True{}:
       (core, value) = core_reg_get(core, x)
@@ -522,7 +805,14 @@ def execute_skip_byte(x: U32, nn: U32, equal: Bool, core: Core) -> Machine:
       (core, value) = core_reg_get(core, x)
       core_running(core_pc_skip(core, Bool.not(U32.is_eq(value, nn))))
 
-def execute_skip_regs(x: U32, y: U32, equal: Bool, core: Core) -> Machine:
+assert execute_skip_regs:
+  forall x: U32
+  forall y: U32
+  forall equal: Bool
+  forall core: Core
+  Machine
+
+def execute_skip_regs(x, y, equal, core):
   match equal:
     case True{}:
       (core, vx) = core_reg_get(core, x)
@@ -533,7 +823,14 @@ def execute_skip_regs(x: U32, y: U32, equal: Bool, core: Core) -> Machine:
       (core, vy) = core_reg_get(core, y)
       core_running(core_pc_skip(core, Bool.not(U32.is_eq(vx, vy))))
 
-def execute_8(x: U32, y: U32, n: U32, core: Core) -> Machine:
+assert execute_8:
+  forall x: U32
+  forall y: U32
+  forall n: U32
+  forall core: Core
+  Machine
+
+def execute_8(x, y, n, core):
   match U32.to_nat(n):
     case 0n:
       (core, vy) = core_reg_get(core, y)
@@ -543,19 +840,19 @@ def execute_8(x: U32, y: U32, n: U32, core: Core) -> Machine:
       (core, vx) = core_reg_get(core, xr)
       (core, vy) = core_reg_get(core, y)
       core = core_reg_put(core, xw, U32.or(vx, vy))
-      core_running(core_reg_put(core, U32.from_nat(15n), U32.zero()))
+      core_running(core_reg_put(core, U32.from_nat(15n), 0))
     case 2n:
       (xr, xw) = u32_pair(x)
       (core, vx) = core_reg_get(core, xr)
       (core, vy) = core_reg_get(core, y)
       core = core_reg_put(core, xw, U32.and(vx, vy))
-      core_running(core_reg_put(core, U32.from_nat(15n), U32.zero()))
+      core_running(core_reg_put(core, U32.from_nat(15n), 0))
     case 3n:
       (xr, xw) = u32_pair(x)
       (core, vx) = core_reg_get(core, xr)
       (core, vy) = core_reg_get(core, y)
       core = core_reg_put(core, xw, U32.xor(vx, vy))
-      core_running(core_reg_put(core, U32.from_nat(15n), U32.zero()))
+      core_running(core_reg_put(core, U32.from_nat(15n), 0))
     case 4n:
       (xr, xw) = u32_pair(x)
       (core, vx) = core_reg_get(core, xr)
@@ -576,7 +873,7 @@ def execute_8(x: U32, y: U32, n: U32, core: Core) -> Machine:
     case 6n:
       (core, vy) = core_reg_get(core, y)
       (source, result) = u32_pair(vy)
-      flag = U32.and(source, U32.one())
+      flag = U32.and(source, 1)
       core = core_reg_put(core, x, U32.shr(result))
       core_running(core_reg_put(core, U32.from_nat(15n), flag))
     case 7n:
@@ -591,14 +888,19 @@ def execute_8(x: U32, y: U32, n: U32, core: Core) -> Machine:
     case 14n:
       (core, vy) = core_reg_get(core, y)
       (source, result) = u32_pair(vy)
-      flag = U32.and(U32.shrn(7n, source), U32.one())
+      flag = U32.and(U32.shrn(7n, source), 1)
       core = core_reg_put(core, x, U32.shl(result))
       core_running(core_reg_put(core, U32.from_nat(15n), flag))
     case invalid:
-      core_halted(core, U32.one())
+      core_halted(core, 1)
 
-def execute_b(target: U32, core: Core) -> Machine:
-  (core, v0) = core_reg_get(core, U32.zero())
+assert execute_b:
+  forall target: U32
+  forall core: Core
+  Machine
+
+def execute_b(target, core):
+  (core, v0) = core_reg_get(core, 0)
   (bound, keep) = u32_pair(U32.add(target, v0))
   match U32.is_lt(bound, U32.from_nat(4096n)):
     case False{}:
@@ -606,11 +908,24 @@ def execute_b(target: U32, core: Core) -> Machine:
     case True{}:
       core_running(core_pc_set(core, keep))
 
-def execute_c(x: U32, nn: U32, core: Core) -> Machine:
+assert execute_c:
+  forall x: U32
+  forall nn: U32
+  forall core: Core
+  Machine
+
+def execute_c(x, nn, core):
   (core, random) = core_random(core)
   core_running(core_reg_put(core, x, U32.and(random, nn)))
 
-def execute_d(x: U32, y: U32, n: U32, core: Core) -> Machine:
+assert execute_d:
+  forall x: U32
+  forall y: U32
+  forall n: U32
+  forall core: Core
+  Machine
+
+def execute_d(x, y, n, core):
   (core, vx) = core_reg_get(core, x)
   (core, vy) = core_reg_get(core, y)
   (core, at) = core_index_get(core)
@@ -629,28 +944,50 @@ def execute_d(x: U32, y: U32, n: U32, core: Core) -> Machine:
         False{})
       core_running(core_reg_put(core, U32.from_nat(15n), bool_byte(collision)))
 
-def key_condition(expect: Bool, pressed: U32) -> Bool:
+assert key_condition:
+  forall expect: Bool
+  forall pressed: U32
+  Bool
+
+def key_condition(expect, pressed):
   match expect:
     case False{}:
       U32.is_zero(pressed)
     case True{}:
-      U32.is_ne(pressed, U32.zero())
+      U32.is_ne(pressed, 0)
 
-def execute_key_skip(x: U32, expect: Bool, core: Core) -> Machine:
+assert execute_key_skip:
+  forall x: U32
+  forall expect: Bool
+  forall core: Core
+  Machine
+
+def execute_key_skip(x, expect, core):
   (core, key) = core_reg_get(core, x)
   (core, pressed) = core_key_get(core, U32.and(key, U32.from_nat(15n)))
   core_running(core_pc_skip(core, key_condition(expect, pressed)))
 
-def execute_e(x: U32, nn: U32, core: Core) -> Machine:
+assert execute_e:
+  forall x: U32
+  forall nn: U32
+  forall core: Core
+  Machine
+
+def execute_e(x, nn, core):
   match U32.to_nat(nn):
     case 158n:
       execute_key_skip(x, True{}, core)
     case 161n:
       execute_key_skip(x, False{}, core)
     case invalid:
-      core_halted(core, U32.one())
+      core_halted(core, 1)
 
-def execute_bcd(x: U32, core: Core) -> Machine:
+assert execute_bcd:
+  forall x: U32
+  forall core: Core
+  Machine
+
+def execute_bcd(x, core):
   (core, value) = core_reg_get(core, x)
   (v1, (v2, v3)) = u32_triple(value)
   (core, at) = core_index_get(core)
@@ -664,7 +1001,12 @@ def execute_bcd(x: U32, core: Core) -> Machine:
       core = core_mem_put(core, U32.add(a3, U32.from_nat(2n)), U32.mod(v3, U32.from_nat(10n)))
       core_running(core)
 
-def execute_store(x: U32, core: Core) -> Machine:
+assert execute_store:
+  forall x: U32
+  forall core: Core
+  Machine
+
+def execute_store(x, core):
   (x_count, x_bound) = u32_pair(x)
   (core, at) = core_index_get(core)
   (at_bound, at_loop) = u32_pair(at)
@@ -672,10 +1014,15 @@ def execute_store(x: U32, core: Core) -> Machine:
     case False{}:
       core_halted(core, U32.from_nat(2n))
     case True{}:
-      (core, next) = store_registers(Nat.add(U32.to_nat(x_count), 1n), U32.zero(), at_loop, core)
+      (core, next) = store_registers(Nat.add(U32.to_nat(x_count), 1n), 0, at_loop, core)
       core_running(core_index_set(core, next))
 
-def execute_load(x: U32, core: Core) -> Machine:
+assert execute_load:
+  forall x: U32
+  forall core: Core
+  Machine
+
+def execute_load(x, core):
   (x_count, x_bound) = u32_pair(x)
   (core, at) = core_index_get(core)
   (at_bound, at_loop) = u32_pair(at)
@@ -683,10 +1030,16 @@ def execute_load(x: U32, core: Core) -> Machine:
     case False{}:
       core_halted(core, U32.from_nat(2n))
     case True{}:
-      (core, next) = load_registers(Nat.add(U32.to_nat(x_count), 1n), U32.zero(), at_loop, core)
+      (core, next) = load_registers(Nat.add(U32.to_nat(x_count), 1n), 0, at_loop, core)
       core_running(core_index_set(core, next))
 
-def execute_f(x: U32, nn: U32, core: Core) -> Machine:
+assert execute_f:
+  forall x: U32
+  forall nn: U32
+  forall core: Core
+  Machine
+
+def execute_f(x, nn, core):
   match U32.to_nat(nn):
     case 7n:
       (core, delay) = core_delay_get(core)
@@ -714,9 +1067,14 @@ def execute_f(x: U32, nn: U32, core: Core) -> Machine:
     case 101n:
       execute_load(x, core)
     case invalid:
-      core_halted(core, U32.one())
+      core_halted(core, 1)
 
-def execute(decoded: Decoded, core: Core) -> Machine:
+assert execute:
+  forall decoded: Decoded
+  forall core: Core
+  Machine
+
+def execute(decoded, core):
   match decoded:
     case Decoded{group, x, y, n, nn, nnn}:
       match U32.to_nat(group):
@@ -735,7 +1093,7 @@ def execute(decoded: Decoded, core: Core) -> Machine:
             case True{}:
               execute_skip_regs(x, y, True{}, core)
             case False{}:
-              core_halted(core, U32.one())
+              core_halted(core, 1)
         case 6n:
           core_running(core_reg_put(core, x, nn))
         case 7n:
@@ -749,7 +1107,7 @@ def execute(decoded: Decoded, core: Core) -> Machine:
             case True{}:
               execute_skip_regs(x, y, False{}, core)
             case False{}:
-              core_halted(core, U32.one())
+              core_halted(core, 1)
         case 10n:
           core_running(core_index_set(core, nnn))
         case 11n:
@@ -763,16 +1121,20 @@ def execute(decoded: Decoded, core: Core) -> Machine:
         case 15n:
           execute_f(x, nn, core)
         case invalid:
-          core_halted(core, U32.one())
+          core_halted(core, 1)
 
-def machine_step(machine: Machine) -> Machine:
+assert machine_step:
+  forall machine: Machine
+  Machine
+
+def machine_step(machine):
   match machine:
     case Machine{core, status}:
       match status:
         case Halted{code}:
           Machine{core, Halted{code}}
         case Waiting{register}:
-          (core, key) = find_key(16n, U32.zero(), core_tick(core))
+          (core, key) = find_key(16n, 0, core_tick(core))
           match key:
             case None{}:
               core_waiting(core, register)
@@ -793,7 +1155,12 @@ def machine_step(machine: Machine) -> Machine:
             case Fetched{opcode, core}:
               execute(decode(opcode), core)
 
-def machine_run(fuel: Nat, machine: Machine) -> Machine:
+assert machine_run:
+  forall fuel: Nat
+  forall machine: Machine
+  Machine
+
+def machine_run(fuel, machine):
   match fuel:
     case 0n:
       machine
@@ -802,7 +1169,13 @@ def machine_run(fuel: Nat, machine: Machine) -> Machine:
 
 # This is the future IO integration seam. An input driver can set or clear a
 # CHIP-8 key without changing any emulation logic.
-def machine_key(machine: Machine, key: U32, pressed: Bool) -> Machine:
+assert machine_key:
+  forall machine: Machine
+  forall key: U32
+  forall pressed: Bool
+  Machine
+
+def machine_key(machine, key, pressed):
   match machine:
     case Machine{core, status}:
       (bound, slot) = u32_pair(key)
@@ -812,14 +1185,22 @@ def machine_key(machine: Machine, key: U32, pressed: Bool) -> Machine:
         case True{}:
           Machine{core_key_put(core, slot, bool_byte(pressed)), status}
 
-def pixel_sum(pixels: Array<U32>) -> U32:
+assert pixel_sum:
+  forall pixels: Array<U32>
+  U32
+
+def pixel_sum(pixels):
   match pixels:
     case ALeaf{value}:
       value
     case ANode{left, right}:
       U32.add(pixel_sum(left), pixel_sum(right))
 
-def verify(machine: Machine) -> Bool:
+assert verify:
+  forall machine: Machine
+  Bool
+
+def verify(machine):
   match machine:
     case Machine{Core{memory, registers, stack, pixels, keys, pc, index, sp, delay, sound, rng}, status}:
       match status:
@@ -830,7 +1211,7 @@ def verify(machine: Machine) -> Bool:
         case Releasing{register, key}:
           False{}
         case Running{}:
-          (registers, v0) = array_get(registers, U32.zero())
+          (registers, v0) = array_get(registers, 0)
           (registers, v2) = array_get(registers, U32.from_nat(2n))
           (registers, v6) = array_get(registers, U32.from_nat(6n))
           (registers, v8) = array_get(registers, U32.from_nat(8n))
@@ -840,18 +1221,18 @@ def verify(machine: Machine) -> Bool:
           (memory, b1) = array_get(memory, U32.from_nat(769n))
           (memory, b2) = array_get(memory, U32.from_nat(770n))
           a = U32.is_eq(v0, U32.from_nat(9n))
-          b = U32.is_eq(v2, U32.zero())
+          b = U32.is_eq(v2, 0)
           c = U32.is_eq(v6, U32.from_nat(4n))
           d = U32.is_eq(v8, U32.from_nat(20n))
           e = U32.is_eq(v9, U32.from_nat(15n))
-          f = U32.is_eq(vf, U32.zero())
-          g = U32.is_eq(b0, U32.zero())
-          h = U32.is_eq(b1, U32.zero())
+          f = U32.is_eq(vf, 0)
+          g = U32.is_eq(b0, 0)
+          h = U32.is_eq(b1, 0)
           j = U32.is_eq(b2, U32.from_nat(9n))
           k = U32.is_eq(pixel_sum(pixels), U32.from_nat(14n))
           m = U32.is_eq(pc, U32.from_nat(552n))
           n = U32.is_eq(index, U32.from_nat(130n))
-          o = U32.is_eq(sp, U32.zero())
+          o = U32.is_eq(sp, 0)
           ab = Bool.and(a, b)
           cd = Bool.and(c, d)
           ef = Bool.and(e, f)
@@ -860,9 +1241,29 @@ def verify(machine: Machine) -> Bool:
           mn = Bool.and(m, n)
           Bool.and(ab, Bool.and(cd, Bool.and(ef, Bool.and(gh, Bool.and(jk, Bool.and(mn, o))))))
 
-def main() -> Bool:
+assert main_value:
+  Bool
+
+def main_value():
   match boot(ROM.source()):
     case BootFail{code}:
       False{}
     case BootOK{machine}:
       verify(machine_run(40n, machine))
+
+assert main_show_bool:
+  forall value: Bool
+  IO(Unit)
+
+def main_show_bool(value):
+  match value:
+    case False{}:
+      IO.print("False{}")
+    case True{}:
+      IO.print("True{}")
+
+assert main:
+  IO(Unit)
+
+def main():
+  main_show_bool(main_value!())

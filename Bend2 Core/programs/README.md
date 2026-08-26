@@ -7,10 +7,10 @@
 | `gabs2` | runnable | direct `U32.add` |
 | `gabs3`, `gabs5`, `transtyping` | runnable | fused traversal plus explicit U32 copying |
 | `insertion_sort` | runnable | explicit head copies; structural argument first |
-| `integer_sqrt` | runnable | Nat fuel, U32 copies, `#[halts]` |
-| `merge_sort` | runnable | explicit head copies, `#[halts]` |
+| `integer_sqrt` | runnable | reusable structural Nat fuel, U32 copies |
+| `merge_sort` | runnable | explicit combined-length fuel and head copies |
 | `nat_proofs` | checker/evaluator proof | Core equality and rewrite syntax |
-| `tournament` | runnable sequentially | explicit state/depth copies, no fork, `#[halts]` |
+| `tournament` | runnable | reusable structural depth and explicit state copies |
 | `tree_sort` | runnable | explicit key copies; structural argument first |
 | [`chip8/`](chip8/) | runnable emulator | imported hex-ROM string, pure VM state, deterministic headless IO seams |
 

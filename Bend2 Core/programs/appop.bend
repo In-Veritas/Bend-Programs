@@ -2,7 +2,13 @@ import Base
 # Arithmetic dispatch, ported from Bend3's appop example.
 # Bend2 Core has no U32 infix surface, so dispatch and arithmetic use Base.
 
-def appop(o: U32, a: U32, b: U32) -> U32:
+assert appop:
+  forall o: U32
+  forall a: U32
+  forall b: U32
+  U32
+
+def appop(o, a, b):
   match U32.to_nat(o):
     case 42n:
       U32.mul(a, b)
@@ -20,13 +26,33 @@ def appop(o: U32, a: U32, b: U32) -> U32:
             case False{}:
               U32.div(a, b2)
     case n:
-      U32.zero()
+      0
 
-def main() -> Bool:
+assert main_value:
+  Bool
+
+def main_value():
   x = appop(U32.from_nat(42n), U32.from_nat(6n), U32.from_nat(7n))
-  y = appop(U32.from_nat(43n), U32.one(), U32.one())
+  y = appop(U32.from_nat(43n), 1, 1)
   z = appop(U32.from_nat(47n), U32.from_nat(84n), U32.from_nat(2n))
-  safe = appop(U32.from_nat(47n), U32.from_nat(9n), U32.zero())
+  safe = appop(U32.from_nat(47n), U32.from_nat(9n), 0)
   Bool.and(
     U32.is_eq(U32.add(U32.add(x, y), z), U32.from_nat(86n)),
     U32.is_eq(safe, U32.from_nat(9n)))
+
+assert main_show_bool:
+  forall value: Bool
+  IO(Unit)
+
+def main_show_bool(value):
+  match value:
+    case False{}:
+      IO.print("False{}")
+    case True{}:
+      IO.print("True{}")
+
+assert main:
+  IO(Unit)
+
+def main():
+  main_show_bool(main_value!())
