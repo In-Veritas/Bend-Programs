@@ -110,40 +110,80 @@ particular, later-definition scoping is fixed, but a reachable two-function
 nonterminating cycle is accepted by default checking. Expression-style
 `if condition { ... }` remains a parse error; use `match`.
 
-## Bend2 Core work
+## 2026-08-26 Bend2 Core synchronization
 
-The Core work targets commit `26cddb7`. Read `Bend2 Core/GUIDE.md` before
-editing; it contains the detailed second audit. Core is affine (at most once),
-not exactly-linear. Sequential uses add, mutually exclusive branch uses join,
-and dead type/proof/motive positions do not spend a live value. Explicit copies
-such as `U32.copy`, `Nat.copy`, or structural data copiers have real data cost
+Upstream force-updated `main` from the earlier handoff history to revision
+`c5d69a14608b93896b5046e310d501903235d6c8`. It was tested in a clean detached
+worktree because the sibling `../bend2-core` checkout intentionally remains at
+the old authored state. Use `bun bend2/comp.ts`; the old `src/` entry is gone.
+The current revision requires every definition to have a preceding `assert`,
+requires compiled `main` to be
+`IO<T>`, adds a real interpreter/JavaScript/C IO loop, and replaces unchecked
+ordinary sharing with the proof-gated `Cop`/`Copiable` surface. The pruned Base
+no longer supplies the older `List.length`, `List.append`, `Nat.mod`, or
+`Nat.is_eq` helpers; repository-local compatibility modules provide those
+operations for the migrated programs.
+
+Read `Bend2 Core/GUIDE.md` before editing. Core is affine (at most once), not
+exactly-linear. Sequential uses add, mutually exclusive branch uses join, and
+dead type/proof/motive positions do not spend a live value. A reusable `+`
+binder always requires valid copy evidence; the old `#[halts]` whole-book
+escape hatch no longer exists. Explicit copies such as
+`U32.copy`, `Nat.copy`, or structural data copiers still have real data cost
 even though their equality proofs erase.
 
-Twelve pure authored programs have ports. `gabs1` and `gabs4` are
-recorded as unsupported because Core lacks an effect runtime. Complete
-interactive demos are likewise blocked, but pure observer ports of Poker and
-Belote now compile reports to JS; see `Bend2 Core/demos/README.md`.
+Thirteen authored programs now have runnable ports, plus the CHIP-8 emulator.
+`gabs1` uses the new `IO.write`; only `gabs4` remains explicitly unsupported
+because Core has no argv API. The browser demos retain pure simulation/report
+kernels and use `IO<Unit>` only at executable wrappers. Core now has standard
+print, environment, file, TCP and UDP effects, but still has no clock, HTTP/
+JSON, DOM, WebGL, audio, argv or browser-event layer; see
+`Bend2 Core/demos/README.md`.
+
+Two Bend backend defects first found during the earlier migration remain
+reproducible at `c5d69a1`. Public
+`U32.zero()`/`U32.one()` evaluate in the interpreter and JavaScript but C
+emission exposes their structural word representation and fails; use contextual
+`0`/`1` literals and retain the minimized case in
+`Bend2 Core/unexpected_behavior/`. An erased equality binder can also escape a
+compiled recursive continuation: the interpreter/JS reference an omitted
+variable and C reports an unbound `~`. Bendy Birds keeps the minimized case in
+its `unexpected_behavior/` directory and factors the composition into a named
+proof theorem as a semantics-preserving workaround. Do not misclassify the new
+browser compiler's reachability pruning as a defect: browser builders must
+provide explicit temporary IO roots for pure functions exported to JavaScript.
 
 ## Bend2 Core observers
 
 `Bend2 Core/demos/poker/` returns deterministic Texas and Omaha timelines for
 four AIs. Every step includes all private cards, action/pot/stack state, best
-hand labels, and four win/category odds columns. It now also contains 78
-hand-written proof cases: runout and strategy can independently change the
-winner in its finite fairness model; every seat is reachable; all published
-category/win rows normalize; folded seats have zero equity; and showdowns agree
-with their declared winners. Keep the README's strict caveat: these prove table
-consistency, not the real-world accuracy of authored probability estimates.
+hand labels, and four win/category odds columns. Its semantic proof kernel
+shows that every arbitrary finite betting/payout history preserves the full
+ordered chip identity/value payload; chip-count and total-value conservation
+are corollaries. Three smaller deal lemmas cover arbitrary index lists and
+complete round counts. Its 78 closed certificates cover selected
+runouts and strategies change the winner in its finite model; every seat has a
+witness; published category/win rows normalize; folded seats have zero equity;
+and showdowns agree with their declared winners. Keep the README's strict
+caveat: the 78 certificates are not mathematical poker-fairness or real-world
+probability proofs.
 `Bend2 Core/demos/belote/`
 returns a seeded four-AI bidding/play timeline with all 32 cards, follow/cut/
 overtrump legality, all eight trick winners, and the verified 47–115 result.
-Both programs are affine, use no `#[halts]`, and contain no IO. Their browser
-pages only decode and animate the immutable values emitted by Core's JS backend.
-The final sequential JS artifact builds took 0.56 s for Poker and 0.86 s for
-Belote. Their generated SHA-256 values were respectively
-`ab97076c3b698d498647dfe668e97c46a839d5e6a76d3cb3a604e11f5eaa35af`
-and `aacef18cc9971a6ab69c70ef04d986a002f008014f1e2e2ad6203a78d1ceb498`.
-
+Its arbitrary-history semantic proof preserves every card identity and printed
+point value through deals, plays and trick collection; card count and point
+mass are corollaries. A supporting theorem proves snapshot-list length
+preservation over arbitrary index lists. Its 119 closed certificates cover every deck position
+and play, every seat and trick, exact ownership/legality/winner/point claims,
+and the one embedded report shape.
+Both kernels are affine and structurally terminating; their executable wrappers only
+print readiness. Their browser pages decode and animate immutable values
+emitted by Core's JS backend.
+The generated `c5d69a1` browser artifacts have SHA-256 values
+`0fd847f44d61cc00d3b625e1e77a752adfbafd73d9584107d52f4b4f9c25b320`
+for Poker and
+`3b5a7afbfe428526fa304d163e01a7c85a804283908921c7c17e870f2a899c19`
+for Belote.
 Rebuild and independently validate them from their package directories:
 
 ```sh
@@ -154,26 +194,74 @@ bun test.mjs
 `bendjogos_web/sync_core.mjs` copies these checked-in generated assets into the
 hub. The Bend3 server is only their HTTP shell: `/core/poker` and
 `/core/belote` are Core computations, while `/poker` and `/belote` are the
-interactive Bend3 versions. Keep that capability boundary explicit until Core
-implements IO.
+interactive Bend3 versions. Keep that computation/presentation boundary
+explicit; Core's standard IO does not provide the hub's HTTP/browser layer.
 
 `Bend2 Core/demos/bend_a_beet/` contains three reusable pure libraries plus the
 integrated game. Physics uses Q10; graphics and ray tracing use Q24.8, bridged
 with `Graphics.fixed_from_q10`. The fixed seed produces a mixed 3 × 8 field and
 a 1,086-frame report: one hundred 50 ms growth frames, sixteen simultaneous
 uproot frames, fifty 50 ms response samples plus a terminal frame for each
-planted beet, and a final state. Its physics, graphics, and ray-tracing tests
-consume erased suites totaling 33 explicit theorems. The six seeded material
-attributes now include `shine`; Core computes roughness, specular response,
-absorption, high-poly mesh quality, and world-space shadow anchors. The browser
-controls select immutable frames or reproject Core points and must not be
-described as Core IO. Keep `bend_a_beet_camera.js`, `bend_a_beet_webgl.js`, and
+planted beet, and a final state. Seven semantic theorems cover arbitrary motion
+histories, arbitrary surface/light contract scenes, and exact Bend Engine
+profile alignment; thirteen smaller original/Engine library lemmas support
+them. Focused tests consume all 20 erased theorems plus 35 closed certificates.
+The scene theorem requires positive reflectance and
+positive incident light, produces one positive reflection witness and one
+clear-or-occluded shadow evaluation per declared pair, and does not claim every
+object is visibly dark. The six seeded material attributes include `shine`; Core
+computes roughness, specular response, absorption, high-poly mesh quality,
+world-space shadow anchors, four procedural texture classes, ambient/
+directional/point/spot lighting, fog, reflection, fuzz, fur, and soft-shadow
+controls. The browser controls select immutable frames or reproject Core points
+and must not be described as Core IO. Keep `bend_a_beet_camera.js`,
+`bend_a_beet_webgl.js`, and
 `bend_a_beet_viewer.js` synchronized with the viewer page and BendJogos route.
-The WebGL layer uses perspective depth, 3D ellipsoids/tubes/leaves, moving
-camera-dependent highlights and projected shadows, continuous spring cables,
-and persistent separated fracture sectors.
+The WebGL layer uses perspective depth, 3D ellipsoids/tubes/leaves, actual fur
+strand tubes, procedural surface patterns, reflected environment/fuzzy rims,
+multi-light fixtures, depth fog, layered soft shadows, continuous spring
+cables, and persistent separated fracture sectors.
 Rebuild with `./build.sh`, validate with `bun test.mjs`, then synchronize the
 hub route `/core/bend-a-beet` with `bendjogos_web/sync_core.mjs`.
+The Engine-integrated generated `c5d69a1` browser artifact has SHA-256
+`f4048298d98d5f2822f8107d0eb807ba8d6977ef9a77c80c7246b21d9f5f197a`.
+
+`Bend2 Core/demos/Bend Engine/` is the reusable pure library package. Model3D
+provides 104 vertices, 192 triangle facets, UVs/normals, four procedural texture
+families, reflection/fuzz and 104 anchored fur strands. Light and ray tracing
+provide four light kinds, shadow-query/resolution cooperation, fog, sphere/
+plane/triangle hits and Möller–Trumbore triangles. Physics provides Q10 force,
+torque, contacts, six joint kinds, recursive articulations, pinned bodies and
+iterative ragdoll histories. AI provides perception, memory, goals, inspectable
+utility, legality-carrying decisions, deterministic plans, squads/worlds and
+histories. Fluids adds Q10 particles/waves, buoyancy and drag samples, surface
+forcing, refraction, Fresnel, absorption, and caustic controls. The shared
+WebGL2 layer accepts arbitrary indexed custom meshes, provides 29 built-in
+complex mesh families and animated character/bird/fish/whale/tree/coral/cloud
+assemblies, and adds procedural materials, soft/wind/twist vertex motion,
+correct normal transforms, transparent sorting, water/glass, caustics, fog,
+and selectable cameras.
+
+Its rendering audit contains 4 semantic headline claims, 3 structural Claim
+helpers, 14 reusable universal library theorems and 5 closed certificates.
+Physics contains 12 universal theorems/claims and 3 certificates. AI contains 8
+semantic claim families, 5 helpers and 3 certificates. Fluids adds 8 universal
+theorem families. The combined harness pins `c5d69a1`, rejects the removed
+`#[halts]` spelling and requires `True{}` from generated JavaScript and native
+C for all four focused entries. No genuine Bend issue was found, so the
+package intentionally has no
+`unexpected_behavior/` directory.
+
+The Engine-backed Core games are `bendio_3d_land` (612 autonomous frames,
+18 platforms, 5 theorem families/4 certificates), `bendy_birds` (6 bird and 7
+block materials, live Core shot recomputation, 10/4), `bend_fishing` (one or
+two occult fish, 120 water frames, five reel outcomes, 8/5), `bend_aquarium`
+(12 fish, 12 corals, unbounded frame queries, 8/5), and `bend_landscape`
+(unbounded keyed chunks, 12/6). Their browser cameras and timing selectors
+choose presentation or a Core-computed branch. All five viewers now use
+custom/compound geometry for terrain, creatures, plants, structures, props and
+effects instead of relying on scaled primitive solids. Bendy Birds'
+`recalculate.mjs` remains an explicit command-line recompilation bridge.
 
 ## 2026-08-18 current-worktree additions
 
@@ -194,32 +282,22 @@ theft limits. No compiler/runtime issue was found, so there is intentionally no
 Check a port and verify its JS backend from `../bend2-core`:
 
 ```sh
-bun src/main.ts "../Bend-Programs/Bend2 Core/programs/tree_sort.bend"
-bun src/main.ts "../Bend-Programs/Bend2 Core/programs/tree_sort.bend" --to /tmp/tree_sort.js
+bun bend2/comp.ts "../Bend-Programs/Bend2 Core/programs/tree_sort.bend"
+bun bend2/comp.ts "../Bend-Programs/Bend2 Core/programs/tree_sort.bend" --to /tmp/tree_sort.js
 bun /tmp/tree_sort.js
 ```
 
-Do not directly normalize `tournament.bend`; use `--to`. Its normal form
-expands structural U32 operations and was still consuming CPU after 18 minutes,
-whereas both generated backends finish immediately.
-
-Computational ports return `True{}` in both generated JS and C. `nat_proofs`
-normalizes to `{==}` and compiles to erased JS output `-`; the C emitter rejects
-an equality-valued `main` because its driver supports only String, Bool, Nat,
-U32, and Char. `integer_sqrt`, `merge_sort`, and `tournament` use `#[halts]`;
-their files explain why Core's syntactic termination checker cannot certify the
-copied or alternating structural descent.
-
-`#[halts]` is an unsafe whole-book license, not a local annotation. Any licensed
-import enables whole-book scope, forward/mutual references, unchecked recursive
-descent, live unfilled assertions, and self references as values. Avoid it when
-a structurally checkable program is practical.
+Computational ports print `True{}` from `IO<Unit>` wrappers in both generated JS
+and C. `nat_proofs` keeps its equality proof in `main_value` and prints `-`
+after checking it; both backends accept the IO entry. The former licensed
+programs now pass the mandatory termination checker: `integer_sqrt` reuses the
+actual Nat predecessor, `merge_sort` carries combined-length fuel, and
+`tournament` gives both child calls the actual reusable predecessor.
 
 The C/JS compilers erase proofs and recognize canonical Base operations by
 name. That intrinsification is why U32-heavy programs can normalize slowly but
-run immediately after lowering. The C driver only prints String, Bool, Nat,
-U32, or Char and does not execute `IO.OP`; the JS backend may merely print an
-effect tree.
+run immediately after lowering. Both backends and the interpreter now execute
+the same `IO<T>` protocol; compiled programs reject a non-IO `main`.
 
 ## CHIP-8 emulator
 
@@ -230,20 +308,21 @@ timers, deterministic xorshift random state, and explicit Running/Waiting/
 Releasing/Halted status. `0NNN` host-machine calls are reported unsupported; SUPER-CHIP
 and XO-CHIP are out of scope.
 
-Because Core has no host input, `rom.bend` exports a whitespace-separated hex
-String which is parsed and loaded at `0x200`. The README has a required note to
-remove this embedded-ROM bridge when IO exists. `machine_key` is the future
-input seam. The bundled ROM checks arithmetic/carry, BCD, call/return, original
+Because Core has no argv or interactive keyboard input, `rom.bend` exports a
+whitespace-separated hex String which is parsed and loaded at `0x200`. The
+README has a required note to remove this embedded-ROM bridge when an argument/
+input seam exists. `machine_key` is the future input seam. The bundled ROM
+checks arithmetic/carry, BCD, call/return, original
 shift behavior, random masking, font lookup/drawing, timer behavior, key skip,
-PC/I, stack, and framebuffer. The implementation uses no `#[halts]`.
+PC/I, stack, and framebuffer. The implementation is structurally terminating.
 
-The emulator returned `True{}` through direct normalization, generated JS, and
-a clang-built native C executable. Re-run from `../bend2-core`:
+The emulator returned `True{}` through the interpreter, generated JS, and a
+clang-built native C executable. Re-run from `../bend2-core`:
 
 ```sh
-bun src/main.ts "../Bend-Programs/Bend2 Core/programs/chip8/chip8.bend"
-bun src/main.ts "../Bend-Programs/Bend2 Core/programs/chip8/chip8.bend" --to /tmp/chip8.c
-clang -O2 /tmp/chip8.c -o /tmp/chip8 && /tmp/chip8
+bun bend2/comp.ts "../Bend-Programs/Bend2 Core/programs/chip8/chip8.bend"
+bun bend2/comp.ts "../Bend-Programs/Bend2 Core/programs/chip8/chip8.bend" --to /tmp/chip8.c
+clang -O2 -DBEND_PARALLEL=0 -DBEND_GPU=0 /tmp/chip8.c -o /tmp/chip8 && /tmp/chip8
 ```
 
 ## Editing discipline
@@ -253,8 +332,11 @@ clang -O2 /tmp/chip8.c -o /tmp/chip8 && /tmp/chip8
   modes. Do not record macOS/Metal/Chromium sandbox incidents, browser policy,
   firewall/LAN/port/process problems, network timing, test-harness state leaks,
   ordinary application bugs, UX gaps, or demo security/feature limitations as
-  Bend issues. Operational instructions may remain in ordinary READMEs when
-  users need them to run a program.
+  Bend issues. Consistent language constraints—such as significant declaration
+  order or requiring a body-level `match` to head a definition—are not bugs and
+  must not be logged merely because they are restrictive or surprising.
+  Operational instructions may remain in ordinary READMEs when users need them
+  to run a program.
 - Preserve every `unexpected_behavior/` log when syncing demos; they are part
   of the purpose of this repository.
 - Do not copy a stale checked-in native binary over a newly verified source.

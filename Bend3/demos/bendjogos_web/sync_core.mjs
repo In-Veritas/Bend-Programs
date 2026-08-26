@@ -19,6 +19,42 @@ const packages = [
     extras: ["bend_a_beet_camera.js"],
     inline: ["bend_a_beet_webgl.js", "bend_a_beet_viewer.js"],
   },
+  {
+    name: "Bendio 3D Land",
+    slug: "bendio-3d-land",
+    source: "bendio_3d_land",
+    data: "bendio_data.js",
+    inline: ["bend_engine_webgl.js", "bendio_viewer.js"],
+  },
+  {
+    name: "Bendy Birds",
+    slug: "bendy-birds",
+    source: "bendy_birds",
+    data: "bendy_birds_data.js",
+    extras: ["bendy_birds_result.js"],
+    inline: ["bend_engine_webgl.js", "bendy_birds_viewer.js"],
+  },
+  {
+    name: "Bend Fishing",
+    slug: "bend-fishing",
+    source: "bend_fishing",
+    data: "bend_fishing_data.js",
+    inline: ["bend_engine_webgl.js", "bend_fishing_viewer.js"],
+  },
+  {
+    name: "Bend Aquarium",
+    slug: "bend-aquarium",
+    source: "bend_aquarium",
+    data: "bend_aquarium_data.js",
+    inline: ["bend_engine_webgl.js", "bend_aquarium_viewer.js"],
+  },
+  {
+    name: "Bend Landscape",
+    slug: "bend-landscape",
+    source: "bend_landscape",
+    data: "landscape_data.js",
+    inline: ["bend_engine_webgl.js", "landscape_viewer.js"],
+  },
 ];
 
 fs.mkdirSync(core, { recursive: true });

@@ -87,24 +87,37 @@ to the selected binary/port.
 - **[bendjogos_web/](bendjogos_web/)** — the BendJogos.com.br hub. One native
   Bend process serves every browser demo and all shared multiplayer state on
   `http://<server-lan-ip>:8090`; a fixed runtime switch opens the Bend2 Core
-  Poker, Belote and high-quality 3D Bend-a-Beet observers on that same origin.
+  Poker with 3 arbitrary-history chip-conservation theorems, 3 deal lemmas and
+  78 table certificates; Belote with 3 arbitrary-history card-conservation
+  theorems, 1 mapping lemma and 119 trace certificates; and a high-quality 3D
+  Bend-a-Beet observer with 7 semantic theorems, 13 support lemmas and 35
+  certificates on that same origin. The Core catalog also includes Bendio 3D
+  Land, Bendy Birds, Bend Fishing, Bend Aquarium, and the indefinitely scrolling
+  keyed Bend Landscape, all built on Bend Engine physics, light, ray, AI, and
+  fluid modules with 43 additional general theorem families and 24 closed
+  certificates.
 
 ## 2026-08-18 additions
 
 Farmhands was checked with the sibling worktree's current
 `bun bend-ts/src/main.ts` entry, built natively, and exercised through an HTTP
-test that includes a process restart and CSV reload. Bend-a-Beet now exposes 33
-Core-checked library theorems and a true depth-tested WebGL renderer with
-high-poly procedural beets, seeded shine, absorption, camera-dependent
-specular light, sun shafts and reprojected world-space shadows.
+test that includes a process restart and CSV reload. Bend-a-Beet now exposes 20
+general Core theorems and 35 closed certificates plus a true depth-tested
+WebGL renderer with high-poly procedural beets, Bend Engine solid/checker/
+facet/noise materials, geometric fur, fuzz and reflection, four-source light,
+fog, layered soft shadows, seeded shine, sun shafts and reprojected world-space
+shadow anchors. Bend Engine now also supplies a proven fixed-point fluid and
+water-optics library plus a shared high-detail WebGL2 renderer used by Bendio
+3D Land, Bendy Birds, Bend Fishing, Bend Aquarium, and Bend Landscape.
 
 ## Current verification
 
 Against `1ebc1acc`, all sixteen entry programs typechecked, emitted C, and
 built natively. The twelve standalone HTTP programs now include Poker on 8092.
-The rebuilt BendJogos hub served Bend3 Poker and Belote plus both compiled-Core
-observer pages on 8090. Automated clients completed an entire Texas hand and an
-entire Belote hand through the hub; route, private-card, invitation, Core-data,
+The rebuilt BendJogos hub served Bend3 Poker and Belote plus all eight
+compiled-Core simulation pages on 8090. Automated clients completed an entire
+Texas hand and an entire Belote hand through the hub; route, private-card,
+invitation, Core-data,
 obfuscator, Club Corvid, Belote, Poker, and hub browser checks passed.
 
 ## Bend3 issue logs
