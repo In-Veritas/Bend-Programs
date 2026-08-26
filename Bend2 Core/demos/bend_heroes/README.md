@@ -104,26 +104,6 @@ deterministic enemy response instead of replaying the original positional
 battle loop. This limitation is ordinary application scope, not a Bend issue,
 so the package intentionally has no `unexpected_behavior/` directory.
 
-## Ranged-duel proof boundary
-
-`heroes_ranged_law.bend` proves, by structural induction rather than closed
-case enumeration, that a ranged stack always survives and defeats an immobile
-melee stack at a separation of at least two tiles when every volley deals at
-least two damage. The theorem is universal over additional distance,
-additional damage, both stack values, and every finite structural defender
-health. Equality witnesses read the real `CreatureStats.ranged` flag, so an
-arbitrary stack cannot be admitted under the wrong role.
-
-The positional and immobility premises live in the separate proof adapter
-because `heroes.bend` has no combat-grid position or combat-movement state.
-Consequently this is a proved law for that explicit adapter, not a false claim
-that the current `combat_attack_func` already implements positional combat.
-The same module proves the concrete audit result that
-`ranged_percent_func(True{}, p)` and `ranged_percent_func(False{}, p)` are both
-definitionally equal to `p` for every `U32` percentage. A refinement theorem
-from the adapter to the runtime therefore remains impossible until the
-documented positional-combat scope is implemented.
-
 Creature records and combat-formula checks were cross-checked against VCMI's
 open-source [Castle data](https://github.com/vcmi/vcmi/blob/develop/config/creatures/castle.json),
 [Necropolis data](https://github.com/vcmi/vcmi/blob/develop/config/creatures/necropolis.json),
@@ -145,8 +125,8 @@ validates all 63 map cells, cardinal and diagonal movement, first-creature
 health, persistent pickups, construction, recruitment, turn/day income, a
 complete guardian battle, progression, artifact pickup, town-capture victory,
 equal-seed determinism, renderer boundaries, generated JavaScript execution,
-C emission, clang build, native execution, and the universally quantified
-ranged-duel proof module. The Bend books are structurally terminating.
+C emission, clang build, and native execution. The Bend book is structurally
+terminating.
 
 Serve this directory with any static HTTP server and open `index.html`; no
 application server or package installation is required after generation.
@@ -154,10 +134,6 @@ application server or package installation is required after generation.
 ## Files
 
 - `heroes.bend` — authoritative pure game state and transitions;
-- `heroes_ranged_law.bend` — universal external ranged-duel law and concrete
-  runtime ranged-flag audit;
-- `heroes_ranged_law_test.bend` — higher-order proof consumer exercised by the
-  interpreter and generated backends;
 - `build.mjs` / `build.sh` — reproducible browser artifact generation;
 - `heroes_data.js` — checked-in generated Bend2 Core JavaScript;
 - `bend_engine_webgl.js` — synchronized shared Bend Engine renderer;
