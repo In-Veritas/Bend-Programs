@@ -7,7 +7,7 @@ discovers input files, builds the selected program, and launches it once per
 input file.
 
 Tested with `bend2-core` **87355989791e12e0f29026ea1f65dc344290c24c**
-(Bend 2.0.16), the remote `main` fetched and verified on 2026-10-11. The entry point is
+(Bend 2.0.16), the remote `main` fetched and verified on 2026-10-15. The entry point is
 `bend2/main.ts`. The older `Bend2 Core/GUIDE.md` in the parent repository
 describes an earlier language revision; use the compiler's `guide/GUIDE.md`
 for this package.
@@ -242,10 +242,10 @@ atomic replacement and path-alias checks apply only when using `run.py`.
 
 ## Validation
 
-On 2026-10-11, fetching upstream and checking its remote default branch confirmed
+On 2026-10-15, fetching upstream and checking its remote default branch confirmed
 that `87355989791e12e0f29026ea1f65dc344290c24c` was still the latest `main`.
 A fresh build with an empty cache compiled all six algorithms for native C and
-JavaScript; all 22 tests passed in 22.902 seconds, including folder workflows
+JavaScript; all 22 tests passed in 23.028 seconds, including folder workflows
 and representative-sequence output. No compatibility changes were needed.
 
 ```sh
