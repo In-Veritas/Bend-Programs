@@ -1,0 +1,133 @@
+{
+  "compiler_revision": "014ccd03c43270c151f46679075f7f04593077ea",
+  "platform": "macOS-26.3.1-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "clang": "Apple clang version 17.0.0 (clang-1700.6.4.2)",
+  "bun": "1.3.14",
+  "source_hashes": {
+    "complete_linkage.bend": "233fabcc98f182a3f42f7cc3484de2267bdc0d36e6c4aca585650383d630d218",
+    "uclust.bend": "32c3e46c19271f78f15d128d088385e4fae952787746fcbf78ec2f7bd8afd959",
+    "set_cover.bend": "efaff6c2baef4045087b6ac6148f95d9ab4ad54092d258c351d8c199fb2fffb9",
+    "cd_hit.bend": "965e2ac798ff400d4bb0262b98de738a48ecd50424a480e87ebfd1fd6f99aa7a",
+    "single_linkage.bend": "59b0813d8f5bc38b3d30c1b3aa542bbc649f1a7a5f6c09c06cc5ac79f8653e18",
+    "leiden.bend": "de81a763a0a5c8d860db7d9dc9296b4d71534c3d648cf0366b182665ab80b74d",
+    "lib/common.bend": "7a02b06ed0c87c9359401fe8023fca329a13eea42b3e50a82adbc91b1a83d0e5",
+    "run.py": "c0cfdb57c20d864ddac42091b841e2f0d36fe0803ddead5c1c298af9781f23c4",
+    "tests/leiden_graph.bend": "d2eb47407c30de64857ae2dd673541711cf3a1cf394d0e3f1c5a01aaccb0094e",
+    "tests/test_clustering.py": "caaeb9db8c04476a7881f8c120ab9b3fe27bad24728b2b07a35b8c70ccdaa9d9",
+    "tests/fixtures/chain.fasta": "1be5887a039e942eec37b3af62a8bf1a9ec2a8e063563da874cfc8f1c341f769"
+  },
+  "experimental_hashes": {
+    "packing.bend": "c7db8bf0d00eb39424df049b9cb4abf710e4ae5def4f7654892542fcb85fdc54",
+    "alignment.bend": "5246fa7f36b2f1ccf5b170616cbf942a18cf7e1bc35c100905c05f6480ad5865"
+  },
+  "warmups": 1,
+  "repeats": 3,
+  "identity": 0.95,
+  "reverse": false,
+  "seed": 42,
+  "threads": 1,
+  "measurement": "Native child wall time and per-child peak RSS; includes FASTA parsing, packing, clustering, TSV and representative output; excludes compilation and Python launcher.",
+  "datasets": {
+    "wtdbg2_short8": {
+      "path": "datasets/public_viromes/ready/wtdbg2_viral_short8.fasta",
+      "sha256": "206dce0c27ee669438a5e555b14b65a75c8416f769cbe097fb0ed23278dd97d1"
+    }
+  },
+  "runs": [
+    {
+      "dataset": "wtdbg2_short8",
+      "algorithm": "single-linkage",
+      "variant": "packed",
+      "repeat": 0,
+      "seconds": 16.5754465830978,
+      "cpu_seconds": 16.567642000000003,
+      "peak_rss_bytes": 3719168,
+      "records": 8,
+      "clusters": 8,
+      "table_sha256": "edbbba09937401fca62e626d2be8f422ad969cedd2bb74dbdf275a62a2437b1f",
+      "representatives_sha256": "206dce0c27ee669438a5e555b14b65a75c8416f769cbe097fb0ed23278dd97d1"
+    },
+    {
+      "dataset": "wtdbg2_short8",
+      "algorithm": "single-linkage",
+      "variant": "baseline",
+      "repeat": 0,
+      "seconds": 16.60734924999997,
+      "cpu_seconds": 16.606063,
+      "peak_rss_bytes": 3751936,
+      "records": 8,
+      "clusters": 8,
+      "table_sha256": "edbbba09937401fca62e626d2be8f422ad969cedd2bb74dbdf275a62a2437b1f",
+      "representatives_sha256": "206dce0c27ee669438a5e555b14b65a75c8416f769cbe097fb0ed23278dd97d1"
+    },
+    {
+      "dataset": "wtdbg2_short8",
+      "algorithm": "single-linkage",
+      "variant": "baseline",
+      "repeat": 1,
+      "seconds": 16.66239474993199,
+      "cpu_seconds": 16.652928,
+      "peak_rss_bytes": 3751936,
+      "records": 8,
+      "clusters": 8,
+      "table_sha256": "edbbba09937401fca62e626d2be8f422ad969cedd2bb74dbdf275a62a2437b1f",
+      "representatives_sha256": "206dce0c27ee669438a5e555b14b65a75c8416f769cbe097fb0ed23278dd97d1"
+    },
+    {
+      "dataset": "wtdbg2_short8",
+      "algorithm": "single-linkage",
+      "variant": "packed",
+      "repeat": 1,
+      "seconds": 16.564855207921937,
+      "cpu_seconds": 16.554216,
+      "peak_rss_bytes": 3719168,
+      "records": 8,
+      "clusters": 8,
+      "table_sha256": "edbbba09937401fca62e626d2be8f422ad969cedd2bb74dbdf275a62a2437b1f",
+      "representatives_sha256": "206dce0c27ee669438a5e555b14b65a75c8416f769cbe097fb0ed23278dd97d1"
+    },
+    {
+      "dataset": "wtdbg2_short8",
+      "algorithm": "single-linkage",
+      "variant": "baseline",
+      "repeat": 2,
+      "seconds": 16.715537999989465,
+      "cpu_seconds": 16.699879,
+      "peak_rss_bytes": 3751936,
+      "records": 8,
+      "clusters": 8,
+      "table_sha256": "edbbba09937401fca62e626d2be8f422ad969cedd2bb74dbdf275a62a2437b1f",
+      "representatives_sha256": "206dce0c27ee669438a5e555b14b65a75c8416f769cbe097fb0ed23278dd97d1"
+    },
+    {
+      "dataset": "wtdbg2_short8",
+      "algorithm": "single-linkage",
+      "variant": "packed",
+      "repeat": 2,
+      "seconds": 16.564580792095512,
+      "cpu_seconds": 16.563439,
+      "peak_rss_bytes": 3719168,
+      "records": 8,
+      "clusters": 8,
+      "table_sha256": "edbbba09937401fca62e626d2be8f422ad969cedd2bb74dbdf275a62a2437b1f",
+      "representatives_sha256": "206dce0c27ee669438a5e555b14b65a75c8416f769cbe097fb0ed23278dd97d1"
+    }
+  ],
+  "summary": [
+    {
+      "dataset": "wtdbg2_short8",
+      "algorithm": "single-linkage",
+      "clusters": 8,
+      "baseline_seconds": 16.66239474993199,
+      "baseline_rss_mib": 3.578125,
+      "baseline_min_seconds": 16.60734924999997,
+      "baseline_max_seconds": 16.715537999989465,
+      "packed_seconds": 16.564855207921937,
+      "packed_rss_mib": 3.546875,
+      "packed_min_seconds": 16.564580792095512,
+      "packed_max_seconds": 16.5754465830978,
+      "speedup": 1.0058883425653733
+    }
+  ]
+}

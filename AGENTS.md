@@ -13,7 +13,7 @@ compile, and (when its result/runtime permits) run it before syncing.
   required for newly added packages; rebuild them locally.
 - `Bend2/` — older full Bend2 application examples; unrelated to Bend2 Core.
 - `Bend2 Core/` — strict-affine ports targeting `../bend2-core`.
-- `CLustering algorithms/` — DNA/RNA FASTA clustering in current Bend Core;
+- `Clustering/` — DNA/RNA FASTA clustering in current Bend Core;
   six algorithm entries, shared Bend IO/alignment, and a Python build launcher.
 
 Paths under `Bend2 Core/` contain a space; quote them in shell commands.
@@ -117,10 +117,10 @@ nonterminating cycle is accepted by default checking. Expression-style
 The sibling `../bend2-core` is now updated to upstream `main` at
 `87355989791e12e0f29026ea1f65dc344290c24c` (2.0.16). The earlier Core
 synchronization notes below describe their historical revisions, not the
-current CLI or syntax. For `CLustering algorithms/`, read its README and the
+current CLI or syntax. For `Clustering/`, read its README and the
 compiler's `guide/GUIDE.md`; invoke `bun bend2/main.ts`, with `-o` for output.
 The six algorithms target this revision and are validated in native C and
-JavaScript by `python3 "CLustering algorithms/tests/test_clustering.py"`.
+JavaScript by `python3 "Clustering/tests/test_clustering.py"`.
 Do not assume the older `Bend2 Core/` ports have also been migrated.
 
 ## 2026-08-26 Bend2 Core synchronization

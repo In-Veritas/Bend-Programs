@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location("launcher", ROOT / "run.py")
 launcher = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(launcher)
-COMPILER = Path(os.environ.get("BEND_CORE", ROOT.parent.parent / "bend2-core"))
+COMPILER = launcher.default_compiler()
 ALGORITHMS = tuple(launcher.ALGORITHMS)
 
 

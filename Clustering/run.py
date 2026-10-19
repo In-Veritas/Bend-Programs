@@ -25,6 +25,17 @@ FASTA_SUFFIXES = {".fasta", ".fa", ".fna", ".ffn", ".frn", ".fas", ".fsa"}
 MAX_INPUT_BYTES = 64 * 1024 * 1024
 
 
+def default_compiler():
+    configured = os.environ.get("BEND_REPO") or os.environ.get("BEND_CORE")
+    if configured:
+        return Path(configured)
+    public = ROOT.parent.parent / "bend"
+    legacy = ROOT.parent.parent / "bend2-core"
+    if (public / "bend2/main.ts").is_file() or not (legacy / "bend2/main.ts").is_file():
+        return public
+    return legacy
+
+
 def fraction(value):
     try:
         number = Decimal(value)
@@ -153,8 +164,8 @@ def main():
                         "writes a TSV and representative FASTA for every input file")
     parser.add_argument("--backend", choices=("c", "js"), default="c")
     parser.add_argument("--compiler", type=Path,
-                        default=Path(os.environ.get("BEND_CORE", ROOT.parent.parent / "bend2-core")),
-                        help="bend2-core checkout (default: sibling of Bend-Programs)")
+                        default=default_compiler(),
+                        help="Bend checkout (default: sibling bend; falls back to bend2-core)")
     args = parser.parse_args()
     batch = args.input.is_dir()
     if batch:

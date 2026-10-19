@@ -1,0 +1,64 @@
+{
+  "compiler_revision": "014ccd03c43270c151f46679075f7f04593077ea",
+  "platform": "macOS-26.3.1-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "clang": "Apple clang version 17.0.0 (clang-1700.6.4.2)",
+  "bun": "1.3.14",
+  "warmups": 0,
+  "repeats": 1,
+  "identity": 0.95,
+  "reverse": false,
+  "seed": 42,
+  "threads": 1,
+  "measurement": "Native child wall time and per-child peak RSS; includes FASTA parsing, packing, clustering, TSV and representative output; excludes compilation and Python launcher.",
+  "datasets": {
+    "vclust_prefix1000": {
+      "path": "datasets/public_viromes/ready/vclust_example_prefix1000.fasta",
+      "sha256": "a2125809c3796bb03905fd299c17cee5bcbe3c2cc5bc0613ea14d8837b89a16a"
+    }
+  },
+  "runs": [
+    {
+      "dataset": "vclust_prefix1000",
+      "algorithm": "single-linkage",
+      "variant": "packed",
+      "repeat": 0,
+      "seconds": 1.7146736250724643,
+      "cpu_seconds": 1.4399980000000001,
+      "peak_rss_bytes": 2473984,
+      "records": 12,
+      "clusters": 12,
+      "table_sha256": "2122243ef29fef486196d75908a604fad5102dfc2c6a015413d1f1fd1a4b77a0",
+      "representatives_sha256": "a2125809c3796bb03905fd299c17cee5bcbe3c2cc5bc0613ea14d8837b89a16a"
+    },
+    {
+      "dataset": "vclust_prefix1000",
+      "algorithm": "single-linkage",
+      "variant": "baseline",
+      "repeat": 0,
+      "seconds": 1.4187183750327677,
+      "cpu_seconds": 1.417294,
+      "peak_rss_bytes": 2408448,
+      "records": 12,
+      "clusters": 12,
+      "table_sha256": "2122243ef29fef486196d75908a604fad5102dfc2c6a015413d1f1fd1a4b77a0",
+      "representatives_sha256": "a2125809c3796bb03905fd299c17cee5bcbe3c2cc5bc0613ea14d8837b89a16a"
+    }
+  ],
+  "summary": [
+    {
+      "dataset": "vclust_prefix1000",
+      "algorithm": "single-linkage",
+      "clusters": 12,
+      "baseline_seconds": 1.4187183750327677,
+      "baseline_rss_mib": 2.296875,
+      "baseline_min_seconds": 1.4187183750327677,
+      "baseline_max_seconds": 1.4187183750327677,
+      "packed_seconds": 1.7146736250724643,
+      "packed_rss_mib": 2.359375,
+      "packed_min_seconds": 1.7146736250724643,
+      "packed_max_seconds": 1.7146736250724643,
+      "speedup": 0.8273984939686763
+    }
+  ]
+}

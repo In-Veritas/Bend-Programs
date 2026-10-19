@@ -6,19 +6,27 @@ output are implemented in Bend. `run.py` validates command-line options,
 discovers input files, builds the selected program, and launches it once per
 input file.
 
-Tested with `bend2-core` **87355989791e12e0f29026ea1f65dc344290c24c**
-(Bend 2.0.16), the remote `main` fetched and verified on 2026-10-15. The entry point is
-`bend2/main.ts`. The older `Bend2 Core/GUIDE.md` in the parent repository
+Tested with the public [bendlang/bend](https://github.com/bendlang/bend)
+repository at **014ccd03c43270c151f46679075f7f04593077ea** (Bend 2.0.37),
+cloned from `main` and verified on 2026-10-15. All six Bend programs run
+without source changes. The entry point is `bend2/main.ts`.
+The older `Bend2 Core/GUIDE.md` in the parent repository
 describes an earlier language revision; use the compiler's `guide/GUIDE.md`
 for this package.
 
 ## Run
 
 Requires Python 3.10+, Bun, and Clang for the default native C backend.
-The sibling `../../bend2-core` checkout is detected automatically.
+The sibling `../../bend` checkout is detected automatically, with
+`../../bend2-core` as a fallback when the public checkout is absent. To obtain
+the public compiler from this package directory:
 
 ```sh
-cd "/Users/macolas/Software/Gabriel/Bend-Programs/CLustering algorithms"
+git clone https://github.com/bendlang/bend.git ../../bend
+```
+
+```sh
+cd "/Users/macolas/Software/Gabriel/Bend-Programs/Clustering"
 
 python3 run.py single-linkage reads.fasta --identity 0.97 \
   --strand both --output clusters.tsv --representatives representatives.fasta
@@ -67,7 +75,10 @@ untouched. Replacements are atomic per file, not a filesystem transaction
 across the entire batch. Limits apply independently to each input file.
 
 Use `--backend js` to run generated JavaScript with Bun. Use `--compiler PATH`
-or `BEND_CORE=PATH` to select another checkout. Build products are cached under
+or `BEND_REPO=PATH` to select another checkout. The legacy `BEND_CORE=PATH`
+setting is also accepted; `BEND_REPO` takes precedence when both are set.
+The test suite uses the same environment settings and checkout discovery.
+Build products are cached under
 the system temporary directory and rebuilt when the sources, compiler, or
 toolchain change. Runs use one CPU thread; this implementation does not request
 GPU execution. Compilation disables the compiler's optional update telemetry.
@@ -217,9 +228,9 @@ export BEND_NO_TELEMETRY=1
 export CLUSTER_INPUT=/absolute/path/reads.fasta
 export CLUSTER_IDENTITY=9700
 export CLUSTER_REVERSE=1
-bun ../../bend2-core/bend2/main.ts single_linkage.bend
+bun ../../bend/bend2/main.ts single_linkage.bend
 
-bun ../../bend2-core/bend2/main.ts single_linkage.bend -o /tmp/fasta-cluster
+bun ../../bend/bend2/main.ts single_linkage.bend -o /tmp/fasta-cluster
 /tmp/fasta-cluster --threads 1 --gpu off
 ```
 
@@ -242,11 +253,13 @@ atomic replacement and path-alias checks apply only when using `run.py`.
 
 ## Validation
 
-On 2026-10-15, fetching upstream and checking its remote default branch confirmed
-that `87355989791e12e0f29026ea1f65dc344290c24c` was still the latest `main`.
-A fresh build with an empty cache compiled all six algorithms for native C and
-JavaScript; all 22 tests passed in 23.028 seconds, including folder workflows
-and representative-sequence output. No compatibility changes were needed.
+On 2026-10-15, all 22 tests passed against public Bend 2.0.37 at
+`014ccd03c43270c151f46679075f7f04593077ea`, including native C and JavaScript
+execution, folder workflows, and representative-sequence output. No Bend source
+compatibility changes were needed. The launcher and tests now prefer the public
+checkout. The suite also previously passed against the legacy `bend2-core`
+2.0.16 snapshot at `87355989791e12e0f29026ea1f65dc344290c24c`; that repository's
+unchanged `main` did not reflect the newer public repository's releases.
 
 ```sh
 python3 tests/test_clustering.py

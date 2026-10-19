@@ -1,0 +1,2 @@
+dataset,algorithm,clusters,baseline_seconds,baseline_rss_mib,baseline_min_seconds,baseline_max_seconds,packed_seconds,packed_rss_mib,packed_min_seconds,packed_max_seconds,speedup
+vclust_prefix1000,single-linkage,12,1.4187183750327677,2.296875,1.4187183750327677,1.4187183750327677,1.7146736250724643,2.359375,1.7146736250724643,1.7146736250724643,0.8273984939686763

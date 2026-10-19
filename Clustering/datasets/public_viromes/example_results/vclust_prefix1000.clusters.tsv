@@ -1,0 +1,13 @@
+record_index	cluster_representative	length	header
+0	0	1000	NC_010807 fragment=1-1000 original_length=38815
+1	1	1000	NC_010807.alt1 fragment=1-1000 original_length=38815
+2	2	1000	NC_010807.alt2 fragment=1-1000 original_length=40555
+3	3	1000	NC_010807.alt3 fragment=1-1000 original_length=39891
+4	4	1000	NC_005091 fragment=1-1000 original_length=57455
+5	5	1000	NC_005091.alt1 fragment=1-1000 original_length=57455
+6	6	1000	NC_005091.alt2 fragment=1-1000 original_length=63696
+7	7	1000	NC_025457 fragment=1-1000 original_length=42654
+8	8	1000	NC_025457.alt1 fragment=1-1000 original_length=41066
+9	9	1000	NC_025457.alt2 fragment=1-1000 original_length=64164
+10	10	1000	NC_002486 fragment=1-1000 original_length=45636
+11	11	1000	NC_002486.alt fragment=1-1000 original_length=45636
