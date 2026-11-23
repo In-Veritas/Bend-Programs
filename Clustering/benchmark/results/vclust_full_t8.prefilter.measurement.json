@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "command": [
+    "Clustering/.tools/vclust-1.3.1/bin/vclust",
+    "prefilter",
+    "-i",
+    "Clustering/datasets/infant_gut_virome/raw/all.curated.vOTUs.EarlyVir.fna",
+    "-o",
+    "Clustering/datasets/infant_gut_virome/results/vclust_full.identity_0.70.filter.tsv",
+    "--min-ident",
+    "0.7",
+    "--threads",
+    "8",
+    "-v",
+    "0"
+  ],
+  "started_unix_seconds": 1792952370.568779,
+  "elapsed_monotonic_seconds": 7.81289270799607,
+  "exit_code": 0,
+  "platform": {
+    "system": "Darwin",
+    "release": "25.3.0",
+    "machine": "arm64",
+    "python": "3.14.6"
+  },
+  "metrics": {
+    "time_real_seconds": 7.81289270799607,
+    "time_user_seconds": 27.002084,
+    "time_system_seconds": 12.076862,
+    "maximum_resident_bytes": 2542895104,
+    "maximum_resident_note": "maximum RSS reported for the measured command"
+  },
+  "energy": {
+    "available": false,
+    "source": "macOS powermetrics cpu_power",
+    "reason": "disabled"
+  },
+  "stdout_tail": "",
+  "stderr_tail": ""
+}
