@@ -4,8 +4,9 @@ An illustrated guide to the `main.bend` in this folder: a cellular automaton
 that grows a "tree" from a seed planted with a click. Each section points to
 the exact function(s) in the code.
 
-> The line references are for `main.bend` at the moment this guide was
-> written. The numbers may change; the function names won't.
+> Ported to **Bend 2.0.40** (the `App` model: a pure state, an `Image`
+> quadtree per frame, Base `Event`s). Sections name functions, not line
+> numbers.
 
 ## Table of contents
 
@@ -28,7 +29,7 @@ the exact function(s) in the code.
 ## 1. 30-second overview
 
 You click on an empty frame → a **seed** is born, and the click point
-becomes the **soil line** (marked by a dotted line). On each *tick*, the
+becomes the **soil line** (marked by a dashed line). On each *tick*, the
 program sweeps the entire grid; every occupied cell can (a) **mutate** into
 another type and (b) **spawn** a child into an empty neighbor. Over time the
 pattern looks like a tree: roots descending below the soil, a thick trunk
@@ -41,53 +42,53 @@ entire world lives in a single `State` value.
 
 ---
 
-## 2. The architecture: the Elm loop
+## 2. The architecture: the App loop
 
 ![Elm architecture](images/01-architecture.svg)
 
-The app is a single value `main : App = app{State, Event, init, render, on_event, debug}`
-(last line of the file). The runtime keeps a `State` and a queue of events.
-The cycle is always the same:
+(The diagram shows the old HTML-emitting version; the loop is the same idea.)
 
-- **`init`** (`main.bend:366`) produces the initial state: empty grid,
-  `tick=0`, `rng=12345`, `speed=normal`, `phase=phase_empty`.
-- **`render(s)`** (`main.bend:473`) turns the state into an `HTML(Event)`
-  tree — a pure function, never touching the DOM directly.
-- The browser applies that tree to the page.
-- An **`Event`** arrives (a user click, or the `every_ms` timer).
-- **`on_event(e, s)`** (`main.bend:384`) produces a new state inside
-  `App/Update`. Back to the top.
+`main` is one line: `App.run(~State, ~App{Tree.view, Tree.tick}, "Growing
+Tree", WIN_W(), WIN_H(), init())`. Base's `App.run` opens a window and, once
+per displayed frame (~60 Hz):
 
-No infinite loops or global variables: "time" is just a sequence of `Event`s
-applied to successive states.
+- **`Tree.view(s)`** returns the state beside an **`Image`** — a quadtree of
+  `Pix{color}` / `Qua{tl, tr, bl, br}` — which the window shows.
+- **`Tree.tick(events, s)`** receives that frame's Base `Event`s (`Press`,
+  `Key`, `Close`, ...) and answers `Some{next}` or `None` (quit). It is just
+  `IO.pure` around the pure **`Tree.step`**: fold the events (`events`), then
+  advance the clock one frame (`frame`).
+- **`init()`** is the empty board: `tick=0`, `rng=12345`, speed `Normal`,
+  phase `Unplanted`.
+
+Everything except `main` and `Tree.tick` is pure, so the browser page
+(`web/index.html`) imports `main.bend` and calls the very same `Tree.step` /
+`Tree.view`, and `test.bend` drives them headlessly.
 
 ---
 
 ## 3. The types: what the world knows
 
-```bend
-type GT { seed{} root{} bark{} branch{} leaf{} }   # cell types
-Cell : Type = Maybe(GT)                             # cell = empty or a GT
-
-type State {
-  state{ board: Grid(Cell), tick, rng, speed: Speed, phase: Phase, soil: U32, tx: U32 }
-}
-
-type Speed { stopped{}  normal{}  fast{}  unlimited{} }   # unlimited = no limit
-type Event { click{x,y}  tick_ev{}  set_speed{s}  reset{} }
+```python
+type GT is Data:      Seed{} Root{} Bark{} Branch{} Leaf{}     # cell kinds
+type Speed is Data:   Stopped{} Normal{} Fast{} Unlimited{}
+type Phase is Data:   Unplanted{} Growing{}
+type Board is Data:   BLeaf{v: U32}  BNode{tl, tr, bl, br}     # 64x64 quadtree
+type State is Data:
+  State{board: Board, tick: U32, rng: U32, speed: Speed, phase: Phase,
+        soil: U32, tx: U32, wait: U32}
 ```
 
-- `Cell` is `Maybe(GT)`: `none{}` = empty ground, `some{k}` = a cell of type `k`.
-- `board: Grid(Cell)` is the `GW×GH` grid (**46×34**, with `PX=14` px per cell).
-- `phase` distinguishes "nothing planted yet" (`phase_empty`) from "growing"
-  (`phase_growing`) — that's what prevents planting a second seed.
-- **`soil`** is the line where the seed was planted — the **soil line**.
-  All height logic is measured *relative* to `soil`, so the tree stays
-  proportional wherever you click. Above `soil` = aerial; below = roots.
-  **`tx`** is the planting column — the trunk axis, used by the trunk "push"
-  (see §5).
-- `Step` is a helper pair `step_st{board, rng}` used to "thread" the grid and
-  the RNG through the sweep (see §5).
+- A cell is a `U32` code on the board: `0` empty, then `gt_code`
+  (1 seed, 2 root, 3 bark, 4 branch, 5 leaf).
+- **`board`** is a Data **quadtree** over 64 x 64 cells, of which the
+  **46 x 34** grid is used. A `BLeaf` stands for a whole uniform square (the
+  empty board is one `BLeaf{0}`); `bget`/`bset` walk 6 levels. Being `Data`,
+  the sweep reads it freely, and the view walks it in the same shape as the
+  `Image` it paints. Reads outside the grid answer empty (`cell_get`).
+- **`soil`** / **`tx`**: the planted row (soil line) and column (trunk axis);
+  every height rule is relative to `soil`.
+- **`wait`** counts display frames toward the next timer fire (§11).
 
 ---
 
@@ -95,28 +96,16 @@ type Event { click{x,y}  tick_ev{}  set_speed{s}  reset{} }
 
 ![Pixel to cell](images/02-coords.svg)
 
-When you click, the `on_pointer_down={click_event}` attribute
-(`main.bend:487`) fires. `click_event` (`main.bend:467`) extracts `x`/`y`
-from the `HTML/Pointer` (in the element's local coordinates, of type `I32`),
-converts them with `I32/to_u32`, and emits `click{x, y}`.
+A left-button `Press{.., x, y, .., 0, True{}}` (window pixels, `F32`) goes to
+`click`, which converts with `px_cell`: `cx = x / PX`, `cy = y / PX`
+(`PX = 16`, was 14: a power of two makes a cell exactly one quadtree node).
 
-`on_event` receives that `click`. If `phase = phase_empty`, it calls
-`plant_seed`, which converts pixel → cell with integer division:
-
-```bend
-cx = px // PX        # PX = 14 px per cell
-cy = py // PX
-```
-
-If `(cx, cy)` is inside the grid, it writes `some{seed{}}` there, switches
-the phase to `phase_growing`, **and stores `soil = cy` and `tx = cx`** (the
-soil line and the trunk column). `plant_base` then stamps the **entire base**
-at once: a **2-cell** trunk sprout above (`branch` at `cy-1` and `cy-2`) and
-**one root on each side** at the soil level (`cx-1` and `cx+1`). This
-guarantees a connected base `[root][trunk][root]` and a tree that really
-grows upward — without the trunk "floating" above a gap or the seed turning
-into a clump of pure roots. From there `render` draws the **dotted soil line**
-(`soil_line`) at `cy`. If the phase is already "growing", the click is ignored.
+`plant_cell` only acts in phase `Unplanted` and inside the grid: it writes a
+seed at `(cx, cy)`, switches to `Growing`, and stores **`soil = cy`** and
+**`tx = cx`**. `plant_base` stamps the base at once: a **2-cell** shoot above
+(`branch` at `cy-1`, `cy-2`) and **one root on each side** at the soil row. A
+second click is ignored. The view then draws the **dashed soil line** on the
+top edge of row `soil`.
 
 ---
 
@@ -124,18 +113,15 @@ into a clump of pure roots. From there `render` draws the **dotted soil line**
 
 ![Grid sweep](images/03-sweep.svg)
 
-A *tick* (`one_tick`, `main.bend:335`) walks the **entire** grid in reading
-order, using nested recursion:
+A *tick* (`one_tick`) walks the **entire** grid in reading order, using
+nested recursion counted down by `Nat` fuel (so termination is checked):
 
-- `scan_grid(board, y, rng)` (`main.bend:326`) — for each row `y` from
-  0 to `GH-1`.
-- `scan_row(board, y, x, rng)` (`main.bend:318`) — for each column `x`
-  from 0 to `GW-1`.
-- `step_cell` (`main.bend:311`) — empty cell: does nothing; occupied:
-  calls `decide`.
+- `scan_grid(34n, y, ..)` — for each row `y` from 0 to `GH-1`.
+- `scan_row(46n, x, y, ..)` — for each column `x` from 0 to `GW-1`.
+- `step_cell` — empty cell: does nothing; occupied: calls `decide`.
 
 **Crucial detail — single buffer:** the `board` is updated *in place* and the
-resulting `Step{board, rng}` is passed to the next cell. That is, a cell
+resulting `(board, rng)` pair is passed to the next cell. That is, a cell
 already touched in this tick is seen by the following cells of the **same**
 tick (snake order), and the `rng` advances continuously, never repeating the
 same sequence within the sweep.
@@ -161,17 +147,17 @@ cells off the frame.
 
 ![decide pipeline](images/04-decide-pipeline.svg)
 
-`decide(kind, board, x, y, rng, soil)` is the per-cell pipeline (the `soil` is
-threaded through the whole sweep for the height rules):
+`decide(kind, board, x, y, rng, soil, tx)` is the per-cell pipeline (the
+`soil` is threaded through the whole sweep for the height rules):
 
-1. **Neighbors** — `board_neighbors8` grabs the 8 surrounding cells.
+1. **Neighbors** — `count8` counts the occupied 8 surrounding cells.
 2. **Die** — `rng1 = rng_next(rng)`, `roll = rng1 % 100` (0–99).
-3. **Mutation** — `maybe_mutate(kind, ns, y, soil, roll)` decides the **new type**.
-4. **Write** — `board_set(x, y, some{new_kind})`.
+3. **Mutation** — `mutate(kind, n_occ, y, soil, roll)` decides the **new type**.
+4. **Write** — `cell_set(board, x, y, gt_code(new_kind))`.
 5. **Spawn** — `maybe_spawn(new_kind, board, x, y, rng1, soil)` may write a
    child into an empty neighbor.
 
-Returns `Step{board, rng}`. Note that the same `roll` is used in both the
+Returns `(board, rng)`. Note that the same `roll` is used in both the
 mutation **and** spawn phases.
 
 ---
@@ -180,8 +166,8 @@ mutation **and** spawn phases.
 
 ![Mutation state machine](images/05-mutation.svg)
 
-`maybe_mutate` is the aesthetic heart. It uses `n_occ` = occupied neighbors
-(`count_occupied`) and, **relative to the soil line**, `above = soil - y`
+`mutate` is the aesthetic heart. It uses `n_occ` = occupied neighbors
+(`count8`) and, **relative to the soil line**, `above = soil - y`
 (how far above the soil the cell is) and `aerial = y < soil`. The height
 constants are `CANOPY_START = 10` (from how high the tips leaf out) and
 `TRUNK_H = 5` (the trunk zone near the soil).
@@ -213,13 +199,14 @@ The logic in words:
   always stay `root` (thin and dark). Near the base they spread sideways,
   thickening the base; deeper down they descend as tendrils.
 
-Typical result (headless harness, 60 ticks): planting **above the middle**
-(soil=14) → ~72 branches, ~28 leaves, ~24 trunk, ~23 roots — balanced.
-Planting high (soil=8) → a more compact tree with a thick trunk, but with a
-real canopy (~20 leaves). No blob.
-
-Since there is no derived equality for ADTs, type comparison uses `gt_eq`; the
-neighbor count comes from `count_occupied`/`count_kind`.
+Measured with `test.bend` (planting at column 23, 60 ticks, rng 12345):
+planting **above the middle** (soil=14) → 46 branches, 19 leaves, 44 trunk,
+122 roots; planting high (soil=8) → 6 branches, 8 leaves, 22 trunk, 182
+roots; soil=14 after 400 ticks → 66 branches, 30 leaves, 53 trunk, 137
+roots. (The figures this guide used to quote, ~72/28/24/23, came from an
+older revision of the constants: an independent JavaScript transliteration of
+the pre-port `main.bend`, with 32-bit wrapping arithmetic, gives exactly the
+numbers above, so the port is faithful to the code as it was.)
 
 ---
 
@@ -229,7 +216,7 @@ neighbor count comes from `count_occupied`/`count_kind`.
 
 `maybe_spawn`:
 
-1. `spawn_chance(kind)`: `seed`=70, `root`=30, `branch`=60, `bark`=0,
+1. `spawn_chance(kind)`: `seed`=70, `root`=34, `branch`=60, `bark`=0,
    `leaf`=0 (out of 100). The chances are deliberately high — what holds back
    the growth is the **density gate** (step 5). Chance 0 → no spawn.
 2. Rolls a fresh die; if `roll ≥ chance`, no spawn this tick.
@@ -248,7 +235,7 @@ neighbor count comes from `count_occupied`/`count_kind`.
    - **seed**: sprouts sideways (E/W → base roots) and a bit N/S (the trunk
      itself was already planted by `plant_base`).
 4. `step_dir` computes the neighbor coordinate (including diagonals; clamped
-   at 0 by `U32/saturating_sub`).
+   at 0 by `sat_sub`).
 5. `try_place` — the anti-blob piece: it only writes if the cell is **inside
    the grid**, **empty**, **and** has fewer than `CROWD_LIMIT = 3` occupied
    neighbors. Keeps the structure thin and branched (instead of a disk).
@@ -266,11 +253,11 @@ There is no "real" randomness (that would be a side effect). The state carries
 `rng: U32` and uses a linear congruential generator:
 
 ```bend
-def rng_next(s: U32) -> U32:
-  (s * 1103515245) + 12345        # main.bend:112
+def rng_next(+s: U32) -> U32:
+  (s * 1103515245 + 12345 : U32)   # wraps mod 2^32
 ```
 
-Each `rng_next` produces the next deterministic number. Since the `Step`
+Each `rng_next` produces the next deterministic number. Since the sweep
 threads the `rng` cell by cell and tick by tick, the sequence never repeats
 within a sweep — but the **same initial seed** always produces the same tree
 (useful for reproducing and testing). `init` and `reset` use `rng=12345`.
@@ -279,44 +266,46 @@ within a sweep — but the **same initial seed** always produces the same tree
 
 ## 10. Render: from grid to pixels
 
-`render` (`main.bend:473`) draws **one `<div>` per occupied cell**,
-absolutely positioned:
+`Tree.view` hands the state back beside `render(s)`, an `Image` quadtree. The
+window is `46*16 = 736` x `35*16 = 560` px: the 34 board rows plus one HUD row.
+The image's root is the power of two over it (1024 px = 64 cells), anchored
+at the top-left, exactly how Base's window (and the web page) paints it.
 
-- `render_cells` (`main.bend:444`) walks the rows; `render_row`
-  (`main.bend:432`) walks the columns and emits a `cell_div` only for the
-  `some{k}` cells (empty ones are skipped).
-- `cell_div` (`main.bend:421`) positions at `left = x*PX`, `top = y*PX`,
-  size `PX×PX`, color by `color_of(k)` (`main.bend:408`).
-- The toolbar uses `tb_button` with `on_click={ev}` to emit `set_speed` /
-  `reset`.
-- `legend` + `legend_item` draw the **color legend** (in English: seed, root,
-  trunk, branch, leaf), just above the frame, reusing the same `color_of` as
-  the cells — so the legend and the drawing never diverge.
-- `soil_line(phase, soil)` draws the **dotted soil line** at `top = soil*PX`
-  (only when `phase = phase_growing`).
+- `draw(d, flat, board, x0, y0, ..)` recurses over cells in the board's own
+  quadtree shape. `region` decides, per square, whether it is one `Pix`:
+  off the board and HUD (black, outside the window), or one uniform `BLeaf`
+  wholly on the board with no soil line through it (its `color_of`). Only
+  mixed squares split, so an empty board is a handful of nodes.
+- A single cell is `Pix{color_of(v)}`; on the soil row, `soil_px` splits the
+  16-px cell to draw the **2-px dashed soil line** (`#b08d57`) on its top
+  edge (only once planted).
+- The **HUD row** (`hud_cell`): five swatches on the left are the color
+  legend (seed, root, trunk, branch, leaf); four on the right are the speeds
+  (play, fast, max, pause), the current one lit. Native windows have no text,
+  so this is the whole legend there; the web page also shows a text legend,
+  the toolbar and the status line (`Tree.status`: tick, speed and a census).
 
-Colors: `seed #a06030`, `root #5c3a1a`, `bark #6b4423`, `branch #8b6f47`,
-`leaf #3fa34d`.
+Colors: board `#f5efe1`, `seed #a06030`, `root #5c3a1a`, `bark #6b4423`,
+`branch #8b6f47`, `leaf #3fa34d`.
 
 ---
 
 ## 11. Speed and the timer
 
-The root `<div>` has `every_ms={tick_ms(speed), tick_ev{}}`: the runtime emits
-`tick_ev` every `tick_ms` ms. When it arrives, `on_event` calls
-`run_ticks(steps_per_fire(speed), s)`. Two axes control the speed:
+The old page fired a `tick_ev` timer every `tick_ms`; an `App` is called
+once per displayed frame (~60 Hz), so `frame` counts frames in `wait` and
+fires every `fire_frames(speed)` frames, running `steps_per_fire(speed)`
+ticks (`run_ticks`, each including the trunk push):
 
-| Speed       | `tick_ms` (interval) | `steps_per_fire` (ticks/fire) |
-| ----------- | -------------------- | ----------------------------- |
-| `stopped`   | 400                  | 0   (paused)                  |
-| `normal`    | 400                  | 1                             |
-| `fast`      | 120                  | 6                             |
-| `unlimited` | 1                    | 40                            |
+| Speed       | key            | frames per fire (old ms) | ticks per fire |
+| ----------- | -------------- | ------------------------ | -------------- |
+| `Stopped`   | `p` / space    | 24 (400)                 | 0 (paused)     |
+| `Normal`    | `1`            | 24 (400)                 | 1              |
+| `Fast`      | `2`            | 7 (120)                  | 6              |
+| `Unlimited` | `3`            | 1 (every frame)          | 40             |
 
-**`unlimited`** (the ⏭ Max button) uses the smallest possible interval **and**
-a large batch of ticks per fire, so the simulation runs at the machine's
-**processing limit**. `run_ticks` runs the N ticks at once (each one includes
-the trunk push, see §5). "Pause" (`stopped`) runs 0 ticks.
+`r` resets, Esc (or closing the window) quits. The web toolbar buttons send
+the same keys.
 
 ---
 
@@ -334,26 +323,29 @@ sequence of `rng` and on where you planted.
 
 ## 13. How to run
 
-From the repository root:
+Everything needs only the `bend` binary (2.0.40) on `PATH`; the web inliner
+also uses `bun`.
 
 ```sh
-bun run bend/src/CLI.ts demo/growing_tree_claude/main.bend -o growing_tree_claude.html
+cd Bend2/growing_tree
+bend main.bend --check-only                       # ALL PROOFS CHECK
+bend main.bend -o /tmp/growing_tree && /tmp/growing_tree    # native X11 window
+bend test.bend -o /tmp/gt_test && /tmp/gt_test   # 15 headless PASS/FAIL checks
+sh build.sh                                       # all of the above + web page
 ```
 
-Open the generated `growing_tree_claude.html` in the browser. Click wherever
-you want to plant — that point becomes the soil line (dotted); what's above it
-grows as a tree, what's below it grows as roots. Use the toolbar
-(▶ Play / ⏩ Fast / ⏭ Max / ⏸ Pause / ⟲ Reset). **⏭ Max** runs without limit,
-at the machine's processing speed.
+**Native**: a 736 x 560 window. Left-click to plant — that row becomes the
+soil line; what's above grows as a tree, what's below as roots. Keys: `1`
+play, `2` fast, `3` max, `p`/space pause, `r` reset, Esc quit. (On Linux a
+Window needs `libx11-dev` at build time and an X display at run time.)
 
-The constants at the top of `main.bend` are easy to tune: `CANOPY_START`
-(canopy height), `TRUNK_H` (trunk zone), `CROWD_LIMIT` (density),
-`ROOT_HALF` (maximum width of the root base),
-`TRUNK_PUSH_PERIOD`/`TRUNK_HALF` (frequency and width of the trunk chunks),
-and the `spawn_chance` chances.
+**Browser**: `growing_tree.html` is a single self-contained file built from
+`web/index.html` by `bend web/index.html -o <dir>` (Bend compiles
+`main.bend` to JS and bundles it) and `bun web/inline.mjs <dir>
+growing_tree.html` (inlines the chunk). Open it directly; the toolbar
+(▶ Play / ⏩ Fast / ⏭ Max / ⏸ Pause / ⟲ Reset) and the status line are DOM,
+the board is the same `Image` the native window shows, painted onto a canvas.
 
-> **Version note:** this app uses the current pointer-event API
-> (`on_pointer_down` with an `HTML/Pointer -> Event` handler). The repo's
-> `docs/WEBAPPS_GUIDE.md` still documents the old `on_mouse_down`
-> (signature `U32 -> U32 -> Ev`), which is **no longer** recognized by the
-> compiler.
+The constants at the top of `main.bend` (`CANOPY_START`, `TRUNK_H`,
+`CROWD_LIMIT`, `ROOT_HALF`, `TRUNK_PUSH_PERIOD`, `TRUNK_HALF`, the
+`spawn_chance` table) are easy to tune.

@@ -73,13 +73,13 @@
     (() => {
       "use strict";
       const $ = id => document.getElementById(id);
-      const list = xs => { const out=[]; while (xs && xs.$ === "Con") { out.push(xs.$0); xs=xs.$1; } return out; };
-      const odds = o => ({ win:o.$0, high:o.$1, pair:o.$2, twoPair:o.$3, trips:o.$4, straight:o.$5, flush:o.$6, fullHouse:o.$7, quads:o.$8 });
-      const player = p => ({ seat:p.$0,name:p.$1,personality:p.$2,active:p.$3,stack:p.$4,cards:list(p.$5),best:p.$6,odds:odds(p.$7) });
-      const step = s => ({ phase:s.$0,note:s.$1,actor:s.$2,action:s.$3,amount:s.$4,pot:s.$5,board:list(s.$6),players:list(s.$7).map(player) });
-      const timeline = t => ({ variant:t.$0,seed:t.$1,dealer:t.$2,winner:t.$3,steps:list(t.$4).map(step) });
+      const list = xs => { const out=[]; while (xs && xs.$ === "Con") { out.push(xs.head); xs=xs.tail; } return out; };
+      const odds = o => ({ win:o.win, high:o.high, pair:o.pair, twoPair:o.two_pair, trips:o.trips, straight:o.straight, flush:o.flush, fullHouse:o.full_house, quads:o.quads });
+      const player = p => ({ seat:p.seat,name:p.name,personality:p.personality,active:p.active,stack:p.stack,cards:list(p.cards),best:p.best,odds:odds(p.odds) });
+      const step = s => ({ phase:s.phase,note:s.note,actor:s.actor,action:s.action,amount:s.amount,pot:s.pot,board:list(s.board),players:list(s.players).map(player) });
+      const timeline = t => ({ variant:t.variant,seed:t.seed,dealer:t.dealer,winner:t.winner,steps:list(t.steps).map(step) });
       if (!globalThis.BEND2_POKER_DATA || globalThis.BEND2_POKER_DATA.$ !== "PokerReport") throw new Error("Bend2 Core poker artifact missing");
-      const games={texas:timeline(BEND2_POKER_DATA.$0),omaha:timeline(BEND2_POKER_DATA.$1)};
+      const games={texas:timeline(BEND2_POKER_DATA.texas),omaha:timeline(BEND2_POKER_DATA.omaha)};
       const ranks="23456789TJQKA", suits=["♣","♦","♥","♠"];
       let mode="texas", at=0, timer=0;
       const card = id => { const rank=ranks[id%13], suit=suits[Math.floor(id/13)], red=suit==="♦"||suit==="♥"; return `<div class="card ${red?"red":""}">${rank}<br>${suit}</div>`; };

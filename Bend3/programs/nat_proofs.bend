@@ -1,21 +1,35 @@
-type Nat:
-  Z{}
-  S{p: Nat}
+# nat_proofs: refl, rewrite and induction over Nat. add is defined by
+# recursion on its first argument, so add(n, 0n) == n is not true by
+# computation alone: the proof goes by induction on n, rewriting the step
+# case with the induction hypothesis. Base's Nat is used (0n, 1n+k), with
+# our own add instead of Nat.add.
+#
+# $ bend nat_proofs.bend     # prints {==}
+
+# expect: {==}
+
+import Base
 
 def add(n: Nat, m: Nat) -> Nat:
   match n:
-    case Nat.Z{}:
+    case 0n:
       m
-    case Nat.S{k}:
-      Nat.S{add(k, m)}
+    case 1n+k:
+      1n+add(k, m)
 
-# n is LONE here - no sharing at all. Does it check?
-def add_n_Z(n: Nat) -> {add(n, Nat.Z{}) == n : Nat}:
+# LAW: zero is a right identity of add
+law add_n_Z:
+  for n: Nat
+  {add(n, 0n) == n : Nat}
+
+# n is LONE here - no sharing at all
+def add_n_Z(n):
   match n:
-    case Nat.Z{}:
+    case 0n:
       {==}
-    case Nat.S{k}:
-      %add_n_Z(k); {==}
+    case 1n+k:
+      %add_n_Z(k) : {1n+add(k, 0n) == 1n+_ : Nat}
+      {==}
 
-def main() -> {add(Nat.S{Nat.Z{}}, Nat.Z{}) == Nat.S{Nat.Z{}} : Nat}:
-  add_n_Z(Nat.S{Nat.Z{}})
+def main() -> {add(1n, 0n) == 1n : Nat}:
+  add_n_Z(1n)

@@ -1,29 +1,39 @@
-#[halts]
 import Base
-# Bottom-up merge sort; copying is required only when both run heads survive
-# the comparison in different roles. `#[halts]` is needed because `merge`
-# alternately rebuilds one argument while structurally shrinking the other.
+# Bottom-up merge sort. `merge` alternately rebuilds one list while shrinking
+# the other, so it counts down a Nat fuel (the total length) instead of the
+# `#[halts]` license Bend2 Core needed. Run heads are reusable `+U32` values.
 
-type Runs:
+type Runs is Data:
   RNil{}
-  RCon{run: List<U32>, rest: Runs}
+  RCon{run: List<&2, U32>, rest: Runs}
 
-def merge(xs: List<U32>, ys: List<U32>) -> List<U32>:
-  match xs ys:
-    case Nil{} ys:
-      ys
-    case Con{x, xt} Nil{}:
-      Con{x, xt}
-    case Con{x, xt} Con{y, yt}:
-      ((x1, ex1), (x2, ex2)) = U32.copy(x)
-      ((y1, ey1), (y2, ey2)) = U32.copy(y)
-      match U32.is_le(x1, y1):
-        case True{}:
-          Con{x2, merge(xt, Con{y2, yt})}
-        case False{}:
-          Con{y2, merge(Con{x2, xt}, yt)}
+def branch(c: Bool, t: Unit -> List<&2, U32>, f: Unit -> List<&2, U32>) -> List<&2, U32>:
+  match c:
+    case True{}:
+      t(Unit{})
+    case False{}:
+      f(Unit{})
 
-def carry(rs: Runs, run: List<U32>) -> Runs:
+# fuel >= length(xs) + length(ys) is enough: each step emits one head
+def merge.go(+fuel: Nat, xs: List<&2, U32>, ys: List<&2, U32>) -> List<&2, U32>:
+  match fuel:
+    case 0n:
+      List.append(&2, U32, xs, ys)
+    case 1n+f:
+      match xs ys:
+        case Nil{} ys:
+          ys
+        case Con{x, xt} Nil{}:
+          Con{x, xt}
+        case Con{+x, +xt} Con{+y, +yt}:
+          branch(U32.is_le(x, y),
+            u => Con{x, merge.go(f, xt, Con{y, yt})},
+            u => Con{y, merge.go(f, Con{x, xt}, yt)})
+
+def merge(+xs: List<&2, U32>, +ys: List<&2, U32>) -> List<&2, U32>:
+  merge.go(Nat.add(List.length(&2, U32, xs), List.length(&2, U32, ys)), xs, ys)
+
+def carry(rs: Runs, run: List<&2, U32>) -> Runs:
   match rs:
     case RNil{}:
       RCon{run, RNil{}}
@@ -32,38 +42,34 @@ def carry(rs: Runs, run: List<U32>) -> Runs:
     case RCon{Con{h, t}, rest}:
       RCon{Nil{}, carry(rest, merge(Con{h, t}, run))}
 
-def to_runs(xs: List<U32>) -> Runs:
+def to_runs(xs: List<&2, U32>) -> Runs:
   match xs:
     case Nil{}:
       RNil{}
     case Con{x, t}:
       carry(to_runs(t), Con{x, Nil{}})
 
-def collapse(rs: Runs) -> List<U32>:
+def collapse(rs: Runs) -> List<&2, U32>:
   match rs:
     case RNil{}:
       Nil{}
     case RCon{run, rest}:
       merge(run, collapse(rest))
 
-def list_eq(xs: List<U32>, ys: List<U32>) -> Bool:
+def list_eq(xs: List<&2, U32>, ys: List<&2, U32>) -> Bool:
   match xs ys:
     case Nil{} Nil{}:
       True{}
     case Con{x, xt} Con{y, yt}:
-      match U32.is_eq(x, y):
-        case True{}:
-          list_eq(xt, yt)
-        case False{}:
-          False{}
+      Bool.and(U32.is_eq(x, y), list_eq(xt, yt))
     case xs ys:
       False{}
 
-def input() -> List<U32>:
-  Con{U32.from_nat(5n), Con{U32.from_nat(3n), Con{U32.from_nat(8n), Con{U32.one(), Con{U32.from_nat(9n), Con{U32.from_nat(2n), Con{U32.from_nat(7n), Con{U32.from_nat(6n), Con{U32.from_nat(4n), Nil{}}}}}}}}}}
+def input() -> List<&2, U32>:
+  Con{5, Con{3, Con{8, Con{1, Con{9, Con{2, Con{7, Con{6, Con{4, Nil{}}}}}}}}}}
 
-def expected() -> List<U32>:
-  Con{U32.one(), Con{U32.from_nat(2n), Con{U32.from_nat(3n), Con{U32.from_nat(4n), Con{U32.from_nat(5n), Con{U32.from_nat(6n), Con{U32.from_nat(7n), Con{U32.from_nat(8n), Con{U32.from_nat(9n), Nil{}}}}}}}}}}
+def expected() -> List<&2, U32>:
+  Con{1, Con{2, Con{3, Con{4, Con{5, Con{6, Con{7, Con{8, Con{9, Nil{}}}}}}}}}}
 
 def main() -> Bool:
   list_eq(collapse(to_runs(input())), expected())

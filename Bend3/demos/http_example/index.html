@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Bend counter</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"></head>
+<body style="font-family: sans-serif; max-width: 30em; margin: 2em auto">
+<h1>Bend counter</h1>
+<p>Count: <b id="count">?</b> (requests served: <span id="requests">?</span>)</p>
+<p><button id="inc">+1</button> <button id="inc5">+5</button> <span id="note"></span></p>
+<script>
+async function show(r) {
+  const s = await r.json();
+  document.getElementById("count").textContent = s.count;
+  document.getElementById("requests").textContent = s.requests;
+  document.getElementById("note").textContent = s.note;
+}
+const inc = by => fetch("/inc", { method: "POST", body: String(by) }).then(show);
+document.getElementById("inc").onclick = () => inc(1);
+document.getElementById("inc5").onclick = () => inc(5);
+fetch("/state").then(show);
+</script>
+</body>
+</html>

@@ -1,12 +1,14 @@
-# Programs blocked by missing IO
+# Unsupported programs
 
-- `gabs1.bend` only prints `You are not real`. Core has the `IO.OP` datatype
-  shape but no print effect or scheduler, so there is no runnable semantic port.
-- `gabs4.bend` reads two paths from argv, reads both files, and prints a Jaccard
-  vocabulary report. Core has neither argv/filesystem effects nor the Bend3
-  String/Char utility surface. Its pure tokenizer could be rewritten, but the
-  authored program as a whole cannot run and would no longer test its intended
-  IO path.
+None. Under the old `bend2-core`, `gabs1` (prints a line) and `gabs4` (reads
+two files named in argv and prints a Jaccard vocabulary report) could not be
+ported because Core had no effect runtime. Bend 2.0.40 has IO, so both are now
+ported in this folder:
 
-The verified Bend3 versions and `gabs4` fixtures remain under
-`Bend-Programs/Bend3/programs/`.
+```sh
+bend gabs1.bend                                          # You are not real
+bend gabs4.bend fixtures/reference.txt fixtures/other.txt
+# the texts are 61% alike (19 of 31 distinct words shared)
+```
+
+The Bend3 originals remain under `Bend-Programs/Bend3/programs/`.

@@ -1,41 +1,40 @@
 # Bend2 Core ports
 
-Ports of Gabriel's Bend3 programs to the experimental `bend2-core` affine
-dependent core. They were checked against `bend2-core` commit `26cddb7` on
-2026-08-17. See [GUIDE.md](GUIDE.md) for the language differences and porting
-rules.
+Ports of Gabriel's Bend3 programs that were first written for the
+experimental `bend2-core` affine dependent core (checked against `bend2-core`
+commit `26cddb7` on 2026-08-17). That compiler is gone; bend2-core was the
+direct ancestor of the released **Bend 2.0.40**, and every program here is now
+ported to it. See [GUIDE.md](GUIDE.md) for the language differences and
+porting rules.
 
 ## Layout
 
-- `programs/` contains twelve ports of Gabriel's pure Bend3 programs plus the
-  pure CHIP-8 emulator in `programs/chip8/`. Computational `main` functions are
-  compact self-checks: `True{}` means the expected result was reproduced.
-- `programs/UNSUPPORTED.md` records the two IO programs that cannot be made
-  runnable without an effect runtime.
+- `programs/` contains fourteen ports of Gabriel's Bend3 programs plus the
+  CHIP-8 emulator in `programs/chip8/`. Pure `main` functions are compact
+  self-checks: `True{}` means the expected result was reproduced. `gabs1` and
+  `gabs4` use IO and were unsupported under Core; see
+  `programs/UNSUPPORTED.md`.
 - `demos/README.md` records the port decision for every Bend3 demo package.
 
 ## Run
 
-From the sibling `bend2-core` checkout:
+With the `bend` CLI (Bend 2.0.40) on `PATH`:
 
 ```sh
-bun src/main.ts "../Bend-Programs/Bend2 Core/programs/insertion_sort.bend"
-bun src/main.ts "../Bend-Programs/Bend2 Core/programs/insertion_sort.bend" --to /tmp/insertion_sort.js
-bun /tmp/insertion_sort.js
+cd "Bend2 Core/programs"
+bend insertion_sort.bend --check-only          # ALL PROOFS CHECK
+bend insertion_sort.bend                       # normalizes main: True{}
+bend insertion_sort.bend -o /tmp/insertion_sort && /tmp/insertion_sort
+bend insertion_sort.bend -o /tmp/insertion_sort.js && bun /tmp/insertion_sort.js
+bend gabs4.bend fixtures/reference.txt fixtures/other.txt
 ```
 
-For `tournament.bend`, always use `--to`: direct normalization expands the
-structural implementations of U32 arithmetic and copying and was still using
-CPU after 18 minutes, while generated JS and C both finish immediately with
-`True{}`.
+Every program checks with `ALL PROOFS CHECK` and uses neither the old
+`#[halts]` license nor `@unsafe`. All pure entries return the same answer
+(`True{}`, or `{==}` for `nat_proofs.bend`) through the normalizer, a native
+build and the JS build. `tournament.bend` normalizes in about two seconds now
+(Core's normalizer did not finish it in 18 minutes).
 
-All computational entries check during emission, compile to JavaScript and C,
-and return `True{}` through both generated backends. `nat_proofs.bend`
-evaluates to `{==}` in the normalizer; its
-erased proof has no runtime payload, so the JS backend prints `-`, while the C
-emitter rejects equality as an unsupported `main` answer type.
-
-The CHIP-8 emulator interprets a hexadecimal ROM string imported from its own
-`rom.bend`, and its Core-generated C compiles to a native executable. See its
-[README](programs/chip8/README.md) for the temporary no-IO input bridge and the
-explicit removal note for when Core gains an effect runtime.
+The CHIP-8 emulator's `main` is an IO shell: with no argument it runs the
+bundled smoke ROM from `rom.bend` and prints `True{}`; given a `.ch8` file it
+runs it and prints the framebuffer. See its [README](programs/chip8/README.md).

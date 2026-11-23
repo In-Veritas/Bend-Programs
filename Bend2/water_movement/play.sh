@@ -1,23 +1,16 @@
 #!/bin/sh
-# Build & open the water_movement browser visualization.
+# Build & open the water_movement browser version, and refresh frames.json.
 #
-# The Bend program is pure (no IO): it prints the simulation as JSON. This
-# wrapper runs it, saves frames.json, and writes a standalone water.html that
-# animates the result in your browser (auto-looping, like a gif).
+# Needs `bend` (2.0.40+) and `bun` on PATH. For the native window instead:
+#   bend main.bend -o /tmp/water && /tmp/water
 #
-# Usage:  sh demo/water_movement/play.sh
-#         (edit `args` in main.bend to change which containers are shown)
+# Usage:  sh play.sh        (edit `Wm.args` in main.bend to change the panels)
 
 set -e
 DIR="$(cd "$(dirname "$0")" && pwd)"
-ROOT="$(cd "$DIR/../.." && pwd)"
-JS="${TMPDIR:-/tmp}/water_data.js"
 
-echo "compiling main.bend ..."
-bun run "$ROOT/bend/src/CLI.ts" "$DIR/main.bend" -o "$JS"
-echo "rendering ..."
-bun "$DIR/build.mjs" "$JS" "$DIR/water.html" "$DIR/frames.json"
-echo "done → open $DIR/water.html"
+bun "$DIR/build.mjs"
+echo "done -> open $DIR/water.html"
 
 # Try to open it automatically (harmless if no GUI).
 ( command -v open >/dev/null 2>&1 && open "$DIR/water.html" ) \

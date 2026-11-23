@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Growing Tree</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; padding: 12px; background: #fffdf8; color: #333; }
+  .bar { margin-bottom: 8px; }
+  button { margin-right: 6px; padding: 6px 10px; font-size: 14px; cursor: pointer;
+           border: 1px solid #aaa; background: #fafafa; border-radius: 4px; }
+  button:hover { background: #eee; }
+  #status { margin-bottom: 8px; color: #666; min-height: 1.2em; }
+  .legend { margin-bottom: 10px; font-size: 13px; color: #444; }
+  .legend span { display: inline-flex; align-items: center; margin-right: 14px; }
+  .legend i { display: inline-block; width: 13px; height: 13px; border: 1px solid #00000022;
+              border-radius: 3px; margin-right: 5px; }
+  canvas { display: block; border: 1px solid #c8bda6; cursor: crosshair; max-width: 100%; }
+  .foot { font-size: 12px; color: #888; margin-top: 8px; }
+</style>
+</head>
+<body>
+  <div class="bar">
+    <button data-key="49">&#9654; Play</button>
+    <button data-key="50">&#9193; Fast</button>
+    <button data-key="51">&#9197; Max</button>
+    <button data-key="112">&#9208; Pause</button>
+    <button data-key="114">&#10226; Reset</button>
+  </div>
+  <div id="status"></div>
+  <div class="legend">
+    <span><i style="background:#a06030"></i>seed</span>
+    <span><i style="background:#5c3a1a"></i>root</span>
+    <span><i style="background:#6b4423"></i>trunk</span>
+    <span><i style="background:#8b6f47"></i>branch</span>
+    <span><i style="background:#3fa34d"></i>leaf</span>
+  </div>
+  <canvas id="board"></canvas>
+  <div class="foot">The simulation and the picture are main.bend (Tree.step, Tree.view), compiled to JS by Bend;
+    this page only forwards clicks and keys and copies the Image quadtree to the canvas.
+    Keys: 1 play, 2 fast, 3 max, p/space pause, r reset.</div>
+<script type="module">
+import T from "../main.bend";
+// Bend App -> browser canvas. Paste into a page's inline module script.
+// G is the module (import G from "../main.bend"); VIEW/STEP are the names of
+// pure defs: VIEW(s) -> (s, Image), STEP(events, s) -> Maybe<s>.
+// Image quadtree: root side = next power of two >= max(W, H), anchored top-left,
+// colors 0xRRGGBB, exactly as bend2/effs/window.c draws it.
+function bendRun(G, VIEW, STEP, state, canvas, W, H, onFrame) {
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext("2d");
+  const img = ctx.createImageData(W, H);
+  const px = new Uint32Array(img.data.buffer);
+  let S = 1; while (S < Math.max(W, H)) S <<= 1;
+  function paint(t) {
+    const st = [t, 0, 0, S];
+    while (st.length) {
+      const s = st.pop(), y = st.pop(), x = st.pop(); let n = st.pop();
+      if (x >= W || y >= H) continue;
+      if (n.$ === "Qua" && s > 1) {
+        const h = s >> 1;
+        st.push(n.tl, x, y, h, n.tr, x + h, y, h, n.bl, x, y + h, h, n.br, x + h, y + h, h);
+        continue;
+      }
+      while (n.$ === "Qua") n = n.tl;
+      const c = n.color >>> 0;
+      const v = (0xff000000 | ((c & 0xff) << 16) | (c & 0xff00) | ((c >>> 16) & 0xff)) >>> 0;
+      const x1 = Math.min(W, x + s), y1 = Math.min(H, y + s);
+      for (let j = y; j < y1; j++) px.fill(v, j * W + x, j * W + x1);
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+  const KEYS = { Escape: 27, Enter: 13, Tab: 9, Backspace: 127, " ": 32,
+    ArrowUp: 63232, ArrowDown: 63233, ArrowLeft: 63234, ArrowRight: 63235 };
+  const code = (e) => KEYS[e.key] ?? (e.key.length === 1 ? e.key.toLowerCase().codePointAt(0) : null);
+  let queue = [];
+  const push = (ev) => queue.push(ev);
+  const now = () => (performance.now() | 0) >>> 0;
+  const pos = (e) => { const r = canvas.getBoundingClientRect();
+    return [(e.clientX - r.left) * W / r.width, (e.clientY - r.top) * H / r.height]; };
+  const MOUSE = { $: "Tool.Mouse" };
+  addEventListener("keydown", (e) => { const k = code(e); if (k === null || e.repeat) return;
+    if (k === 32 || k >= 63232) e.preventDefault(); push({ $: "Key", code: k, down: true }); });
+  addEventListener("keyup", (e) => { const k = code(e); if (k !== null) push({ $: "Key", code: k, down: false }); });
+  canvas.addEventListener("pointerdown", (e) => { const [x, y] = pos(e); canvas.setPointerCapture(e.pointerId);
+    push({ $: "Press", id: 0, tool: MOUSE, x, y, time: now(), button: e.button, down: true }); });
+  canvas.addEventListener("pointerup", (e) => { const [x, y] = pos(e);
+    push({ $: "Press", id: 0, tool: MOUSE, x, y, time: now(), button: e.button, down: false }); });
+  canvas.addEventListener("pointermove", (e) => { const [x, y] = pos(e);
+    push({ $: "Move", id: 0, tool: MOUSE, x, y, time: now() }); });
+  canvas.addEventListener("pointerleave", () => push({ $: "Leave", id: 0 }));
+  const list = (xs) => xs.reduceRight((tail, head) => ({ $: "Con", head, tail }), { $: "Nil" });
+  let s = state;
+  const api = { send: push, get state() { return s; } };
+  function frame() {
+    const r = G[VIEW](s); s = r.fst; paint(r.snd);
+    const evs = queue; queue = [];
+    const m = G[STEP](list(evs), s);
+    if (m.$ === "None") return;
+    s = m.value;
+    if (onFrame) onFrame(s);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+  return api;
+}
+
+const status = document.getElementById("status");
+let last = "";
+const app = bendRun(T, "Tree.view", "Tree.step", T["init"](), document.getElementById("board"),
+  T["WIN_W"](), T["WIN_H"](), (s) => {
+    const text = T["Tree.status"](s);
+    if (text !== last) { status.textContent = last = text; }
+  });
+for (const b of document.querySelectorAll("button[data-key]")) {
+  b.addEventListener("click", () => app.send({ $: "Key", code: Number(b.dataset.key), down: true }));
+}
+</script>
+</body>
+</html>

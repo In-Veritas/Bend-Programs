@@ -1,52 +1,71 @@
 # Water Movement — fluid visualizer
 
-A **Bend2** program that simulates water with several fluid algorithms. The
-simulation is a **pure** program (no IO, no inline HTML/JS): `main` returns the
-result as **JSON**. A separate browser page renders that data and loops it like
-a gif.
+A **Bend** program (Bend 2.0.40) that simulates water with several fluid
+algorithms. The physics is **pure** and is shown two ways from the same
+functions:
 
 ```
-  main.bend  (pure: physics → JSON)  →  frames.json  →  water.html  (animation)
+  main.bend ─┬─ main = App.run: live window (native X11) ─── Wm.step / Wm.view
+             ├─ web/index.html → water.html: live browser page ─ (same defs)
+             └─ Wm.frames_json() → frames.json: the old pure "physics → JSON" filmstrip
 ```
 
-- Source: [`main.bend`](./main.bend) · renderer/build: [`build.mjs`](./build.mjs) · launcher: [`play.sh`](./play.sh)
+- Source: [`main.bend`](./main.bend) · headless checks: [`test.bend`](./test.bend)
+  · web shell: [`web/index.html`](./web/index.html) · build: [`build.mjs`](./build.mjs),
+  [`play.sh`](./play.sh)
 
 ---
 
 ## 1. Running it
 
-```sh
-sh demo/water_movement/play.sh
-```
-
-That compiles `main.bend`, runs it once, writes **`frames.json`** (the saved
-simulation data) and a standalone **`water.html`**, and opens the HTML. The page
-animates the water on a canvas — colored cells, a swimming fish, **auto-looping**
-(play/pause + a speed slider are provided).
-
-The split is the whole point: Bend does only the *physics* (pure, deterministic,
-prints data); all the *visualization and the looping* live in `build.mjs` /
-`water.html`, completely outside the Bend program. You can rebuild the renderer
-without touching the simulation, or feed `frames.json` to a different renderer.
-
-To inspect the raw JSON the program prints:
+Needs `bend` 2.0.40+ (and `bun` for the web/JSON build). From this folder:
 
 ```sh
-bun run bend/src/CLI.ts demo/water_movement/main.bend -o /tmp/water.js && bun /tmp/water.js
+bend main.bend --check-only                 # ALL PROOFS CHECK
+bend main.bend -o /tmp/water && /tmp/water  # native window (X11; libx11-dev)
+sh play.sh                                  # rebuild water.html + frames.json, open the page
+bend test.bend -o /tmp/water_test && /tmp/water_test   # headless PASS/FAIL checks
 ```
 
-With the default configuration you get a **4 × 3 grid of panels** — each of
-**Navier–Stokes, SPH, PBF, LBM** (one algorithm per row), still water, shown
-with **each event on its own** (rain · rock · fish, the three columns). Grid
-methods are drawn as a **top-down** height field (blue shading); particle
-methods (SPH/PBF) as a **side-on** pool that fills the bottom.
+The window and the page show the **4 × 3 grid of panels** (one algorithm per
+row: **Navier–Stokes, SPH, PBF, LBM**; one event per column: **rain · rock ·
+fish**), running live. Each panel has a header strip whose left tag is
+coloured by engine (blue wave, teal relax, violet CA, cyan particles); the web
+page writes the panel titles over those strips.
+
+Keys (window and page): **Space** pause/resume (headers turn amber), **.** one
+step while paused, **+ / -** faster/slower (frames per sim step, 20 steps/s at
+start on a 60 Hz display), **R** restart, **Esc** (or closing the window)
+quits. Every panel restarts by itself after `LOOP_TICKS` = 240 steps, so the
+scene loops like the old gif.
+
+On a machine with a CUDA GPU, run the native binary as
+`/tmp/water +RTS --gpu off -RTS`: Base's `App.run` hands every frame to the GPU
+over PCIe, which made the window ~3× slower here (54 vs 186 frames in 5 s on a
+Quadro RTX 3000; reported in `bugs/app-run-cuda-default-3x-slower`).
+
+`water.html` is the **single-file web build** of the live app: `build.mjs`
+bundles `web/index.html` (which imports `../main.bend`; the bend bundler
+compiles it to JS) with `bend web/index.html -o <dir>` and inlines the chunk
+with `web/inline.mjs`. The page calls the pure `Wm.view` / `Wm.step` every
+animation frame and paints the returned `Image` quadtree on a canvas exactly as
+the native window does (~9 ms a frame in a headless run).
+
+`frames.json` keeps the original pipeline's data: `Wm.frames_json()` is a pure
+def, called from the ES module `bend main.bend -o x.mjs` writes; it returns
+`FRAMES` = 30 snapshots `FRAME_STEP` = 2 steps apart, in the same JSON shape as
+before (`w`, `h`, `cols`, `meta[{title, kind}]`, `frames[{t, p[{g, fx, fy, fr,
+hf, rk, rx, ry, rr}]}]`). Grid panels reproduce the previous Bend2 output
+cell for cell; particle panels match until the last frames, where the summation
+order of the new neighbour search moves a few cells by one level. The native
+binary and the JS build produce byte-identical JSON.
 
 ---
 
 ## 2. Arguments
 
-A pure program can't read `argv`, so the "command line" is the **`args`** value
-at the top of `main.bend` — a `List(String)` of container specs:
+The "command line" is the **`Wm.args`** def at the top of `main.bend` — a
+`List<&2, String>` of container specs:
 
 ```
 algo : container : events
@@ -58,14 +77,16 @@ algo : container : events
 - **events** — any comma-separated combination of `rain` , `rock` , `fish`
   (or omit)
 
-Edit `args` to compare setups, e.g.
+Edit `Wm.args` to compare setups, e.g.
 
 ```
-args : List(String) = ["sph:sphere:rock", "lbm:stream:rain,fish", "ca:still:rain"]
+def Wm.args() -> List<&2, String>:
+  ["sph:sphere:rock", "lbm:stream:rain,fish", "ca:still:rain"]
 ```
 
-If `args` is empty (`[]`), the default grid is shown: **Navier–Stokes, SPH, PBF,
-LBM** × **rain / rock / fish** (12 panels, one algorithm per row).
+If it is empty (`[]`), the default grid is shown: **Navier–Stokes, SPH, PBF,
+LBM** × **rain / rock / fish** (12 panels, three per row). Custom specs are
+laid out two per row; at most four rows are shown (extra specs are dropped).
 
 ---
 
@@ -119,27 +140,41 @@ panel set (NS / SPH / PBF / LBM) shows three of these families at once.
 
 ## 6. How it works
 
-- The field is a `Grid(F32)` (`base/Data/Grid`, Array-backed). Each step rebuilds
-  a fresh grid by reading neighbours from the previous one — a pure functional
-  update. Borders are **reflective** (tank walls).
-- Particle engines hold a `List(Part)` (float position + velocity). Each step
-  applies gravity, pairwise repulsion within `P_RAD` (O(n²), but n is small),
-  wall bounces, and the **fish/rock pushes** (those disturbers shove nearby
-  particles); for rendering the particles are **splatted** into a density grid.
-- For output the program serializes each panel's field to **integer levels
-  0..40** per cell (grids: height; particles: density via the splat), plus the
-  fish and rock positions — as JSON. Keeping it to small ints keeps the data
-  compact and lets the renderer colour it freely.
-- Everything is sized to stay light: `40 × 22` grids, a few hundred particles,
-  `FRAMES = 30` frames `FRAME_STEP = 2` sim-steps apart. All the tuning lives in
-  the constants block near the top of `main.bend` (`WAVE_C2`, `RELAX_K`,
-  `CA_FLOW`, `P_RAD`, `POOL_ROWS`, `ROCK_*`, `FISH_*`, `FRAMES`, grid size, …).
+- A grid is a list of `GH` = 22 rows of `GW` = 40 `F32` cells (plain `Data`,
+  so the view and the JSON read it freely). Each engine step is a **stencil**:
+  it walks three rows at once (above, the row, below) beside an aux row,
+  carrying the left neighbour, and builds the new grid — a pure functional
+  update. Borders are **reflective** (a missing neighbour is the cell itself).
+  The wave engine runs two passes (`v += c²∇²h` damped, then `h += v`).
+- Particle engines hold a `List<&2, Part>` (float position + velocity). Each
+  step buckets the particles by row and lets each one feel only the rows above,
+  at and below it — exact, because the repulsion radius `P_RAD` is 1 cell —
+  then applies gravity, wall bounces, rain droplets (at most `MAXP` = 80) and
+  the **fish/rock pushes**. For drawing they are **splatted** into a density
+  grid.
+- `Wm.view` turns the state into the frame. The window is laid out in 8-px
+  blocks: a 2-block margin, then per panel a 2-block header, its 40 × 22 cells
+  (one block each) and a 2-block gap. Each block is one `Pix` (colour from the
+  old page's ramps: height for grids, water density over dark air for
+  particles); a block under the fish or the rock is drawn per pixel (yellow
+  fish with its tail behind it and an eye; grey rock with an outline and a
+  highlight). The 128 × 128 blocks are merged four by four, bottom-up, into the
+  1024-px `Image` quadtree, collapsing same-colour quads.
+- Levels for the JSON are integers 0..40 per cell (grids: `(h + 5) · 4`;
+  particles: `density · 8`), as before.
+- All tuning lives in the constants block near the top of `main.bend`
+  (`Wm.wave_c2`, `Wm.relax_k`, `Wm.ca_flow`, `Wm.p_rad`, `Wm.pool_rows`,
+  `Wm.rock_*`, `Wm.fish_*`, `Wm.frames`, `Wm.frame_step`, `Wm.loop_ticks`,
+  `Wm.every0`, grid size, …).
 
-**Animation.** A pure program can't loop over time, so instead of one snapshot
-it emits **`FRAMES`** of them (the sims advanced `FRAME_STEP` steps between each)
-in the JSON. `build.mjs` runs the program once, writes `frames.json`, and embeds
-the data into `water.html`; the page draws the frames on a canvas and loops them
-(`requestAnimationFrame`). So the simulation is computed once, purely, and the
-*playback* — the timing, the colours, the looping — is the only IO/visual work,
-done entirely in the renderer. Raise `FRAMES`/`FRAME_STEP` or change `args` and
-re-run `play.sh` to explore.
+**Porting notes (Bend 2.0.40).** The old program was a value `main : String`
+for the HTML-emitting Bend2. The port keeps the physics but: grids moved from
+`Grid(F32)` to lists of rows (an `Array` is affine and cannot be shared by the
+view, and reading one needs a continuation per read); every loop is structural
+recursion or `Nat` fuel (no `@unsafe`); helpers are defined above their callers
+(no forward references or mutual recursion); `if` became `match` on `Bool`
+through small helper defs; and the old `List/map(ps, p => part_update(p, ps))`
+(O(n²)) became the row-bucketed neighbour search. `test.bend` checks the
+engines headlessly (finite values, conservation for relax/CA, ripples from the
+rock, particles inside the tank and settling, rain, fish wake and path, rock
+fall, looping, the JSON header).

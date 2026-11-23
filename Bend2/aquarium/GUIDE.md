@@ -1,91 +1,118 @@
 # Aquarium — how it works
 
-A tiny self-contained aquatic ecosystem written in **Bend2** and compiled to a
-single HTML file. Drop food into a glass cube of water and watch a food chain
-bootstrap itself: eggs hatch into fry, fry grow into juveniles,
-juveniles into adults, and adults hunt each other until one grows too big and
-shatters the tank.
+A tiny self-contained aquatic ecosystem written in **Bend 2** (2.0.40) as an
+`App`: the same pure program opens a native window and runs in a browser page.
+Drop food into a glass cube of water and watch a food chain bootstrap itself:
+eggs hatch into fry, fry grow into juveniles, juveniles into adults, and
+adults hunt each other until one grows too big and shatters the tank.
 
-It is a companion piece to `growing_tree_claude`, but where the tree is a
+It is a companion piece to `growing_tree`, but where the tree is a
 **discrete cellular grid**, the aquarium lives in **continuous space**: every
 creature is a record with floating-point position and velocity, nudged each
-frame by a handful of simple steering forces.
+tick by a handful of simple steering forces.
 
-- Source: [`main.bend`](./main.bend)
-- Built app: [`aquarium.html`](./aquarium.html)
+- Source: [`main.bend`](./main.bend) · tests: [`test.bend`](./test.bend) ·
+  web page source: [`web/index.html`](./web/index.html) · build: [`build.sh`](./build.sh)
+- Built web app: [`aquarium.html`](./aquarium.html) (single file, no server needed)
 
 ---
 
 ## 1. Running it
 
+Native (X11 window of 620 × 380; Linux needs `libx11-dev`, and a desktop
+session — without a display `Window.open` fails with exit code 95):
+
 ```sh
-# from the repo root — compile the App main to a standalone HTML page
-bun run bend/src/CLI.ts demo/aquarium/main.bend -o demo/aquarium/aquarium.html
+cd Bend2/aquarium
+bend main.bend --check-only          # ALL PROOFS CHECK
+bend main.bend -o /tmp/aquarium && /tmp/aquarium
 ```
 
-Open `demo/aquarium/aquarium.html` in a browser. **Click — or hold — above the
-waterline** to pour eggs and start (eggs only drop from above the surface). Hold
-the button down to pour a continuous stream. Your goal is to grow one adult big
-enough to shatter the glass; your **score is the number of adult fish** alive at
-that moment (with the surviving fry and juveniles noted too).
+Browser: open [`aquarium.html`](./aquarium.html). It is rebuilt from
+`web/index.html`, which imports `main.bend` directly:
 
-> App mains compile to `.html`. (A value/IO main would compile to `.js`; passing
-> no `-o` type-checks and runs `main` in the reference interpreter.)
+```sh
+bend web/index.html -o /tmp/aquarium_web        # bundle the page + compiled Bend
+bun web/inline.mjs /tmp/aquarium_web aquarium.html   # inline it into one file
+```
+
+`sh build.sh` does all of it: check, headless tests, native build, web page.
+
+**Click — or hold — above the waterline** to pour eggs and start (eggs only
+drop from above the surface). Hold the button down to pour a continuous
+stream. Your goal is to grow one adult big enough to shatter the glass; your
+**score is the number of adult fish** alive at that moment (with the surviving
+fry and juveniles noted too). After the break, click to play again. **R**
+restarts at any time; **Esc** (or closing the window) quits the native app.
+The native build also prints the game-over line on stdout.
 
 ---
 
-## 2. Architecture — the Elm-style App loop
+## 2. Architecture — the `App` loop
 
 ![architecture](./images/01-architecture.svg)
 
-The whole program is the standard Bend `App` quadruple:
+*(The diagram shows the old HTML loop; the shape is the same, but the view
+is now an `Image` and time comes from a clock instead of a DOM timer.)*
 
 ```
-main : App = app{State, Event, init, render, on_event, debug}
+main() = App.run(~Aq, ~App{Aq.view, Aq.io_tick}, "Aquarium", 620, 380, Aq.init())
 ```
 
-- **`State`** holds everything: the world (`List(Ent)`), a frame counter
-  `tick`, a global `rng` seed, and a `phase` (start / playing / game-over).
-- **`render : State → HTML(Event)`** draws the cube, waves, every creature, and
-  any overlay. The root element carries `every_ms={FRAME_MS, tick_ev{}}`, which
-  asks the runtime to fire a `tick_ev` ~22×/second.
-- **`on_event : Event → State → Update`** handles pointer events — `press`
-  (start / pour / begin holding), `move` (follow the cursor while held),
-  `release` (stop pouring) — and `tick_ev` (advance the simulation; while the
-  button is held it also trickles `POUR_N` eggs in at the cursor).
+- **`Aq`** (the state) holds everything: the world (`+List<Ent>`), a tick
+  counter `tick`, a global `rng` seed, a `phase` (`Start` / `Play` /
+  `Over{score, at}`), the hold-to-pour cursor, the `clock` of the last tick
+  and a `told` flag (game-over line printed).
+- **`Aq.view : Aq → Aq & Image`** (pure) draws the cube, waves, every
+  creature and any overlay as an `Image` quadtree (see §9).
+- **`Aq.step(now_ms, events, s) : Maybe<Aq>`** (pure) folds the frame's
+  `Event`s — `Press` down (start / pour / begin holding), `Move` (follow the
+  cursor), `Press` up / `Leave` (stop pouring), `Key` R (restart), Esc or
+  `Close` (`None`: quit) — then runs every 45 ms tick that is due at `now`
+  (`FRAME_MS`, ≈ 22 ticks/second whatever the display rate; at most
+  `MAX_CATCHUP = 3` per frame). One tick is `sim_tick = pour_step ∘ one_tick`,
+  exactly the old `tick_ev` handler: advance the simulation and, while the
+  button is held, trickle `POUR_N` eggs in at the cursor.
+- **`Aq.io_tick`** is the only IO: it reads `IO.now()`, calls `Aq.step`, and
+  prints the game-over line once.
 
-Everything is pure: each frame maps the old `State` to a new one and the runtime
-diffs the produced HTML against the DOM.
+The browser page calls the very same `Aq.view` / `Aq.step` (compiled to JS)
+from `requestAnimationFrame`, turns DOM pointer/key events into Bend `Event`
+values, paints the quadtree into a canvas, and shows `Aq.hud_text` /
+`Aq.status_text` above it.
 
 ---
 
 ## 3. The world: `Ent` and `Stage`
 
 Eggs and fish share **one** record type so the world is a single flat list we
-can `map`/`fold` over uniformly:
+can fold over uniformly:
 
 ```
-type Stage { egg{} fry{} juvenile{} adult{} }
+type Stage is Data:
+  Egg{}
+  Fry{}
+  Juv{}
+  Adult{}
 
-type Ent {
-  ent{
-    stage: Stage,
+type Ent is Data:
+  Ent{stage: Stage,
     x: F32, y: F32,      # center position, in pixels of the front face
-    vx: F32, vy: F32,    # velocity, px/frame
+    vx: F32, vy: F32,    # velocity, px/tick
     size: F32,           # scale: drives sprite size AND the prey size-cap
-    timer: U32,          # eggs: frames sinking (hatch countdown)
-                         # fish: frames since its last meal (the 1-second eat cooldown)
-    hu: U32,             # fish: frames since its last FISH meal (the 10-second hunt clock)
-    fed: U32,            # fry: eggs eaten; juveniles: fish eaten (drives maturing)
+    timer: U32,          # eggs: ticks sinking (hatch countdown)
+                         # fish: ticks since its last meal (the 1-second eat cooldown)
+    hu: U32,             # fish: ticks since its last FISH meal (the 10-second hunt clock)
+    fed: U32,            # fry: eggs eaten; juveniles: fry eaten; adults: cycle units
     rng: U32,            # per-creature seed, so each one wanders differently
-    face: Bool,          # true = facing right (sprite mirrored)
-  }
-}
+    face: Bool}          # True = facing right (sprite mirrored)
 ```
 
 Because the model is continuous, there is no grid: there are just `Ent`s
-floating in a `560 × 380` box, and helper accessors (`e_x`, `e_y`, `e_size`,
-`e_stage`, `e_timer`, …) keep the hot loops readable.
+floating in a `560 × 380` box, and accessors (`Ent.x`, `Ent.y`, `Ent.size`,
+`Ent.stage`, `Ent.timer`, …) keep the hot loops readable. Every type is
+`Data`, so the world list is shared freely (`+List<Ent>`) by the O(n²)
+passes.
 
 ---
 
@@ -95,10 +122,10 @@ floating in a `560 × 380` box, and helper accessors (`e_x`, `e_y`, `e_size`,
 
 | Stage | Sprite | Eats | Grows | Becomes |
 |------|--------|------|-------|---------|
-| **Egg** | • (orange dot) | — | — | a **fry** if left untouched ~150 frames |
-| **Fry** | `o<` (brown) | eggs only | +1.3 size per egg | a **juvenile** after **12** eggs |
-| **Juvenile** | `(O<` (dark green) | **eggs + fry** (grows only from fry) | +2.0 per fry (eggs: 0) | an **adult** after eating **5** fry |
-| **Adult** | `(.* )<3` (dark blue) | **any fish ≤ ½ its size** (incl. other adults) | ×1.10 size per fish | shatters the tank at size ≥ 135 |
+| **Egg** | orange dot | — | — | a **fry** if left untouched ~150 ticks |
+| **Fry** | small brown fish | eggs only | +1.3 size per egg | a **juvenile** after **12** eggs |
+| **Juvenile** | dark-green fish | **eggs + fry** (grows only from fry) | +2.0 per fry (eggs: 0) | an **adult** after eating **5** fry |
+| **Adult** | big dark-blue fish with a dorsal fin | **any fish ≤ ½ its size** (incl. other adults) | ×1.10 size per fish | shatters the tank at size ≥ 135 |
 
 **Who eats whom.** A predator can eat prey only if the prey is **at most half
 its size** (`PREY_RATIO = 0.5`) *and* the prey is in its tier (`tier_ok`):
@@ -133,17 +160,19 @@ size you have to keep the whole pyramid below it fed.
 
 ## 5. One simulation step (`one_tick`)
 
-When `phase = playing`, each `tick_ev` runs:
+When `phase = Play`, each tick runs:
 
 ```
 one_tick:
   1. do_eat(ents)   → assign meals, remove eaten, grow eaters, detect a break
-  2. if something broke → phase_over{score}
+  2. if something broke → Over{score, tick}
      else move_all(ents)   → run physics on every creature
 ```
 
-Eating happens **before** movement, on the same frame snapshot, so all the
-"who's next to whom" decisions use one consistent picture of the world.
+(`after_eat` does step 2.) In `Over`, `fall_all` replaces the swim update; in
+`Start` nothing moves. Eating happens **before** movement, on the same
+snapshot, so all the "who's next to whom" decisions use one consistent
+picture of the world.
 
 ---
 
@@ -155,7 +184,7 @@ Naively, "every fish eats whatever it overlaps" lets two fish both eat the same
 egg, or one egg feed a whole crowd. Instead `do_eat` runs a small **assignment
 pass** so each piece of prey feeds at most one predator:
 
-1. **`enumerate`** tags every entity with a stable index for this frame.
+1. **`enumerate`** tags every entity with a stable index for this tick.
 2. **`claim`** folds over the predators *in list order*. A predator is skipped
    unless it is a fish **off its eat cooldown** (`can_act`: `timer ≥
    EAT_COOLDOWN`). Otherwise it calls `find_prey`, which scans for the
@@ -183,7 +212,7 @@ fish. The **hunt clock `hu`** resets per fry-meal for a juvenile, but for an
 
 ![forces](./images/03-forces.svg)
 
-`fish_update` rebuilds a fish's velocity each frame by adding up cheap forces,
+`fish_update` rebuilds a fish's velocity each tick by adding up cheap forces,
 clamping to a per-stage max speed, integrating, and bouncing off the walls:
 
 1. **Steer toward the target** (`steer`) — turn velocity a fraction `STEER`
@@ -217,7 +246,7 @@ clamping to a per-stage max speed, integrating, and bouncing off the walls:
   ≤ ½ its size, including other adults); otherwise it cruises, drifting toward
   the floor.
 
-`nearest` does a single linear scan; the per-frame cost is `O(n²)` (targeting +
+`nearest` does a single linear scan; the per-tick cost is `O(n²)` (targeting +
 swarm + collision per fish, plus the claim pass).
 
 **No entity cap.** `spawn_eggs_at` — the only way entities are added (tap and
@@ -225,7 +254,7 @@ held pour both go through it) — now spawns whenever the source is above the
 waterline, with **no upper limit** on the population. Hatching and eating never
 raise the count, but pouring does, so a long hold can grow the world without
 bound. That keeps the tank as full as you like, at the cost of the `O(n²)`
-per-frame work growing with the population — so a very crowded tank can slow
+per-tick work growing with the population — so a very crowded tank can slow
 down. (Re-introducing a cap is a one-line guard in `spawn_eggs_at` if needed.)
 
 ---
@@ -249,63 +278,81 @@ An egg behaves differently above and below the surface (and eggs only ever
 
 ![render](./images/05-render.svg)
 
-- **The tank** is an **open-topped** box in a `620 × 380` wrapper: a **front
-  face** (the interactive water box, with glass borders on the left, right and
-  bottom only — no top), and two **side walls** (`cube_left` / `cube_right`)
-  drawn as thin slanted parallelograms via CSS `clip-path` for a hint of depth.
-  The front face is the pointer target, so cursor coordinates map directly onto
-  sim `(x, y)`. Its attributes are built by `face_attrs`, which attaches
-  `pointer_down/up/leave` always but **`pointer_move` only while pouring** — the
-  runtime re-renders the whole scene on *every* event, so a `pointer_move`
-  listener during idle hover would fire a full re-render on each mouse motion and
-  visibly lag. Gating it means hovering is free; dragging only re-renders while
-  you actually hold the button.
-- **Waves** are `N_WAVE = 56` thin vertical segments. Each segment's top edge
-  sits at `WATER_Y + drop + WAVE_AMP·sin(tick·WAVE_SPEED + i·WAVE_FREQ)`, plus a
-  bright crest highlight. The `drop` term is `0` while playing and grows during
-  the break (so the water visibly **drains** away).
-- **Sprites** are absolutely-positioned `div`s using `translate(-50%, -50%)` to
-  center on `(x, y)`, `font-size` scaled by `size`, and `scaleX(-1)` to mirror
-  by facing. The two-frame animation flaps the **tail** every `FRAME_TICKS`
-  frames (`o<`↔`o«`, `(O<`↔`(O«`, `(.* )<3`↔`(.* )«3`). Fry are brown,
-  juveniles dark green, adults dark blue; eggs are plain orange dots.
-- **The tank break** (`phase_over`) is its own animation, driven by
-  `over_frame = tick − at`: the two **side walls fly off** (translate + spin +
-  fade via `wall_tf`/`wall_opacity`), the water **drains**, ~12 glass **shards**
-  tumble outward under gravity, and every fish switches to a dead `X`-eyed glyph
-  and **falls to the floor** (`fall_ent` runs instead of the swim update). After
-  `OVER_PANEL_DELAY` frames the game-over panel fades in with the adult score and
-  a note of the surviving fry/juveniles.
+*(The diagram shows the old DOM layering; the layers are the same.)*
 
-All the dynamic children (waves + sprites + shards + overlays) are concatenated
-into one list and spread once (`{...inside}`) — the HTML DSL allows at most one
-spread per element.
+The frame is a pure `Image` quadtree (`Pix{color}` / `Qua{tl, tr, bl, br}`)
+over the 620 × 380 window, built in two steps:
+
+1. **`Aq.scene`** lists the frame's shapes bottom to top — `Box`, `Oval`
+   and `Tri` (each with a 0xRRGGBB color). Each layer prepends its shapes onto
+   the layers above it: side walls (`L.walls`), the glass face (`L.face`),
+   water bands + waves (`L.water`), sand and glass borders (`L.glass`),
+   creatures (`L.ents`), shards (`L.shards`), the HUD (`L.hud`), overlays
+   (`L.overlay`).
+2. **`render`/`draw`** walks the quadtree from a 1024 root, like the shader
+   guide's tile tree: each node keeps only the shapes whose box meets it
+   (`cut_go`) and learns whether the topmost of them covers it (`Cut.st`). An
+   empty node is one background `Pix`, a covered node one `Pix` of that color,
+   only mixed nodes split, and a 1-px node takes the color of the last shape
+   containing its center (`pix_col`). The four children are a parallel let.
+   About 30 000 leaves per frame; ≈5 ms per tick+frame natively with ~70
+   creatures, ≈25-30 ms per frame in the JS build.
+
+- **The tank** is open-topped: a 560-px **front face** (glass borders left,
+  right and bottom only), between two **side walls** drawn as slanted
+  quadrilaterals (two `Tri`s each). Translucency is baked into opaque colors.
+  Pointer coordinates map onto sim `(x, y)` as `x − DZ` (`DZ = 30`).
+- **Waves** are `N_WAVE = 56` thin segments. Each segment's top edge sits at
+  `WATER_Y + drop + WAVE_AMP·sin(tick·WAVE_SPEED + i·WAVE_FREQ)`, plus a bright
+  3-px crest; below the lowest trough the water is six horizontal bands, light
+  to deep. `drop` is `0` while playing and grows during the break (the water
+  visibly **drains** away).
+- **Sprites** are pixel art from the same `size` as the physics: an egg is a
+  3-px orange disc; a fish is an oval body (half-width `r·body_w`, adults the
+  widest), a triangular tail on the side opposite its heading (mirrored by
+  `face`), a dorsal fin on adults, and an eye. The tail flaps between two
+  frames every `FRAME_TICKS` ticks. Fry are brown, juveniles dark green,
+  adults dark blue.
+- **Text** uses a built-in 3×5 pixel font (`Font.runs`, one `Box` per run of
+  lit pixels): the HUD line (adults / juveniles / fry) at the top, the start
+  panel, and the game-over panel. The web page additionally shows the HUD and
+  status as DOM text.
+- **The tank break** (`Over`) is driven by `over_t = tick − at`: the two
+  **side walls fly off** (translate + rotate around their centers, fading into
+  the background), the water **drains**, 12 glass **shards** tumble outward
+  under gravity, and every fish gets **X eyes** and **falls to the floor**
+  (`fall_ent` instead of the swim update). After `OVER_PANEL_DELAY` ticks the
+  game-over panel shows the adult score and the surviving fry/juveniles.
 
 ---
 
 ## 10. Randomness, time, and not getting stuck
 
 - **RNG** is a single linear-congruential step, `rng_next`. The global seed
-  drives spawns and hatching; every creature also carries its **own** seed so
-  the wander force differs per fish. `rand_unit` maps a seed to a float in
-  `[-1, 1)`.
-- **Time** is just the frame counter `tick` (no real-time clock). Durations are
-  expressed in frames: `HATCH_TICKS`, `EAT_COOLDOWN`, `HUNT_PERIOD`, …
+  drives spawns; every creature also carries its **own** seed so the wander
+  force differs per fish. `rand_unit` maps a seed to a float in `[-1, 1)`.
+- **Time** is the tick counter `tick`; durations are in ticks (`HATCH_TICKS`,
+  `EAT_COOLDOWN`, `HUNT_PERIOD`, …). Ticks are paced by a millisecond clock
+  passed to `Aq.step` (`IO.now()` natively, `performance.now()` in the page),
+  so the simulation runs at the same speed on any display.
 - **Anti-stuck**: the per-fish wander, the collision push (the smaller fish
-  veers off to pick another path), and re-choosing targets every frame together
-  prevent fish from orbiting a target forever or freezing against a wall.
+  veers off to pick another path), and re-choosing targets every tick
+  together prevent fish from orbiting a target forever or freezing against a
+  wall.
+- **Termination**: every loop is structural (over lists or a `Nat` count),
+  so the whole program checks with no `@unsafe`.
 
 ---
 
 ## 11. Constants to tune
 
-All near the top of `main.bend`:
+All near the top of `main.bend` (each is a zero-argument `def`):
 
 | Constant | Meaning |
 |----------|---------|
-| `WF`, `HF`, `DZ` | front-face size and side-wall thickness |
+| `WF`, `HF`, `DZ` | front-face size and side-wall thickness (window 620 × 380) |
 | `WATER_Y`, `FLOOR` | surface line and sandy floor |
-| `FRAME_MS` | frame interval (≈ speed of everything) |
+| `FRAME_MS`, `MAX_CATCHUP` | tick interval (≈ speed of everything); ticks caught up per frame |
 | `HATCH_TICKS` | hatch delay |
 | `EAT_COOLDOWN`, `HUNT_PERIOD` | 1-second eat cooldown; 10-second fish-hunt gate |
 | `AIR_GRAV`, `AIR_MAXFALL`, `SINK_SPEED` | fall / sink feel |
@@ -314,63 +361,56 @@ All near the top of `main.bend`:
 | `JUV_GROW`, `JUV_MEALS` | juvenile growth per fry, fry to mature |
 | `ADULT_MUL`, `BREAK_SIZE` | adult growth per fish; size that shatters the tank |
 | `FRY_COST`, `JUV_COST`, `ADULT_COST`, `CYCLE_CAP` | adult feeding-cycle: prey unit costs + cycle size |
-| `STEER`, `DEPTH_K`, `WANDER`, `BOB_AMP/F`, `MAX_VY`, `MARGIN`, `SURF_PAD` | swim feel (`MAX_VY` caps up/down speed) |
+| `STEER`, `DEPTH_K`, `WANDER`, `BOB_AMP/F`, `MAX_VY`, `MARGIN`, `SURF_PAD`, `EAT_PAD` | swim feel (`MAX_VY` caps up/down speed) |
 | `COLLIDE_FRAC`, `COLL_STR`, `VEER` | collision: overlap limit, push, smaller-fish veer |
 | `SWARM_R2`, `COHESION`, `ALIGN` | fry schooling radius² and pull strengths |
-| `SPAWN_N`, `POUR_N` | eggs per tap; eggs per held frame (no entity cap) |
-| `N_WAVE`, `WAVE_AMP/SPEED/FREQ` | surface look |
+| `SPAWN_N`, `POUR_N` | eggs per tap; eggs per held tick (no entity cap) |
+| `FRAME_TICKS` | tail-flap period |
+| `N_WAVE`, `SEG_W`, `WAVE_AMP/SPEED/FREQ` | surface look |
 | `OVER_GRAV`, `DRAIN_SPEED`, `SHARD_SPEED`, `OVER_PANEL_DELAY` | break animation |
-| `COL_EGG`, `COL_BROWN`, `COL_GREEN`, `COL_DBLUE` | sprite colors |
+| `COL_EGG`, `COL_BROWN`, `COL_GREEN`, `COL_DBLUE`, `water_col`, `face_col`, … | colors (0xRRGGBB) |
 
 ---
 
 ## 12. How the behaviour was verified
 
-The reference interpreter is too slow to drive a big sim, and an `App` main
-can't be unit-tested through the DOM. So the simulation core was copied into a
-**headless harness** that swaps the `App`/`render` half for a `main : String`
-test driver, compiled to JavaScript (`-o harness.js`) and run with `bun`. It
-exercises the *pure* transition functions directly and asserts the emergent
-behaviour over real `one_tick` loops — **34/34 passing**:
+`test.bend` imports `main.bend` and drives its *pure* transition functions
+directly (`do_eat`, `one_tick`, `run_ticks`, `Aq.press`, …) — no window
+needed. Build and run it natively:
 
-```
-T1  egg → fry hatch (born size)   PASS
-T2  egg falls in air              PASS
-T3  egg sinks (stays egg)         PASS
-T4  fry → juvenile after meals    PASS
-T5  juvenile → adult after meals  PASS
-T6  adult grows → break           PASS
-T7  fry eats egg                  PASS
-T8  shared egg → 1 eater          PASS   (assignment really is exclusive)
-T9  break → game over             PASS
-T10 eggs hatch over time          PASS
-T11 busy world stable             PASS
-T12 fry forages (capped)          PASS   (~1 egg/sec under the cooldown)
-T13 no-food wander stable         PASS   (no NaN / escaping the box)
-T14 juv grows from fry, not egg   PASS
-T15 adult grows gradually         PASS   (×1.10/fish, not a huge jump)
-T16 needs MORE meals per stage    PASS
-T17 ADULT EATS JUVENILE           PASS   (≤ ½ size, hunting + off cooldown)
-T18 adult ignores egg             PASS
-T19 juvenile eats fry             PASS
-T20 tier + half-size sanity       PASS   (adult-eats-adult; juv eats egg, not juv)
-T21 score counts adults only      PASS
-T22 eat cooldown (1/sec)          PASS   (a just-fed fish can't eat again)
-T23 game-over fish fall           PASS   (mid-water fish drop toward the floor)
-T24 pour only above water         PASS   (no eggs spawn below the surface)
-T25 hunt gate (fish / 10s)        PASS   (off-cooldown adult ignores prey
-                                          until its hunt window)
-T26 hunt clock reset rules        PASS   (adult keeps hu mid-cycle; juv resets)
-T27 fry swarm cohesion            PASS   (a fry is pulled toward its neighbor)
-T28 fish collision push           PASS   (overlapping fish shove apart)
-T29 NO entity cap (spawn flood)   PASS   (50 taps → 200 entities, no clamp)
-T30 NO entity cap (pour 300f)     PASS   (a long hold grows the world unbounded)
-T31 juv eats egg, NO growth       PASS   (egg consumed, juvenile size unchanged)
-T32 ADULT EATS ADULT              PASS   (a big adult eats a half-size adult)
-T33 adult cycle: 5 fry            PASS   (4 keep hu high; the 5th cools it down)
-T34 adult cycle: 2 juveniles      PASS   (2 juvenile-meals fill one cycle)
+```sh
+bend test.bend -o /tmp/aquarium_test && /tmp/aquarium_test
 ```
 
-T17–T20, T31–T32 cover the predation (any fish ≤ ½ size, adults eat adults,
-juveniles eat eggs but only grow from fry); T33–T34 the adult feeding cycle
-(5 fry / 2 juveniles / 1 adult per ~10 s); T29–T30 confirm there is no cap.
+It prints one line per check — **34/34 passing** on Bend 2.0.40:
+
+```
+T1  egg -> fry hatch (born size)          T18 adult ignores egg
+T2  egg falls in air                      T19 juvenile eats fry (hunt clock resets)
+T3  egg sinks (stays egg)                 T20 tier + half-size sanity
+T4  fry -> juvenile after 12 eggs         T21 score counts adults only
+T5  juvenile -> adult after 5 fry         T22 eat cooldown (1/sec)
+T6  adult grows -> break                  T23 game-over fish fall
+T7  fry eats egg                          T24 pour only above water
+T8  shared egg -> 1 eater                 T25 hunt gate (fish / 10s)
+T9  break -> game over phase              T26 hunt clock reset rules
+T10 eggs hatch over time                  T27 fry swarm cohesion
+T11 busy world stable (1620 ticks)        T28 fish collision push
+T12 fry forages (1 egg / second)          T29 no entity cap (50 taps -> 200 eggs)
+T13 no-food wander stable (2000 ticks)    T30 no entity cap (pour 300 ticks)
+T14 juvenile grows from fry               T31 juvenile eats egg, no growth
+T15 adult grows gradually (x1.10)         T32 adult eats adult
+T16 more meals per stage                  T33 adult cycle: 5 fry
+T17 adult eats juvenile                   T34 adult cycle: 2 juveniles
+```
+
+T11 and T13 also assert that no position is NaN or outside the box. T30 holds
+the button for 300 ticks: ~600 eggs go in and the world keeps several hundred
+creatures (hatched fry eat part of the stream), far beyond any cap.
+
+The JS build agrees with the native one: the same scripted pour (60 ticks,
+then 10 / 200 / 1500 more) gives identical counts and identical position
+sums (to F32 print precision) from the native binary and from
+`bend main.bend -o aquarium.mjs` run under `bun`. The web page was smoke-run
+headlessly (fake DOM, 300 frames with a click above the water): it paints
+every frame and shows the HUD/status from `Aq.hud_text` / `Aq.status_text`.

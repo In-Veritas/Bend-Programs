@@ -1,7 +1,7 @@
 # Core Belote Observatory
 
-This is a pure, deterministic four-AI classic Belote hand written in Bend2
-Core. It is an observer rather than an interactive game: every private card is
+This is a pure, deterministic four-AI classic Belote hand written in Bend
+(2.0.40). It is an observer rather than an interactive game: every private card is
 visible, played cards fade instead of disappearing, the current trick is shown
 in the middle, and playback can run automatically or one step at a time.
 
@@ -21,33 +21,39 @@ points against 47. Announcements are not included.
 
 ## Generated-JavaScript bridge
 
-Bend2 Core has no implemented IO, browser, clock, or randomness runtime. Seed
-`1` is therefore embedded and `main()` returns a `BeloteReport` containing all
-36 snapshots. `build.mjs` compiles it with the Core JavaScript backend and
-replaces only the emitter's final console-printer footer with a browser global.
+The program is pure: seed `1` is embedded and `main()` returns a
+`BeloteReport` containing all 36 snapshots. `build.sh` checks it with Bend
+2.0.40, runs `bend belote.bend -o belote.mjs` (an ES module exporting every
+non-IO def), rewrites only its single `export default {` into a local binding
+inside an IIFE, and publishes the evaluated report as the browser global
+`BEND2_BELOTE_DATA` in `belote_data.js`, a classic script. Values use Bend's
+export encoding: `{$: "Name", field: value}` constructors, `List` as
+`{$: "Con", head, tail}` / `{$: "Nil"}`, JS booleans and numbers.
 `index.html` decodes, schedules, and renders that immutable Bend value; it does
 not deal, bid, select cards, or score the hand.
 
 `belote_data.js` is checked in so the relative page can be mounted directly at
-`/core/belote/`. Regenerate and verify it with:
+`/core/belote/`. Regenerate and verify it with (`bend` and `bun` on `PATH`):
 
 ```sh
 ./build.sh
 bun test.mjs
 ```
 
-Or verify the Core entry directly:
+Or verify the Bend entry directly:
 
 ```sh
-cd /path/to/bend2-core
-bun src/main.ts "/path/to/Bend-Programs/Bend2 Core/demos/belote/belote.bend"
-bun src/main.ts "/path/to/Bend-Programs/Bend2 Core/demos/belote/belote.bend" --to /tmp/core-belote.js
-bun /tmp/core-belote.js
+bend belote.bend --check-only   # ALL PROOFS CHECK
+bend belote.bend                # normalizes and prints the BeloteReport (~4 s)
 ```
 
 The regression test independently reconstructs the legal set at every play,
 checks turn order and trick winners, verifies all 162 card points including
 `dix de der`, and confirms the Bend report's 47-115 result.
 
-This source uses no `#[halts]`. When Core receives real IO and randomness,
-replace the embedded seed/report bridge with an effect-driven hand loop.
+The test also checks every trick's winner and running score against the Bend
+snapshots (eight tricks). The source uses no `@unsafe`: recursion is
+structural (list descent or Nat fuel), and `rules_valid` recomputes the
+cut/overtrump legality and the eight trick totals inside Bend, so the report's
+`valid` field is `True`. A later version could replace the embedded seed with
+Bend's IO and drive the hand from an effect loop.

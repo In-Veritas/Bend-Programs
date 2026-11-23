@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Water Movement</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; background: #050d14; color: #cfe8f5;
+         font-family: system-ui, sans-serif; padding: 18px; }
+  h1 { font-size: 20px; color: #7fdfff; margin: 0 0 4px; }
+  .sub { font-size: 12.5px; color: #6f93a6; margin: 0 0 12px; max-width: 900px; }
+  .stage { position: relative; max-width: 100%; }
+  canvas { display: block; width: 100%; height: auto; image-rendering: pixelated;
+           border-radius: 8px; touch-action: none; }
+  .lbl { position: absolute; font-size: 11px; line-height: 1; color: #bfe0ef;
+         white-space: nowrap; overflow: hidden; pointer-events: none; }
+  .bar { margin-top: 12px; font-size: 13px; color: #9fc7d8; display: flex;
+         align-items: center; gap: 10px; flex-wrap: wrap; }
+  button { background: #103047; color: #cfe8f5; border: 1px solid #1d5b75;
+           border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 13px; }
+</style>
+</head>
+<body>
+  <h1>Water Movement</h1>
+  <div class="sub">Bend simulates and draws every frame (pure <code>Wm.step</code> /
+    <code>Wm.view</code> from <code>main.bend</code>, the same code as the native
+    window); this page only paints the image and forwards keys.
+    Keys: Space pause &middot; . step &middot; + / - speed &middot; R restart.</div>
+  <div class="stage" id="stage"><canvas id="c"></canvas></div>
+  <div class="bar">
+    <button id="pause">pause</button>
+    <button id="step">step</button>
+    <button id="slower">slower</button>
+    <button id="faster">faster</button>
+    <button id="restart">restart</button>
+    <span id="info"></span>
+  </div>
+<script type="module">
+import W from "../main.bend";
+// Bend App -> browser canvas. Paste into a page's inline module script.
+// G is the module (import G from "../main.bend"); VIEW/STEP are the names of
+// pure defs: VIEW(s) -> (s, Image), STEP(events, s) -> Maybe<s>.
+// Image quadtree: root side = next power of two >= max(W, H), anchored top-left,
+// colors 0xRRGGBB, exactly as bend2/effs/window.c draws it.
+function bendRun(G, VIEW, STEP, state, canvas, W, H, onFrame) {
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext("2d");
+  const img = ctx.createImageData(W, H);
+  const px = new Uint32Array(img.data.buffer);
+  let S = 1; while (S < Math.max(W, H)) S <<= 1;
+  function paint(t) {
+    const st = [t, 0, 0, S];
+    while (st.length) {
+      const s = st.pop(), y = st.pop(), x = st.pop(); let n = st.pop();
+      if (x >= W || y >= H) continue;
+      if (n.$ === "Qua" && s > 1) {
+        const h = s >> 1;
+        st.push(n.tl, x, y, h, n.tr, x + h, y, h, n.bl, x, y + h, h, n.br, x + h, y + h, h);
+        continue;
+      }
+      while (n.$ === "Qua") n = n.tl;
+      const c = n.color >>> 0;
+      const v = (0xff000000 | ((c & 0xff) << 16) | (c & 0xff00) | ((c >>> 16) & 0xff)) >>> 0;
+      const x1 = Math.min(W, x + s), y1 = Math.min(H, y + s);
+      for (let j = y; j < y1; j++) px.fill(v, j * W + x, j * W + x1);
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+  const KEYS = { Escape: 27, Enter: 13, Tab: 9, Backspace: 127, " ": 32,
+    ArrowUp: 63232, ArrowDown: 63233, ArrowLeft: 63234, ArrowRight: 63235 };
+  const code = (e) => KEYS[e.key] ?? (e.key.length === 1 ? e.key.toLowerCase().codePointAt(0) : null);
+  let queue = [];
+  const push = (ev) => queue.push(ev);
+  const now = () => (performance.now() | 0) >>> 0;
+  const pos = (e) => { const r = canvas.getBoundingClientRect();
+    return [(e.clientX - r.left) * W / r.width, (e.clientY - r.top) * H / r.height]; };
+  const MOUSE = { $: "Tool.Mouse" };
+  addEventListener("keydown", (e) => { const k = code(e); if (k === null || e.repeat) return;
+    if (k === 32 || k >= 63232) e.preventDefault(); push({ $: "Key", code: k, down: true }); });
+  addEventListener("keyup", (e) => { const k = code(e); if (k !== null) push({ $: "Key", code: k, down: false }); });
+  canvas.addEventListener("pointerdown", (e) => { const [x, y] = pos(e); canvas.setPointerCapture(e.pointerId);
+    push({ $: "Press", id: 0, tool: MOUSE, x, y, time: now(), button: e.button, down: true }); });
+  canvas.addEventListener("pointerup", (e) => { const [x, y] = pos(e);
+    push({ $: "Press", id: 0, tool: MOUSE, x, y, time: now(), button: e.button, down: false }); });
+  canvas.addEventListener("pointermove", (e) => { const [x, y] = pos(e);
+    push({ $: "Move", id: 0, tool: MOUSE, x, y, time: now() }); });
+  canvas.addEventListener("pointerleave", () => push({ $: "Leave", id: 0 }));
+  const list = (xs) => xs.reduceRight((tail, head) => ({ $: "Con", head, tail }), { $: "Nil" });
+  let s = state;
+  const api = { send: push, get state() { return s; } };
+  function frame() {
+    const r = G[VIEW](s); s = r.fst; paint(r.snd);
+    const evs = queue; queue = [];
+    const m = G[STEP](list(evs), s);
+    if (m.$ === "None") return;
+    s = m.value;
+    if (onFrame) onFrame(s);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+  return api;
+}
+
+const WW = W["Wm.win_w"](), WH = W["Wm.win_h"](), COLS = W["Wm.cols"]();
+const stage = document.getElementById("stage");
+stage.style.width = WW + "px";
+let titles = [];
+for (let l = W["Wm.titles"](); l.$ === "Con"; l = l.tail) titles.push(l.head);
+titles.forEach((t, i) => {
+  const d = document.createElement("div");
+  d.className = "lbl"; d.textContent = t;
+  const col = i % COLS, row = Math.floor(i / COLS);
+  d.style.left = ((16 + col * 336 + 20) / WW * 100) + "%";
+  d.style.top = ((16 + row * 208 + 3) / WH * 100) + "%";
+  d.style.width = (296 / WW * 100) + "%";
+  stage.appendChild(d);
+});
+const info = document.getElementById("info");
+const pauseBtn = document.getElementById("pause");
+const api = bendRun(W, "Wm.view", "Wm.step", W["Wm.init"](), document.getElementById("c"), WW, WH, (s) => {
+  pauseBtn.textContent = s.paused ? "play" : "pause";
+  info.textContent = (s.paused ? "paused" : Math.round(60 / s.every) + " steps/s")
+    + " \u00b7 step " + (s.pans.$ === "Con" ? s.pans.head.s.tick : 0);
+});
+const key = (code) => api.send({ $: "Key", code, down: true });
+pauseBtn.onclick = () => key(32);
+document.getElementById("step").onclick = () => key(46);
+document.getElementById("slower").onclick = () => key(45);
+document.getElementById("faster").onclick = () => key(43);
+document.getElementById("restart").onclick = () => key(114);
+</script>
+</body>
+</html>

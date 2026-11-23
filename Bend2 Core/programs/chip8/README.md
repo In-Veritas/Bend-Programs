@@ -1,8 +1,8 @@
-# CHIP-8 emulator for Bend2 Core
+# CHIP-8 emulator (Bend 2 port of the Bend2 Core emulator)
 
-This is a CHIP-8 emulator written in Bend2 Core. It interprets CHIP-8 bytecode;
-it is not a Bend-to-CHIP-8 compiler. `chip8.bend` itself can be lowered by the
-Core compiler to JavaScript or native C/machine code.
+This is a CHIP-8 emulator written in Bend. It interprets CHIP-8 bytecode; it
+is not a Bend-to-CHIP-8 compiler. It was written for the old bend2-core and is
+now ported to Bend 2.0.40, which compiles it to a native binary (or JS).
 
 The compatibility profile is the original COSMAC VIP CHIP-8: 4 KiB memory,
 program start at `0x200`, sixteen 8-bit V registers, a 12-entry call stack,
@@ -11,25 +11,40 @@ program start at `0x200`, sixteen 8-bit V registers, a 12-entry call stack,
 coordinates are reduced modulo the display dimensions. SUPER-CHIP and XO-CHIP
 extensions are intentionally outside this program.
 
-## Temporary ROM input
+## Usage
 
-Bend2 Core declares effect data but does not yet provide an IO runtime. For
-now, [`rom.bend`](rom.bend) exports `source()`, a whitespace-separated
-hexadecimal `String`. The emulator imports it, parses pairs of hex digits, and
-loads those bytes at CHIP-8 address `0x200`. Replace the string to run another
-ROM; malformed or odd-length hex is rejected.
+```sh
+bend chip8.bend -o /tmp/chip8          # or ./build.sh [output-path]
+/tmp/chip8                             # self-test with the bundled ROM: True{}
+/tmp/chip8 digits.ch8                  # run a ROM file for 1000 instructions
+/tmp/chip8 game.ch8 5000               # ... or for a given instruction budget
+```
 
-**Remove this embedded-ROM bridge when Bend2 Core gains implemented IO.** At
-that point a host/file loader should supply ROM bytes and `rom.bend` should no
-longer be part of the runtime path. The same future host integration can call
-`machine_key` to update the 16-key state and render the exposed 64×32 pixel
-array.
+`bend chip8.bend [rom.ch8 [steps]]` does the same without keeping a binary.
+With a ROM path, `main` reads the raw `.ch8` bytes (at most 3584, the space
+from `0x200` to the end of RAM), loads them at `0x200`, runs the given number
+of instructions and prints the 64×32 framebuffer (`#` lit, `.` dark) followed
+by the machine status, `pc` and `I` in hex. `digits.ch8` is a 36-byte test ROM
+that draws the sixteen font digits in two rows.
 
-The current embedded ROM is a small deterministic smoke program. It exercises
+## Bundled self-test ROM
+
+The old Bend2 Core had no IO runtime, so the ROM had to be embedded as a hex
+`String` in [`rom.bend`](rom.bend). Bend 2 has file IO, so real ROMs now come
+from files and the embedded-ROM bridge is no longer on the runtime path for
+them; `rom.bend` remains only as the self-test fixture used when no ROM path
+is given. The hex parser (pairs of hex digits, any whitespace between them;
+malformed or odd-length text halts with code 5) is kept for that fixture.
+
+There is still no real-time keyboard: `machine_key` is the pure input seam a
+window/keyboard driver (for example Bend's `App.run`) would call to update the
+16-key state, and the framebuffer is exposed through `core_pixel`.
+
+The bundled ROM is a small deterministic smoke program. It exercises
 clear, loads, wrapping 8-bit addition and carry, BCD memory stores,
 call/return, original shift semantics, deterministic random masking, the font
 address instruction, sprite drawing, delay timers, an unpressed-key skip, and
-an infinite jump. `main` runs a fixed instruction budget and returns `True{}`
+an infinite jump. The self-test runs 40 instructions and prints `True{}`
 only when the final registers, memory, framebuffer, index, program counter,
 and stack match the expected state.
 
@@ -70,16 +85,16 @@ hexadecimal):
 
 ## Deterministic headless behavior
 
-- There is no wall clock, so both timers tick once per emulated instruction
-  (and while waiting for a key). A future IO scheduler should drive 60 Hz ticks
-  separately.
+- Both timers tick once per emulated instruction (and while waiting for a
+  key), not at 60 Hz, so runs are reproducible. A real-time driver should
+  tick them from `IO.now` instead.
 - There is no display interrupt, so `Dxyn` completes in one VM step instead of
   waiting for the VIP vertical blank. A future display driver should supply
   that pacing separately.
 - `Cxnn` uses a reproducible xorshift32 generator, making compiled tests stable.
 - `Fx0A` changes the machine to `Waiting`, latches the first pressed key, then
   remains in `Releasing` until that key is released, matching the VIP manual.
-  Without host key updates it remains waiting.
+  Without key updates it remains waiting.
 - Sound is represented by the sound-timer value. No audio is emitted.
 - `0NNN` host-machine calls and invalid opcodes halt with an explicit status.
 
@@ -90,21 +105,30 @@ hex, `6` ROM overflow, and `7` an invalid host-supplied key index.
 
 ## Check and compile
 
-From the sibling `bend2-core` checkout:
-
 ```sh
-bun src/main.ts "../Bend-Programs/Bend2 Core/programs/chip8/chip8.bend"
-bun src/main.ts "../Bend-Programs/Bend2 Core/programs/chip8/chip8.bend" --to /tmp/chip8.js
-bun /tmp/chip8.js
-bun src/main.ts "../Bend-Programs/Bend2 Core/programs/chip8/chip8.bend" --to /tmp/chip8.c
-clang -O2 /tmp/chip8.c -o /tmp/chip8
-/tmp/chip8
+bend chip8.bend --check-only           # ALL PROOFS CHECK
+bend chip8.bend -o /tmp/chip8 && /tmp/chip8
+bend chip8.bend -o /tmp/chip8.js && bun /tmp/chip8.js
 ```
 
-The normalizer and both compiled backends should report `True{}`.
-For the native path alone, `./build.sh [output-path]` performs the C emission
-and clang build; it defaults to `/tmp/bend2-core-chip8`. Set
-`BEND2_CORE_REPO=/path/to/bend2-core` when the sibling checkout is elsewhere.
+The native binary and the JS build both print `True{}`, and print identical
+framebuffers for `digits.ch8`.
+
+## Port notes (bend2-core to Bend 2.0.40)
+
+- The machine is `Data` end to end. Bend's `Array` is an affine `Type`, and a
+  read hands the array back in a pair that only a def parameter may
+  destructure (`(core, v) = core_reg_get(core, x)` is rejected), so RAM,
+  registers, stack, keys and pixels are persistent binary `Mem` trees with the
+  same wrap-around indexing. Reads are plain values on a reusable `+Core`; a
+  write path-copies one spine. The old `U32.copy`/`u32_pair` fan-out is gone.
+- Every branch on a computed value goes through a helper (`branch` with
+  thunks, or a def matching a `Nat`/`Bool` parameter), because Bend matches
+  only parameters and pattern variables.
+- Pair-returning loops became state-passing: sprite drawing threads a
+  `Drawn{core, collision}` value, and the register block moves return the core.
+- Still no `#[halts]` and no `@unsafe`: every loop is structural or counts
+  down a `Nat` fuel.
 
 ## References
 

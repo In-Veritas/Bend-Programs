@@ -4,7 +4,54 @@ This note describes the concrete differences observed while porting the
 programs in this repository. Bend2 Core is a small strict-affine dependent
 language; it is not Bend3 with a compatibility syntax.
 
-## Affinity, demand, and duplication
+## Current toolchain: Bend 2.0.40 (2026-11)
+
+The `bend2-core` compiler (`bun src/main.ts`) no longer exists here. Its direct
+descendant is the released Bend 2.0.40 `bend` CLI, and every program in this
+folder has been ported to it. The sections after this one describe the old
+Core and are kept as the record of why the ports look the way they do; read
+`bend guide` for the current language. Run a port with:
+
+```sh
+bend FILE.bend --check-only     # ALL PROOFS CHECK / SOME PROOFS FAIL
+bend FILE.bend [args]           # check, then run main (IO compiled, a value normalized)
+bend FILE.bend -o /tmp/out      # native binary (clang); -o x.c / -o x.js emit C / JS
+```
+
+What changed from Core to Bend 2.0.40, as met in these ports:
+
+| bend2-core | Bend 2.0.40 |
+|---|---|
+| `type X:` | `type X is Data:` (copyable) or `is Type` (affine) |
+| `U32.from_nat(42n)`, `U32.zero()`, `U32.one()` | U32 literals `42`, `0`, `1` |
+| `U32.shln(n, x)`, `U32.shrn(n, x)` | `U32.shln(x, n)`, `U32.shrn(x, n)` |
+| `U32.copy`/`Nat.copy` and structural copiers | `+x` quantities on Data values (reference-counted) |
+| `match f(x):`, `(a, b) = f(x)` | only parameters and pattern variables are matched or destructured; computed values go to a helper def |
+| `#[halts]` whole-book license | gone; recursion must be structural (`@unsafe` is the per-def escape hatch, unused here) |
+| no parallel primitive | parallel let `a b = f(x) g(y)` |
+| no IO runtime | `IO.print`, `IO.args`, `File.*`, TCP/HTTP, windows, ... |
+| proofs as typed defs | `law name:` claims proven by a `def name(..)` of the same name |
+| C driver prints only String/Bool/Nat/U32/Char | any value, including `{==}` |
+
+Common rewrites:
+
+- A branch on a comparison becomes a helper that matches a `Bool` (or `Cmp`)
+  parameter. When only the chosen branch may run (a recursive insert, a
+  search), the helper takes thunks: `branch(U32.is_le(n, v), u => .., u => ..)`.
+- The old Nat-fuel programs that needed `#[halts]` only because the fuel was
+  copied now take a reusable `+fuel: Nat`; `merge` in `merge_sort` counts down
+  a fuel equal to the total length.
+- Defs are checked in file order and mutual recursion is refused: helpers go
+  first, and a mutually recursive group (the Bend3 `gabs4` tokenizer) becomes
+  one structural def threading a state value.
+- An affine `Array` hands itself back beside every read, and that pair can
+  only be destructured as a def parameter; the CHIP-8 emulator therefore keeps
+  its memories in Data trees so the whole machine is a reusable `+Core`.
+- A multi-scrutinee case cannot list two parenthesised tuple patterns
+  (`case (a, b) (c, d):` is misparsed); write `Tuple{a, b} Tuple{c, d}`
+  (filed as `bugs/multi-match-tuple-pattern-not-split`).
+
+## Affinity, demand, and duplication (bend2-core)
 
 Bend3 can represent a shared value with `+T` and can pass that value repeatedly.
 Bend2 Core permits every **live** binder at most once; it is affine, not linear,
@@ -44,7 +91,7 @@ local binders, not to referencing a closed function many times. Source `+T`
 does not exist in Core; `+` is rejected at parse time, while the internal
 `Many` quantity only appears as an overuse/formation failure.
 
-## Termination and the `#[halts]` license
+## Termination and the `#[halts]` license (bend2-core)
 
 Without a license, a direct recursive call must have the bare top-level
 reference as its application head. Core compares live arguments
@@ -68,7 +115,7 @@ for example, its 4,096-cell initializer builds one decreasing subtree and then
 uses a structural array copier instead of recursively calling `fill` on two
 proof-copies of the predecessor.
 
-## Surface and data model
+## Surface and data model (bend2-core)
 
 | Bend3 | Bend2 Core |
 |---|---|
@@ -91,7 +138,7 @@ Semicolon-free simple lets are term-level; a later destructuring local or
 body-level `match` may require reordering the destructuring first or factoring
 the computation into a helper.
 
-## IO and parallelism
+## IO and parallelism (bend2-core)
 
 `src/base.bend` declares an `IO.OP` effect tree and fiber/channel handle types,
 but it supplies no `IO.print`, filesystem, clock, TCP, HTTP, JSON, or window
@@ -110,7 +157,7 @@ the data representation of such a tree; the C entry driver only accepts
 hex ROM string in an imported module and exposes key/framebuffer state as pure
 data. That bridge is explicitly temporary until Core has real host input.
 
-## Backend model
+## Backend model (bend2-core)
 
 Compilation erases `None` binders, erased constructor fields, proof arguments,
 motives, and equality witnesses (`Rfl` has no useful runtime payload). The JS
@@ -128,7 +175,7 @@ immediately after compilation. The C runtime banner currently says “Bend4
 Runtime”; that is stale naming in this Bend2 Core checkout, not a different
 target.
 
-## Verification strategy
+## Verification strategy (bend2-core)
 
 Every computational port uses a `Bool` self-check rather than relying on the
 printer to display nested `U32`/`Word` encodings. Each was checked with the

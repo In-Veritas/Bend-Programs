@@ -1,40 +1,41 @@
 #!/usr/bin/env bash
-# check.sh -- run every Bend program in a folder and diagnose what happened.
+# check.sh -- run every Bend program in a folder through the installed `bend`
+# CLI (Bend 2.0.40) and diagnose what happened.
 #
-# For each .bend file it walks four stages and reports where it got to:
+# For each .bend file it walks five stages and reports where it got to:
 #
-#   CHECK    parse + typecheck + interpret     (bend f.bend)
-#   COMPILE  emit the standalone C file        (bend f.bend --compile)
-#   BUILD    clang the C file                  (native binary)
-#   RUN      execute the native binary
+#   CHECK   check proofs, types, termination   bend f.bend --check-only
+#   RUN     run main                           bend f.bend [run-args]
+#           (a value main is normalized and printed; an IO main is compiled
+#           and run)
+#   C       emit the standalone C file         bend f.bend -o f.c
+#   BUILD   build a native binary              bend f.bend -o f
+#   NATIVE  execute the native binary          ./f [run-args]
 #
 # A stage only runs if the previous one passed; anything not reached is "-".
-# The DIAGNOSIS column is the interpreted result on success, or the reason it
-# stopped (parse error / type error / linearity / halt / crash / timeout ...).
+# RUN and NATIVE are compared with the file's `# expect:` line, if any, and
+# NATIVE is also compared with RUN. The DIAGNOSIS column shows the result on
+# success, or the reason it stopped.
 #
 # Usage:
 #   ./check.sh [dir]              # default: this script's own directory
 #   ./check.sh -v [dir]           # -v: print full error text for failures
-#   ./check.sh --no-native [dir]  # skip the COMPILE/BUILD/RUN stages
+#   ./check.sh --no-native [dir]  # skip the C/BUILD/NATIVE stages
 #
-# The checker is found at $BEND_REPO/bend-ts/src/bend.ts, where BEND_REPO
-# defaults to this repo. To test against a different checkout (e.g. a worktree
-# of origin/main before you pull):
-#   BEND_REPO=/path/to/other/bend3 ./check.sh
+# `bend` is taken from $BEND if set, else from PATH.
 #
 # Per-file pragmas, read from comment lines anywhere in the file:
-#   # no-halt              pass --no-halt (non-structural or mutual recursion)
-#   # run-args: a.txt b    argv for the native run
-#   # stdin: file.txt      feed this file to the native run's stdin
-#   # skip-native          check only; don't try to compile/build/run
+#   # run-args: a.txt b    argv for RUN and NATIVE (run from the file's dir)
+#   # stdin: file.txt      feed this file to RUN's and NATIVE's stdin
+#   # expect: text         the first line of output RUN and NATIVE must print
+#   # skip-native          check and run only; don't emit C or build
 #
 # NB: written for bash 3.2 -- the version macOS ships. No mapfile, no assoc
 # arrays, and no `set -u` (bash 3.2 treats an empty array as unbound under it).
 set -o pipefail
 
 SELF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BEND_REPO="${BEND_REPO:-$(cd "$SELF_DIR/.." && pwd)}"
-BEND="$BEND_REPO/bend-ts/src/bend.ts"
+BEND="${BEND:-$(command -v bend 2>/dev/null)}"
 
 VERBOSE=0
 NATIVE=1
@@ -43,23 +44,17 @@ for a in "$@"; do
   case "$a" in
     -v|--verbose)   VERBOSE=1 ;;
     --no-native)    NATIVE=0 ;;
-    -h|--help)      sed -n '2,30p' "${BASH_SOURCE[0]}"; exit 0 ;;
+    -h|--help)      sed -n '2,34p' "${BASH_SOURCE[0]}"; exit 0 ;;
     *)              DIR="$a" ;;
   esac
 done
 DIR="${DIR:-$SELF_DIR}"
 DIR="$(cd "$DIR" && pwd)"
 
-CHECK_TIMEOUT=60
-RUN_TIMEOUT=30
+CHECK_TIMEOUT=120
+RUN_TIMEOUT=60
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
-
-# Current Bend3 resolves every import relative to the importing file and has
-# no package search path. Stage the selected folder beside the current
-# checkout's bend-base; the source folder itself remains the source of truth.
-ln -s "$BEND_REPO/bend-base" "$WORK/bend-base"
-ln -s "$DIR" "$WORK/programas_gabriel"
 
 if [ -t 1 ]; then
   R=$'\e[31m'; G=$'\e[32m'; Y=$'\e[33m'; B=$'\e[1m'; D=$'\e[2m'; Z=$'\e[0m'
@@ -67,9 +62,9 @@ else
   R=""; G=""; Y=""; B=""; D=""; Z=""
 fi
 
-if [ ! -f "$BEND" ]; then
-  echo "${R}no checker at $BEND${Z}" >&2
-  echo "set BEND_REPO to a bend3 checkout, e.g. BEND_REPO=/path/to/bend3 $0" >&2
+if [ -z "$BEND" ] || [ ! -x "$BEND" ]; then
+  echo "${R}no bend found${Z} -- install it (curl -fsSL https://bend-lang.com/install.sh | sh)" >&2
+  echo "or point BEND at the binary: BEND=/path/to/bend $0" >&2
   exit 1
 fi
 
@@ -82,44 +77,25 @@ run_to () { local s="$1"; shift; if [ -n "$TO" ]; then "$TO" "$s" "$@"; else "$@
 HAVE_CLANG=1
 command -v clang >/dev/null 2>&1 || HAVE_CLANG=0
 
-# Vintage probe. Current programs use function-form main and the current CLI.
-PROBE="$WORK/probe.bend"
-printf 'def f(x: U32) -> U32:\n  x + 1\n\ndef main() -> U32:\n  f(1)\n' >"$PROBE"
-if ! run_to 30 bun "$BEND" "$PROBE" >/dev/null 2>&1; then
-  echo "${R}${B}this checker predates the new syntax${Z}" >&2
-  echo "  $BEND" >&2
-  echo "  rejects a minimal current-syntax program, so it cannot parse this folder." >&2
-  echo >&2
-  echo "  fix: ${B}git pull${Z} in $BEND_REPO   (see MIGRATION.md §0)" >&2
-  echo "  or:  point BEND_REPO at a checkout that has it:" >&2
-  echo "       ${D}BEND_REPO=/path/to/new/bend3 $0${Z}" >&2
-  exit 2
-fi
-
 # classify <exit> <output> -- turn a bend failure into a short diagnosis
 classify () {
-  local code="$1" out="$2"
-  if [ "$code" -eq 124 ]; then echo "timeout (>${CHECK_TIMEOUT}s)"; return; fi
-  local first
-  first="$(printf '%s' "$out" | grep -v '^$' | head -1)"
+  local code="$1" out="$2" first
+  if [ "$code" -eq 124 ]; then echo "timeout"; return; fi
+  if [ "$code" -ge 128 ]; then echo "signal $((code-128))"; return; fi
+  first="$(printf '%s\n' "$out" | grep -v '^$' | grep -vE '^(SOME PROOFS FAIL|Error:)$' | head -1)"
+  local loc
+  loc="$(printf '%s\n' "$out" | grep -m1 '^Location:' | sed -E 's/^Location:[[:space:]]*//')"
   case "$out" in
-    *"Location:"*|*"expected "*)
-      case "$first" in
-        expected*)                     echo "parse error: $first"; return ;;
-      esac ;;
+    *"- expected :"*)
+      local e
+      e="$(printf '%s\n' "$out" | grep -m1 -- '- expected :' | sed 's/^- expected : //')"
+      echo "${loc:+in $loc: }expected ${e:0:64}"; return ;;
+    *"- message  :"*)
+      echo "$(printf '%s\n' "$out" | grep -m1 -- '- message  :' | sed 's/^- message  : //')${loc:+ (in $loc)}"; return ;;
   esac
   case "$first" in
-    Mismatch*)                         echo "type error (Mismatch)" ;;
-    Usage*)                            echo "linearity error (Usage)" ;;
-    NotBound*)                         echo "unbound name" ;;
-    NonInfer*)                         echo "not inferable (NonInfer)" ;;
-    "not Data"*)                       echo "sort error: $first" ;;
-    "non-terminating recursion"*)      echo "halt: $first" ;;
-    "duplicate buffer key"*)           echo "array literal: $first" ;;
-    flatten*)                          echo "match error: $first" ;;
-    *"stack overflow"*)                echo "stack overflow" ;;
-    "")                                echo "failed (no output, exit $code)" ;;
-    *)                                 echo "$first" ;;
+    "")  echo "failed (no output, exit $code)" ;;
+    *)   echo "$first" ;;
   esac
 }
 
@@ -130,10 +106,9 @@ has_pragma () { grep -qE "^#[[:space:]]*$1[[:space:]]*$" "$2" 2>/dev/null; }
 # escape bytes count toward %-Ns and wreck the columns.
 colour_of () {
   case "$1" in
-    ok)               printf '%s' "$G" ;;
-    fail|crash|hang)  printf '%s' "$R" ;;
-    n/a)              printf '%s' "$Y" ;;
-    *)                printf '%s' "$D" ;;
+    ok)                    printf '%s' "$G" ;;
+    fail|crash|hang|diff)  printf '%s' "$R" ;;
+    *)                     printf '%s' "$D" ;;
   esac
 }
 cell () { # <text> <width> [colour]
@@ -141,13 +116,24 @@ cell () { # <text> <width> [colour]
   pad=$(( w - ${#txt} )); [ "$pad" -lt 0 ] && pad=0
   printf '%s%s%s%*s' "$col" "$txt" "$Z" "$pad" ""
 }
-row () { # <name> <check> <compile> <build> <run> <diagnosis>
-  cell "$1" 19
-  cell "$2" 8  "$(colour_of "$2")"
-  cell "$3" 9  "$(colour_of "$3")"
-  cell "$4" 7  "$(colour_of "$4")"
-  cell "$5" 6  "$(colour_of "$5")"
-  printf '%s\n' "$6"
+row () { # <name> <check> <run> <c> <build> <native> <diagnosis>
+  cell "$1" 16
+  cell "$2" 7  "$(colour_of "$2")"
+  cell "$3" 6  "$(colour_of "$3")"
+  cell "$4" 6  "$(colour_of "$4")"
+  cell "$5" 7  "$(colour_of "$5")"
+  cell "$6" 8  "$(colour_of "$6")"
+  printf '%s\n' "$7"
+}
+
+# run_prog <timeout> <dir> <stdin-file|""> <cmd...> -- runs in <dir>
+run_prog () {
+  local t="$1" d="$2" sf="$3"; shift 3
+  if [ -n "$sf" ]; then
+    (cd "$d" && run_to "$t" "$@" <"$sf" 2>&1)
+  else
+    (cd "$d" && run_to "$t" "$@" </dev/null 2>&1)
+  fi
 }
 
 FILES=()
@@ -156,112 +142,118 @@ if [ "${#FILES[@]}" -eq 0 ]; then
   echo "no .bend files in $DIR"; exit 0
 fi
 
-REV="$(git -C "$BEND_REPO" rev-parse --short HEAD 2>/dev/null || echo '?')"
-echo "${B}bend${Z}  $BEND ${D}($REV)${Z}"
+echo "${B}bend${Z}  $BEND ${D}($("$BEND" version 2>/dev/null | head -1))${Z}"
 echo "${B}dir${Z}   $DIR"
-[ "$HAVE_CLANG" -eq 0 ] && echo "${Y}note${Z}  clang not found -- BUILD/RUN skipped"
+[ "$HAVE_CLANG" -eq 0 ] && echo "${Y}note${Z}  clang not found -- C/BUILD/NATIVE skipped"
 echo
 
-printf '%s' "$B"; row PROGRAM CHECK COMPILE BUILD RUN DIAGNOSIS; printf '%s' "$Z"
+printf '%s' "$B"; row PROGRAM CHECK RUN C BUILD NATIVE DIAGNOSIS; printf '%s' "$Z"
 printf '%s\n' "$(printf '%.0s-' {1..96})"
 
 FAILED=(); DETAIL=()
 n_ok=0; n_bad=0
-c_comp=0; c_build=0; c_run=0; c_na=0; c_runbad=0
+c_run=0; c_c=0; c_build=0; c_native=0; n_err=0
+
+fail_note () { FAILED+=("$1"); DETAIL+=("$2"); n_err=$((n_err+1)); }
 
 for f in "${FILES[@]}"; do
   name="$(basename "$f" .bend)"
-  s_check="-"; s_comp="-"; s_build="-"; s_run="-"; diag=""
+  fdir="$(dirname "$f")"
+  s_check="-"; s_run="-"; s_c="-"; s_build="-"; s_native="-"; diag=""
 
-  flags=()
-  has_pragma "no-halt" "$f" && flags+=(--no-halt)
-  staged="$WORK/programas_gabriel/$(basename "$f")"
+  args_line="$(pragma "run-args" "$f")"
+  stdin_file="$(pragma "stdin" "$f")"
+  expect="$(pragma "expect" "$f")"
+  rargs=()
+  # shellcheck disable=SC2206
+  [ -n "$args_line" ] && rargs=($args_line)
+  sf=""
+  if [ -n "$stdin_file" ]; then
+    case "$stdin_file" in /*) sf="$stdin_file" ;; *) sf="$fdir/$stdin_file" ;; esac
+  fi
 
   # --- CHECK -------------------------------------------------------------
-  out="$(run_to "$CHECK_TIMEOUT" bun "$BEND" "$staged" "${flags[@]}" --eval 2>&1)"; code=$?
-  if [ $code -ne 0 ]; then
+  out="$(run_to "$CHECK_TIMEOUT" "$BEND" "$f" --check-only 2>&1)"; code=$?
+  if [ $code -ne 0 ] || ! printf '%s' "$out" | grep -q '^ALL PROOFS CHECK'; then
     s_check="fail"
     diag="$(classify $code "$out")"
-    FAILED+=("$name"); DETAIL+=("$out"); n_bad=$((n_bad+1))
-    row "$name" "$s_check" "$s_comp" "$s_build" "$s_run" "$diag"
+    fail_note "$name (check)" "$out"; n_bad=$((n_bad+1))
+    row "$name" "$s_check" "$s_run" "$s_c" "$s_build" "$s_native" "$diag"
     continue
   fi
-  s_check="ok"
-  result="$(printf '%s' "$out" | head -1)"
-  diag="$result"
-  n_ok=$((n_ok+1))
+  s_check="ok"; n_ok=$((n_ok+1))
 
-  if [ "$NATIVE" -eq 0 ] || has_pragma "skip-native" "$f"; then
-    row "$name" "$s_check" "-" "-" "-" "${diag:0:52}"
+  # --- RUN ---------------------------------------------------------------
+  out="$(run_prog "$RUN_TIMEOUT" "$fdir" "$sf" "$BEND" "$f" "${rargs[@]}")"; code=$?
+  result="$(printf '%s\n' "$out" | grep -v '^note: no usable GPU' | head -1)"
+  if [ $code -ne 0 ]; then
+    s_run="fail"; diag="run: $(classify $code "$out")"
+    fail_note "$name (run)" "$out"
+    row "$name" "$s_check" "$s_run" "$s_c" "$s_build" "$s_native" "$diag"
+    continue
+  fi
+  if [ -n "$expect" ] && [ "$result" != "$expect" ]; then
+    s_run="diff"; diag="$result ${D}| expected: $expect${Z}"
+    fail_note "$name (run)" "got:      $result"$'\n'"expected: $expect"
+    row "$name" "$s_check" "$s_run" "$s_c" "$s_build" "$s_native" "$diag"
+    continue
+  fi
+  s_run="ok"; c_run=$((c_run+1)); diag="$result"
+
+  if [ "$NATIVE" -eq 0 ] || [ "$HAVE_CLANG" -eq 0 ] || has_pragma "skip-native" "$f"; then
+    row "$name" "$s_check" "$s_run" "$s_c" "$s_build" "$s_native" "${diag:0:60}"
     continue
   fi
 
-  # --- COMPILE -----------------------------------------------------------
+  # --- C -----------------------------------------------------------------
   cfile="$WORK/$name.c"
-  cout="$(run_to "$CHECK_TIMEOUT" bun "$BEND" "$staged" "${flags[@]}" --compile 2>&1 >"$cfile")"; code=$?
+  cout="$(run_to "$CHECK_TIMEOUT" "$BEND" "$f" -o "$cfile" 2>&1)"; code=$?
   if [ $code -ne 0 ] || [ ! -s "$cfile" ]; then
-    s_comp="fail"
-    diag="$result ${D}| compile: $(classify $code "$cout")${Z}"
-    row "$name" "$s_check" "$s_comp" "-" "-" "$diag"
+    s_c="fail"; diag="$result ${D}| C: $(classify $code "$cout")${Z}"
+    fail_note "$name (C)" "$cout"
+    row "$name" "$s_check" "$s_run" "$s_c" "$s_build" "$s_native" "$diag"
     continue
   fi
-  s_comp="ok"; c_comp=$((c_comp+1))
-
-  if [ "$HAVE_CLANG" -eq 0 ]; then
-    row "$name" "$s_check" "$s_comp" "-" "-" "${diag:0:52}"
-    continue
-  fi
+  s_c="ok"; c_c=$((c_c+1))
 
   # --- BUILD -------------------------------------------------------------
-  bin="$WORK/$name.bin"
-  berr="$(run_to "$CHECK_TIMEOUT" bun "$BEND" "$staged" "${flags[@]}" -o "$bin" 2>&1)"; code=$?
-  if [ $code -ne 0 ]; then
+  mkdir -p "$WORK/bin"; bin="$WORK/bin/$name"   # no extension: a native binary
+  bout="$(run_to "$CHECK_TIMEOUT" "$BEND" "$f" -o "$bin" 2>&1)"; code=$?
+  if [ $code -ne 0 ] || [ ! -x "$bin" ]; then
     s_build="fail"
-    diag="$result ${D}| clang: $(printf '%s' "$berr" | grep -m1 error: | head -1)${Z}"
-    FAILED+=("$name (clang)"); DETAIL+=("$berr")
-    row "$name" "$s_check" "$s_comp" "$s_build" "-" "$diag"
+    diag="$result ${D}| build: $(printf '%s\n' "$bout" | grep -m1 'error' || classify $code "$bout")${Z}"
+    fail_note "$name (build)" "$bout"
+    row "$name" "$s_check" "$s_run" "$s_c" "$s_build" "$s_native" "$diag"
     continue
   fi
   s_build="ok"; c_build=$((c_build+1))
 
-  # --- RUN ---------------------------------------------------------------
-  args_line="$(pragma "run-args" "$f")"
-  stdin_file="$(pragma "stdin" "$f")"
-  rargs=()
-  if [ -n "$args_line" ]; then
-    # pragma paths are relative to the .bend file
-    for w in $args_line; do
-      case "$w" in /*) rargs+=("$w") ;; *) rargs+=("$(dirname "$f")/$w") ;; esac
-    done
-  fi
-  if [ -n "$stdin_file" ]; then
-    case "$stdin_file" in /*) sf="$stdin_file" ;; *) sf="$(dirname "$f")/$stdin_file" ;; esac
-    rout="$(run_to "$RUN_TIMEOUT" "$bin" "${rargs[@]}" <"$sf" 2>&1)"; code=$?
-  else
-    rout="$(run_to "$RUN_TIMEOUT" "$bin" "${rargs[@]}" </dev/null 2>&1)"; code=$?
-  fi
-
-  native="$(printf '%s' "$rout" | grep -v '^note: no usable GPU' | head -1)"
+  # --- NATIVE ------------------------------------------------------------
+  rout="$(run_prog "$RUN_TIMEOUT" "$fdir" "$sf" "$bin" "${rargs[@]}")"; code=$?
+  native="$(printf '%s\n' "$rout" | grep -v '^note: no usable GPU' | head -1)"
   if [ $code -eq 124 ]; then
-    s_run="hang"; c_runbad=$((c_runbad+1)); diag="$result ${D}| native: timeout${Z}"
+    s_native="hang"; diag="$result ${D}| native: timeout${Z}"
+    fail_note "$name (native)" "$rout"
   elif [ $code -ge 128 ]; then
-    s_run="crash"; c_runbad=$((c_runbad+1)); diag="$result ${D}| native: signal $((code-128))${Z}"
-    FAILED+=("$name (native)"); DETAIL+=("$rout")
-  elif [ "$code" -ne 0 ]; then
-    s_run="fail"; c_runbad=$((c_runbad+1)); diag="$result ${D}| native: exit $code${Z}"
-    FAILED+=("$name (native)"); DETAIL+=("$rout")
+    s_native="crash"; diag="$result ${D}| native: signal $((code-128))${Z}"
+    fail_note "$name (native)" "$rout"
+  elif [ $code -ne 0 ]; then
+    s_native="fail"; diag="$result ${D}| native: exit $code${Z}"
+    fail_note "$name (native)" "$rout"
+  elif [ "$native" != "$result" ]; then
+    s_native="diff"; diag="$result ${D}| native: ${native:0:40}${Z}"
+    fail_note "$name (native)" "bend:   $result"$'\n'"native: $native"
   else
-    s_run="ok"; c_run=$((c_run+1))
-    if [ -n "$native" ]; then diag="$result ${D}| native: ${native:0:34}${Z}"; fi
+    s_native="ok"; c_native=$((c_native+1)); diag="${result:0:60}"
   fi
-  row "$name" "$s_check" "$s_comp" "$s_build" "$s_run" "$diag"
+  row "$name" "$s_check" "$s_run" "$s_c" "$s_build" "$s_native" "$diag"
 done
 
 echo
 n_tot=$((n_ok+n_bad))
-echo "${B}$n_tot programs${Z}  check ${G}$n_ok ok${Z}$([ $n_bad -gt 0 ] && printf ", %s%s failed%s" "$R" "$n_bad" "$Z")"
+echo "${B}$n_tot programs${Z}  check ${G}$n_ok ok${Z}$([ $n_bad -gt 0 ] && printf ", %s%s failed%s" "$R" "$n_bad" "$Z")  |  run $c_run ok"
 if [ "$NATIVE" -eq 1 ]; then
-  echo "${D}             compile $c_comp ok  |  build $c_build ok  |  run $c_run ok, $c_na n/a$([ $c_runbad -gt 0 ] && printf ", %s failed" "$c_runbad")${Z}"
+  echo "${D}             C $c_c ok  |  build $c_build ok  |  native $c_native ok${Z}"
 fi
 
 if [ "$VERBOSE" -eq 1 ] && [ "${#FAILED[@]}" -gt 0 ]; then
@@ -274,4 +266,4 @@ elif [ "${#FAILED[@]}" -gt 0 ]; then
   echo "${D}re-run with -v for full error text${Z}"
 fi
 
-[ "$n_bad" -eq 0 ]
+[ "$n_err" -eq 0 ]

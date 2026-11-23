@@ -1,18 +1,18 @@
 import Base
 
-# Pure deterministic classic Belote for Bend2 Core.  The complete report is
+# Pure deterministic classic Belote (Bend 2.0.40).  The complete report is
 # computed before the browser starts: JavaScript only decodes and schedules it.
 
 # Types
 # =====
 
-type PlayedCard:
+type PlayedCard is Data:
   PlayedCard{seat: U32, card: U32}
 
-type PlayerView:
-  PlayerView{seat: U32, name: String, personality: String, hand: List<U32>}
+type PlayerView is Data:
+  PlayerView{seat: U32, name: String, personality: String, hand: +List<U32>}
 
-type Step:
+type Step is Data:
   Step{
     phase: String,
     note: String,
@@ -22,11 +22,11 @@ type Step:
     trick: U32,
     north_south: U32,
     east_west: U32,
-    players: List<PlayerView>,
-    table: List<PlayedCard>
+    players: +List<PlayerView>,
+    table: +List<PlayedCard>
   }
 
-type BeloteReport:
+type BeloteReport is Data:
   BeloteReport{
     seed: U32,
     dealer: U32,
@@ -38,7 +38,7 @@ type BeloteReport:
     score_ns: U32,
     score_ew: U32,
     outcome: String,
-    steps: List<Step>
+    steps: +List<Step>
   }
 
 # Constants
@@ -48,242 +48,216 @@ type BeloteReport:
 # hearts, spades and ranks 7, 8, 9, jack, queen, king, ten, ace.  The embedded
 # deck below is the Fisher-Yates result for seed 1.  Hearts (suit 2) are trump.
 
-# Belote-Func
-# ===========
-
-def u32_func(value: Nat) -> U32:
+def u32(value: Nat) -> U32:
   U32.from_nat(value)
 
-def nat_pair_func(value: Nat) -> Nat & Nat:
-  ((a, ea), (b, eb)) = Nat.copy(value)
-  (a, b)
+# Quotient and remainder of a Nat index by four, as Nats (for table lookups).
+def div4(index: Nat) -> Nat:
+  U32.to_nat((u32(index) / 4 : U32))
 
-def nat_four_func(value: Nat) -> Nat & (Nat & (Nat & Nat)):
-  (left, right) = nat_pair_func(value)
-  (a, b) = nat_pair_func(left)
-  (c, d) = nat_pair_func(right)
-  (a, (b, (c, d)))
+def mod4(index: Nat) -> Nat:
+  U32.to_nat((u32(index) % 4 : U32))
 
-def nat_eight_func(value: Nat) -> Nat & (Nat & (Nat & (Nat & (Nat & (Nat & (Nat & Nat)))))):
-  (left, right) = nat_pair_func(value)
-  (a, (b, (c, d))) = nat_four_func(left)
-  (e, (f, (g, h))) = nat_four_func(right)
-  (a, (b, (c, (d, (e, (f, (g, h)))))))
-
-def deck_card_func(index: Nat) -> U32:
+def deck_card(index: Nat) -> U32:
   match index:
-    case 0n: u32_func(1n)
-    case 1n: u32_func(28n)
-    case 2n: u32_func(27n)
-    case 3n: u32_func(26n)
-    case 4n: u32_func(3n)
-    case 5n: u32_func(7n)
-    case 6n: u32_func(6n)
-    case 7n: u32_func(14n)
-    case 8n: u32_func(5n)
-    case 9n: u32_func(11n)
-    case 10n: u32_func(17n)
-    case 11n: u32_func(22n)
-    case 12n: u32_func(29n)
-    case 13n: u32_func(19n)
-    case 14n: u32_func(18n)
-    case 15n: u32_func(23n)
-    case 16n: u32_func(20n)
-    case 17n: u32_func(25n)
-    case 18n: u32_func(10n)
-    case 19n: u32_func(24n)
-    case 20n: u32_func(9n)
-    case 21n: u32_func(0n)
-    case 22n: u32_func(15n)
-    case 23n: u32_func(31n)
-    case 24n: u32_func(30n)
-    case 25n: u32_func(4n)
-    case 26n: u32_func(13n)
-    case 27n: u32_func(16n)
-    case 28n: u32_func(2n)
-    case 29n: u32_func(8n)
-    case 30n: u32_func(21n)
-    case other: u32_func(12n)
+    case 0n: 1
+    case 1n: 28
+    case 2n: 27
+    case 3n: 26
+    case 4n: 3
+    case 5n: 7
+    case 6n: 6
+    case 7n: 14
+    case 8n: 5
+    case 9n: 11
+    case 10n: 17
+    case 11n: 22
+    case 12n: 29
+    case 13n: 19
+    case 14n: 18
+    case 15n: 23
+    case 16n: 20
+    case 17n: 25
+    case 18n: 10
+    case 19n: 24
+    case 20n: 9
+    case 21n: 0
+    case 22n: 15
+    case 23n: 31
+    case 24n: 30
+    case 25n: 4
+    case 26n: 13
+    case 27n: 16
+    case 28n: 2
+    case 29n: 8
+    case 30n: 21
+    case other: 12
 
-def seat_hand_func(seat: Nat) -> List<U32>:
+def seat_hand(seat: Nat) -> +List<U32>:
   match seat:
     case 0n:
-      Con{deck_card_func(0n), Con{deck_card_func(1n), Con{deck_card_func(2n), Con{deck_card_func(3n), Con{deck_card_func(4n), Con{deck_card_func(5n), Con{deck_card_func(6n), Con{deck_card_func(7n), Nil{}}}}}}}}}
+      Con{deck_card(0n), Con{deck_card(1n), Con{deck_card(2n), Con{deck_card(3n), Con{deck_card(4n), Con{deck_card(5n), Con{deck_card(6n), Con{deck_card(7n), Nil{}}}}}}}}}
     case 1n:
-      Con{deck_card_func(8n), Con{deck_card_func(9n), Con{deck_card_func(10n), Con{deck_card_func(11n), Con{deck_card_func(12n), Con{deck_card_func(13n), Con{deck_card_func(14n), Con{deck_card_func(15n), Nil{}}}}}}}}}
+      Con{deck_card(8n), Con{deck_card(9n), Con{deck_card(10n), Con{deck_card(11n), Con{deck_card(12n), Con{deck_card(13n), Con{deck_card(14n), Con{deck_card(15n), Nil{}}}}}}}}}
     case 2n:
-      Con{deck_card_func(16n), Con{deck_card_func(17n), Con{deck_card_func(18n), Con{deck_card_func(19n), Con{deck_card_func(20n), Con{deck_card_func(21n), Con{deck_card_func(22n), Con{deck_card_func(23n), Nil{}}}}}}}}}
+      Con{deck_card(16n), Con{deck_card(17n), Con{deck_card(18n), Con{deck_card(19n), Con{deck_card(20n), Con{deck_card(21n), Con{deck_card(22n), Con{deck_card(23n), Nil{}}}}}}}}}
     case other:
-      Con{deck_card_func(24n), Con{deck_card_func(25n), Con{deck_card_func(26n), Con{deck_card_func(27n), Con{deck_card_func(28n), Con{deck_card_func(29n), Con{deck_card_func(30n), Con{deck_card_func(31n), Nil{}}}}}}}}}
+      Con{deck_card(24n), Con{deck_card(25n), Con{deck_card(26n), Con{deck_card(27n), Con{deck_card(28n), Con{deck_card(29n), Con{deck_card(30n), Con{deck_card(31n), Nil{}}}}}}}}}
 
 # This sequence is produced by four deterministic policies.  At every turn the
 # policy first constructs the legal set: follow suit; when trump is led, rise
 # when possible; when void and an opponent is winning, cut and overtrump when
 # possible.  Trick three visibly exercises both mandatory cut and overtrump.
-def play_card_func(index: Nat) -> U32:
+def play_card(index: Nat) -> U32:
   match index:
-    case 0n: u32_func(7n)
-    case 1n: u32_func(5n)
-    case 2n: u32_func(0n)
-    case 3n: u32_func(4n)
-    case 4n: u32_func(14n)
-    case 5n: u32_func(11n)
-    case 6n: u32_func(9n)
-    case 7n: u32_func(13n)
-    case 8n: u32_func(6n)
-    case 9n: u32_func(17n)
-    case 10n: u32_func(20n)
-    case 11n: u32_func(2n)
-    case 12n: u32_func(24n)
-    case 13n: u32_func(30n)
-    case 14n: u32_func(28n)
-    case 15n: u32_func(29n)
-    case 16n: u32_func(12n)
-    case 17n: u32_func(3n)
-    case 18n: u32_func(22n)
-    case 19n: u32_func(10n)
-    case 20n: u32_func(23n)
-    case 21n: u32_func(25n)
-    case 22n: u32_func(21n)
-    case 23n: u32_func(27n)
-    case 24n: u32_func(18n)
-    case 25n: u32_func(31n)
-    case 26n: u32_func(16n)
-    case 27n: u32_func(26n)
-    case 28n: u32_func(19n)
-    case 29n: u32_func(15n)
-    case 30n: u32_func(8n)
-    case other: u32_func(1n)
+    case 0n: 7
+    case 1n: 5
+    case 2n: 0
+    case 3n: 4
+    case 4n: 14
+    case 5n: 11
+    case 6n: 9
+    case 7n: 13
+    case 8n: 6
+    case 9n: 17
+    case 10n: 20
+    case 11n: 2
+    case 12n: 24
+    case 13n: 30
+    case 14n: 28
+    case 15n: 29
+    case 16n: 12
+    case 17n: 3
+    case 18n: 22
+    case 19n: 10
+    case 20n: 23
+    case 21n: 25
+    case 22n: 21
+    case 23n: 27
+    case 24n: 18
+    case 25n: 31
+    case 26n: 16
+    case 27n: 26
+    case 28n: 19
+    case 29n: 15
+    case 30n: 8
+    case other: 1
 
-def play_actor_func(index: Nat) -> U32:
+def play_actor(index: Nat) -> U32:
   match index:
-    case 0n: u32_func(0n)
-    case 1n: u32_func(1n)
-    case 2n: u32_func(2n)
-    case 3n: u32_func(3n)
-    case 4n: u32_func(0n)
-    case 5n: u32_func(1n)
-    case 6n: u32_func(2n)
-    case 7n: u32_func(3n)
-    case 8n: u32_func(0n)
-    case 9n: u32_func(1n)
-    case 10n: u32_func(2n)
-    case 11n: u32_func(3n)
-    case 12n: u32_func(2n)
-    case 13n: u32_func(3n)
-    case 14n: u32_func(0n)
-    case 15n: u32_func(1n)
-    case 16n: u32_func(3n)
-    case 17n: u32_func(0n)
-    case 18n: u32_func(1n)
-    case 19n: u32_func(2n)
-    case 20n: u32_func(1n)
-    case 21n: u32_func(2n)
-    case 22n: u32_func(3n)
-    case 23n: u32_func(0n)
-    case 24n: u32_func(1n)
-    case 25n: u32_func(2n)
-    case 26n: u32_func(3n)
-    case 27n: u32_func(0n)
-    case 28n: u32_func(1n)
-    case 29n: u32_func(2n)
-    case 30n: u32_func(3n)
-    case other: u32_func(0n)
+    case 0n: 0
+    case 1n: 1
+    case 2n: 2
+    case 3n: 3
+    case 4n: 0
+    case 5n: 1
+    case 6n: 2
+    case 7n: 3
+    case 8n: 0
+    case 9n: 1
+    case 10n: 2
+    case 11n: 3
+    case 12n: 2
+    case 13n: 3
+    case 14n: 0
+    case 15n: 1
+    case 16n: 3
+    case 17n: 0
+    case 18n: 1
+    case 19n: 2
+    case 20n: 1
+    case 21n: 2
+    case 22n: 3
+    case 23n: 0
+    case 24n: 1
+    case 25n: 2
+    case 26n: 3
+    case 27n: 0
+    case 28n: 1
+    case 29n: 2
+    case 30n: 3
+    case other: 0
 
-def player_name_func(seat: Nat) -> String:
+def player_name(seat: Nat) -> String:
   match seat:
     case 0n: "Luc Ledger"
     case 1n: "Mireille Coeur"
     case 2n: "Noe Calcul"
     case other: "Solange Patience"
 
-def player_personality_func(seat: Nat) -> String:
+def player_personality(seat: Nat) -> String:
   match seat:
     case 0n: "measured opening leader"
     case 1n: "bold trump collector and taker"
     case 2n: "precise overtrumping defender"
     case other: "patient counterplayer"
 
-def is_played_before_func(fuel: Nat, index: Nat, card: U32) -> Bool:
+def is_played_before(fuel: Nat, +index: Nat, +card: U32) -> Bool:
   match fuel:
     case 0n:
       False{}
     case 1n+pred:
-      ((i0, ei0), (i1, ei1)) = Nat.copy(index)
-      ((c0, ec0), (c1, ec1)) = U32.copy(card)
-      match U32.is_eq(c0, play_card_func(i0)):
-        case False{}:
-          result = is_played_before_func(pred, 1n+i1, c1)
-          result
-        case True{}:
-          True{}
+      U32.is_eq(card, play_card(index)) || is_played_before(pred, 1n+index, card)
 
-def remaining_decide_func(seen: Bool, card: U32, rest: List<U32>) -> List<U32>:
+def remaining_decide(seen: Bool, card: U32, rest: +List<U32>) -> +List<U32>:
   match seen:
     case False{}:
       Con{card, rest}
     case True{}:
       rest
 
-def remaining_cards_func(cards: List<U32>, count: Nat) -> List<U32>:
+# The cards of `cards` not among the first `count` plays.
+def remaining_cards(cards: +List<U32>, +count: Nat) -> +List<U32>:
   match cards:
     case Nil{}:
       Nil{}
-    case Con{head, tail}:
-      ((n0, en0), (n1, en1)) = Nat.copy(count)
-      ((c0, ec0), (c1, ec1)) = U32.copy(head)
-      seen = is_played_before_func(n0, 0n, c0)
-      rest = remaining_cards_func(tail, n1)
-      remaining_decide_func(seen, c1, rest)
+    case Con{+head, tail}:
+      remaining_decide(is_played_before(count, 0n, head), head, remaining_cards(tail, count))
 
-def remaining_hand_func(seat: Nat, count: Nat) -> List<U32>:
-  hand = seat_hand_func(seat)
-  result = remaining_cards_func(hand, count)
-  result
+def remaining_hand(seat: Nat, +count: Nat) -> +List<U32>:
+  remaining_cards(seat_hand(seat), count)
 
-def player_func(seat: Nat, count: Nat) -> PlayerView:
-  (s0, (s1, (s2, s3))) = nat_four_func(seat)
-  PlayerView{u32_func(s0), player_name_func(s1), player_personality_func(s2), remaining_hand_func(s3, count)}
+def player(+seat: Nat, +count: Nat) -> PlayerView:
+  PlayerView{u32(seat), player_name(seat), player_personality(seat), remaining_hand(seat, count)}
 
-def players_func(count: Nat) -> List<PlayerView>:
-  (n0, (n1, (n2, n3))) = nat_four_func(count)
-  Con{player_func(0n, n0), Con{player_func(1n, n1), Con{player_func(2n, n2), Con{player_func(3n, n3), Nil{}}}}}
+def players(+count: Nat) -> +List<PlayerView>:
+  [player(0n, count), player(1n, count), player(2n, count), player(3n, count)]
 
-def table_go_func(fuel: Nat, start: Nat) -> List<PlayedCard>:
+def table_go(fuel: Nat, +start: Nat) -> +List<PlayedCard>:
   match fuel:
     case 0n:
       Nil{}
     case 1n+pred:
-      (s0, (s1, (s2, s3))) = nat_four_func(start)
-      tail = table_go_func(pred, 1n+s3)
-      Con{PlayedCard{play_actor_func(s0), play_card_func(s1)}, tail}
+      Con{PlayedCard{play_actor(start), play_card(start)}, table_go(pred, 1n+start)}
 
-def table_func(index: Nat) -> List<PlayedCard>:
-  ((a, ea), (b, eb)) = U32.copy(u32_func(index))
-  completed = U32.div(a, u32_func(4n))
-  offset = U32.mod(b, u32_func(4n))
-  start = U32.mul(completed, u32_func(4n))
-  table = table_go_func(1n+U32.to_nat(offset), U32.to_nat(start))
-  table
+# The cards of the current trick, up to and including play `index`.
+def table(+index: Nat) -> +List<PlayedCard>:
+  table_go(1n+mod4(index), U32.to_nat((u32(div4(index)) * 4 : U32)))
 
-def phase_info_func(index: Nat) -> String & U32:
-  match U32.to_nat(U32.div(u32_func(index), u32_func(4n))):
-    case 0n: ("Trick 1", u32_func(1n))
-    case 1n: ("Trick 2", u32_func(2n))
-    case 2n: ("Trick 3", u32_func(3n))
-    case 3n: ("Trick 4", u32_func(4n))
-    case 4n: ("Trick 5", u32_func(5n))
-    case 5n: ("Trick 6", u32_func(6n))
-    case 6n: ("Trick 7", u32_func(7n))
-    case other: ("Trick 8", u32_func(8n))
+def phase_of_trick(trick: Nat) -> String & U32:
+  match trick:
+    case 0n: ("Trick 1", 1)
+    case 1n: ("Trick 2", 2)
+    case 2n: ("Trick 3", 3)
+    case 3n: ("Trick 4", 4)
+    case 4n: ("Trick 5", 5)
+    case 5n: ("Trick 6", 6)
+    case 6n: ("Trick 7", 7)
+    case other: ("Trick 8", 8)
 
-def action_func(index: Nat) -> String:
-  match U32.to_nat(U32.mod(u32_func(index), u32_func(4n))):
+def phase_info(index: Nat) -> String & U32:
+  phase_of_trick(div4(index))
+
+def action_of_offset(offset: Nat) -> String:
+  match offset:
     case 0n: "lead"
     case 3n: "complete trick"
     case other: "play"
 
-def trick_end_note_func(trick: Nat) -> String:
+def action(index: Nat) -> String:
+  action_of_offset(mod4(index))
+
+def trick_end_note(trick: Nat) -> String:
   match trick:
     case 0n: "Luc wins trick one for North-South: 18 points."
     case 1n: "Luc wins trick two for North-South: 16 points."
@@ -294,7 +268,16 @@ def trick_end_note_func(trick: Nat) -> String:
     case 6n: "Mireille wins trick seven for East-West: 25 points."
     case other: "Mireille wins the last trick: 31 card points plus dix de der."
 
-def note_func(index: Nat) -> String:
+def generic_note(offset: Nat, trick: Nat) -> String:
+  match offset:
+    case 0n:
+      "The trick leader chooses a legal card."
+    case 3n:
+      trick_end_note(trick)
+    case other_offset:
+      "The next AI follows suit or applies the mandatory trump rule."
+
+def note(+index: Nat) -> String:
   match index:
     case 8n:
       "Luc leads clubs; Mireille is void and must cut with a heart."
@@ -303,187 +286,144 @@ def note_func(index: Nat) -> String:
     case 10n:
       "Noe is also void: because an opponent is winning, the heart queen must overtrump."
     case 11n:
-      trick_end_note_func(2n)
+      trick_end_note(2n)
     case other:
-      ((a, ea), (b, eb)) = Nat.copy(other)
-      match U32.to_nat(U32.mod(u32_func(a), u32_func(4n))):
-        case 0n:
-          "The trick leader chooses a legal card."
-        case 3n:
-          trick = U32.div(u32_func(b), u32_func(4n))
-          trick_end_note_func(U32.to_nat(trick))
-        case other_offset:
-          "The next AI follows suit or applies the mandatory trump rule."
+      generic_note(mod4(other), div4(other))
 
-def points_func(count: Nat) -> U32 & U32:
-  match U32.to_nat(U32.div(u32_func(count), u32_func(4n))):
-    case 0n: (u32_func(0n), u32_func(0n))
-    case 1n: (u32_func(18n), u32_func(0n))
-    case 2n: (u32_func(34n), u32_func(0n))
-    case 3n: (u32_func(47n), u32_func(0n))
-    case 4n: (u32_func(47n), u32_func(17n))
-    case 5n: (u32_func(47n), u32_func(32n))
-    case 6n: (u32_func(47n), u32_func(49n))
-    case 7n: (u32_func(47n), u32_func(74n))
-    case other: (u32_func(47n), u32_func(115n))
+def points_after_tricks(tricks: Nat) -> U32 & U32:
+  match tricks:
+    case 0n: (0, 0)
+    case 1n: (18, 0)
+    case 2n: (34, 0)
+    case 3n: (47, 0)
+    case 4n: (47, 17)
+    case 5n: (47, 32)
+    case 6n: (47, 49)
+    case 7n: (47, 74)
+    case other: (47, 115)
 
-def play_step_func(index: Nat) -> Step:
-  (i0, (i1, (i2, (i3, (i4, (i5, (i6, i7))))))) = nat_eight_func(index)
-  (phase, trick) = phase_info_func(i0)
-  (ns, ew) = points_func(1n+i5)
+def points(count: Nat) -> U32 & U32:
+  points_after_tricks(div4(count))
+
+def play_step_at(+index: Nat, info: String & U32, score: U32 & U32) -> Step:
+  (phase, trick) = info
+  (ns, ew) = score
   Step{
     phase,
-    note_func(i1),
-    play_actor_func(i2),
-    action_func(i3),
-    play_card_func(i4),
+    note(index),
+    play_actor(index),
+    action(index),
+    play_card(index),
     trick,
     ns,
     ew,
-    players_func(1n+i6),
-    table_func(i7)
+    players(1n+index),
+    table(index)
   }
 
-def play_steps_go_func(fuel: Nat, index: Nat) -> List<Step>:
+def play_step(+index: Nat) -> Step:
+  play_step_at(index, phase_info(index), points(1n+index))
+
+# Plays index .. index+fuel-1, followed by `rest`.
+def play_steps_go(fuel: Nat, +index: Nat, rest: +List<Step>) -> +List<Step>:
   match fuel:
     case 0n:
-      Nil{}
+      rest
     case 1n+pred:
-      (i0, i1) = nat_pair_func(index)
-      head = play_step_func(i0)
-      tail = play_steps_go_func(pred, 1n+i1)
-      Con{head, tail}
+      Con{play_step(index), play_steps_go(pred, 1n+index, rest)}
 
-def play_steps_func() -> List<Step>:
-  steps = play_steps_go_func(32n, 0n)
-  steps
-
-def bidding_steps_func() -> List<Step>:
+def bidding_steps() -> +List<Step>:
   Con{Step{
     "Deal", "Seed 1 fixes a complete 32-card deal; the omniscient observer sees every final holding.",
-    u32_func(3n), "deal", u32_func(32n), u32_func(0n), u32_func(0n), u32_func(0n), players_func(0n), Nil{}
+    3, "deal", 32, 0, 0, 0, players(0n), Nil{}
   }, Con{Step{
     "Round one", "Luc passes on the turned heart eight.",
-    u32_func(0n), "pass", u32_func(17n), u32_func(0n), u32_func(0n), u32_func(0n), players_func(0n), Nil{}
+    0, "pass", 17, 0, 0, 0, players(0n), Nil{}
   }, Con{Step{
     "Round one", "Mireille takes hearts with five trumps, including jack, nine, ten and ace.",
-    u32_func(1n), "take hearts", u32_func(17n), u32_func(0n), u32_func(0n), u32_func(0n), players_func(0n), Nil{}
+    1, "take hearts", 17, 0, 0, 0, players(0n), Nil{}
   }, Nil{}}}}
 
-def outcome_steps_func() -> List<Step>:
+def outcome_steps() -> +List<Step>:
   Con{Step{
     "Outcome", "East-West make the contract, 115 card points to 47; no announcements are scored.",
-    u32_func(1n), "contract made", u32_func(32n), u32_func(8n), u32_func(47n), u32_func(115n), players_func(32n), Nil{}
+    1, "contract made", 32, 8, 47, 115, players(32n), Nil{}
   }, Nil{}}
 
-def all_steps_func() -> List<Step>:
-  before = List.append(Step, bidding_steps_func(), play_steps_func())
-  all = List.append(Step, before, outcome_steps_func())
-  all
+def all_steps() -> +List<Step>:
+  List.append(&2, Step, bidding_steps(), play_steps_go(32n, 0n, outcome_steps()))
 
-def card_suit_func(card: U32) -> U32:
-  U32.div(card, u32_func(8n))
+def card_suit(card: U32) -> U32:
+  (card / 8 : U32)
 
-def card_points_func(card: U32) -> U32:
-  ((rank_card, er), (suit_card, es)) = U32.copy(card)
-  match U32.to_nat(U32.mod(rank_card, u32_func(8n))):
-    case 0n:
-      u32_func(0n)
-    case 1n:
-      u32_func(0n)
+def card_points_of(rank: Nat, +suit: Nat) -> U32:
+  match rank:
+    case 0n: 0
+    case 1n: 0
     case 2n:
-      match U32.to_nat(card_suit_func(suit_card)):
-        case 2n: u32_func(14n)
-        case other: u32_func(0n)
+      Bool.pick(U32, Nat.is_eq(suit, 2n), 14, 0)
     case 3n:
-      match U32.to_nat(card_suit_func(suit_card)):
-        case 2n: u32_func(20n)
-        case other: u32_func(2n)
-    case 4n:
-      u32_func(3n)
-    case 5n:
-      u32_func(4n)
-    case 6n:
-      u32_func(10n)
-    case other:
-      u32_func(11n)
+      Bool.pick(U32, Nat.is_eq(suit, 2n), 20, 2)
+    case 4n: 3
+    case 5n: 4
+    case 6n: 10
+    case other: 11
 
-def sum_four_func(a: U32, b: U32, c: U32, d: U32) -> U32:
-  U32.add(U32.add(a, b), U32.add(c, d))
+def card_points(+card: U32) -> U32:
+  card_points_of(U32.to_nat((card % 8 : U32)), U32.to_nat(card_suit(card)))
 
-def trick_points_func(trick: Nat) -> U32:
-  match trick:
-    case 0n:
-      sum_four_func(card_points_func(play_card_func(0n)), card_points_func(play_card_func(1n)), card_points_func(play_card_func(2n)), card_points_func(play_card_func(3n)))
-    case 1n:
-      sum_four_func(card_points_func(play_card_func(4n)), card_points_func(play_card_func(5n)), card_points_func(play_card_func(6n)), card_points_func(play_card_func(7n)))
-    case 2n:
-      sum_four_func(card_points_func(play_card_func(8n)), card_points_func(play_card_func(9n)), card_points_func(play_card_func(10n)), card_points_func(play_card_func(11n)))
-    case 3n:
-      sum_four_func(card_points_func(play_card_func(12n)), card_points_func(play_card_func(13n)), card_points_func(play_card_func(14n)), card_points_func(play_card_func(15n)))
-    case 4n:
-      sum_four_func(card_points_func(play_card_func(16n)), card_points_func(play_card_func(17n)), card_points_func(play_card_func(18n)), card_points_func(play_card_func(19n)))
-    case 5n:
-      sum_four_func(card_points_func(play_card_func(20n)), card_points_func(play_card_func(21n)), card_points_func(play_card_func(22n)), card_points_func(play_card_func(23n)))
-    case 6n:
-      sum_four_func(card_points_func(play_card_func(24n)), card_points_func(play_card_func(25n)), card_points_func(play_card_func(26n)), card_points_func(play_card_func(27n)))
-    case other:
-      U32.add(sum_four_func(card_points_func(play_card_func(28n)), card_points_func(play_card_func(29n)), card_points_func(play_card_func(30n)), card_points_func(play_card_func(31n))), u32_func(10n))
+def sum_four(a: U32, b: U32, c: U32, d: U32) -> U32:
+  (a + b + c + d : U32)
 
-def has_suit_func(cards: List<U32>, suit: U32) -> Bool:
+# Card points of trick `trick` (0-based); the last trick adds dix de der.
+def trick_points(+trick: Nat) -> U32:
+  +base = U32.to_nat((u32(trick) * 4 : U32))
+  sum = sum_four(card_points(play_card(base)), card_points(play_card(1n+base)), card_points(play_card(2n+base)), card_points(play_card(3n+base)))
+  (sum + Bool.pick(U32, Nat.is_eq(trick, 7n), 10, 0) : U32)
+
+def has_suit(cards: +List<U32>, +suit: U32) -> Bool:
   match cards:
     case Nil{}:
       False{}
     case Con{head, tail}:
-      ((s0, es0), (s1, es1)) = U32.copy(suit)
-      match U32.is_eq(card_suit_func(head), s0):
-        case False{}:
-          result = has_suit_func(tail, s1)
-          result
-        case True{}:
-          True{}
+      U32.is_eq(card_suit(head), suit) || has_suit(tail, suit)
 
-def trump_strength_func(card: U32) -> U32:
-  match U32.to_nat(U32.mod(card, u32_func(8n))):
-    case 0n: u32_func(0n)
-    case 1n: u32_func(1n)
-    case 2n: u32_func(6n)
-    case 3n: u32_func(7n)
-    case 4n: u32_func(2n)
-    case 5n: u32_func(3n)
-    case 6n: u32_func(4n)
-    case other: u32_func(5n)
+def trump_strength_of(rank: Nat) -> U32:
+  match rank:
+    case 0n: 0
+    case 1n: 1
+    case 2n: 6
+    case 3n: 7
+    case 4n: 2
+    case 5n: 3
+    case 6n: 4
+    case other: 5
 
-def rules_valid_func() -> Bool:
-  cut_void = Bool.not(has_suit_func(remaining_hand_func(1n, 9n), u32_func(0n)))
-  overtrump_void = Bool.not(has_suit_func(remaining_hand_func(2n, 10n), u32_func(0n)))
-  cut = U32.is_eq(card_suit_func(play_card_func(9n)), u32_func(2n))
-  overtrump = U32.is_gt(trump_strength_func(play_card_func(10n)), trump_strength_func(play_card_func(9n)))
-  last = U32.is_eq(play_card_func(31n), u32_func(1n))
-  total = U32.is_eq(U32.add(u32_func(47n), u32_func(115n)), u32_func(162n))
-  made = U32.is_gt(u32_func(115n), u32_func(47n))
-  tricks = Bool.and(
-    U32.is_eq(trick_points_func(0n), u32_func(18n)),
-    Bool.and(U32.is_eq(trick_points_func(1n), u32_func(16n)),
-    Bool.and(U32.is_eq(trick_points_func(2n), u32_func(13n)),
-    Bool.and(U32.is_eq(trick_points_func(3n), u32_func(17n)),
-    Bool.and(U32.is_eq(trick_points_func(4n), u32_func(15n)),
-    Bool.and(U32.is_eq(trick_points_func(5n), u32_func(17n)),
-    Bool.and(U32.is_eq(trick_points_func(6n), u32_func(25n)),
-             U32.is_eq(trick_points_func(7n), u32_func(41n)))))))))
-  Bool.and(cut_void, Bool.and(overtrump_void, Bool.and(cut, Bool.and(overtrump, Bool.and(last, Bool.and(total, Bool.and(made, tricks)))))))
+def trump_strength(card: U32) -> U32:
+  trump_strength_of(U32.to_nat((card % 8 : U32)))
+
+def rules_valid() -> Bool:
+  cut_void = Bool.not(has_suit(remaining_hand(1n, 9n), 0))
+  overtrump_void = Bool.not(has_suit(remaining_hand(2n, 10n), 0))
+  cut = U32.is_eq(card_suit(play_card(9n)), 2)
+  overtrump = U32.is_gt(trump_strength(play_card(10n)), trump_strength(play_card(9n)))
+  last = U32.is_eq(play_card(31n), 1)
+  total = U32.is_eq((47 + 115 : U32), 162)
+  made = U32.is_gt(115, 47)
+  tricks = U32.is_eq(trick_points(0n), 18) && U32.is_eq(trick_points(1n), 16) && U32.is_eq(trick_points(2n), 13) && U32.is_eq(trick_points(3n), 17) && U32.is_eq(trick_points(4n), 15) && U32.is_eq(trick_points(5n), 17) && U32.is_eq(trick_points(6n), 25) && U32.is_eq(trick_points(7n), 41)
+  cut_void && overtrump_void && cut && overtrump && last && total && made && tricks
 
 def main() -> BeloteReport:
   BeloteReport{
-    u32_func(1n),
-    u32_func(3n),
-    u32_func(1n),
-    u32_func(2n),
-    rules_valid_func(),
-    u32_func(47n),
-    u32_func(115n),
-    u32_func(47n),
-    u32_func(115n),
+    1,
+    3,
+    1,
+    2,
+    rules_valid(),
+    47,
+    115,
+    47,
+    115,
     "Contract made: East-West win the hand 115 to 47.",
-    all_steps_func()
+    all_steps()
   }

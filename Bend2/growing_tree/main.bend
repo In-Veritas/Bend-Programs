@@ -1,801 +1,894 @@
-# Growing Tree — cellular-automaton style tree growth in Bend2.
+# Growing Tree: cellular-automaton tree growth, as a Bend 2 App.
 #
-# Click an empty board to plant a seed. Each tick, occupied cells
-# may mutate to other kinds and/or spawn new cells into empty
-# 4-neighbors. Over time the structure resembles a tree.
+# Click (left button) on the empty board to plant a seed: the click row
+# becomes the soil line (dashed). Each tick every occupied cell may mutate
+# into another kind and/or spawn a child into an empty neighbour; over time
+# the structure grows a trunk, branches and leaves above the soil and roots
+# below it.
 #
-# Toolbar: pause / play / fast-forward / reset.
+# Keys (the web page has the same as buttons):
+#   1 play (normal)   2 fast   3 max   p / space pause   r reset   Esc quit
+#
+#   bend main.bend -o growing_tree && ./growing_tree    native X11 window
+#   sh build.sh                                         check, test, web page
+#
+# Everything below `main` is pure: `Tree.step` folds a frame's events and
+# advances the clock, `Tree.view` paints the board into an Image quadtree.
+# The browser page (web/index.html) calls the same two defs.
+import Base
 
-# ============================================================
 # Types
-# ============================================================
+# =====
 
-# Cell kinds.
-type GT {
-  seed{}
-  root{}
-  bark{}
-  branch{}
-  leaf{}
-}
+# Cell kinds. On the board a cell is a U32 code: 0 empty, then gt_code.
+type GT is Data:
+  Seed{}
+  Root{}
+  Bark{}
+  Branch{}
+  Leaf{}
 
-# Cell content: either empty or one kind.
-Cell : Type = Maybe(GT)
+type Speed is Data:
+  Stopped{}
+  Normal{}
+  Fast{}
+  Unlimited{}
 
-# Speed setting.
-type Speed {
-  stopped{}
-  normal{}
-  fast{}
-  unlimited{}
-}
+# Whether anything has been planted yet (a second click is ignored).
+type Phase is Data:
+  Unplanted{}
+  Growing{}
 
-# Whether anything has been planted yet.
-type Phase {
-  phase_empty{}
-  phase_growing{}
-}
-
-# Threaded "board + rng" state passed through the per-tick sweep.
-type Step {
-  step_st{board: Grid(Cell), rng: U32}
-}
-
-# Whole game state. `soil` is the row where the seed was planted: the
-# ground line. Everything above it is aerial (trunk/branch/leaf), below it
-# is roots. All the height logic is relative to `soil`, so the tree looks
-# right no matter where you click.
-type State {
-  state{
-    board: Grid(Cell),
-    tick: U32,
-    rng: U32,
-    speed: Speed,
-    phase: Phase,
-    soil: U32,
-    tx: U32,
+# The whole world. `soil` is the row where the seed was planted (the ground
+# line) and `tx` its column (the trunk axis); every height rule is relative
+# to `soil`. `wait` counts display frames toward the next timer fire.
+type State is Data:
+  State{
+    board: Board, tick: U32, rng: U32, speed: Speed, phase: Phase,
+    soil: U32, tx: U32, wait: U32
   }
-}
 
-# Events.
-type Event {
-  click{x: U32, y: U32}
-  tick_ev{}
-  set_speed{s: Speed}
-  reset{}
-}
+# Kind counts, for the status line and the headless tests.
+type Census is Data:
+  Census{seed: U32, root: U32, bark: U32, branch: U32, leaf: U32}
 
-# ============================================================
-# Forward declarations (Bend resolves names in scope order; predeclare
-# anything referenced before its definition).
-# ============================================================
+# Constants: tune these freely
+# ============================
 
-css : String
+# Grid size in cells (GH rows, then one HUD row in the native window).
+def GW() -> U32:
+  46
 
-# ============================================================
-# Constants — tune these freely
-# ============================================================
+def GH() -> U32:
+  34
 
-# Grid dimensions in cells.
-GW : U32 = 46
-GH : U32 = 34
+def GWn() -> Nat:
+  46n
 
-# Render size per cell (pixels).
-PX : U32 = 14
+def GHn() -> Nat:
+  34n
 
-# Tick interval in milliseconds for "normal" play.
-NORMAL_MS : U32 = 400
+# Pixels per cell: a power of two, so a cell is one quadtree node.
+def PX() -> U32:
+  16
 
-# Simulation steps per timer fire when in fast mode.
-FAST_STEPS : U32 = 6
+# Heights RELATIVE to the soil line (soil - y). A tip this far above the
+# soil (or at the top edge) leafs out; aerial cells within TRUNK_H of the
+# soil are the trunk zone (spread sideways, harden into bark).
+def CANOPY_START() -> U32:
+  10
 
-# Spawn probability (out of 100) for each kind.
-# High base chances, but the density gate (CROWD_LIMIT) keeps growth thin
-# and branchy instead of filling a solid disk.
-def spawn_chance(k: GT) -> U32:
-  match k:
-    case seed{}:
-      70
-    case root{}:
-      34
-    case bark{}:
-      0
-    case branch{}:
-      60
-    case leaf{}:
-      0
-
-# Heights measured RELATIVE to the soil line (soil - y, in cells).
-# A tip this far above the soil (or at the very top edge) leafs out — so
-# the crown forms relative to where you planted, not at a fixed row.
-CANOPY_START : U32 = 10
-# Aerial cells within this height of the soil are the "trunk zone": they
-# spread sideways (thicken) and harden into dark bark.
-TRUNK_H : U32 = 5
+def TRUNK_H() -> U32:
+  5
 
 # A child is only placed if its target has FEWER than this many occupied
-# 8-neighbors. This is the anti-blob knob: lower = thinner, more tree-like.
-CROWD_LIMIT : U32 = 3
+# 8-neighbours: the anti-blob knob.
+def CROWD_LIMIT() -> U32:
+  3
 
-# Roots may flare out sideways only within this many columns of the trunk
-# (`tx`). Past it they stop widening and just descend — so the base never
-# expands horizontally forever.
-ROOT_HALF : U32 = 5
+# Roots flare sideways only within this many columns of the trunk.
+def ROOT_HALF() -> U32:
+  5
 
-# Trunk "push": every TRUNK_PUSH_PERIOD ticks, a compact bark chunk appears
-# at the base of the central column band and shoves everything above it up
-# by one row — so the trunk thickens and rises over time, like real
-# secondary growth. TRUNK_HALF is the half-width of that central band.
-TRUNK_PUSH_PERIOD : U32 = 9
-TRUNK_HALF : U32 = 1
+# Every TRUNK_PUSH_PERIOD ticks the central band (tx +- TRUNK_HALF) is
+# shoved up one row with a fresh bark chunk at its base.
+def TRUNK_PUSH_PERIOD() -> U32:
+  9
 
-# Mutation roll cutoffs (out of 100). Tweak to taste.
-BRANCH_TO_BARK : U32 = 50
-BRANCH_TO_LEAF : U32 = 45
+def TRUNK_HALF() -> U32:
+  1
 
-# ============================================================
-# RNG — linear congruential, lives in state
-# ============================================================
+# Mutation roll cutoffs (out of 100).
+def BRANCH_TO_BARK() -> U32:
+  50
 
-# Advance the RNG one step.
-def rng_next(s: U32) -> U32:
-  (s * 1103515245) + 12345
+def BRANCH_TO_LEAF() -> U32:
+  45
 
-# ============================================================
-# Equality and counting helpers for GT
-# ============================================================
+# Spawn chance (out of 100) per kind.
+def spawn_chance(k: GT) -> U32:
+  match k:
+    case Seed{}:
+      70
+    case Root{}:
+      34
+    case Bark{}:
+      0
+    case Branch{}:
+      60
+    case Leaf{}:
+      0
 
-# Short-circuit boolean OR (Bool/or may not exist in this prelude).
-def bor(a: Bool, b: Bool) -> Bool:
-  match a:
-    case true{}:
-      true{}
-    case false{}:
+# Speed table. The old page fired a timer every tick_ms milliseconds; a
+# native window shows ~60 frames a second, so the interval is in frames:
+# 400 ms = 24 frames, 120 ms = 7 frames, "max" = every frame.
+def fire_frames(sp: Speed) -> U32:
+  match sp:
+    case Stopped{}:
+      24
+    case Normal{}:
+      24
+    case Fast{}:
+      7
+    case Unlimited{}:
+      1
+
+def steps_per_fire(sp: Speed) -> Nat:
+  match sp:
+    case Stopped{}:
+      0n
+    case Normal{}:
+      1n
+    case Fast{}:
+      6n
+    case Unlimited{}:
+      40n
+
+# Small helpers
+# =============
+
+def sel(c: Bool, a: U32, b: U32) -> U32:
+  match c:
+    case True{}:
+      a
+    case False{}:
       b
 
-# Equality on GT (no derived eq for ADTs).
-def gt_eq(a: GT, b: GT) -> Bool:
-  match a b:
-    case seed{} seed{}:
-      true{}
-    case root{} root{}:
-      true{}
-    case bark{} bark{}:
-      true{}
-    case branch{} branch{}:
-      true{}
-    case leaf{} leaf{}:
-      true{}
-    case _ _:
-      false{}
+def gt_sel(c: Bool, a: GT, b: GT) -> GT:
+  match c:
+    case True{}:
+      a
+    case False{}:
+      b
 
-# Count how many neighbors are occupied (any kind).
-def count_occupied(ns: List(Cell)) -> U32:
-  match ns:
-    case []:
+def sat_sub(+a: U32, +b: U32) -> U32:
+  sel((a < b : U32), 0, (a - b : U32))
+
+def rng_next(+s: U32) -> U32:
+  (s * 1103515245 + 12345 : U32)
+
+def gt_code(k: GT) -> U32:
+  match k:
+    case Seed{}:
+      1
+    case Root{}:
+      2
+    case Bark{}:
+      3
+    case Branch{}:
+      4
+    case Leaf{}:
+      5
+
+def gt_of(v: U32) -> GT:
+  match v:
+    case 1:
+      Seed{}
+    case 2:
+      Root{}
+    case 3:
+      Bark{}
+    case 4:
+      Branch{}
+    case _:
+      Leaf{}
+
+def speed_code(sp: Speed) -> U32:
+  match sp:
+    case Stopped{}:
+      3
+    case Normal{}:
       0
-    case h<>t:
-      rest = count_occupied(t);
-      match h:
-        case none{}:
-          rest
-        case some{_}:
-          rest + 1
+    case Fast{}:
+      1
+    case Unlimited{}:
+      2
 
-# Count cells of a given kind in a neighbor list.
-def count_kind(ns: List(Cell), target: GT) -> U32:
-  match ns:
-    case []:
-      0
-    case h<>t:
-      rest = count_kind(t, target);
-      match h:
-        case none{}:
-          rest
-        case some{k}:
-          match gt_eq(k, target):
-            case true{}:
-              rest + 1
-            case false{}:
-              rest
+# Board: a 64 x 64 quadtree of cell codes
+# =======================================
+# A Data quadtree, so the sweep reads it freely (no threading) and the view
+# walks it in the same shape as the Image it paints. A BLeaf stands for a
+# whole uniform square (the empty board is one BLeaf{0}).
 
-# ============================================================
-# Grid helpers — wrap the verbose Grid API
-# ============================================================
+type Board is Data:
+  BLeaf{v: U32}
+  BNode{tl: Board, tr: Board, bl: Board, br: Board}
 
-def board_get(b: Grid(Cell), x: U32, y: U32) -> Cell:
-  match Grid/get(Cell, none{}, b, x, y):
-    case none{}:
-      none{}              # out of bounds: treat as empty wall
-    case some{c}:
+def BD() -> Nat:
+  6n
+
+def in_bounds(+x: U32, +y: U32) -> Bool:
+  ((x < GW()) && (y < GH()) : U32)
+
+def empty_board() -> Board:
+  BLeaf{0}
+
+# Which quadrant (0 tl, 1 tr, 2 bl, 3 br) holds (x, y) at a node of 2^(e+1).
+def quad(+x: U32, +y: U32, +e: Nat) -> U32:
+  (((y >> e) .&. 1) * 2 + ((x >> e) .&. 1) : U32)
+
+def pick4(q: U32, a: Board, b: Board, c: Board, d: Board) -> Board:
+  match q:
+    case 0:
+      a
+    case 1:
+      b
+    case 2:
       c
+    case _:
+      d
 
-def board_set(b: Grid(Cell), x: U32, y: U32, v: Cell) -> Grid(Cell):
-  Grid/set(Cell, b, x, y, v)
+def put4(q: U32, n: Board, a: Board, b: Board, c: Board, d: Board) -> Board:
+  match q:
+    case 0:
+      BNode{n, b, c, d}
+    case 1:
+      BNode{a, n, c, d}
+    case 2:
+      BNode{a, b, n, d}
+    case _:
+      BNode{a, b, c, n}
 
-def board_neighbors8(b: Grid(Cell), x: U32, y: U32) -> List(Cell):
-  Grid/neighbors_eight(Cell, none{}, b, x, y)
+def bget(+d: Nat, +t: Board, +x: U32, +y: U32) -> U32:
+  match d t:
+    case _ BLeaf{v}:
+      v
+    case 0n BNode{a, b, c, dd}:
+      0
+    case 1n+e BNode{+a, +b, +c, +dd}:
+      bget(e, pick4(quad(x, y, e), a, b, c, dd), x, y)
 
-def board_empty(b: Grid(Cell), x: U32, y: U32) -> Bool:
-  match board_get(b, x, y):
-    case none{}:
-      true{}
-    case some{_}:
-      false{}
+def bset(+d: Nat, t: Board, +x: U32, +y: U32, +v: U32) -> Board:
+  match d t:
+    case 0n _:
+      BLeaf{v}
+    case 1n+e BLeaf{+w}:
+      +q = quad(x, y, e)
+      put4(q, bset(e, BLeaf{w}, x, y, v), BLeaf{w}, BLeaf{w}, BLeaf{w}, BLeaf{w})
+    case 1n+e BNode{+a, +b, +c, +dd}:
+      +q = quad(x, y, e)
+      put4(q, bset(e, pick4(q, a, b, c, dd), x, y, v), a, b, c, dd)
 
-# ============================================================
-# Direction stepping (clamped at 0; > GW/GH detected via bounds check later)
-# ============================================================
+# Out of the grid reads as empty (a wall of nothing), as Grid/get did.
+def cell_get.go(ok: Bool, +b: Board, +x: U32, +y: U32) -> U32:
+  match ok:
+    case True{}:
+      bget(BD(), b, x, y)
+    case False{}:
+      0
 
-# 0=N 1=E 2=S 3=W. Returns (nx, ny).
-# Encoded as a pair via Step (we only need the new coords for `board_set`,
-# so we use a dedicated lightweight pair type).
-type Coord {
-  coord{nx: U32, ny: U32}
-}
+def cell_get(+b: Board, +x: U32, +y: U32) -> U32:
+  cell_get.go(in_bounds(x, y), b, x, y)
 
-# 8 directions: 0=N 1=NE 2=E 3=SE 4=S 5=SW 6=W 7=NW.
-# Diagonals let branches fork into V shapes instead of growing in a slab.
-def step_dir(x: U32, y: U32, d: U32) -> Coord:
+def cell_set(b: Board, +x: U32, +y: U32, +v: U32) -> Board:
+  bset(BD(), b, x, y, v)
+
+def set_if(ok: Bool, b: Board, +x: U32, +y: U32, +v: U32) -> Board:
+  match ok:
+    case True{}:
+      cell_set(b, x, y, v)
+    case False{}:
+      b
+
+def occ_at(+b: Board, +x: U32, +y: U32) -> U32:
+  sel(U32.is_eq(cell_get(b, x, y), 0), 0, 1)
+
+# Occupied 8-neighbours (x - 1 at 0 wraps out of the grid: empty).
+def count8(+b: Board, +x: U32, +y: U32) -> U32:
+  +xl = (x - 1 : U32)
+  +xr = (x + 1 : U32)
+  +yu = (y - 1 : U32)
+  +yd = (y + 1 : U32)
+  (occ_at(b, xl, yu) + occ_at(b, x, yu) + occ_at(b, xr, yu) + occ_at(b, xl, y)
+    + occ_at(b, xr, y) + occ_at(b, xl, yd) + occ_at(b, x, yd)
+    + occ_at(b, xr, yd) : U32)
+
+# Mutation: the new kind of a cell
+# ================================
+
+def mutate(kind: GT, +n: U32, +y: U32, +soil: U32, +roll: U32) -> GT:
+  match kind:
+    case Seed{}:
+      # sprouted (a few neighbours): hardens into the trunk base
+      gt_sel((n >= 3 : U32), Bark{}, Seed{})
+    case Branch{}:
+      +aerial = (y < soil : U32)
+      +above = sat_sub(soil, y)
+      # a tip leafs out high enough above the soil, or at the top edge
+      +leafy = (aerial && (n <= 2) && ((above >= CANOPY_START()) || (y <= 1))
+        && (roll < BRANCH_TO_LEAF()) : U32)
+      # in the trunk zone, well-connected wood darkens into bark
+      +barky = (aerial && (above <= TRUNK_H()) && (n >= 3)
+        && (roll < BRANCH_TO_BARK()) : U32)
+      gt_sel(leafy, Leaf{}, gt_sel(barky, Bark{}, Branch{}))
+    case Root{}:
+      Root{}
+    case Bark{}:
+      Bark{}
+    case Leaf{}:
+      Leaf{}
+
+# Spawning: grow a child into a neighbour
+# ======================================
+
+# Above the soil a child is aerial wood, at or below it a root.
+def child_for_y(+ny: U32, +soil: U32) -> GT:
+  gt_sel((ny < soil : U32), Branch{}, Root{})
+
+def hdist(+x: U32, +tx: U32) -> U32:
+  (sat_sub(x, tx) + sat_sub(tx, x) : U32)
+
+# The first threshold p falls under picks its direction, else the last.
+def thr(+p: U32, t1: U32, d1: U32, t2: U32, d2: U32, t3: U32, d3: U32,
+  t4: U32, d4: U32, d5: U32) -> U32:
+  sel((p < t1 : U32), d1, sel((p < t2 : U32), d2, sel((p < t3 : U32), d3,
+    sel((p < t4 : U32), d4, d5))))
+
+# Directions: 0 N, 1 NE, 2 E, 3 SE, 4 S, 5 SW, 6 W, 7 NW.
+def pick_root(shallow: Bool, near: Bool, +p: U32) -> U32:
+  match shallow near:
+    case True{} True{}:
+      # near the base: flare sideways (thicken the base)
+      thr(p, 22, 4, 42, 3, 62, 5, 81, 2, 6)
+    case True{} False{}:
+      # at the width limit: just descend
+      4
+    case False{} _:
+      # deep: mostly straight down, tapering tendrils
+      thr(p, 80, 4, 90, 3, 100, 5, 100, 5, 5)
+
+def pick_wood(trunk: Bool, +p: U32) -> U32:
+  match trunk:
+    case True{}:
+      # trunk zone: spread sideways too, to widen the trunk
+      thr(p, 34, 0, 55, 2, 76, 6, 88, 1, 7)
+    case False{}:
+      # canopy: climb and fork
+      thr(p, 40, 0, 64, 1, 88, 7, 94, 2, 6)
+
+def pick_dir(kind: GT, +p: U32, +x: U32, +y: U32, +soil: U32, +tx: U32) -> U32:
+  match kind:
+    case Root{}:
+      pick_root((sat_sub(y, soil) <= 2 : U32), (hdist(x, tx) < ROOT_HALF() : U32), p)
+    case Seed{}:
+      # builds the base: roots out the sides and down, a little up
+      thr(p, 30, 0, 52, 2, 74, 6, 100, 4, 4)
+    case _:
+      pick_wood((sat_sub(soil, y) <= TRUNK_H() : U32), p)
+
+# The neighbour in direction d, clamped at 0 like U32/saturating_sub.
+def step_dir(d: U32, +x: U32, +y: U32) -> U32 & U32:
   match d:
     case 0:
-      coord{x, U32/saturating_sub(y, 1)}
+      (x, sat_sub(y, 1))
     case 1:
-      coord{x + 1, U32/saturating_sub(y, 1)}
+      ((x + 1 : U32), sat_sub(y, 1))
     case 2:
-      coord{x + 1, y}
+      ((x + 1 : U32), y)
     case 3:
-      coord{x + 1, y + 1}
+      ((x + 1 : U32), (y + 1 : U32))
     case 4:
-      coord{x, y + 1}
+      (x, (y + 1 : U32))
     case 5:
-      coord{U32/saturating_sub(x, 1), y + 1}
+      (sat_sub(x, 1), (y + 1 : U32))
     case 6:
-      coord{U32/saturating_sub(x, 1), y}
+      (sat_sub(x, 1), y)
     case _:
-      coord{U32/saturating_sub(x, 1), U32/saturating_sub(y, 1)}
+      (sat_sub(x, 1), sat_sub(y, 1))
 
-# ============================================================
-# Mutation: pure function from kind + context to new kind (or same).
-# Returns the new kind to write into the cell.
-# ============================================================
+# Write a child only inside the grid, on an empty cell, and where fewer than
+# CROWD_LIMIT neighbours are occupied (keeps the tree thin and branchy).
+def try_place(+b: Board, +nx: U32, +ny: U32, +child: U32) -> Board:
+  set_if((in_bounds(nx, ny) && U32.is_eq(cell_get(b, nx, ny), 0)
+    && (count8(b, nx, ny) < CROWD_LIMIT()) : U32), b, nx, ny, child)
 
-def maybe_mutate(kind: GT, ns: List(Cell), y: U32, soil: U32, roll: U32) -> GT:
-  n_occ     = count_occupied(ns);
-  aerial    = U32/lt(y, soil);                  # above the soil line?
-  above_amt = U32/saturating_sub(soil, y);      # how far above the soil
-  match kind:
-    case seed{}:
-      # The planted origin: sprouts shoots (up and down) over its first
-      # ticks, then once it has a few neighbors hardens into the trunk base.
-      if U32/gte(n_occ, 3):
-        bark{}
-      else:
-        seed{}
-    case branch{}:
-      is_tip = U32/lte(n_occ, 2);
-      # A tip leafs out once it is high enough above the soil, OR when it
-      # hits the very top edge (so a tree planted high still gets a crown
-      # instead of just two leaves).
-      high_or_top = bor(U32/gte(above_amt, CANOPY_START), U32/lte(y, 1));
-      if Bool/and(aerial, Bool/and(is_tip, Bool/and(high_or_top, U32/lt(roll, BRANCH_TO_LEAF)))):
-        leaf{}
-      else:
-        # Trunk zone (low and aerial): well-connected wood thickens into bark.
-        in_trunk = Bool/and(aerial, U32/lte(above_amt, TRUNK_H));
-        if Bool/and(in_trunk, Bool/and(U32/gte(n_occ, 3), U32/lt(roll, BRANCH_TO_BARK))):
-          bark{}
-        else:
-          branch{}
-    case root{}:
-      # Roots stay roots — they never resurface into the aerial tree.
-      root{}
-    case bark{}:
-      bark{}
-    case leaf{}:
-      leaf{}
+def spawn.place(b: Board, +soil: U32, +rng2: U32, at: U32 & U32) -> Board & U32:
+  (nx, +ny) = at
+  (try_place(b, nx, ny, gt_code(child_for_y(ny, soil))), rng2)
 
-# ============================================================
-# Spawning: try to place a child cell in one random empty neighbor.
-# Returns updated board + advanced rng (wrapped in `Step`).
-# ============================================================
+def spawn.hit(
+  hit: Bool, +kind: GT, b: Board, +x: U32, +y: U32, +rng1: U32, +soil: U32,
+  +tx: U32
+) -> Board & U32:
+  match hit:
+    case False{}:
+      (b, rng1)
+    case True{}:
+      +rng2 = rng_next(rng1)
+      +d = pick_dir(kind, (rng2 % 100 : U32), x, y, soil, tx)
+      spawn.place(b, soil, rng2, step_dir(d, x, y))
 
-# The child kind, decided by WHERE it lands: above the soil line it is
-# aerial wood (branch); at or below the soil it is a root. So a seed (or
-# anything) spawning sideways AT the soil row drops a root next to the
-# trunk base, connecting roots and bark instead of leaving a gap.
-def child_for_y(ny: U32, soil: U32) -> GT:
-  if U32/lt(ny, soil):
-    branch{}
-  else:
-    root{}
+def spawn.go(
+  zero: Bool, +kind: GT, b: Board, +x: U32, +y: U32, +rng: U32, +soil: U32,
+  +tx: U32
+) -> Board & U32:
+  match zero:
+    case True{}:
+      (b, rng)
+    case False{}:
+      +rng1 = rng_next(rng)
+      spawn.hit(((rng1 % 100) < spawn_chance(kind) : U32), kind, b, x, y, rng1,
+        soil, tx)
 
-# |x - tx| without a signed type.
-def hdist(x: U32, tx: U32) -> U32:
-  U32/saturating_sub(x, tx) + U32/saturating_sub(tx, x)
+# A fresh roll; no roll at all for a kind that never spawns.
+def maybe_spawn(
+  +kind: GT, b: Board, +x: U32, +y: U32, rng: U32, +soil: U32, +tx: U32
+) -> Board & U32:
+  spawn.go(U32.is_eq(spawn_chance(kind), 0), kind, b, x, y, rng, soil, tx)
 
-# Choose a growth direction (0..7) biased by kind and position.
-def pick_dir(kind: GT, rng: U32, x: U32, y: U32, soil: U32, tx: U32) -> U32:
-  p = rng % 100;
-  match kind:
-    case root{}:
-      depth = U32/saturating_sub(y, soil);   # 0 at the soil line, grows down
-      match U32/lte(depth, 2):
-        case true{}:
-          # Near the base: flare SIDEWAYS to thicken the base — but only
-          # within ROOT_HALF of the trunk. Past that, stop widening and
-          # just descend, so the base never spreads horizontally forever.
-          match U32/lt(hdist(x, tx), ROOT_HALF):
-            case true{}:
-              if U32/lt(p, 22):
-                4                              # S
-              else:
-                if U32/lt(p, 42):
-                  3                            # SE
-                else:
-                  if U32/lt(p, 62):
-                    5                          # SW
-                  else:
-                    if U32/lt(p, 81):
-                      2                        # E
-                    else:
-                      6                        # W
-            case false{}:
-              # At the width limit: descend straight down.
-              4                                # S
-        case false{}:
-          # Deep down: strong VERTICAL descent (mostly straight S) → tapering
-          # tendrils that reach far down. Roots never grow upward.
-          if U32/lt(p, 80):
-            4                                  # S
-          else:
-            if U32/lt(p, 90):
-              3                                # SE
-            else:
-              5                                # SW
-    case seed{}:
-      # The trunk shoot is planted explicitly (plant_base), so the seed
-      # mainly builds the base: roots out the sides (E/W) and down (S),
-      # plus some reinforcement up (N).
-      if U32/lt(p, 30):
-        0                                      # N
-      else:
-        if U32/lt(p, 52):
-          2                                    # E
-        else:
-          if U32/lt(p, 74):
-            6                                  # W
-          else:
-            4                                  # S
-    case _:
-      above_amt = U32/saturating_sub(soil, y);
-      match U32/lte(above_amt, TRUNK_H):
-        case true{}:
-          # Trunk zone: spread sideways too, to widen the trunk.
-          if U32/lt(p, 34):
-            0
-          else:
-            if U32/lt(p, 55):
-              2
-            else:
-              if U32/lt(p, 76):
-                6
-              else:
-                if U32/lt(p, 88):
-                  1
-                else:
-                  7
-        case false{}:
-          # Up in the canopy: climb and fork.
-          if U32/lt(p, 40):
-            0
-          else:
-            if U32/lt(p, 64):
-              1
-            else:
-              if U32/lt(p, 88):
-                7
-              else:
-                if U32/lt(p, 94):
-                  2
-                else:
-                  6
+# One cell: mutate, write, then maybe spawn (the same roll feeds both).
+def decide(
+  kind: GT, +b: Board, +x: U32, +y: U32, +rng: U32, +soil: U32, +tx: U32
+) -> Board & U32:
+  +rng1 = rng_next(rng)
+  +nk = mutate(kind, count8(b, x, y), y, soil, (rng1 % 100 : U32))
+  maybe_spawn(nk, cell_set(b, x, y, gt_code(nk)), x, y, rng1, soil, tx)
 
-# Try to write a child cell at the target coord. No-op if out of bounds,
-# occupied, or too crowded (density gate — keeps the structure branchy).
-def try_place(board: Grid(Cell), nx: U32, ny: U32, child: GT, rng: U32) -> Step:
-  if Grid/in_bounds(GW, GH, nx, ny):
-    match board_empty(board, nx, ny):
-      case true{}:
-        crowd = count_occupied(board_neighbors8(board, nx, ny));
-        if U32/lt(crowd, CROWD_LIMIT):
-          step_st{board_set(board, nx, ny, some{child}), rng}
-        else:
-          step_st{board, rng}            # too crowded — don't fill it in
-      case false{}:
-        step_st{board, rng}
-  else:
-    step_st{board, rng}
+# The sweep: reading order, one buffer (a cell already touched this tick is
+# seen by the cells after it), the rng threaded through every cell.
+# ======================================================================
 
-# Spawn attempt for a single cell. May or may not write to a neighbor.
-def maybe_spawn(kind: GT, board: Grid(Cell), x: U32, y: U32, rng: U32, soil: U32, tx: U32) -> Step:
-  chance = spawn_chance(kind);
-  if U32/eq(chance, 0):
-    step_st{board, rng}
-  else:
-    rng1 = rng_next(rng);
-    roll = rng1 % 100;
-    if U32/gte(roll, chance):
-      step_st{board, rng1}
-    else:
-      rng2 = rng_next(rng1);
-      d    = pick_dir(kind, rng2, x, y, soil, tx);
-      match step_dir(x, y, d):
-        case coord{nx, ny}:
-          try_place(board, nx, ny, child_for_y(ny, soil), rng2)
+def step_cell.go(
+  empty: Bool, v: U32, b: Board, +x: U32, +y: U32, rng: U32, +soil: U32,
+  +tx: U32
+) -> Board & U32:
+  match empty:
+    case True{}:
+      (b, rng)
+    case False{}:
+      decide(gt_of(v), b, x, y, rng, soil, tx)
 
-# ============================================================
-# Per-cell decision: mutation then spawning.
-# ============================================================
+def step_cell(+x: U32, +y: U32, +soil: U32, +tx: U32, st: Board & U32) ->
+  Board & U32:
+  (+b, rng) = st
+  +v = cell_get(b, x, y)
+  step_cell.go(U32.is_eq(v, 0), v, b, x, y, rng, soil, tx)
 
-def decide(kind: GT, board: Grid(Cell), x: U32, y: U32, rng: U32, soil: U32, tx: U32) -> Step:
-  ns       = board_neighbors8(board, x, y);
-  rng1     = rng_next(rng);
-  roll     = rng1 % 100;
-  new_kind = maybe_mutate(kind, ns, y, soil, roll);
-  board1   = board_set(board, x, y, some{new_kind});
-  maybe_spawn(new_kind, board1, x, y, rng1, soil, tx)
+def scan_row(n: Nat, +x: U32, +y: U32, +soil: U32, +tx: U32, st: Board & U32)
+  -> Board & U32:
+  match n:
+    case 0n:
+      st
+    case 1n+p:
+      scan_row(p, (x + 1 : U32), y, soil, tx, step_cell(x, y, soil, tx, st))
 
-# ============================================================
-# Sweep the whole grid: nested recursion over y then x.
-# ============================================================
+def scan_grid(n: Nat, +y: U32, +soil: U32, +tx: U32, st: Board & U32) ->
+  Board & U32:
+  match n:
+    case 0n:
+      st
+    case 1n+p:
+      scan_grid(p, (y + 1 : U32), soil, tx, scan_row(GWn(), 0, y, soil, tx, st))
 
-def step_cell(board: Grid(Cell), x: U32, y: U32, rng: U32, soil: U32, tx: U32) -> Step:
-  match board_get(board, x, y):
-    case none{}:
-      step_st{board, rng}              # empty cell — skip
-    case some{kind}:
-      decide(kind, board, x, y, rng, soil, tx)
+# Trunk push: secondary growth
+# ============================
 
-def scan_row(board: Grid(Cell), y: U32, x: U32, rng: U32, soil: U32, tx: U32) -> Step:
-  if U32/gte(x, GW):
-    step_st{board, rng}
-  else:
-    match step_cell(board, x, y, rng, soil, tx):
-      case step_st{b1, r1}:
-        scan_row(b1, y, x + 1, r1, soil, tx)
+# Shift one column's aerial rows (0 .. soil-1) up by one; the bottom aerial
+# row gets a fresh bark chunk. Top-down, so each read is still unshifted.
+def shift_col_up(n: Nat, +b: Board, +x: U32, +y: U32, +soil: U32) -> Board:
+  match n:
+    case 0n:
+      b
+    case 1n+p:
+      +ny = (y + 1 : U32)
+      shift_col_up(p,
+        cell_set(b, x, y, sel((ny >= soil : U32), 3, cell_get(b, x, ny))), x, ny,
+        soil)
 
-def scan_grid(board: Grid(Cell), y: U32, rng: U32, soil: U32, tx: U32) -> Step:
-  if U32/gte(y, GH):
-    step_st{board, rng}
-  else:
-    match scan_row(board, y, 0, rng, soil, tx):
-      case step_st{b1, r1}:
-        scan_grid(b1, y + 1, r1, soil, tx)
+def push_band(n: Nat, b: Board, +x: U32, +soil: U32) -> Board:
+  match n:
+    case 0n:
+      b
+    case 1n+p:
+      push_band(p, shift_col_up(U32.to_nat(soil), b, x, 0, soil), (x + 1 : U32),
+        soil)
 
-# ============================================================
-# Trunk push: a compact bark chunk appears at the base of the central
-# band and shoves the aerial structure above it up by one row.
-# ============================================================
+# Is row 0 empty across the band? Otherwise a push would shove a cell off
+# the top edge, so the trunk stops rising.
+def band_top_clear(n: Nat, +b: Board, +x: U32) -> Bool:
+  match n:
+    case 0n:
+      True{}
+    case 1n+p:
+      U32.is_eq(cell_get(b, x, 0), 0) && band_top_clear(p, b, (x + 1 : U32))
 
-# Value that lands in (x, y) after a one-row upward shift: pull the cell
-# from just below (y+1); but the bottom aerial row gets a fresh bark chunk.
-def shifted_val(orig: Grid(Cell), x: U32, next_y: U32, soil: U32) -> Cell:
-  if U32/gte(next_y, soil):
-    some{bark{}}
-  else:
-    board_get(orig, x, next_y)
-
-# Shift one column's aerial cells (rows 0..soil-1) up by one row.
-def shift_col_up(orig: Grid(Cell), acc: Grid(Cell), x: U32, y: U32, soil: U32) -> Grid(Cell):
-  if U32/gte(y, soil):
-    acc
-  else:
-    next_y = y + 1;
-    acc1   = board_set(acc, x, y, shifted_val(orig, x, next_y, soil));
-    shift_col_up(orig, acc1, x, next_y, soil)
-
-# Push every column in the band [x_lo, x_hi] up by one row.
-def push_band(orig: Grid(Cell), acc: Grid(Cell), soil: U32, x_lo: U32, x_hi: U32) -> Grid(Cell):
-  if U32/lt(x_hi, x_lo):
-    acc
-  else:
-    acc1 = shift_col_up(orig, acc, x_lo, 0, soil);
-    push_band(orig, acc1, soil, x_lo + 1, x_hi)
-
-# Clamp a column index to the last valid column.
-def clamp_hi(v: U32) -> U32:
-  if U32/lt(v, GW):
-    v
-  else:
-    U32/saturating_sub(GW, 1)
-
-# Is the top row (y=0) empty across the whole band? If not, a push would
-# shove an occupied cell off the top edge — so we stop pushing.
-def band_top_clear(board: Grid(Cell), x_lo: U32, x_hi: U32) -> Bool:
-  if U32/lt(x_hi, x_lo):
-    true{}
-  else:
-    match board_empty(board, x_lo, 0):
-      case true{}:
-        band_top_clear(board, x_lo + 1, x_hi)
-      case false{}:
-        false{}
-
-# Every TRUNK_PUSH_PERIOD ticks, grow the central trunk upward — but only
-# while the band's top row is clear. Once the tree has been pushed up to
-# the screen edge, the trunk stops rising (and stops shoving things off).
-def maybe_push(board: Grid(Cell), tick: U32, soil: U32, tx: U32) -> Grid(Cell):
-  x_lo = U32/saturating_sub(tx, TRUNK_HALF);
-  x_hi = clamp_hi(tx + TRUNK_HALF);
-  on_beat = Bool/and(U32/lt(0, tick), U32/eq(tick % TRUNK_PUSH_PERIOD, 0));
-  if Bool/and(on_beat, band_top_clear(board, x_lo, x_hi)):
-    push_band(board, board, soil, x_lo, x_hi)
-  else:
-    board
-
-# Run one full tick.
-def one_tick(s: State) -> State:
-  match s:
-    case state{board, tick, rng, speed, phase, soil, tx}:
-      match scan_grid(board, 0, rng, soil, tx):
-        case step_st{board1, rng1}:
-          tick1  = tick + 1;
-          board2 = maybe_push(board1, tick1, soil, tx);
-          state{board2, tick1, rng1, speed, phase, soil, tx}
-
-# Run N ticks (for fast-forward mode).
-def run_ticks(n: U32, s: State) -> State:
-  if U32/eq(n, 0):
-    s
-  else:
-    run_ticks(U32/saturating_sub(n, 1), one_tick(s))
-
-# How many ticks should fire per timer event?
-def steps_per_fire(sp: Speed) -> U32:
-  match sp:
-    case stopped{}:
-      0
-    case normal{}:
-      1
-    case fast{}:
-      FAST_STEPS
-    case unlimited{}:
-      40
-
-# Timer interval (ms) per speed. "unlimited" uses the smallest interval so
-# the runtime fires as fast as it can; combined with a big steps_per_fire
-# that runs the simulation at the machine's processing limit.
-def tick_ms(sp: Speed) -> U32:
-  match sp:
-    case stopped{}:
-      NORMAL_MS
-    case normal{}:
-      NORMAL_MS
-    case fast{}:
-      120
-    case unlimited{}:
-      1
-
-# ============================================================
-# Init
-# ============================================================
-
-def empty_board() -> Grid(Cell):
-  Grid/fill(Cell, GW, GH, none{})
-
-init : App/Update(State, Event) =
-  update{state{empty_board(), 0, 12345, normal{}, phase_empty{}, 0, 0}, none{}}
-
-# ============================================================
-# Event handling
-# ============================================================
-
-# Convert a pixel-space click to grid coords, then plant a seed.
-# Write v at (x, y) only if `ok`.
-def set_if(b: Grid(Cell), ok: Bool, x: U32, y: U32, v: Cell) -> Grid(Cell):
+def push_if(ok: Bool, b: Board, n: Nat, +x: U32, +soil: U32) -> Board:
   match ok:
-    case true{}:
-      board_set(b, x, y, v)
-    case false{}:
+    case True{}:
+      push_band(n, b, x, soil)
+    case False{}:
       b
 
-# Plant the whole base around the seed: a TWO-cell trunk shoot going up,
-# and a root on each side at the soil row. Two cells matter: the lower
-# shoot sits among the dense base (seed + side roots) and will harden into
-# bark, but the upper shoot has only one neighbor, so it stays a branch and
-# is the clean growing tip. This guarantees a connected base
-# ([root][trunk][root]) AND a tree that actually grows up.
-def plant_base(b: Grid(Cell), cx: U32, cy: U32) -> Grid(Cell):
-  b1 = set_if(b,  U32/lt(0, cy),                 cx, U32/saturating_sub(cy, 1), some{branch{}});
-  b2 = set_if(b1, U32/lt(1, cy),                 cx, U32/saturating_sub(cy, 2), some{branch{}});
-  b3 = set_if(b2, U32/lt(0, cx),                 U32/saturating_sub(cx, 1), cy, some{root{}});
-  set_if(b3, Grid/in_bounds(GW, GH, cx + 1, cy), cx + 1, cy,                    some{root{}})
+def maybe_push(+b: Board, +tick: U32, +soil: U32, +tx: U32) -> Board:
+  +lo = sat_sub(tx, TRUNK_HALF())
+  +hi = U32.min((tx + TRUNK_HALF() : U32), (GW() - 1 : U32))
+  +n = U32.to_nat((hi - lo + 1 : U32))
+  +beat = ((tick > 0) && U32.is_eq((tick % TRUNK_PUSH_PERIOD() : U32), 0) : U32)
+  push_if(beat && band_top_clear(n, b, lo), b, n, lo, soil)
 
-def plant_seed(s: State, px: U32, py: U32) -> State:
-  match s:
-    case state{board, tick, rng, speed, _, _, _}:
-      cx = px // PX;
-      cy = py // PX;
-      if Grid/in_bounds(GW, GH, cx, cy):
-        # Record cy as the soil line and cx as the trunk column, so all
-        # growth (and the trunk push) is measured from where you clicked.
-        b1 = board_set(board, cx, cy, some{seed{}});
-        b2 = plant_base(b1, cx, cy);
-        state{b2, tick, rng, speed, phase_growing{}, cy, cx}
-      else:
-        s
+# Ticks
+# =====
 
-def on_event(e: Event, s: State) -> App/Update(State, Event):
-  match e:
-    case click{px, py}:
-      match s:
-        case state{_, _, _, _, phase_empty{}, _, _}:
-          update{plant_seed(s, px, py), none{}}
-        case _:
-          update{s, none{}}                     # already growing
-    case tick_ev{}:
-      match s:
-        case state{_, _, _, sp, _, _, _}:
-          update{run_ticks(steps_per_fire(sp), s), none{}}
-    case set_speed{new}:
-      match s:
-        case state{b, t, r, _, ph, sl, tx}:
-          update{state{b, t, r, new, ph, sl, tx}, none{}}
-    case reset{}:
-      update{state{empty_board(), 0, 12345, normal{}, phase_empty{}, 0, 0}, none{}}
+def one_tick.fin(
+  +tick: U32, speed: Speed, phase: Phase, +soil: U32, +tx: U32, wait: U32,
+  st: Board & U32
+) -> State:
+  (b1, r1) = st
+  +t1 = (tick + 1 : U32)
+  State{maybe_push(b1, t1, soil, tx), t1, r1, speed, phase, soil, tx, wait}
 
-# ============================================================
-# Render — one div per non-empty cell, absolutely positioned.
-# ============================================================
+def one_tick(s: State) -> State:
+  State{b, tick, rng, speed, phase, +soil, +tx, wait} = s
+  one_tick.fin(tick, speed, phase, soil, tx, wait,
+    scan_grid(GHn(), 0, soil, tx, (b, rng)))
 
-# Hex color string for each kind.
-def color_of(k: GT) -> String:
-  match k:
-    case seed{}:
-      "#a06030"
-    case root{}:
-      "#5c3a1a"
-    case bark{}:
-      "#6b4423"
-    case branch{}:
-      "#8b6f47"
-    case leaf{}:
-      "#3fa34d"
+def run_ticks(n: Nat, s: State) -> State:
+  match n:
+    case 0n:
+      s
+    case 1n+p:
+      run_ticks(p, one_tick(s))
 
-def cell_div(x: U32, y: U32, k: GT) -> HTML(Event):
-  <div
-    style:position={"absolute"}
-    style:left={U32/show(x * PX) ++ "px"}
-    style:top={U32/show(y * PX) ++ "px"}
-    style:width={U32/show(PX) ++ "px"}
-    style:height={U32/show(PX) ++ "px"}
-    style:background={color_of(k)}
-  />
+# One display frame: count toward the timer; on a fire run its ticks.
+def fire(go: Bool, sp: Speed, s: State) -> State:
+  match go:
+    case True{}:
+      State{b, t, r, speed, ph, sl, tx, wait} = s
+      run_ticks(steps_per_fire(sp), State{b, t, r, speed, ph, sl, tx, 0})
+    case False{}:
+      State{b, t, r, speed, ph, sl, tx, wait} = s
+      State{b, t, r, speed, ph, sl, tx, (wait + 1 : U32)}
 
-# Emit divs for one row (only the occupied cells).
-def render_row(board: Grid(Cell), y: U32, x: U32) -> List(HTML(Event)):
-  if U32/gte(x, GW):
-    []
-  else:
-    rest = render_row(board, y, x + 1);
-    match board_get(board, x, y):
-      case none{}:
-        rest
-      case some{k}:
-        cell_div(x, y, k) <> rest
+def frame(s: State) -> State:
+  State{b, t, r, +speed, ph, sl, tx, +wait} = s
+  fire(((wait + 1) >= fire_frames(speed) : U32), speed,
+    State{b, t, r, speed, ph, sl, tx, wait})
 
-# Concatenate all rows.
-def render_cells(board: Grid(Cell), y: U32) -> List(HTML(Event)):
-  if U32/gte(y, GH):
-    []
-  else:
-    List/append(HTML(Event), render_row(board, y, 0), render_cells(board, y + 1))
+# Init and planting
+# =================
 
-# Toolbar button.
-def tb_button(label: String, ev: Event) -> HTML(Event):
-  <button
-    on_click={ev}
-    style="margin-right:6px; padding:6px 10px; font-size:14px;"
-  >
-    {text{label}}
-  </button>
+def init() -> State:
+  State{empty_board(), 0, 12345, Normal{}, Unplanted{}, 0, 0, 0}
 
-def status_text(s: State) -> String:
-  match s:
-    case state{_, tick, _, _, phase_empty{}, _, _}:
-      "Click the canvas to plant a seed."
-    case state{_, tick, _, _, phase_growing{}, _, _}:
-      "Growing — tick " ++ U32/show(tick)
+# The whole base at once: a two-cell shoot up (the upper one stays a branch,
+# the clean growing tip) and a root on each side at the soil row.
+def plant_base(b: Board, +cx: U32, +cy: U32) -> Board:
+  b1 = set_if((0 < cy : U32), b, cx, sat_sub(cy, 1), 4)
+  b2 = set_if((1 < cy : U32), b1, cx, sat_sub(cy, 2), 4)
+  b3 = set_if((0 < cx : U32), b2, sat_sub(cx, 1), cy, 2)
+  set_if(in_bounds((cx + 1 : U32), cy), b3, (cx + 1 : U32), cy, 2)
 
-# Map a pointer event to a click, extracting element-local x/y.
-def click_event(ptr: HTML/Pointer) -> Event:
-  match ptr:
-    case pointer{_, x, y, _, _}:
-      click{I32/to_u32(x), I32/to_u32(y)}
+def plant.at(ok: Bool, s: State, +cx: U32, +cy: U32) -> State:
+  match ok:
+    case True{}:
+      State{b, t, r, sp, ph, sl, tx, w} = s
+      State{plant_base(cell_set(b, cx, cy, 1), cx, cy), t, r, sp, Growing{}, cy,
+        cx, w}
+    case False{}:
+      s
 
-# One swatch + label entry of the color legend.
-def legend_item(k: GT, label: String) -> HTML(Event):
-  <span style="display:inline-flex; align-items:center; margin-right:14px;">
-    <span
-      style:display={"inline-block"}
-      style:width={"13px"}
-      style:height={"13px"}
-      style:background={color_of(k)}
-      style:border={"1px solid #00000022"}
-      style:border-radius={"3px"}
-      style:margin-right={"5px"}
-    />
-    {text{label}}
-  </span>
-
-# The whole color legend row.
-def legend() -> HTML(Event):
-  <div style="margin-bottom:10px; font-size:13px; color:#444;">
-    {legend_item(seed{},   "seed")}
-    {legend_item(root{},   "root")}
-    {legend_item(bark{},   "trunk")}
-    {legend_item(branch{}, "branch")}
-    {legend_item(leaf{},   "leaf")}
-  </div>
-
-# A dotted horizontal line marking the soil, at the row where the seed was
-# planted. Drawn only once something has been planted.
-def soil_line(ph: Phase, soil: U32) -> HTML(Event):
+def plant.phase(ph: Phase, +cx: U32, +cy: U32, s: State) -> State:
   match ph:
-    case phase_empty{}:
-      <span/>
-    case phase_growing{}:
-      <div
-        style:position={"absolute"}
-        style:left={"0px"}
-        style:top={U32/show(soil * PX) ++ "px"}
-        style:width={"100%"}
-        style:height={"0px"}
-        style:border-top={"2px dashed #b08d57"}
-        style:pointer-events={"none"}
-      />
+    case Unplanted{}:
+      plant.at(in_bounds(cx, cy), s, cx, cy)
+    case Growing{}:
+      s
 
-# Top-level render.
-def render(s: State) -> HTML(Event):
-  match s:
-    case state{board, _, _, speed, phase, soil, _}:
-      cells = render_cells(board, 0);
-      <div style="font-family: system-ui, sans-serif; padding:12px;" every_ms={tick_ms(speed), tick_ev{}}>
-        <style>{text{css}}</style>
-        <div style="margin-bottom:8px;">
-          {tb_button("▶ Play",  set_speed{normal{}})}
-          {tb_button("⏩ Fast", set_speed{fast{}})}
-          {tb_button("⏭ Max",  set_speed{unlimited{}})}
-          {tb_button("⏸ Pause", set_speed{stopped{}})}
-          {tb_button("⟲ Reset", reset{})}
-        </div>
-        <div style="margin-bottom:8px; color:#666;">{text{status_text(s)}}</div>
-        {legend()}
-        <div
-          on_pointer_down={click_event}
-          style:position={"relative"}
-          style:width={U32/show(GW * PX) ++ "px"}
-          style:height={U32/show(GH * PX) ++ "px"}
-          style:background={"#f5efe1"}
-          style:border={"1px solid #c8bda6"}
-          style:cursor={"crosshair"}
-        >
-          {soil_line(phase, soil)}
-          {...cells}
-        </div>
-      </div>
+# Plant at a cell: only on an empty board (phase), only inside the grid.
+def plant_cell(+cx: U32, +cy: U32, +s: State) -> State:
+  State{b, t, r, sp, ph, sl, tx, w} = s
+  plant.phase(ph, cx, cy, s)
 
-css : String = "
-  button { cursor: pointer; border: 1px solid #aaa; background:#fafafa; border-radius:4px; }
-  button:hover { background:#eee; }
-"
+# A click in window pixels: pixel -> cell by integer division.
+def px_cell(x: F32) -> U32:
+  (U32.from_nat(F32.to_nat(x)) / PX() : U32)
 
-# Debug line shown by text-mode runners.
-def debug(s: State) -> String:
-  match s:
-    case state{_, tick, rng, _, _, _, _}:
-      "tick=" ++ U32/show(tick) ++ " rng=" ++ U32/show(rng)
+def click(x: F32, y: F32, s: State) -> State:
+  plant_cell(px_cell(x), px_cell(y), s)
 
-# Entry point.
-main : App = app{State, Event, init, render, on_event, debug}
+def set_speed(sp: Speed, s: State) -> State:
+  State{b, t, r, old, ph, sl, tx, w} = s
+  State{b, t, r, sp, ph, sl, tx, w}
+
+# Events
+# ======
+
+def key(code: U32, s: State) -> State:
+  match code:
+    case 49:
+      set_speed(Normal{}, s)
+    case 50:
+      set_speed(Fast{}, s)
+    case 51:
+      set_speed(Unlimited{}, s)
+    case 112:
+      set_speed(Stopped{}, s)
+    case 32:
+      set_speed(Stopped{}, s)
+    case 114:
+      init()
+    case _:
+      s
+
+def event(e: Event, s: State) -> Maybe<State>:
+  match e:
+    case Close{}:
+      None{}
+    case Key{27, True{}}:
+      None{}
+    case Key{code, True{}}:
+      Some{key(code, s)}
+    case Press{id, tool, x, y, time, 0, True{}}:
+      Some{click(x, y, s)}
+    case _:
+      Some{s}
+
+def events(es: List<Event>, s: State) -> Maybe<State>:
+  match es:
+    case []:
+      Some{s}
+    case e <> rest:
+      Maybe.bind(&1, State, State, event(e, s), s2 => events(rest, s2))
+
+# The app's pure step: this frame's events, then one frame of the clock.
+def Tree.step(es: List<Event>, s: State) -> Maybe<State>:
+  Maybe.bind(&1, State, State, events(es, s), s2 => Some{frame(s2)})
+
+def Tree.tick(es: List<Event>, s: State) -> IO(Maybe<State>):
+  IO.pure(Maybe<State>, Tree.step(es, s))
+
+# Render: the board as an Image quadtree, one node per 16-px cell
+# ===============================================================
+
+def color_of(v: U32) -> U32:
+  match v:
+    case 0:
+      16117729
+    case 1:
+      10510384
+    case 2:
+      6044186
+    case 3:
+      7029795
+    case 4:
+      9137991
+    case _:
+      4170573
+
+# The soil line: a 2-px dashed line on the top edge of the soil row.
+def soil_px(+d: Nat, flat: Bool, +px: U32, +py: U32, +gx: U32, +col: U32) ->
+  Image:
+  match d flat:
+    case 0n _:
+      +dash = U32.is_eq(((gx * 16 + px) / 6 % 2 : U32), 0)
+      Pix{sel(((py < 2) && dash : U32), 11570519, col)}
+    case 1n+e True{}:
+      Pix{col}
+    case 1n+e False{}:
+      +h = U32.shln(1, e)
+      +py2 = (py + h : U32)
+      Qua{soil_px(e, False{}, px, py, gx, col),
+        soil_px(e, False{}, (px + h : U32), py, gx, col),
+        soil_px(e, (py2 >= 2 : U32), px, py2, gx, col),
+        soil_px(e, (py2 >= 2 : U32), (px + h : U32), py2, gx, col)}
+
+# A swatch: col inset 3 px inside bg (the HUD's legend and speed boxes).
+def swatch.flat(+d: Nat, +px: U32, +py: U32) -> U32:
+  +s = U32.shln(1, d)
+  +inside = ((px >= 3) && (px + s <= 13) && (py >= 3) && (py + s <= 13) : U32)
+  +outside = ((px + s <= 3) || (px >= 13) || (py + s <= 3) || (py >= 13) : U32)
+  sel(inside, 1, sel(outside, 2, 0))
+
+def swatch(+d: Nat, f: U32, +px: U32, +py: U32, +col: U32, +bg: U32) -> Image:
+  match d f:
+    case 0n _:
+      Pix{col}
+    case 1n+e 1:
+      Pix{col}
+    case 1n+e 2:
+      Pix{bg}
+    case 1n+e _:
+      +h = U32.shln(1, e)
+      +px2 = (px + h : U32)
+      +py2 = (py + h : U32)
+      Qua{swatch(e, swatch.flat(e, px, py), px, py, col, bg),
+        swatch(e, swatch.flat(e, px2, py), px2, py, col, bg),
+        swatch(e, swatch.flat(e, px, py2), px, py2, col, bg),
+        swatch(e, swatch.flat(e, px2, py2), px2, py2, col, bg)}
+
+def HUD_BG() -> U32:
+  3813926
+
+def swatch16(+col: U32) -> Image:
+  swatch(4n, 0, 0, 0, col, HUD_BG())
+
+# The HUD row under the board: the five kinds' colors (the legend) on the
+# left, the four speeds (play, fast, max, pause) on the right, lit = current.
+def hud_cell.go(legend: Bool, speedbox: Bool, +x: U32, +k: U32, +spd: U32) ->
+  Image:
+  match legend speedbox:
+    case True{} _:
+      swatch16(color_of((x + 1 : U32)))
+    case False{} True{}:
+      swatch16(sel(U32.is_eq(k, spd), 16765286, 6710886))
+    case False{} False{}:
+      Pix{HUD_BG()}
+
+def hud_cell(+x: U32, +spd: U32) -> Image:
+  +k = (x - 42 : U32)
+  hud_cell.go((x < 5 : U32), (k < 4 : U32), x, k, spd)
+
+def board_cell(on_soil: Bool, +x: U32, +v: U32) -> Image:
+  match on_soil:
+    case True{}:
+      soil_px(4n, False{}, 0, 0, x, color_of(v))
+    case False{}:
+      Pix{color_of(v)}
+
+# One cell (x, y): the HUD row, off the board, or a board cell.
+def cell_img(hud: Bool, out: Bool, +t: Board, +x: U32, +y: U32, +sr: U32,
+  +spd: U32) -> Image:
+  match hud out:
+    case True{} _:
+      hud_cell(x, spd)
+    case False{} True{}:
+      Pix{0}
+    case False{} False{}:
+      board_cell(U32.is_eq(y, sr), x, bget(0n, t, x, y))
+
+def is_leaf(+t: Board) -> Bool:
+  match t:
+    case BLeaf{v}:
+      True{}
+    case BNode{a, b, c, d}:
+      False{}
+
+def leaf_v(+t: Board) -> U32:
+  match t:
+    case BLeaf{v}:
+      v
+    case BNode{a, b, c, d}:
+      0
+
+def child(q: U32, +t: Board) -> Board:
+  match t:
+    case BLeaf{v}:
+      t
+    case BNode{a, b, c, d}:
+      pick4(q, a, b, c, d)
+
+# A square of 2^d cells is one Pix when it is off the board and HUD, or
+# one uniform BLeaf wholly on the board with no soil line through it.
+def region(+d: Nat, +t: Board, +x0: U32, +y0: U32, +sr: U32) -> U32:
+  +s = U32.shln(1, d)
+  +out = ((x0 >= GW()) || (y0 > GH()) : U32)
+  +inner = (is_leaf(t) && (x0 + s <= GW()) && (y0 + s <= GH())
+    && ((sr < y0) || (sr >= y0 + s)) : U32)
+  sel(out, 0, sel(inner, color_of(leaf_v(t)), 4294967295))
+
+def draw(+d: Nat, flat: U32, +t: Board, +x0: U32, +y0: U32, +sr: U32, +spd: U32)
+  -> Image:
+  match d flat:
+    case 0n _:
+      cell_img(U32.is_eq(y0, GH()), ((x0 >= GW()) || (y0 > GH()) : U32), t, x0,
+        y0, sr, spd)
+    case 1n+e 4294967295:
+      +h = U32.shln(1, e)
+      +x1 = (x0 + h : U32)
+      +y1 = (y0 + h : U32)
+      +a = child(0, t)
+      +b = child(1, t)
+      +c = child(2, t)
+      +dd = child(3, t)
+      Qua{draw(e, region(e, a, x0, y0, sr), a, x0, y0, sr, spd),
+        draw(e, region(e, b, x1, y0, sr), b, x1, y0, sr, spd),
+        draw(e, region(e, c, x0, y1, sr), c, x0, y1, sr, spd),
+        draw(e, region(e, dd, x1, y1, sr), dd, x1, y1, sr, spd)}
+    case 1n+e color:
+      Pix{color}
+
+# The soil row only once something is planted (else off the board).
+def soil_row(ph: Phase, +soil: U32) -> U32:
+  match ph:
+    case Unplanted{}:
+      4294967295
+    case Growing{}:
+      soil
+
+# 64 x 64 cells of 16 px: the 1024-px root over the 736 x 560 window.
+def render(+s: State) -> Image:
+  State{b, t, r, sp, ph, +sl, tx, w} = s
+  +sr = soil_row(ph, sl)
+  draw(BD(), region(BD(), b, 0, 0, sr), b, 0, 0, sr, speed_code(sp))
+
+def Tree.view(s: State) -> State & Image:
+  +s2 = s
+  (s2, render(s2))
+
+def WIN_W() -> U32:
+  (GW() * PX() : U32)
+
+def WIN_H() -> U32:
+  ((GH() + 1) * PX() : U32)
+
+# Status and census (the web page's text; the tests)
+# =================================================
+
+def census.add(v: U32, c: Census) -> Census:
+  match v c:
+    case 1 Census{a, r, k, h, l}:
+      Census{(a + 1 : U32), r, k, h, l}
+    case 2 Census{a, r, k, h, l}:
+      Census{a, (r + 1 : U32), k, h, l}
+    case 3 Census{a, r, k, h, l}:
+      Census{a, r, (k + 1 : U32), h, l}
+    case 4 Census{a, r, k, h, l}:
+      Census{a, r, k, (h + 1 : U32), l}
+    case 5 Census{a, r, k, h, l}:
+      Census{a, r, k, h, (l + 1 : U32)}
+    case _ _:
+      c
+
+def census.go(n: Nat, +b: Board, +i: U32, c: Census) -> Census:
+  match n:
+    case 0n:
+      c
+    case 1n+p:
+      census.go(p, b, (i + 1 : U32),
+        census.add(cell_get(b, (i % GW() : U32), (i / GW() : U32)), c))
+
+def census(+b: Board) -> Census:
+  census.go(U32.to_nat((GW() * GH() : U32)), b, 0, Census{0, 0, 0, 0, 0})
+
+def Census.show(c: Census) -> String:
+  Census{a, r, k, h, l} = c
+  "seed " ++ U32.show(a) ++ ", root " ++ U32.show(r) ++ ", trunk "
+    ++ U32.show(k) ++ ", branch " ++ U32.show(h) ++ ", leaf " ++ U32.show(l)
+
+def speed_name(sp: Speed) -> String:
+  match sp:
+    case Stopped{}:
+      "paused"
+    case Normal{}:
+      "play"
+    case Fast{}:
+      "fast"
+    case Unlimited{}:
+      "max"
+
+def status.go(ph: Phase, +t: U32, c: Census, sp: Speed) -> String:
+  match ph:
+    case Unplanted{}:
+      "Click the board to plant a seed."
+    case Growing{}:
+      "Growing - tick " ++ U32.show(t) ++ " (" ++ speed_name(sp) ++ ") - "
+        ++ Census.show(c)
+
+# The status line under the toolbar of the web page.
+def Tree.status(s: State) -> String:
+  State{b, t, r, sp, ph, sl, tx, w} = s
+  status.go(ph, t, census(b), sp)
+
+def main() -> IO(Unit):
+  App.run(~State, ~App{Tree.view, Tree.tick}, "Growing Tree", WIN_W(), WIN_H(),
+    init())

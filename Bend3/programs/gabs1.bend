@@ -1,7 +1,8 @@
+# gabs1: prints a line through the IO monad
+# expect: You are not real
 
-import ../bend-base/Base
+import Base
 
-def main() -> IO(U32):
-  do IO(U32):
-    _ <- IO.write("You are not real\n")
-    return 0
+def main() -> IO(Unit):
+  do IO<Unit>:
+    IO.print("You are not real")

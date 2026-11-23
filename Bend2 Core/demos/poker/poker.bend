@@ -1,10 +1,10 @@
 import Base
 
-# Pure, deterministic poker simulation for Bend2 Core.  The browser viewer is
+# Pure, deterministic poker simulation (Bend 2.0.40).  The browser viewer is
 # deliberately outside this file: main returns all state needed to replay two
 # complete four-AI hands without IO or hidden host-side game logic.
 
-type Odds:
+type Odds is Data:
   Odds{
     win: U32,
     high: U32,
@@ -17,19 +17,19 @@ type Odds:
     quads: U32
   }
 
-type PlayerView:
+type PlayerView is Data:
   PlayerView{
     seat: U32,
     name: String,
     personality: String,
     active: Bool,
     stack: U32,
-    cards: List<U32>,
+    cards: +List<U32>,
     best: String,
     odds: Odds
   }
 
-type Step:
+type Step is Data:
   Step{
     phase: String,
     note: String,
@@ -37,74 +37,24 @@ type Step:
     action: String,
     amount: U32,
     pot: U32,
-    board: List<U32>,
-    players: List<PlayerView>
+    board: +List<U32>,
+    players: +List<PlayerView>
   }
 
-type Timeline:
+type Timeline is Data:
   Timeline{
     variant: String,
     seed: U32,
     dealer: U32,
     winner: U32,
-    steps: List<Step>
+    steps: +List<Step>
   }
 
-type PokerReport:
+type PokerReport is Data:
   PokerReport{texas: Timeline, omaha: Timeline}
-
-# U32-Helpers
-# ===========
-
-def u32_pair(value: U32) -> U32 & U32:
-  ((a, ea), (b, eb)) = U32.copy(value)
-  (a, b)
-
-def u32_quad(value: U32) -> U32 & (U32 & (U32 & U32)):
-  (a, rest) = u32_pair(value)
-  (b, more) = u32_pair(rest)
-  (c, d) = u32_pair(more)
-  (a, (b, (c, d)))
-
-def nat_pair(value: Nat) -> Nat & Nat:
-  ((a, ea), (b, eb)) = Nat.copy(value)
-  (a, b)
-
-def nat_quad(value: Nat) -> Nat & (Nat & (Nat & Nat)):
-  (a, rest) = nat_pair(value)
-  (b, more) = nat_pair(rest)
-  (c, d) = nat_pair(more)
-  (a, (b, (c, d)))
-
-def nat_eight(value: Nat) -> Nat & (Nat & (Nat & (Nat & (Nat & (Nat & (Nat & Nat)))))):
-  (left, right) = nat_pair(value)
-  (a, (b, (c, d))) = nat_quad(left)
-  (e, (f, (g, h))) = nat_quad(right)
-  (a, (b, (c, (d, (e, (f, (g, h)))))))
 
 def u32(value: Nat) -> U32:
   U32.from_nat(value)
-
-# List-Helpers
-# ============
-
-def cards0() -> List<U32>:
-  Nil{}
-
-def cards1(a: Nat) -> List<U32>:
-  Con{u32(a), Nil{}}
-
-def cards2(a: Nat, b: Nat) -> List<U32>:
-  Con{u32(a), Con{u32(b), Nil{}}}
-
-def cards3(a: Nat, b: Nat, c: Nat) -> List<U32>:
-  Con{u32(a), Con{u32(b), Con{u32(c), Nil{}}}}
-
-def cards4(a: Nat, b: Nat, c: Nat, d: Nat) -> List<U32>:
-  Con{u32(a), Con{u32(b), Con{u32(c), Con{u32(d), Nil{}}}}}
-
-def cards5(a: Nat, b: Nat, c: Nat, d: Nat, e: Nat) -> List<U32>:
-  Con{u32(a), Con{u32(b), Con{u32(c), Con{u32(d), Con{u32(e), Nil{}}}}}}
 
 # Deal
 # ====
@@ -114,12 +64,12 @@ def cards5(a: Nat, b: Nat, c: Nat, d: Nat, e: Nat) -> List<U32>:
 # coprime to 52, hence no card can repeat during the deal.
 
 def texas_card(index: Nat) -> U32:
-  U32.mod(U32.add(u32(5n), U32.mul(u32(3n), u32(index))), u32(52n))
+  ((5 + 3 * u32(index)) % 52 : U32)
 
 def omaha_card(index: Nat) -> U32:
-  U32.mod(U32.add(u32(29n), U32.mul(u32(17n), u32(index))), u32(52n))
+  ((29 + 17 * u32(index)) % 52 : U32)
 
-def texas_hole(seat: Nat) -> List<U32>:
+def texas_hole(seat: Nat) -> +List<U32>:
   match seat:
     case 0n:
       Con{texas_card(0n), Con{texas_card(4n), Nil{}}}
@@ -132,7 +82,7 @@ def texas_hole(seat: Nat) -> List<U32>:
     case other:
       Nil{}
 
-def omaha_hole(seat: Nat) -> List<U32>:
+def omaha_hole(seat: Nat) -> +List<U32>:
   match seat:
     case 0n:
       Con{omaha_card(0n), Con{omaha_card(4n), Con{omaha_card(8n), Con{omaha_card(12n), Nil{}}}}}
@@ -145,7 +95,7 @@ def omaha_hole(seat: Nat) -> List<U32>:
     case other:
       Nil{}
 
-def texas_board(count: Nat) -> List<U32>:
+def texas_board(count: Nat) -> +List<U32>:
   match count:
     case 0n:
       Nil{}
@@ -160,7 +110,7 @@ def texas_board(count: Nat) -> List<U32>:
     case other:
       Con{texas_card(8n), Con{texas_card(9n), Con{texas_card(10n), Con{texas_card(11n), Con{texas_card(12n), Nil{}}}}}}
 
-def omaha_board(count: Nat) -> List<U32>:
+def omaha_board(count: Nat) -> +List<U32>:
   match count:
     case 0n:
       Nil{}
@@ -187,73 +137,73 @@ def texas_odds(stage: Nat, seat: Nat) -> Odds:
   match stage:
     case 0n:
       match seat:
-        case 0n: Odds{u32(27n),u32(46n),u32(37n),u32(8n),u32(3n),u32(4n),u32(1n),u32(1n),u32(0n)}
-        case 1n: Odds{u32(20n),u32(54n),u32(34n),u32(7n),u32(2n),u32(2n),u32(0n),u32(1n),u32(0n)}
-        case 2n: Odds{u32(29n),u32(47n),u32(36n),u32(8n),u32(3n),u32(4n),u32(1n),u32(1n),u32(0n)}
-        case other: Odds{u32(24n),u32(56n),u32(32n),u32(7n),u32(2n),u32(1n),u32(1n),u32(1n),u32(0n)}
+        case 0n: Odds{27,46,37,8,3,4,1,1,0}
+        case 1n: Odds{20,54,34,7,2,2,0,1,0}
+        case 2n: Odds{29,47,36,8,3,4,1,1,0}
+        case other: Odds{24,56,32,7,2,1,1,1,0}
     case 1n:
       match seat:
-        case 0n: Odds{u32(31n),u32(35n),u32(24n),u32(7n),u32(2n),u32(29n),u32(2n),u32(1n),u32(0n)}
-        case 1n: Odds{u32(18n),u32(57n),u32(32n),u32(6n),u32(2n),u32(2n),u32(1n),u32(0n),u32(0n)}
-        case 2n: Odds{u32(17n),u32(58n),u32(30n),u32(7n),u32(2n),u32(2n),u32(1n),u32(0n),u32(0n)}
-        case other: Odds{u32(34n),u32(25n),u32(22n),u32(6n),u32(2n),u32(3n),u32(41n),u32(1n),u32(0n)}
+        case 0n: Odds{31,35,24,7,2,29,2,1,0}
+        case 1n: Odds{18,57,32,6,2,2,1,0,0}
+        case 2n: Odds{17,58,30,7,2,2,1,0,0}
+        case other: Odds{34,25,22,6,2,3,41,1,0}
     case 2n:
       match seat:
-        case 0n: Odds{u32(28n),u32(0n),u32(0n),u32(0n),u32(0n),u32(100n),u32(0n),u32(0n),u32(0n)}
-        case 1n: Odds{u32(13n),u32(79n),u32(19n),u32(2n),u32(0n),u32(0n),u32(0n),u32(0n),u32(0n)}
-        case 2n: Odds{u32(16n),u32(79n),u32(19n),u32(2n),u32(0n),u32(0n),u32(0n),u32(0n),u32(0n)}
-        case other: Odds{u32(43n),u32(0n),u32(0n),u32(0n),u32(0n),u32(0n),u32(100n),u32(0n),u32(0n)}
+        case 0n: Odds{28,0,0,0,0,100,0,0,0}
+        case 1n: Odds{13,79,19,2,0,0,0,0,0}
+        case 2n: Odds{16,79,19,2,0,0,0,0,0}
+        case other: Odds{43,0,0,0,0,0,100,0,0}
     case 4n:
       match seat:
-        case 0n: Odds{u32(28n),u32(0n),u32(0n),u32(0n),u32(0n),u32(100n),u32(0n),u32(0n),u32(0n)}
-        case 1n: Odds{u32(13n),u32(79n),u32(19n),u32(2n),u32(0n),u32(0n),u32(0n),u32(0n),u32(0n)}
-        case 2n: Odds{u32(0n),u32(79n),u32(19n),u32(2n),u32(0n),u32(0n),u32(0n),u32(0n),u32(0n)}
-        case other: Odds{u32(59n),u32(0n),u32(0n),u32(0n),u32(0n),u32(0n),u32(100n),u32(0n),u32(0n)}
+        case 0n: Odds{28,0,0,0,0,100,0,0,0}
+        case 1n: Odds{13,79,19,2,0,0,0,0,0}
+        case 2n: Odds{0,79,19,2,0,0,0,0,0}
+        case other: Odds{59,0,0,0,0,0,100,0,0}
     case other:
       match seat:
-        case 0n: Odds{u32(0n),u32(0n),u32(0n),u32(0n),u32(0n),u32(100n),u32(0n),u32(0n),u32(0n)}
-        case 1n: Odds{u32(0n),u32(100n),u32(0n),u32(0n),u32(0n),u32(0n),u32(0n),u32(0n),u32(0n)}
-        case 2n: Odds{u32(0n),u32(100n),u32(0n),u32(0n),u32(0n),u32(0n),u32(0n),u32(0n),u32(0n)}
-        case other: Odds{u32(100n),u32(0n),u32(0n),u32(0n),u32(0n),u32(0n),u32(100n),u32(0n),u32(0n)}
+        case 0n: Odds{0,0,0,0,0,100,0,0,0}
+        case 1n: Odds{0,100,0,0,0,0,0,0,0}
+        case 2n: Odds{0,100,0,0,0,0,0,0,0}
+        case other: Odds{100,0,0,0,0,0,100,0,0}
 
 def omaha_odds(stage: Nat, seat: Nat) -> Odds:
   match stage:
     case 0n:
       match seat:
-        case 0n: Odds{u32(31n),u32(26n),u32(38n),u32(14n),u32(6n),u32(10n),u32(3n),u32(2n),u32(1n)}
-        case 1n: Odds{u32(23n),u32(31n),u32(39n),u32(13n),u32(5n),u32(7n),u32(2n),u32(2n),u32(1n)}
-        case 2n: Odds{u32(24n),u32(29n),u32(40n),u32(13n),u32(5n),u32(8n),u32(2n),u32(2n),u32(1n)}
-        case other: Odds{u32(22n),u32(34n),u32(38n),u32(12n),u32(5n),u32(6n),u32(2n),u32(2n),u32(1n)}
+        case 0n: Odds{31,26,38,14,6,10,3,2,1}
+        case 1n: Odds{23,31,39,13,5,7,2,2,1}
+        case 2n: Odds{24,29,40,13,5,8,2,2,1}
+        case other: Odds{22,34,38,12,5,6,2,2,1}
     case 1n:
       match seat:
-        case 0n: Odds{u32(27n),u32(0n),u32(68n),u32(19n),u32(5n),u32(4n),u32(2n),u32(2n),u32(0n)}
-        case 1n: Odds{u32(34n),u32(0n),u32(71n),u32(17n),u32(5n),u32(3n),u32(2n),u32(2n),u32(0n)}
-        case 2n: Odds{u32(18n),u32(52n),u32(35n),u32(8n),u32(2n),u32(2n),u32(1n),u32(0n),u32(0n)}
-        case other: Odds{u32(21n),u32(54n),u32(33n),u32(8n),u32(2n),u32(2n),u32(1n),u32(0n),u32(0n)}
+        case 0n: Odds{27,0,68,19,5,4,2,2,0}
+        case 1n: Odds{34,0,71,17,5,3,2,2,0}
+        case 2n: Odds{18,52,35,8,2,2,1,0,0}
+        case other: Odds{21,54,33,8,2,2,1,0,0}
     case 2n:
       match seat:
-        case 0n: Odds{u32(24n),u32(0n),u32(76n),u32(16n),u32(4n),u32(2n),u32(1n),u32(1n),u32(0n)}
-        case 1n: Odds{u32(31n),u32(0n),u32(78n),u32(14n),u32(4n),u32(1n),u32(1n),u32(1n),u32(0n)}
-        case 2n: Odds{u32(19n),u32(0n),u32(71n),u32(17n),u32(5n),u32(3n),u32(2n),u32(2n),u32(0n)}
-        case other: Odds{u32(26n),u32(0n),u32(73n),u32(16n),u32(4n),u32(3n),u32(2n),u32(2n),u32(0n)}
+        case 0n: Odds{24,0,76,16,4,2,1,1,0}
+        case 1n: Odds{31,0,78,14,4,1,1,1,0}
+        case 2n: Odds{19,0,71,17,5,3,2,2,0}
+        case other: Odds{26,0,73,16,4,3,2,2,0}
     case 4n:
       match seat:
-        case 0n: Odds{u32(33n),u32(0n),u32(68n),u32(19n),u32(5n),u32(4n),u32(2n),u32(2n),u32(0n)}
-        case 1n: Odds{u32(41n),u32(0n),u32(71n),u32(17n),u32(5n),u32(3n),u32(2n),u32(2n),u32(0n)}
-        case 2n: Odds{u32(0n),u32(52n),u32(35n),u32(8n),u32(2n),u32(2n),u32(1n),u32(0n),u32(0n)}
-        case other: Odds{u32(26n),u32(54n),u32(33n),u32(8n),u32(2n),u32(2n),u32(1n),u32(0n),u32(0n)}
+        case 0n: Odds{33,0,68,19,5,4,2,2,0}
+        case 1n: Odds{41,0,71,17,5,3,2,2,0}
+        case 2n: Odds{0,52,35,8,2,2,1,0,0}
+        case other: Odds{26,54,33,8,2,2,1,0,0}
     case 5n:
       match seat:
-        case 0n: Odds{u32(22n),u32(0n),u32(100n),u32(0n),u32(0n),u32(0n),u32(0n),u32(0n),u32(0n)}
-        case 1n: Odds{u32(29n),u32(0n),u32(100n),u32(0n),u32(0n),u32(0n),u32(0n),u32(0n),u32(0n)}
-        case 2n: Odds{u32(0n),u32(0n),u32(100n),u32(0n),u32(0n),u32(0n),u32(0n),u32(0n),u32(0n)}
-        case other: Odds{u32(49n),u32(0n),u32(0n),u32(100n),u32(0n),u32(0n),u32(0n),u32(0n),u32(0n)}
+        case 0n: Odds{22,0,100,0,0,0,0,0,0}
+        case 1n: Odds{29,0,100,0,0,0,0,0,0}
+        case 2n: Odds{0,0,100,0,0,0,0,0,0}
+        case other: Odds{49,0,0,100,0,0,0,0,0}
     case other:
       match seat:
-        case 0n: Odds{u32(0n),u32(0n),u32(100n),u32(0n),u32(0n),u32(0n),u32(0n),u32(0n),u32(0n)}
-        case 1n: Odds{u32(35n),u32(0n),u32(100n),u32(0n),u32(0n),u32(0n),u32(0n),u32(0n),u32(0n)}
-        case 2n: Odds{u32(0n),u32(0n),u32(100n),u32(0n),u32(0n),u32(0n),u32(0n),u32(0n),u32(0n)}
-        case other: Odds{u32(65n),u32(0n),u32(0n),u32(100n),u32(0n),u32(0n),u32(0n),u32(0n),u32(0n)}
+        case 0n: Odds{0,0,100,0,0,0,0,0,0}
+        case 1n: Odds{35,0,100,0,0,0,0,0,0}
+        case 2n: Odds{0,0,100,0,0,0,0,0,0}
+        case other: Odds{65,0,0,100,0,0,0,0,0}
 
 # Player-Views
 # ============
@@ -368,41 +318,35 @@ def omaha_active(stage: Nat, seat: Nat) -> Bool:
         case 2n: False{}
         case other: True{}
 
-def texas_player(stage: U32, seat: Nat, stack: Nat) -> PlayerView:
-  (s0, (s1, (s2, s3))) = u32_quad(stage)
-  (n0, (n1, (n2, (n3, (n4, (n5, (n6, n7))))))) = nat_eight(seat)
+def texas_player(+stage: Nat, +seat: Nat, stack: Nat) -> PlayerView:
   PlayerView{
-    u32(n0),
-    player_name(n1),
-    player_personality(n2),
-    texas_active(U32.to_nat(s0), n3),
+    u32(seat),
+    player_name(seat),
+    player_personality(seat),
+    texas_active(stage, seat),
     u32(stack),
-    texas_hole(n4),
-    texas_best(U32.to_nat(s1), n5),
-    texas_odds(U32.to_nat(s2), n6)
+    texas_hole(seat),
+    texas_best(stage, seat),
+    texas_odds(stage, seat)
   }
 
-def omaha_player(stage: U32, seat: Nat, stack: Nat) -> PlayerView:
-  (s0, (s1, (s2, s3))) = u32_quad(stage)
-  (n0, (n1, (n2, (n3, (n4, (n5, (n6, n7))))))) = nat_eight(seat)
+def omaha_player(+stage: Nat, +seat: Nat, stack: Nat) -> PlayerView:
   PlayerView{
-    u32(n0),
-    player_name(n1),
-    player_personality(n2),
-    omaha_active(U32.to_nat(s0), n3),
+    u32(seat),
+    player_name(seat),
+    player_personality(seat),
+    omaha_active(stage, seat),
     u32(stack),
-    omaha_hole(n4),
-    omaha_best(U32.to_nat(s1), n5),
-    omaha_odds(U32.to_nat(s2), n6)
+    omaha_hole(seat),
+    omaha_best(stage, seat),
+    omaha_odds(stage, seat)
   }
 
-def texas_players(stage: Nat, a: Nat, b: Nat, c: Nat, d: Nat) -> List<PlayerView>:
-  (s0, (s1, (s2, s3))) = u32_quad(u32(stage))
-  Con{texas_player(s0, 0n, a), Con{texas_player(s1, 1n, b), Con{texas_player(s2, 2n, c), Con{texas_player(s3, 3n, d), Nil{}}}}}
+def texas_players(+stage: Nat, a: Nat, b: Nat, c: Nat, d: Nat) -> +List<PlayerView>:
+  [texas_player(stage, 0n, a), texas_player(stage, 1n, b), texas_player(stage, 2n, c), texas_player(stage, 3n, d)]
 
-def omaha_players(stage: Nat, a: Nat, b: Nat, c: Nat, d: Nat) -> List<PlayerView>:
-  (s0, (s1, (s2, s3))) = u32_quad(u32(stage))
-  Con{omaha_player(s0, 0n, a), Con{omaha_player(s1, 1n, b), Con{omaha_player(s2, 2n, c), Con{omaha_player(s3, 3n, d), Nil{}}}}}
+def omaha_players(+stage: Nat, a: Nat, b: Nat, c: Nat, d: Nat) -> +List<PlayerView>:
+  [omaha_player(stage, 0n, a), omaha_player(stage, 1n, b), omaha_player(stage, 2n, c), omaha_player(stage, 3n, d)]
 
 # Steps
 # =====
@@ -416,7 +360,7 @@ def omaha_step(stage: Nat, board: Nat, phase: String, note: String, actor: Nat, 
 # Timelines
 # =========
 
-def texas_steps() -> List<Step>:
+def texas_steps() -> +List<Step>:
   Con{texas_step(0n,0n,"Deal","Dealer button: Ada. Blinds 10 / 20.",4n,"deal",0n,30n,990n,980n,1000n,1000n),
   Con{texas_step(0n,0n,"Pre-flop","Cora opens after reading a strong broadway hand.",2n,"raise",60n,90n,990n,980n,940n,1000n),
   Con{texas_step(0n,0n,"Pre-flop","Rook likes speculative draws.",3n,"call",60n,150n,990n,980n,940n,940n),
@@ -440,7 +384,7 @@ def texas_steps() -> List<Step>:
   Con{texas_step(3n,5n,"River","Beak pays off the final bet.",1n,"call",160n,1120n,860n,580n,860n,580n),
   Con{texas_step(3n,5n,"Showdown","River Rook wins 1120 with an ace-high flush.",3n,"win",1120n,0n,860n,580n,860n,1700n), Nil{}}}}}}}}}}}}}}}}}}}}}}}
 
-def omaha_steps() -> List<Step>:
+def omaha_steps() -> +List<Step>:
   Con{omaha_step(0n,0n,"Deal","Omaha: four private cards each; exactly two must play.",4n,"deal",0n,30n,990n,980n,1000n,1000n),
   Con{omaha_step(0n,0n,"Pre-flop","Ada opens a connected four-card hand.",0n,"raise",50n,80n,940n,980n,1000n,1000n),
   Con{omaha_step(0n,0n,"Pre-flop","Beak calls wide.",1n,"call",30n,110n,940n,950n,1000n,1000n),
@@ -469,10 +413,10 @@ def omaha_steps() -> List<Step>:
   Con{omaha_step(3n,5n,"Showdown","River Rook wins 1470 with sevens and fours.",3n,"win",1470n,0n,660n,490n,890n,1960n), Nil{}}}}}}}}}}}}}}}}}}}}}}}}}}}
 
 def texas_timeline() -> Timeline:
-  Timeline{"Texas Hold'em", u32(5n), u32(0n), u32(3n), texas_steps()}
+  Timeline{"Texas Hold'em", 5, 0, 3, texas_steps()}
 
 def omaha_timeline() -> Timeline:
-  Timeline{"Omaha", u32(29n), u32(0n), u32(3n), omaha_steps()}
+  Timeline{"Omaha", 29, 0, 3, omaha_steps()}
 
 def main() -> PokerReport:
   PokerReport{texas_timeline(), omaha_timeline()}
