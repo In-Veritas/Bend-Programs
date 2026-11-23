@@ -3,494 +3,448 @@
 # This is deliberately an in-memory LAN demo. Passwords are never stored as
 # clear text, but the compact U32 digest is not a production password KDF;
 # put this behind TLS and replace digest_password before using real accounts.
+#
+# Ported to Bend 2.0.40. Hub interface (`import ./social.bend as Social`):
+# `Social.State`, `Social.empty()`, and
+# `Social.route(req, state, now) -> IO(State & HTTP.Response)` for
+#   GET  /api/state/<token>
+#   POST /api/{register,login,chat,invite,friend_request,friend_accept,
+#              friend_remove,presence}   (body: newline-separated fields)
+# `now` is the hub's monotonic millisecond clock (presence expires after
+# 12 s without a request).
+import Base
+import ../HTTP.bend as HTTP
+import ../Compat.bend as Compat
 
-import ../../bend-base/Base
-import ../Compat
-import ../../bend-base/IO/HTTP
-import ../../bend-base/JSON
-
-type User:
+type User is Data:
   User{id: U32, name: String, password: U32, token: U32, seen: U32, game: String}
 
-type Message:
+type Message is Data:
   Message{id: U32, sender: String, recipient: String, text: String, at: U32}
 
-type Invite:
+type Invite is Data:
   Invite{id: U32, sender: String, recipient: String, game: String, status: U32, at: U32}
 
-type Friend:
-  # status: 0 pending, 1 accepted. `left` sent the request to `right`.
+# status: 0 pending, 1 accepted. `left` sent the request to `right`.
+type Friend is Data:
   Friend{left: String, right: String, status: U32}
 
-type State:
-  State{users: List(User), messages: List(Message), invites: List(Invite), friends: List(Friend), next_id: U32}
+type State is Data:
+  State{users: List<&2, User>, messages: List<&2, Message>, invites: List<&2, Invite>, friends: List<&2, Friend>, next_id: U32}
 
-type Routed:
-  Routed{state: State, response: HTTP.Response}
-
-def digest_go(s: String, acc: U32) -> U32:
-  match s:
-    case List.Cons{c, t}:
-      digest_go(t, (acc * 16777619) + Char.code(c))
-    case List.Nil{}:
-      acc
-
-def digest_password(name: String, password: String) -> U32:
-  digest_go(String.concat(name, password), 2166136261)
-
-def user_json(user: User, now: U32) -> String:
-  match user:
-    case User.User{id, name, password, token, seen, game}:
-      String.flatten(["{\"id\":", String.from_u32(id), ",\"name\":", JSON.quoted(name, ""), ",\"online\":", String.from_u32((now - seen) < 12000), ",\"game\":", JSON.quoted(game, ""), "}"])
-
-def users_json(xs: List(User), now: U32) -> String:
-  match xs:
-    case List.Cons{h, List.Nil{}}:
-      String.concat(user_json(h, now), "]")
-    case List.Cons{h, t}:
-      String.concat(user_json(h, now), String.concat(",", users_json(t, now)))
-    case List.Nil{}:
-      "]"
-
-def message_json(message: Message) -> String:
-  match message:
-    case Message.Message{id, sender, recipient, text, at}:
-      String.flatten(["{\"id\":", String.from_u32(id), ",\"from\":", JSON.quoted(sender, ""), ",\"to\":", JSON.quoted(recipient, ""), ",\"text\":", JSON.quoted(text, ""), ",\"at\":", String.from_u32(at), "}"])
-
-def messages_json_go(xs: List(Message), who: String, first: U32) -> String:
-  match xs:
-    case List.Cons{h, t}:
-      match h:
-        case Message.Message{id, sender, recipient, text, at}:
-          match String.eq_u32(sender, who) || String.eq_u32(recipient, who):
-            case 0:
-              messages_json_go(t, who, first)
-            case k:
-              match first:
-                case 0:
-                  String.concat(",", String.concat(message_json(Message.Message{id, sender, recipient, text, at}), messages_json_go(t, who, 0)))
-                case j:
-                  String.concat(message_json(Message.Message{id, sender, recipient, text, at}), messages_json_go(t, who, 0))
-    case List.Nil{}:
-      "]"
-
-def messages_json(xs: List(Message), who: String) -> String:
-  messages_json_go(xs, who, 1)
-
-def invite_json(invite: Invite) -> String:
-  match invite:
-    case Invite.Invite{id, sender, recipient, game, status, at}:
-      String.flatten(["{\"id\":", String.from_u32(id), ",\"from\":", JSON.quoted(sender, ""), ",\"to\":", JSON.quoted(recipient, ""), ",\"game\":", JSON.quoted(game, ""), ",\"status\":", String.from_u32(status), "}"])
-
-def invites_json_go(xs: List(Invite), who: String, first: U32) -> String:
-  match xs:
-    case List.Cons{h, t}:
-      match h:
-        case Invite.Invite{id, sender, recipient, game, status, at}:
-          match String.eq_u32(sender, who) || String.eq_u32(recipient, who):
-            case 0:
-              invites_json_go(t, who, first)
-            case k:
-              match first:
-                case 0:
-                  String.concat(",", String.concat(invite_json(Invite.Invite{id, sender, recipient, game, status, at}), invites_json_go(t, who, 0)))
-                case j:
-                  String.concat(invite_json(Invite.Invite{id, sender, recipient, game, status, at}), invites_json_go(t, who, 0))
-    case List.Nil{}:
-      "]"
-
-def invites_json(xs: List(Invite), who: String) -> String:
-  invites_json_go(xs, who, 1)
-
-def friend_other(left: String, right: String, who: String) -> String:
-  match String.eq_u32(left, who):
-    case 0:
-      left
-    case k:
-      right
-
-def friend_json(friend: Friend, who: String) -> String:
-  match friend:
-    case Friend.Friend{left, right, status}:
-      other = friend_other(left, right, who)
-      String.flatten(["{\"name\":", JSON.quoted(other, ""), "}"])
-
-def friends_json_go(xs: List(Friend), who: String, first: U32) -> String:
-  match xs:
-    case List.Cons{h, t}:
-      match h:
-        case Friend.Friend{left, right, status}:
-          match (status == 1) && (String.eq_u32(left, who) || String.eq_u32(right, who)):
-            case 0:
-              friends_json_go(t, who, first)
-            case k:
-              match first:
-                case 0:
-                  String.concat(",", String.concat(friend_json(Friend.Friend{left, right, status}, who), friends_json_go(t, who, 0)))
-                case j:
-                  String.concat(friend_json(Friend.Friend{left, right, status}, who), friends_json_go(t, who, 0))
-    case List.Nil{}:
-      "]"
-
-def friends_json(xs: List(Friend), who: String) -> String:
-  friends_json_go(xs, who, 1)
-
-def request_json(friend: Friend, who: String) -> String:
-  match friend:
-    case Friend.Friend{left, right, status}:
-      other = friend_other(left, right, who)
-      String.flatten(["{\"name\":", JSON.quoted(other, ""), ",\"incoming\":", String.from_u32(String.eq_u32(right, who)), "}"])
-
-def requests_json_go(xs: List(Friend), who: String, first: U32) -> String:
-  match xs:
-    case List.Cons{h, t}:
-      match h:
-        case Friend.Friend{left, right, status}:
-          match (status == 0) && (String.eq_u32(left, who) || String.eq_u32(right, who)):
-            case 0:
-              requests_json_go(t, who, first)
-            case k:
-              match first:
-                case 0:
-                  String.concat(",", String.concat(request_json(Friend.Friend{left, right, status}, who), requests_json_go(t, who, 0)))
-                case j:
-                  String.concat(request_json(Friend.Friend{left, right, status}, who), requests_json_go(t, who, 0))
-    case List.Nil{}:
-      "]"
-
-def requests_json(xs: List(Friend), who: String) -> String:
-  requests_json_go(xs, who, 1)
-
-def state_json(state: State, who: String, token: U32, now: U32, ok: U32, note: String) -> String:
-  match state:
-    case State.State{users, messages, invites, friends, next_id}:
-      String.flatten(["{\"ok\":", String.from_u32(ok), ",\"note\":", JSON.quoted(note, ""), ",\"token\":", String.from_u32(token), ",\"me\":", JSON.quoted(who, ""), ",\"users\":[", users_json(users, now), ",\"messages\":[", messages_json(messages, who), ",\"invites\":[", invites_json(invites, who), ",\"friends\":[", friends_json(friends, who), ",\"requests\":[", requests_json(friends, who), "}"])
-
-def social_reply(state: State, who: String, token: U32, now: U32, ok: U32, note: String) -> Routed:
-  Routed.Routed{state, HTTP.reply(200, "application/json; charset=utf-8", state_json(state, who, token, now, ok, note))}
-
-def empty() -> State:
-  State.State{List.Nil{}, List.Nil{}, List.Nil{}, List.Nil{}, 1}
-
-type Found:
+type Found is Data:
   Found{name: String, token: U32, seen: U32}
   Missing{}
 
-def find_token(users: List(User), token: U32) -> Found:
-  match users:
-    case List.Cons{h, t}:
-      match h:
-        case User.User{id, name, password, stored, seen, game}:
-          match (token > 0) && (stored == token):
-            case 0:
-              find_token(t, token)
-            case k:
-              Found.Found{name, stored, seen}
-    case List.Nil{}:
-      Found.Missing{}
+def digest_go(s: String, +acc: U32) -> U32:
+  match s:
+    case SNil{}:
+      acc
+    case SCon{c, t}:
+      digest_go(t, (acc * 16777619 + Char.to_u32(c) : U32))
 
-def token_name(users: List(User), token: U32) -> String:
-  match find_token(users, token):
-    case Found.Found{name, token, seen}:
+def digest_password(name: String, password: String) -> U32:
+  digest_go(name ++ password, 2166136261)
+
+def num(s: String) -> U32:
+  Compat.to_u32(s)
+
+def len(s: String) -> U32:
+  U32.from_nat(String.length(s))
+
+def part(xs: List<&2, String>, n: Nat) -> String:
+  Maybe.default(&2, String, List.get(&2, String, xs, n), "")
+
+def bit(b: Bool) -> String:
+  U32.show(Bool.to_u32(b))
+
+def done(s: State, r: HTTP.Response) -> IO(State & HTTP.Response):
+  IO.pure(State & HTTP.Response, (s, r))
+
+# JSON
+# ----
+
+def user_json(user: User, now: U32) -> String:
+  User{id, name, password, token, seen, game} = user
+  String.concat(["{\"id\":", U32.show(id), ",\"name\":", HTTP.quoted(name), ",\"online\":", bit(((now - seen : U32) < 12000 : U32)), ",\"game\":", HTTP.quoted(game), "}"])
+
+def users_json(xs: List<&2, User>, +now: U32) -> List<&2, String>:
+  match xs:
+    case Nil{}:
+      Nil{}
+    case h <> t:
+      user_json(h, now) <> users_json(t, now)
+
+def message_json(message: Message) -> String:
+  Message{id, sender, recipient, text, at} = message
+  String.concat(["{\"id\":", U32.show(id), ",\"from\":", HTTP.quoted(sender), ",\"to\":", HTTP.quoted(recipient), ",\"text\":", HTTP.quoted(text), ",\"at\":", U32.show(at), "}"])
+
+def involves(+sender: String, +recipient: String, who: String) -> Bool:
+  +w = who
+  String.eq(sender, w) || String.eq(recipient, w)
+
+def keep(hit: Bool, item: String, rest: List<&2, String>) -> List<&2, String>:
+  match hit:
+    case True{}:
+      item <> rest
+    case False{}:
+      rest
+
+def messages_json(xs: List<&2, Message>, +who: String) -> List<&2, String>:
+  match xs:
+    case Nil{}:
+      Nil{}
+    case +h <> t:
+      Message{id, +sender, +recipient, text, at} = h
+      keep(involves(sender, recipient, who), message_json(h), messages_json(t, who))
+
+def invite_json(invite: Invite) -> String:
+  Invite{id, sender, recipient, game, status, at} = invite
+  String.concat(["{\"id\":", U32.show(id), ",\"from\":", HTTP.quoted(sender), ",\"to\":", HTTP.quoted(recipient), ",\"game\":", HTTP.quoted(game), ",\"status\":", U32.show(status), "}"])
+
+def invite_sides(+invite: Invite, who: String) -> Bool:
+  Invite{id, +sender, +recipient, game, status, at} = invite
+  involves(sender, recipient, who)
+
+def invites_json(xs: List<&2, Invite>, +who: String) -> List<&2, String>:
+  match xs:
+    case Nil{}:
+      Nil{}
+    case +h <> t:
+      keep(invite_sides(h, who), invite_json(h), invites_json(t, who))
+
+def friend_other(+left: String, right: String, who: String) -> String:
+  Bool.pick(String, String.eq(left, who), right, left)
+
+def friend_json(friend: Friend, who: String) -> String:
+  Friend{+left, right, status} = friend
+  "{\"name\":" ++ HTTP.quoted(friend_other(left, right, who)) ++ "}"
+
+def friend_has(+friend: Friend, +status: U32, who: String) -> Bool:
+  Friend{+left, +right, stored} = friend
+  U32.is_eq(stored, status) && involves(left, right, who)
+
+def friends_json(xs: List<&2, Friend>, +who: String) -> List<&2, String>:
+  match xs:
+    case Nil{}:
+      Nil{}
+    case +h <> t:
+      keep(friend_has(h, 1, who), friend_json(h, who), friends_json(t, who))
+
+def request_json(friend: Friend, +who: String) -> String:
+  Friend{+left, +right, status} = friend
+  String.concat(["{\"name\":", HTTP.quoted(friend_other(left, right, who)), ",\"incoming\":", bit(String.eq(right, who)), "}"])
+
+def requests_json(xs: List<&2, Friend>, +who: String) -> List<&2, String>:
+  match xs:
+    case Nil{}:
+      Nil{}
+    case +h <> t:
+      keep(friend_has(h, 0, who), request_json(h, who), requests_json(t, who))
+
+def array(xs: List<&2, String>) -> String:
+  "[" ++ String.join(xs, ",") ++ "]"
+
+def state_json(state: State, +who: String, token: U32, +now: U32, ok: Bool, note: String) -> String:
+  State{users, messages, invites, +friends, next_id} = state
+  String.concat(["{\"ok\":", bit(ok), ",\"note\":", HTTP.quoted(note), ",\"token\":", U32.show(token), ",\"me\":", HTTP.quoted(who),
+    ",\"users\":", array(users_json(users, now)), ",\"messages\":", array(messages_json(messages, who)),
+    ",\"invites\":", array(invites_json(invites, who)), ",\"friends\":", array(friends_json(friends, who)),
+    ",\"requests\":", array(requests_json(friends, who)), "}"])
+
+def social_reply(+state: State, who: String, token: U32, now: U32, ok: Bool, note: String) -> IO(State & HTTP.Response):
+  done(state, HTTP.json(state_json(state, who, token, now, ok, note)))
+
+def empty() -> State:
+  State{Nil{}, Nil{}, Nil{}, Nil{}, 1}
+
+# Lookups
+# -------
+
+def token_hit(+token: U32, +stored: U32) -> Bool:
+  (token > 0 : U32) && U32.is_eq(stored, token)
+
+def find_token.pick(hit: Bool, here: Found, rest: Found) -> Found:
+  match hit:
+    case True{}:
+      here
+    case False{}:
+      rest
+
+def find_token(users: List<&2, User>, +token: U32) -> Found:
+  match users:
+    case Nil{}:
+      Missing{}
+    case h <> t:
+      User{id, name, password, +stored, seen, game} = h
+      find_token.pick(token_hit(token, stored), Found{name, stored, seen}, find_token(t, token))
+
+def token_name.of(f: Found) -> String:
+  match f:
+    case Found{name, token, seen}:
       name
-    case Found.Missing{}:
+    case Missing{}:
       ""
 
-def find_name(users: List(User), name: String) -> U32:
+def token_name(users: List<&2, User>, token: U32) -> String:
+  token_name.of(find_token(users, token))
+
+def user_name(u: User) -> String:
+  User{id, name, password, token, seen, game} = u
+  name
+
+def find_name(users: List<&2, User>, +name: String) -> Bool:
   match users:
-    case List.Cons{h, t}:
-      match h:
-        case User.User{id, stored, password, token, seen, game}:
-          match String.eq_u32(stored, name):
-            case 0:
-              find_name(t, name)
-            case k:
-              1
-    case List.Nil{}:
-      0
+    case Nil{}:
+      False{}
+    case h <> t:
+      String.eq(user_name(h), name) || find_name(t, name)
+
+def same_pair(+left: String, +right: String, +one: String, +two: String) -> Bool:
+  (String.eq(left, one) && String.eq(right, two)) || (String.eq(left, two) && String.eq(right, one))
 
 # 0 = no relationship, 1 = pending request, 2 = accepted friendship.
-def friends_kind(friends: List(Friend), one: String, two: String) -> U32:
+def friends_kind(friends: List<&2, Friend>, +one: String, +two: String) -> U32:
   match friends:
-    case List.Cons{h, t}:
-      match h:
-        case Friend.Friend{left, right, status}:
-          same = (String.eq_u32(left, one) && String.eq_u32(right, two)) || (String.eq_u32(left, two) && String.eq_u32(right, one))
-          match same:
-            case 0:
-              friends_kind(t, one, two)
-            case k:
-              status + 1
-    case List.Nil{}:
+    case Nil{}:
       0
+    case h <> t:
+      Friend{left, right, +status} = h
+      Bool.pick(U32, same_pair(left, right, one, two), (status + 1 : U32), friends_kind(t, one, two))
 
-def friends_accept(friends: List(Friend), sender: String, recipient: String) -> List(Friend):
-  match friends:
-    case List.Cons{h, t}:
-      match h:
-        case Friend.Friend{left, right, status}:
-          match (status == 0) && (String.eq_u32(left, sender) && String.eq_u32(right, recipient)):
-            case 0:
-              List.Cons{Friend.Friend{left, right, status}, friends_accept(t, sender, recipient)}
-            case k:
-              List.Cons{Friend.Friend{left, right, 1}, t}
-    case List.Nil{}:
-      List.Nil{}
+def pending_from(+friend: Friend, +sender: String, +recipient: String) -> Bool:
+  Friend{left, right, status} = friend
+  U32.is_zero(status) && String.eq(left, sender) && String.eq(right, recipient)
 
-def friends_incoming(friends: List(Friend), sender: String, recipient: String) -> U32:
+def friends_accept(friends: List<&2, Friend>, +sender: String, +recipient: String) -> List<&2, Friend>:
   match friends:
-    case List.Cons{h, t}:
-      match h:
-        case Friend.Friend{left, right, status}:
-          match (status == 0) && (String.eq_u32(left, sender) && String.eq_u32(right, recipient)):
-            case 0:
-              friends_incoming(t, sender, recipient)
-            case k:
-              1
-    case List.Nil{}:
+    case Nil{}:
+      Nil{}
+    case +h <> +t:
+      Friend{left, right, status} = h
+      Bool.pick(List<&2, Friend>, pending_from(h, sender, recipient), Friend{left, right, 1} <> t, h <> friends_accept(t, sender, recipient))
+
+def friends_incoming(friends: List<&2, Friend>, +sender: String, +recipient: String) -> Bool:
+  match friends:
+    case Nil{}:
+      False{}
+    case h <> t:
+      pending_from(h, sender, recipient) || friends_incoming(t, sender, recipient)
+
+def friends_remove(friends: List<&2, Friend>, +one: String, +two: String) -> List<&2, Friend>:
+  match friends:
+    case Nil{}:
+      Nil{}
+    case +h <> +t:
+      Friend{left, right, status} = h
+      Bool.pick(List<&2, Friend>, same_pair(left, right, one, two), t, h <> friends_remove(t, one, two))
+
+# Marks the token's user as seen now and, with Some{game}, playing it.
+def users_seen(users: List<&2, User>, +token: U32, +now: U32, +game: Maybe<&2, String>) -> List<&2, User>:
+  match users:
+    case Nil{}:
+      Nil{}
+    case +h <> +t:
+      User{id, name, password, +stored, seen, old_game} = h
+      Bool.pick(List<&2, User>, token_hit(token, stored),
+        User{id, name, password, stored, now, Maybe.default(&2, String, game, old_game)} <> t,
+        h <> users_seen(t, token, now, game))
+
+def touch_users(users: List<&2, User>, token: U32, now: U32) -> List<&2, User>:
+  users_seen(users, token, now, None{})
+
+def password_for(users: List<&2, User>, +name: String) -> U32:
+  match users:
+    case Nil{}:
       0
+    case h <> t:
+      User{id, stored, password, token, seen, game} = h
+      Bool.pick(U32, String.eq(stored, name), password, password_for(t, name))
 
-def friends_remove(friends: List(Friend), one: String, two: String) -> List(Friend):
-  match friends:
-    case List.Cons{h, t}:
-      match h:
-        case Friend.Friend{left, right, status}:
-          same = (String.eq_u32(left, one) && String.eq_u32(right, two)) || (String.eq_u32(left, two) && String.eq_u32(right, one))
-          match same:
-            case 0:
-              List.Cons{Friend.Friend{left, right, status}, friends_remove(t, one, two)}
-            case k:
-              t
-    case List.Nil{}:
-      List.Nil{}
-
-def touch_users(users: List(User), token: U32, now: U32) -> List(User):
+def login_users(users: List<&2, User>, +name: String, +token: U32, +now: U32) -> List<&2, User>:
   match users:
-    case List.Cons{h, t}:
-      match h:
-        case User.User{id, name, password, stored, seen, game}:
-          match (token > 0) && (stored == token):
-            case 0:
-              List.Cons{User.User{id, name, password, stored, seen, game}, touch_users(t, token, now)}
-            case k:
-              List.Cons{User.User{id, name, password, stored, now, game}, t}
-    case List.Nil{}:
-      List.Nil{}
+    case Nil{}:
+      Nil{}
+    case +h <> +t:
+      User{id, +stored, password, old_token, seen, game} = h
+      Bool.pick(List<&2, User>, String.eq(stored, name), User{id, stored, password, token, now, game} <> t, h <> login_users(t, name, token, now))
 
-def body_parts(body: Bytes) -> List(String):
-  String.split(Char.Char{10}, Bytes.to_string(body))
+# Actions
+# -------
 
-def part(xs: List(String), n: U32) -> String:
-  List.head(String, "", List.drop(String, n, xs))
+def register.go(bad: Bool, +state: State, +name: String, +password: String, +now: U32) -> IO(State & HTTP.Response):
+  match bad:
+    case True{}:
+      social_reply(state, "", 0, now, False{}, "choose a unique name and a password of at least four characters")
+    case False{}:
+      State{users, messages, invites, friends, +next_id} = state
+      do IO<State & HTTP.Response>:
+        word : U32 <- IO.try(U32, IO.random_u32())
+        +token : U32 = (word + 1 : U32)
+        social_reply(State{User{next_id, name, digest_password(name, password), token, now, ""} <> users, messages, invites, friends, (next_id + 1 : U32)}, name, token, now, True{}, "account created")
 
-def register(state: State, parts: List(String), now: U32) -> IO(Routed):
-  match state:
-    case State.State{users, messages, invites, friends, next_id}:
-      name = part(parts, 0)
-      password = part(parts, 1)
-      match (String.length(name) < 2) || ((String.length(password) < 4) || (find_name(users, name) > 0)):
-        case 0:
-          do IO(Routed):
-            token <- IO.rand_word()
-            return social_reply(State.State{List.Cons{User.User{next_id, name, digest_password(name, password), token + 1, now, ""}, users}, messages, invites, friends, next_id + 1}, name, token + 1, now, 1, "account created")
-        case k:
-          IO.pure(Routed, social_reply(State.State{users, messages, invites, friends, next_id}, "", 0, now, 0, "choose a unique name and a password of at least four characters"))
+def register(+state: State, +parts: List<&2, String>, +now: U32) -> IO(State & HTTP.Response):
+  State{users, messages, invites, friends, next_id} = state
+  +name = part(parts, 0n)
+  +password = part(parts, 1n)
+  register.go((len(name) < 2 : U32) || (len(password) < 4 : U32) || find_name(users, name), state, name, password, now)
 
-def password_for(users: List(User), name: String) -> U32:
-  match users:
-    case List.Cons{h, t}:
-      match h:
-        case User.User{id, stored, password, token, seen, game}:
-          match String.eq_u32(stored, name):
-            case 0:
-              password_for(t, name)
-            case k:
-              password
-    case List.Nil{}:
-      0
+def login.go(ok: Bool, +state: State, +name: String, +now: U32) -> IO(State & HTTP.Response):
+  match ok:
+    case False{}:
+      social_reply(state, "", 0, now, False{}, "invalid username or password")
+    case True{}:
+      State{users, messages, invites, friends, next_id} = state
+      do IO<State & HTTP.Response>:
+        word : U32 <- IO.try(U32, IO.random_u32())
+        +token : U32 = (word + 1 : U32)
+        social_reply(State{login_users(users, name, token, now), messages, invites, friends, next_id}, name, token, now, True{}, "welcome back")
 
-def login_users(users: List(User), name: String, token: U32, now: U32) -> List(User):
-  match users:
-    case List.Cons{h, t}:
-      match h:
-        case User.User{id, stored, password, old_token, seen, game}:
-          match String.eq_u32(stored, name):
-            case 0:
-              List.Cons{User.User{id, stored, password, old_token, seen, game}, login_users(t, name, token, now)}
-            case k:
-              List.Cons{User.User{id, stored, password, token, now, game}, t}
-    case List.Nil{}:
-      List.Nil{}
+def login(+state: State, +parts: List<&2, String>, +now: U32) -> IO(State & HTTP.Response):
+  State{users, messages, invites, friends, next_id} = state
+  +name = part(parts, 0n)
+  +stored = password_for(users, name)
+  login.go((stored > 0 : U32) && U32.is_eq(stored, digest_password(name, part(parts, 1n))), state, name, now)
 
-def login(state: State, parts: List(String), now: U32) -> IO(Routed):
-  match state:
-    case State.State{users, messages, invites, friends, next_id}:
-      name = part(parts, 0)
-      password = part(parts, 1)
-      match (password_for(users, name) > 0) && (password_for(users, name) == digest_password(name, password)):
-        case 0:
-          IO.pure(Routed, social_reply(State.State{users, messages, invites, friends, next_id}, "", 0, now, 0, "invalid username or password"))
-        case k:
-          do IO(Routed):
-            token <- IO.rand_word()
-            return social_reply(State.State{login_users(users, name, token + 1, now), messages, invites, friends, next_id}, name, token + 1, now, 1, "welcome back")
+# The common shape of a signed-in action: on `ok` the new state, else the
+# old one (with the caller seen now), and the matching note.
+def answer(ok: Bool, +old: State, +new: State, +who: String, +token: U32, +now: U32, yes: String, no: String) -> IO(State & HTTP.Response):
+  match ok:
+    case True{}:
+      social_reply(new, who, token, now, True{}, yes)
+    case False{}:
+      social_reply(old, who, token, now, False{}, no)
 
-def chat(state: State, parts: List(String), now: U32) -> Routed:
-  match state:
-    case State.State{users, messages, invites, friends, next_id}:
-      token = String.to_u32(part(parts, 0))
-      who = token_name(users, token)
-      recipient = part(parts, 1)
-      text = part(parts, 2)
-      match (String.length(who) > 0) && ((friends_kind(friends, who, recipient) == 2) && (String.length(text) > 0)):
-        case 0:
-          social_reply(State.State{touch_users(users, token, now), messages, invites, friends, next_id}, who, token, now, 0, "messages can only be sent to accepted friends")
-        case k:
-          social_reply(State.State{touch_users(users, token, now), List.Cons{Message.Message{next_id, who, recipient, text, now}, messages}, invites, friends, next_id + 1}, who, token, now, 1, "message sent")
+def chat(+state: State, +parts: List<&2, String>, +now: U32) -> IO(State & HTTP.Response):
+  State{users, messages, invites, +friends, +next_id} = state
+  +token = num(part(parts, 0n))
+  +who = token_name(users, token)
+  +recipient = part(parts, 1n)
+  +text = part(parts, 2n)
+  +seen = touch_users(users, token, now)
+  answer((len(who) > 0 : U32) && U32.is_eq(friends_kind(friends, who, recipient), 2) && (len(text) > 0 : U32),
+    State{seen, messages, invites, friends, next_id},
+    State{seen, Message{next_id, who, recipient, text, now} <> messages, invites, friends, (next_id + 1 : U32)},
+    who, token, now, "message sent", "messages can only be sent to accepted friends")
 
-def invite(state: State, parts: List(String), now: U32) -> Routed:
-  match state:
-    case State.State{users, messages, invites, friends, next_id}:
-      token = String.to_u32(part(parts, 0))
-      who = token_name(users, token)
-      recipient = part(parts, 1)
-      game = part(parts, 2)
-      match (String.length(who) > 0) && (friends_kind(friends, who, recipient) == 2):
-        case 0:
-          social_reply(State.State{touch_users(users, token, now), messages, invites, friends, next_id}, who, token, now, 0, "game invitations can only be sent to accepted friends")
-        case k:
-          social_reply(State.State{touch_users(users, token, now), messages, List.Cons{Invite.Invite{next_id, who, recipient, game, 0, now}, invites}, friends, next_id + 1}, who, token, now, 1, "invitation sent")
+def invite(+state: State, +parts: List<&2, String>, +now: U32) -> IO(State & HTTP.Response):
+  State{users, messages, invites, +friends, +next_id} = state
+  +token = num(part(parts, 0n))
+  +who = token_name(users, token)
+  +recipient = part(parts, 1n)
+  +game = part(parts, 2n)
+  +seen = touch_users(users, token, now)
+  answer((len(who) > 0 : U32) && U32.is_eq(friends_kind(friends, who, recipient), 2),
+    State{seen, messages, invites, friends, next_id},
+    State{seen, messages, Invite{next_id, who, recipient, game, 0, now} <> invites, friends, (next_id + 1 : U32)},
+    who, token, now, "invitation sent", "game invitations can only be sent to accepted friends")
 
-def friend_request(state: State, parts: List(String), now: U32) -> Routed:
-  match state:
-    case State.State{users, messages, invites, friends, next_id}:
-      token = String.to_u32(part(parts, 0))
-      who = token_name(users, token)
-      other = part(parts, 1)
-      match (String.length(who) > 0) && ((find_name(users, other) > 0) && ((String.eq_u32(who, other) == 0) && (friends_kind(friends, who, other) == 0))):
-        case 0:
-          social_reply(State.State{touch_users(users, token, now), messages, invites, friends, next_id}, who, token, now, 0, "choose a user who is not already a friend or pending")
-        case k:
-          social_reply(State.State{touch_users(users, token, now), messages, invites, List.Cons{Friend.Friend{who, other, 0}, friends}, next_id}, who, token, now, 1, "friend request sent")
+def friend_request(+state: State, +parts: List<&2, String>, +now: U32) -> IO(State & HTTP.Response):
+  State{+users, messages, invites, +friends, next_id} = state
+  +token = num(part(parts, 0n))
+  +who = token_name(users, token)
+  +other = part(parts, 1n)
+  +seen = touch_users(users, token, now)
+  answer((len(who) > 0 : U32) && find_name(users, other) && Bool.not(String.eq(who, other)) && U32.is_zero(friends_kind(friends, who, other)),
+    State{seen, messages, invites, friends, next_id},
+    State{seen, messages, invites, Friend{who, other, 0} <> friends, next_id},
+    who, token, now, "friend request sent", "choose a user who is not already a friend or pending")
 
-def friend_accept(state: State, parts: List(String), now: U32) -> Routed:
-  match state:
-    case State.State{users, messages, invites, friends, next_id}:
-      token = String.to_u32(part(parts, 0))
-      who = token_name(users, token)
-      sender = part(parts, 1)
-      match (String.length(who) > 0) && (friends_incoming(friends, sender, who) > 0):
-        case 0:
-          social_reply(State.State{touch_users(users, token, now), messages, invites, friends, next_id}, who, token, now, 0, "no incoming request from that user")
-        case k:
-          social_reply(State.State{touch_users(users, token, now), messages, invites, friends_accept(friends, sender, who), next_id}, who, token, now, 1, "friend request accepted")
+def friend_accept(+state: State, +parts: List<&2, String>, +now: U32) -> IO(State & HTTP.Response):
+  State{users, messages, invites, +friends, next_id} = state
+  +token = num(part(parts, 0n))
+  +who = token_name(users, token)
+  +sender = part(parts, 1n)
+  +seen = touch_users(users, token, now)
+  answer((len(who) > 0 : U32) && friends_incoming(friends, sender, who),
+    State{seen, messages, invites, friends, next_id},
+    State{seen, messages, invites, friends_accept(friends, sender, who), next_id},
+    who, token, now, "friend request accepted", "no incoming request from that user")
 
-def friend_remove(state: State, parts: List(String), now: U32) -> Routed:
-  match state:
-    case State.State{users, messages, invites, friends, next_id}:
-      token = String.to_u32(part(parts, 0))
-      who = token_name(users, token)
-      other = part(parts, 1)
-      match (String.length(who) > 0) && (friends_kind(friends, who, other) > 0):
-        case 0:
-          social_reply(State.State{touch_users(users, token, now), messages, invites, friends, next_id}, who, token, now, 0, "friendship or request not found")
-        case k:
-          social_reply(State.State{touch_users(users, token, now), messages, invites, friends_remove(friends, who, other), next_id}, who, token, now, 1, "relationship removed")
+def friend_remove(+state: State, +parts: List<&2, String>, +now: U32) -> IO(State & HTTP.Response):
+  State{users, messages, invites, +friends, next_id} = state
+  +token = num(part(parts, 0n))
+  +who = token_name(users, token)
+  +other = part(parts, 1n)
+  +seen = touch_users(users, token, now)
+  answer((len(who) > 0 : U32) && (friends_kind(friends, who, other) > 0 : U32),
+    State{seen, messages, invites, friends, next_id},
+    State{seen, messages, invites, friends_remove(friends, who, other), next_id},
+    who, token, now, "relationship removed", "friendship or request not found")
 
-def users_presence(users: List(User), token: U32, now: U32, game: String) -> List(User):
-  match users:
-    case List.Cons{h, t}:
-      match h:
-        case User.User{id, name, password, stored, seen, old_game}:
-          match (token > 0) && (stored == token):
-            case 0:
-              List.Cons{User.User{id, name, password, stored, seen, old_game}, users_presence(t, token, now, game)}
-            case k:
-              List.Cons{User.User{id, name, password, stored, now, game}, t}
-    case List.Nil{}:
-      List.Nil{}
+def presence.go(ok: Bool, +state: State, +who: String, +token: U32, +game: String, +now: U32) -> IO(State & HTTP.Response):
+  match ok:
+    case False{}:
+      social_reply(state, "", 0, now, False{}, "sign in to publish presence")
+    case True{}:
+      State{users, messages, invites, friends, next_id} = state
+      social_reply(State{users_seen(users, token, now, Some{game}), messages, invites, friends, next_id}, who, token, now, True{}, "")
 
-def presence(state: State, parts: List(String), now: U32) -> Routed:
-  match state:
-    case State.State{users, messages, invites, friends, next_id}:
-      token = String.to_u32(part(parts, 0))
-      who = token_name(users, token)
-      game = part(parts, 1)
-      match String.length(who) > 0:
-        case 0:
-          social_reply(State.State{users, messages, invites, friends, next_id}, "", 0, now, 0, "sign in to publish presence")
-        case k:
-          social_reply(State.State{users_presence(users, token, now, game), messages, invites, friends, next_id}, who, token, now, 1, "")
+def presence(+state: State, +parts: List<&2, String>, +now: U32) -> IO(State & HTTP.Response):
+  State{users, messages, invites, friends, next_id} = state
+  +token = num(part(parts, 0n))
+  +who = token_name(users, token)
+  presence.go((len(who) > 0 : U32), state, who, token, part(parts, 1n), now)
 
-def state_get(state: State, token_text: String, now: U32) -> Routed:
-  State.State{users, messages, invites, friends, next_id} = state
-  token = String.to_u32(token_text)
-  match find_token(users, token):
-    case Found.Found{who, stored, seen}:
-      social_reply(State.State{touch_users(users, token, now), messages, invites, friends, next_id}, who, token, now, 1, "")
-    case Found.Missing{}:
-      social_reply(State.State{users, messages, invites, friends, next_id}, "", 0, now, 0, "sign in to join the social space")
+def state_get.found(f: Found, +state: State, +token: U32, +now: U32) -> IO(State & HTTP.Response):
+  match f:
+    case Found{who, stored, seen}:
+      State{users, messages, invites, friends, next_id} = state
+      social_reply(State{touch_users(users, token, now), messages, invites, friends, next_id}, who, token, now, True{}, "")
+    case Missing{}:
+      social_reply(state, "", 0, now, False{}, "sign in to join the social space")
 
-def action_route(name: String, request: HTTP.Request, state: State, now: U32) -> IO(Routed):
-  match String.eq_u32(name, "register"):
-    case 0:
-      match String.eq_u32(name, "login"):
-        case 0:
-          match String.eq_u32(name, "chat"):
-            case 0:
-              match String.eq_u32(name, "invite"):
-                case 0:
-                  match String.eq_u32(name, "friend_request"):
-                    case 0:
-                      match String.eq_u32(name, "friend_accept"):
-                        case 0:
-                          match String.eq_u32(name, "friend_remove"):
-                            case 0:
-                              match String.eq_u32(name, "presence"):
-                                case 0:
-                                  IO.pure(Routed, social_reply(state, "", 0, now, 0, "unknown social route"))
-                                case k7:
-                                  IO.pure(Routed, presence(state, body_parts(request_body(request)), now))
-                            case k6:
-                              IO.pure(Routed, friend_remove(state, body_parts(request_body(request)), now))
-                        case k5:
-                          IO.pure(Routed, friend_accept(state, body_parts(request_body(request)), now))
-                    case k4:
-                      IO.pure(Routed, friend_request(state, body_parts(request_body(request)), now))
-                case k3:
-                  IO.pure(Routed, invite(state, body_parts(request_body(request)), now))
-            case k2:
-              IO.pure(Routed, chat(state, body_parts(request_body(request)), now))
-        case k2:
-          login(state, body_parts(request_body(request)), now)
-    case k2:
-      register(state, body_parts(request_body(request)), now)
+def state_get(+state: State, token_text: String, +now: U32) -> IO(State & HTTP.Response):
+  State{users, messages, invites, friends, next_id} = state
+  +token = num(token_text)
+  state_get.found(find_token(users, token), state, token, now)
 
-def string_route(name: String, args: List(String), request: HTTP.Request, state: State, now: U32) -> IO(Routed):
-  match args:
-    case List.Cons{token, rest}:
-      IO.pure(Routed, state_get(state, token, now))
-    case List.Nil{}:
-      action_route(name, request, state, now)
+def action_code(+name: String) -> U32:
+  Bool.pick(U32, String.eq(name, "register"), 1,
+  Bool.pick(U32, String.eq(name, "login"), 2,
+  Bool.pick(U32, String.eq(name, "chat"), 3,
+  Bool.pick(U32, String.eq(name, "invite"), 4,
+  Bool.pick(U32, String.eq(name, "friend_request"), 5,
+  Bool.pick(U32, String.eq(name, "friend_accept"), 6,
+  Bool.pick(U32, String.eq(name, "friend_remove"), 7,
+  Bool.pick(U32, String.eq(name, "presence"), 8, 0))))))))
 
-def request_body(request: HTTP.Request) -> Bytes:
-  match request:
-    case HTTP.Request.Request{method, path, headers, body}:
-      body
+def action_route(code: U32, +body: String, +state: State, +now: U32) -> IO(State & HTTP.Response):
+  match code:
+    case 1:
+      register(state, HTTP.body_lines(body), now)
+    case 2:
+      login(state, HTTP.body_lines(body), now)
+    case 3:
+      chat(state, HTTP.body_lines(body), now)
+    case 4:
+      invite(state, HTTP.body_lines(body), now)
+    case 5:
+      friend_request(state, HTTP.body_lines(body), now)
+    case 6:
+      friend_accept(state, HTTP.body_lines(body), now)
+    case 7:
+      friend_remove(state, HTTP.body_lines(body), now)
+    case 8:
+      presence(state, HTTP.body_lines(body), now)
+    case other:
+      social_reply(state, "", 0, now, False{}, "unknown social route")
 
-def request_route(request: HTTP.Request, state: State, now: U32) -> IO(Routed):
-  match request:
-    case HTTP.Request.Request{method, path, headers, body}:
-      match String.eq_u32(method, "POST"):
-        case 0:
-          match String.split('/', path):
-            case List.Cons{root, List.Cons{"api", List.Cons{"state", List.Cons{token, rest}}}}:
-              IO.pure(Routed, state_get(state, token, now))
-            case other:
-              IO.pure(Routed, social_reply(state, "", 0, now, 0, "use POST for social actions"))
-        case k:
-          match String.split('/', path):
-            case List.Cons{root, List.Cons{"api", List.Cons{name, args}}}:
-              string_route(name, args, HTTP.Request.Request{method, path, headers, body}, state, now)
-            case other:
-              IO.pure(Routed, social_reply(state, "", 0, now, 0, "use the social API"))
+# POST /api/<action>; GET /api/state/<token>. Anything else answers a JSON
+# note, as the old module did.
+def route.segs(post: Bool, segs: List<&2, String>, +body: String, +state: State, +now: U32) -> IO(State & HTTP.Response):
+  match post segs:
+    case False{} "api" <> "state" <> token <> rest:
+      state_get(state, token, now)
+    case False{} _:
+      social_reply(state, "", 0, now, False{}, "use POST for social actions")
+    case True{} "api" <> name <> Nil{}:
+      action_route(action_code(name), body, state, now)
+    case True{} "api" <> name <> token <> rest:
+      state_get(state, token, now)
+    case True{} _:
+      social_reply(state, "", 0, now, False{}, "use the social API")
+
+def route(req: HTTP.Request, state: State, now: U32) -> IO(State & HTTP.Response):
+  HTTP.Request{method, target, headers, body} = req
+  route.segs(String.eq(method, "POST"), HTTP.segments(target), body, state, now)

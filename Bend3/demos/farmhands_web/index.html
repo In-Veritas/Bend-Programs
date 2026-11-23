@@ -74,11 +74,12 @@
     (()=>{
       "use strict";
       const $=id=>document.getElementById(id), auth=$("auth"),game=$("game"),toast=$("toast");
+      const BASE=location.pathname.startsWith("/farmhands")?"/farmhands":"";
       const crops={1:{name:"Nabo",icon:"🥬",duration:15000},2:{name:"Cenoura",icon:"🥕",duration:24000},3:{name:"Rabanete",icon:"🔴",duration:36000},4:{name:"Tomate",icon:"🍅",duration:48000}};
       let token=Number(localStorage.getItem("farmhands.token")||0),owner=localStorage.getItem("farmhands.owner")||"",state=null,selectedCrop=1,poll=0,busy=false;
       const esc=text=>String(text).replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
       function notify(text,bad=false){if(!text)return;toast.textContent=text;toast.style.background=bad?"#963e38ef":"#283a26ef";toast.classList.add("show");clearTimeout(notify.timer);notify.timer=setTimeout(()=>toast.classList.remove("show"),2600)}
-      async function api(path,body){const response=await fetch(`/api/${path}`,body===undefined?{cache:"no-store"}:{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body});return response.json()}
+      async function api(path,body){const response=await fetch(`${BASE}/api/${path}`,body===undefined?{cache:"no-store"}:{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body});return response.json()}
       function saveSession(data){token=Number(data.token||0);owner=data.owner||data.me?.name||"";localStorage.setItem("farmhands.token",String(token));localStorage.setItem("farmhands.owner",owner)}
       function clearSession(){token=0;owner="";state=null;localStorage.removeItem("farmhands.token");localStorage.removeItem("farmhands.owner");clearTimeout(poll);game.classList.add("hidden");auth.classList.remove("hidden")}
       async function authenticate(mode){const name=$("username").value.trim(),password=$("password").value;$("auth-note").textContent="Verificando…";try{const data=await api(mode,`${name}\n${password}`);if(!data.ok){$("auth-note").textContent=data.note||"Não foi possível entrar.";return}saveSession(data);state=data;$("auth-note").textContent="";auth.classList.add("hidden");game.classList.remove("hidden");render();schedule()}catch(error){$("auth-note").textContent="Servidor indisponível."}}

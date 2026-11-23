@@ -4,7 +4,7 @@ import {tmpdir} from "node:os";
 import {join, resolve} from "node:path";
 import {spawn} from "node:child_process";
 
-const binary = resolve(process.env.FARMHANDS_BIN || "gabriel_demos/farmhands_web/web_farmhands");
+const binary = resolve(process.env.FARMHANDS_BIN || "Bend3/demos/farmhands_web/build/web_farmhands");
 const port = Number(process.env.FARMHANDS_TEST_PORT || 8195);
 const base = `http://127.0.0.1:${port}`;
 const dataDir = await mkdtemp(join(tmpdir(), "farmhands-http-"));

@@ -1,11 +1,14 @@
 #!/bin/sh
+# Starts Farmhands from the repository root (index.html and the default
+# data/ directory are relative to it), building it first when needed.
+# FARMHANDS_PORT (default 8093) and FARMHANDS_DATA_DIR are honoured.
 set -eu
 
-repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
+repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/../../.." && pwd)
 cd "$repo_root"
 
-mkdir -p gabriel_demos/farmhands_web/data
-if [ ! -x gabriel_demos/farmhands_web/web_farmhands ]; then
-  ./gabriel_demos/farmhands_web/build.sh
+mkdir -p Bend3/demos/farmhands_web/data
+if [ ! -x Bend3/demos/farmhands_web/build/web_farmhands ]; then
+  ./Bend3/demos/farmhands_web/build.sh
 fi
-exec ./gabriel_demos/farmhands_web/web_farmhands
+exec ./Bend3/demos/farmhands_web/build/web_farmhands

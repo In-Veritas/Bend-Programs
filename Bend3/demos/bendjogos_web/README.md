@@ -1,7 +1,7 @@
 # BendJogos.com.br
 
 BendJogos.com.br is the LAN hub for the browser games and interactive demos in
-`gabriel_demos/`.
+`Bend3/demos/`.
 
 The hub provides:
 
@@ -22,6 +22,8 @@ The hub provides:
 - Balloon Defense — single-player browser game served by the hub
 - Helicopter — single-player browser game served by the hub
 - Tic-tac-toe — two-player LAN game under `/tic`
+- Farmhands — persistent multiplayer farms (plant, harvest, visit and take a
+  quarter of a ripe crop) with PBKDF2 accounts under `/farmhands`
 - Bar Bench — server-computed Bend demo under `/bar`
 - Elements — server-computed Bend demo under `/elements`
 - Virome Clustering — full EarlyVir VClust preparation and an interactive
@@ -35,29 +37,56 @@ The hub provides:
 - Social lounge — in-memory accounts, friend requests, presence, friend-only
   chat, and game invitations under `/social` and directly on the home page
 
-From the repository root, build every service once:
+Start the hub with one command (from any directory; it builds on first use):
 
 ```sh
-./gabriel_demos/bendjogos_web/build.sh
+/home/veritas/Bend-Programs/Bend3/demos/bendjogos_web/start.sh
+# or, from the repository root:
+./Bend3/demos/bendjogos_web/start.sh            # --rebuild forces a fresh build
 ```
 
-The build first runs `generate_modules.mjs`. Current Bend3 imports merge
-declarations into one global book; import aliases do not provide language
-namespaces. The generator therefore derives hub-private dotted declarations
-under `modules/` from each independently compilable standalone demo. Generated
-modules are checked in for review, but the standalone sources remain the source
-of truth and the build refreshes them before compiling. It then runs
-`sync_core.mjs`, which copies already-compiled Bend2 Core observer assets into
-the hub without teaching Core nonexistent filesystem or HTTP effects.
-
-Then start the full hub:
-
-```sh
-./gabriel_demos/bendjogos_web/start.sh
-```
+It needs the `bend` command (Bend 2.0.40) on `PATH` and, for `sync_core.mjs`,
+`bun` (optional: without it the checked-in `core/` assets are served).
+`build.sh` refreshes `core/` with `sync_core.mjs`, checks
+`web_bendjogos.bend` (ALL PROOFS CHECK) and compiles it to
+`build/web_bendjogos` (gitignored). The native build is long: on the porting
+machine it took 1 min 19 s wall time and peaked at about 15.7 GB of memory.
+The process must run from the repository root, because every page path
+(`Bend3/demos/<demo>/index.html`, `Bend3/demos/bendjogos_web/core/...`) is
+relative to it; `start.sh` changes there itself.
 
 Open `http://<server-lan-ip>:8090` on any desktop or mobile device connected to
-the same local network. Every route and every game uses this one port.
+the same local network. Every route and every game uses this one port; the
+server listens on `0.0.0.0:8090`. Farmhands keeps its CSVs in
+`Bend3/demos/farmhands_web/data/` (or `FARMHANDS_DATA_DIR`), shared with the
+standalone Farmhands server.
+
+### How the hub is composed (Bend 2.0.40)
+
+`web_bendjogos.bend` imports every standalone demo source directly through a
+module alias, for example `import ../tictactoe_web/web_tictactoe.bend as Tic`
+or `import ../farmhands_web/web_farmhands.bend as Farm`, and uses the
+interface each demo documents under "Hub interface" in its README (`Game`,
+`init`, `route` / `route_at` / `route_now`). Each demo accepts its own prefix
+(`/tic/...`, `/poker/...`), so the hub passes requests through unchanged;
+Snake and Cells advance their simulation inside `route_now`. The social
+lounge is `social.bend` (`Social.route(req, state, now)`).
+
+The old Bend3 merged all imports into one global book, so the previous hub
+compiled generated copies under `modules/` produced by `generate_modules.mjs`.
+That folder is deleted and `generate_modules.mjs` is a no-op kept for old
+scripts: the standalone sources are now the only copy.
+
+The hub state `Platform` keeps each game behind a self-referential `Held`
+box: with all fourteen states unboxed side by side, the native backend
+refused the program with `an arity over 247` (see
+`bugs/native-arity-over-247-wide-records`).
+
+Tests: `bun Bend3/demos/bendjogos_web/test_client.mjs` checks the pages and
+Core assets offline; the standalone HTTP clients accept the hub as their base
+(for example `bun Bend3/demos/minecraft_web/test_server.mjs
+http://127.0.0.1:8090/minecraft`, `POKER_URL=http://127.0.0.1:8090/poker bun
+Bend3/demos/poker_web/test_server.mjs`).
 
 ## Bend3 / Bend2 Core runtime switch
 
@@ -102,6 +131,13 @@ Core IO. Live choices are passed as arguments to generated pure Core functions,
 so Bendy Birds, Fishing, Aquarium, and Landscape produce new Core-owned values
 without recompiling source or moving their simulation rules into JavaScript.
 
+The Core Poker and Belote packages were re-ported to Bend 2.0.40: their
+generated `poker_data.js` / `belote_data.js` now use the named JS encoding
+(`{$: "Name", field: value}`, Nat as a number, Bool as a boolean, plus a
+`verification` field holding the audit) and their pages decode it. The other
+Core assets keep the encoding they were checked in with until their packages
+are re-ported; `sync_core.mjs` copies whatever each package currently builds.
+
 Poker and Belote link directly back to their interactive Bend3 counterparts;
 the six Engine-backed Core simulations (including Bend-a-Beet) are currently
 Core-only.
@@ -125,6 +161,7 @@ deployment.
 See [`unexpected_behavior/README.md`](unexpected_behavior/README.md) for the
 versioned issue log, reproductions, resolutions, and current limitations.
 
-The previous 2026-08-17 retest used upstream `1ebc1acc`. Rebuild size and timing
-figures are intentionally recorded after every whole-suite compile rather than
-treated as stable properties of the source.
+The previous 2026-08-17 retest used upstream `1ebc1acc`; the current port
+targets Bend 2.0.40 (latest bendlang/bend source, HEAD 6b806192). Rebuild size
+and timing figures are intentionally recorded after every whole-suite compile
+rather than treated as stable properties of the source.

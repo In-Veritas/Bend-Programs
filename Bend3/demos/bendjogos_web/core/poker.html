@@ -43,6 +43,7 @@
     .meter { height:7px; margin-bottom:10px; overflow:hidden; border-radius:99px; background:#061512; }
     .meter i { display:block; height:100%; background:linear-gradient(90deg,#db9d3e,#ffde76); }
     .categories { display:grid; grid-template-columns:1fr auto; gap:2px 8px; font-size:12px; }
+    footer { margin:14px 0 4px; color:var(--muted); text-align:center; font-size:12px; }.runtime-toggle{position:fixed;right:14px;bottom:14px;z-index:20;padding:9px 12px;border:1px solid #a88b48;border-radius:10px;background:#0b2925ee;box-shadow:0 8px 24px #0008;color:var(--gold);font-weight:800;text-decoration:none}
     .proof-audit { margin-top:16px; padding:16px; border:1px solid #a88b48; border-radius:12px; background:#0b2925; }
     .proof-head { display:flex; align-items:center; justify-content:space-between; gap:12px; }
     .proof-head h2 { margin:0; color:var(--gold); font:700 18px Georgia,serif; }
@@ -52,7 +53,6 @@
     .proof-item { padding:10px; border-left:3px solid #60b98a; border-radius:6px; background:#071c1a; }
     .proof-item b { display:block; margin-bottom:3px; color:#8ee0af; }
     .proof-limit { margin:0; font-size:12px; }
-    footer { margin:14px 0 4px; color:var(--muted); text-align:center; font-size:12px; }.runtime-toggle{position:fixed;right:14px;bottom:14px;z-index:20;padding:9px 12px;border:1px solid #a88b48;border-radius:10px;background:#0b2925ee;box-shadow:0 8px 24px #0008;color:var(--gold);font-weight:800;text-decoration:none}
     @media (max-width:800px) { .players,.odds-grid { grid-template-columns:repeat(2,1fr); } .proof-grid { grid-template-columns:1fr; } .table { border-radius:30px; } }
     @media (max-width:480px) { .players,.odds-grid { grid-template-columns:1fr; } header { flex-wrap:wrap; } header label { margin-left:0; } }
   </style>
@@ -92,15 +92,15 @@
     (() => {
       "use strict";
       const $ = id => document.getElementById(id);
-      const list = xs => { const out=[]; while (xs && xs.$ === "Con") { out.push(xs.$0); xs=xs.$1; } return out; };
-      const odds = o => ({ win:o.$0, high:o.$1, pair:o.$2, twoPair:o.$3, trips:o.$4, straight:o.$5, flush:o.$6, fullHouse:o.$7, quads:o.$8 });
-      const player = p => ({ seat:p.$0,name:p.$1,personality:p.$2,active:p.$3,stack:p.$4,cards:list(p.$5),best:p.$6,odds:odds(p.$7) });
-      const step = s => ({ phase:s.$0,note:s.$1,actor:s.$2,action:s.$3,amount:s.$4,pot:s.$5,board:list(s.$6),players:list(s.$7).map(player) });
-      const timeline = t => ({ variant:t.$0,seed:t.$1,dealer:t.$2,winner:t.$3,steps:list(t.$4).map(step) });
-      const verificationAudit = p => ({ title:p.$0,scope:p.$1,fairness:p.$2,unrigged:p.$3,odds:p.$4,limitation:p.$5,certifiedCases:p.$6,generalTheorems:p.$7 });
+      const list = xs => { const out=[]; while (xs && xs.$ === "Con") { out.push(xs.head); xs=xs.tail; } return out; };
+      const odds = o => ({ win:o.win, high:o.high, pair:o.pair, twoPair:o.two_pair, trips:o.trips, straight:o.straight, flush:o.flush, fullHouse:o.full_house, quads:o.quads });
+      const player = p => ({ seat:p.seat,name:p.name,personality:p.personality,active:p.active,stack:p.stack,cards:list(p.cards),best:p.best,odds:odds(p.odds) });
+      const step = s => ({ phase:s.phase,note:s.note,actor:s.actor,action:s.action,amount:s.amount,pot:s.pot,board:list(s.board),players:list(s.players).map(player) });
+      const timeline = t => ({ variant:t.variant,seed:t.seed,dealer:t.dealer,winner:t.winner,steps:list(t.steps).map(step) });
+      const verificationAudit = p => ({ title:p.title,scope:p.scope,fairness:p.fairness,unrigged:p.unrigged,odds:p.odds,limitation:p.limitation,certifiedCases:p.certified_cases,generalTheorems:p.general_theorems });
       if (!globalThis.BEND2_POKER_DATA || globalThis.BEND2_POKER_DATA.$ !== "PokerReport") throw new Error("Bend2 Core poker artifact missing");
-      const games={texas:timeline(BEND2_POKER_DATA.$0),omaha:timeline(BEND2_POKER_DATA.$1)};
-      const audit=verificationAudit(BEND2_POKER_DATA.$2);
+      const games={texas:timeline(BEND2_POKER_DATA.texas),omaha:timeline(BEND2_POKER_DATA.omaha)};
+      const audit=verificationAudit(BEND2_POKER_DATA.verification);
       $("proof-title").textContent=audit.title; $("proof-count").textContent=`${audit.generalTheorems} general theorems · ${audit.certifiedCases} closed certificates`;
       $("proof-scope").textContent=audit.scope; $("proof-fairness").textContent=audit.fairness;
       $("proof-unrigged").textContent=audit.unrigged; $("proof-odds").textContent=audit.odds; $("proof-limit").textContent=audit.limitation;

@@ -65,7 +65,7 @@
 <body>
   <a class="runtime-link" href="/belote" aria-label="Switch to interactive Bend3 Belote">Bend3 interactive Belote →</a>
   <header><h1>Core Belote Observatory</h1><span class="badge">Bend2 Core · four AIs</span><div class="score"><span id="ns"></span><span id="ew"></span></div></header>
-  <div class="notice">Bend2 Core now has standard IO, but no browser clock, DOM input, or host randomness API. Seed 1 and the full legal hand are embedded in Bend; browser JavaScript only advances and draws its immutable report.</div>
+  <div class="notice">The observer's report is a pure Bend value: it uses no browser clock, DOM input, or host randomness (its <code>main</code> only prints readiness). Seed 1 and the full legal hand are embedded in Bend; browser JavaScript only advances and draws its immutable report.</div>
   <main>
     <section class="table">
       <div class="table-head"><div><div class="phase" id="phase"></div><div class="meta" id="meta"></div></div><div class="trump">Trump ♥</div></div>
@@ -92,15 +92,15 @@
     (() => {
       "use strict";
       const $=id=>document.getElementById(id);
-      const list=xs=>{const out=[];while(xs&&xs.$==="Con"){out.push(xs.$0);xs=xs.$1;}return out;};
-      const player=p=>({seat:p.$0,name:p.$1,personality:p.$2,hand:list(p.$3)});
-      const played=p=>({seat:p.$0,card:p.$1});
-      const step=s=>({phase:s.$0,note:s.$1,actor:s.$2,action:s.$3,card:s.$4,trick:s.$5,ns:s.$6,ew:s.$7,players:list(s.$8).map(player),table:list(s.$9).map(played)});
-      const verificationAudit=p=>({title:p.$0,scope:p.$1,deck:p.$2,legality:p.$3,scoring:p.$4,limitation:p.$5,certifiedCases:p.$6,generalTheorems:p.$7});
-      if(!globalThis.BEND2_BELOTE_DATA||BEND2_BELOTE_DATA.$!=="BeloteReport")throw new Error("Bend2 Core Belote artifact missing");
-      const report={seed:BEND2_BELOTE_DATA.$0,dealer:BEND2_BELOTE_DATA.$1,taker:BEND2_BELOTE_DATA.$2,trump:BEND2_BELOTE_DATA.$3,valid:BEND2_BELOTE_DATA.$4,outcome:BEND2_BELOTE_DATA.$9,steps:list(BEND2_BELOTE_DATA.$10).map(step),verification:verificationAudit(BEND2_BELOTE_DATA.$11)};
+      const list=xs=>{const out=[];while(xs&&xs.$==="Con"){out.push(xs.head);xs=xs.tail;}return out;};
+      const player=p=>({seat:p.seat,name:p.name,personality:p.personality,hand:list(p.hand)});
+      const played=p=>({seat:p.seat,card:p.card});
+      const step=s=>({phase:s.phase,note:s.note,actor:s.actor,action:s.action,card:s.card,trick:s.trick,ns:s.north_south,ew:s.east_west,players:list(s.players).map(player),table:list(s.table).map(played)});
+      const verificationAudit=p=>({title:p.title,scope:p.scope,deck:p.deck,legality:p.legality,scoring:p.scoring,limitation:p.limitation,certifiedCases:p.certified_cases,generalTheorems:p.general_theorems});
+      if(!globalThis.BEND2_BELOTE_DATA||BEND2_BELOTE_DATA.$!=="BeloteReport")throw new Error("Bend Belote artifact missing");
+      const report={seed:BEND2_BELOTE_DATA.seed,dealer:BEND2_BELOTE_DATA.dealer,taker:BEND2_BELOTE_DATA.taker,trump:BEND2_BELOTE_DATA.trump,valid:BEND2_BELOTE_DATA.valid,outcome:BEND2_BELOTE_DATA.outcome,steps:list(BEND2_BELOTE_DATA.steps).map(step),verification:verificationAudit(BEND2_BELOTE_DATA.verification)};
       if(!report.valid)throw new Error("Bend Belote self-check failed");
-      $("proof-title").textContent=report.verification.title;$("proof-count").textContent=`${report.verification.generalTheorems} general theorem · ${report.verification.certifiedCases} closed certificates`;$("proof-scope").textContent=report.verification.scope;$("proof-deck").textContent=report.verification.deck;$("proof-legality").textContent=report.verification.legality;$("proof-scoring").textContent=report.verification.scoring;$("proof-limit").textContent=report.verification.limitation;
+      $("proof-title").textContent=report.verification.title;$("proof-count").textContent=`${report.verification.generalTheorems} general theorems · ${report.verification.certifiedCases} closed certificates`;$("proof-scope").textContent=report.verification.scope;$("proof-deck").textContent=report.verification.deck;$("proof-legality").textContent=report.verification.legality;$("proof-scoring").textContent=report.verification.scoring;$("proof-limit").textContent=report.verification.limitation;
       const full=report.steps[0].players.map(p=>p.hand), ranks=["7","8","9","J","Q","K","10","A"], suits=["♣","♦","♥","♠"], names=report.steps[0].players.map(p=>p.name);
       let at=0,timer=0;
       const card=(id,classes="")=>{const suit=suits[Math.floor(id/8)],red=suit==="♦"||suit==="♥",trump=Math.floor(id/8)===report.trump;return `<div class="card ${red?"red":""} ${trump?"trump-card":""} ${classes}"><span class="corner">${ranks[id%8]}<br>${suit}</span><span class="pip">${suit}</span></div>`;};

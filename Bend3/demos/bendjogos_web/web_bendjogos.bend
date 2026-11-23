@@ -1,490 +1,340 @@
 # BendJogos unified LAN server: one process, one TCP port, all state shared.
 #
-# Namespaces:
-#   /snake, /cells, /tic, /minecraft, /cubeworld2, /poker, /belote, /club-corvid, /duck-hunt
-#   /obfuscator, /bar, /elements
-#   /social and /api/{register,login,state,chat,invite}
-#   /games/balloon-defense and /games/helicopter
+# Namespaces (each game is its standalone demo source, imported directly):
+#   /tic /snake /cells /minecraft /cubeworld2 /poker /belote /club-corvid
+#   /duck-hunt /obfuscator /bar /elements /farmhands
+#   /social (page) and /api/{register,login,state,chat,invite,...} (social.bend)
+#   /games/balloon-defense /games/helicopter   static single-player games
+#   /core/...                                  Bend2 Core pages and data (sync_core.mjs)
+#   /clustering                                virome clustering analysis page
+#
+# Ported to Bend 2.0.40: an import alias is now a real namespace, so the hub
+# imports every standalone `*_web` demo as a module (`Tic.Game`,
+# `Tic.route`, ...) instead of the old generated `modules/*.bend` copies.
+# Each demo documents its "Hub interface" in its README.
+#
+# build: bend Bend3/demos/bendjogos_web/web_bendjogos.bend -o Bend3/demos/bendjogos_web/build/web_bendjogos
+# run:   ./Bend3/demos/bendjogos_web/build/web_bendjogos   (from the repository root)
+# open:  http://<server-lan-ip>:8090
+import Base
+import ../HTTP.bend as HTTP
+import ../Clock.bend as Clock
+import ../tictactoe_web/web_tictactoe.bend as Tic
+import ../slither_web/web_slither.bend as Snake
+import ../agar_web/web_agar.bend as Cells
+import ../minecraft_web/web_minecraft.bend as Mine
+import ../cubeworld2_web/web_cubeworld2.bend as Cube
+import ../poker_web/web_poker.bend as Poker
+import ../belote_web/web_belote.bend as Belote
+import ../club_corvid_web/web_club_corvid.bend as Corvid
+import ../duck_hunt_web/web_duck_hunt.bend as Duck
+import ../bend_obfuscator_web/web_obfuscator.bend as Obf
+import ../bar_bench_web/web_bar.bend as Bar
+import ../elements_web/web_elements.bend as Elements
+import ../farmhands_web/web_farmhands.bend as Farm
+import ./social.bend as Social
 
-import ../../bend-base/Base
-import ../Compat
-import ../../bend-base/IO/TCP
-import ../../bend-base/IO/HTTP
-import ../Clock as Clock
-import ./modules/Tic
-import ./modules/Snake
-import ./modules/Cells
-import ./modules/Mine
-import ./modules/Cube
-import ./modules/Poker
-import ./modules/Belote
-import ./modules/Corvid
-import ./modules/Duck
-import ./modules/Obf
-import ./modules/Bar
-import ./modules/Elements
-import ./modules/Social
+# A game's state behind one pointer. The native backend flattens a Data
+# value into machine words; whole game states side by side (as `put.*` and
+# the continuations below hold them) would pass the backend's 247-word
+# limit for one segment ("an arity over 247"). A datatype that can hold
+# itself is always boxed, so `Held` keeps every field of Platform one word.
+type Held<-A: Data> is Data:
+  Hold{value: A}
+  Again{inner: Held<A>}
 
-type Platform:
-  Platform{tic: Tic.Game, snake: Snake.Game, cells: Cells.Game, mine: Mine.Game, cube: Cube.Game, corvid: Corvid.Game, duck: Duck.Game, obfuscator: Obf.Game, social: Social.State, belote: Belote.Game, poker: Poker.Game}
+def unhold(-A: Data, h: Held<A>) -> A:
+  match h:
+    case Hold{value}:
+      value
+    case Again{inner}:
+      unhold(A, inner)
 
-type Outcome:
-  Outcome{platform: Platform, response: HTTP.Response}
+type Platform is Data:
+  Platform{tic: Held<Tic.Game>, snake: Held<Snake.Game>, cells: Held<Cells.Game>, mine: Held<Mine.Game>, cube: Held<Cube.Game>, poker: Held<Poker.Game>, belote: Held<Belote.Game>, corvid: Held<Corvid.Game>, duck: Held<Duck.Game>, obf: Held<Obf.Game>, bar: Held<Bar.Bar>, elements: Held<Elements.Elements>, farm: Held<Farm.Game>, social: Held<Social.State>}
 
-def page_result(result: Result((U32 & String), String)) -> HTTP.Response:
-  match result:
-    case Result.Done{html}:
-      HTTP.reply(200, "text/html; charset=utf-8", html)
-    case Result.Fail{(code, error)}:
-      HTTP.reply(500, "text/plain; charset=utf-8", "page not found -- run from the repository root\n")
 
-def page(path: String) -> IO(HTTP.Response):
-  do IO(HTTP.Response):
-    result <- IO.read_text(path)
-    return page_result(result)
+def done(p: Platform, r: HTTP.Response) -> IO(Platform & HTTP.Response):
+  IO.pure(Platform & HTTP.Response, (p, r))
 
-def script_result(result: Result((U32 & String), String)) -> HTTP.Response:
-  match result:
-    case Result.Done{source}:
-      HTTP.reply(200, "application/javascript; charset=utf-8", source)
-    case Result.Fail{(code, error)}:
-      HTTP.reply(500, "text/plain; charset=utf-8", "generated Core asset not found -- run sync_core.mjs\n")
+def put.tic(r: Tic.Game & HTTP.Response, snake: Held<Snake.Game>, cells: Held<Cells.Game>, mine: Held<Mine.Game>, cube: Held<Cube.Game>, poker: Held<Poker.Game>, belote: Held<Belote.Game>, corvid: Held<Corvid.Game>, duck: Held<Duck.Game>, obf: Held<Obf.Game>, bar: Held<Bar.Bar>, elements: Held<Elements.Elements>, farm: Held<Farm.Game>, social: Held<Social.State>) -> Platform & HTTP.Response:
+  (g, resp) = r
+  (Platform{Hold{g}, snake, cells, mine, cube, poker, belote, corvid, duck, obf, bar, elements, farm, social}, resp)
 
-def script_file(path: String) -> IO(HTTP.Response):
-  do IO(HTTP.Response):
-    result <- IO.read_text(path)
-    return script_result(result)
+def go.tic(req: HTTP.Request, p: Platform, now: U32) -> IO(Platform & HTTP.Response):
+  Platform{g, snake, cells, mine, cube, poker, belote, corvid, duck, obf, bar, elements, farm, social} = p
+  IO.bind(Tic.Game & HTTP.Response, Platform & HTTP.Response, Tic.route(req, unhold(Tic.Game, g)),
+    r => IO.pure(Platform & HTTP.Response, put.tic(r, snake, cells, mine, cube, poker, belote, corvid, duck, obf, bar, elements, farm, social)))
 
-def index_page() -> IO(HTTP.Response):
-  page("gabriel_demos/bendjogos_web/index.html")
+def put.snake(r: Snake.Game & HTTP.Response, tic: Held<Tic.Game>, cells: Held<Cells.Game>, mine: Held<Mine.Game>, cube: Held<Cube.Game>, poker: Held<Poker.Game>, belote: Held<Belote.Game>, corvid: Held<Corvid.Game>, duck: Held<Duck.Game>, obf: Held<Obf.Game>, bar: Held<Bar.Bar>, elements: Held<Elements.Elements>, farm: Held<Farm.Game>, social: Held<Social.State>) -> Platform & HTTP.Response:
+  (g, resp) = r
+  (Platform{tic, Hold{g}, cells, mine, cube, poker, belote, corvid, duck, obf, bar, elements, farm, social}, resp)
 
-def rewrite(request: HTTP.Request, path: String) -> HTTP.Request:
-  match request:
-    case HTTP.Request.Request{method, old_path, headers, body}:
-      HTTP.Request.Request{method, path, headers, body}
+def go.snake(req: HTTP.Request, p: Platform, now: U32) -> IO(Platform & HTTP.Response):
+  Platform{tic, g, cells, mine, cube, poker, belote, corvid, duck, obf, bar, elements, farm, social} = p
+  IO.bind(Snake.Game & HTTP.Response, Platform & HTTP.Response, Snake.route_now(req, unhold(Snake.Game, g), now),
+    r => IO.pure(Platform & HTTP.Response, put.snake(r, tic, cells, mine, cube, poker, belote, corvid, duck, obf, bar, elements, farm, social)))
 
-def suffix(args: List(String)) -> String:
-  String.concat("/", String.join("/", args))
+def put.cells(r: Cells.Game & HTTP.Response, tic: Held<Tic.Game>, snake: Held<Snake.Game>, mine: Held<Mine.Game>, cube: Held<Cube.Game>, poker: Held<Poker.Game>, belote: Held<Belote.Game>, corvid: Held<Corvid.Game>, duck: Held<Duck.Game>, obf: Held<Obf.Game>, bar: Held<Bar.Bar>, elements: Held<Elements.Elements>, farm: Held<Farm.Game>, social: Held<Social.State>) -> Platform & HTTP.Response:
+  (g, resp) = r
+  (Platform{tic, snake, Hold{g}, mine, cube, poker, belote, corvid, duck, obf, bar, elements, farm, social}, resp)
 
-def tic_out(routed: Tic.Routed, snake: Snake.Game, cells: Cells.Game, mine: Mine.Game, cube: Cube.Game, corvid: Corvid.Game, duck: Duck.Game, obfuscator: Obf.Game, social: Social.State, belote: Belote.Game, poker: Poker.Game) -> Outcome:
-  match routed:
-    case Tic.Routed.Routed{game, response}:
-      Outcome.Outcome{Platform.Platform{game, snake, cells, mine, cube, corvid, duck, obfuscator, social, belote, poker}, response}
+def go.cells(req: HTTP.Request, p: Platform, now: U32) -> IO(Platform & HTTP.Response):
+  Platform{tic, snake, g, mine, cube, poker, belote, corvid, duck, obf, bar, elements, farm, social} = p
+  IO.bind(Cells.Game & HTTP.Response, Platform & HTTP.Response, Cells.route_now(req, unhold(Cells.Game, g), now),
+    r => IO.pure(Platform & HTTP.Response, put.cells(r, tic, snake, mine, cube, poker, belote, corvid, duck, obf, bar, elements, farm, social)))
 
-def snake_out(routed: Snake.Routed, tic: Tic.Game, cells: Cells.Game, mine: Mine.Game, cube: Cube.Game, corvid: Corvid.Game, duck: Duck.Game, obfuscator: Obf.Game, social: Social.State, belote: Belote.Game, poker: Poker.Game) -> Outcome:
-  match routed:
-    case Snake.Routed.Routed{game, response}:
-      Outcome.Outcome{Platform.Platform{tic, game, cells, mine, cube, corvid, duck, obfuscator, social, belote, poker}, response}
+def put.mine(r: Mine.Game & HTTP.Response, tic: Held<Tic.Game>, snake: Held<Snake.Game>, cells: Held<Cells.Game>, cube: Held<Cube.Game>, poker: Held<Poker.Game>, belote: Held<Belote.Game>, corvid: Held<Corvid.Game>, duck: Held<Duck.Game>, obf: Held<Obf.Game>, bar: Held<Bar.Bar>, elements: Held<Elements.Elements>, farm: Held<Farm.Game>, social: Held<Social.State>) -> Platform & HTTP.Response:
+  (g, resp) = r
+  (Platform{tic, snake, cells, Hold{g}, cube, poker, belote, corvid, duck, obf, bar, elements, farm, social}, resp)
 
-def cells_out(routed: Cells.Routed, tic: Tic.Game, snake: Snake.Game, mine: Mine.Game, cube: Cube.Game, corvid: Corvid.Game, duck: Duck.Game, obfuscator: Obf.Game, social: Social.State, belote: Belote.Game, poker: Poker.Game) -> Outcome:
-  match routed:
-    case Cells.Routed.Routed{game, response}:
-      Outcome.Outcome{Platform.Platform{tic, snake, game, mine, cube, corvid, duck, obfuscator, social, belote, poker}, response}
+def go.mine(req: HTTP.Request, p: Platform, now: U32) -> IO(Platform & HTTP.Response):
+  Platform{tic, snake, cells, g, cube, poker, belote, corvid, duck, obf, bar, elements, farm, social} = p
+  IO.bind(Mine.Game & HTTP.Response, Platform & HTTP.Response, Mine.route_at(req, unhold(Mine.Game, g), now),
+    r => IO.pure(Platform & HTTP.Response, put.mine(r, tic, snake, cells, cube, poker, belote, corvid, duck, obf, bar, elements, farm, social)))
 
-def mine_out(routed: Mine.Routed, tic: Tic.Game, snake: Snake.Game, cells: Cells.Game, cube: Cube.Game, corvid: Corvid.Game, duck: Duck.Game, obfuscator: Obf.Game, social: Social.State, belote: Belote.Game, poker: Poker.Game) -> Outcome:
-  match routed:
-    case Mine.Routed.Routed{game, response}:
-      Outcome.Outcome{Platform.Platform{tic, snake, cells, game, cube, corvid, duck, obfuscator, social, belote, poker}, response}
+def put.cube(r: Cube.Game & HTTP.Response, tic: Held<Tic.Game>, snake: Held<Snake.Game>, cells: Held<Cells.Game>, mine: Held<Mine.Game>, poker: Held<Poker.Game>, belote: Held<Belote.Game>, corvid: Held<Corvid.Game>, duck: Held<Duck.Game>, obf: Held<Obf.Game>, bar: Held<Bar.Bar>, elements: Held<Elements.Elements>, farm: Held<Farm.Game>, social: Held<Social.State>) -> Platform & HTTP.Response:
+  (g, resp) = r
+  (Platform{tic, snake, cells, mine, Hold{g}, poker, belote, corvid, duck, obf, bar, elements, farm, social}, resp)
 
-def cube_out(routed: Cube.Routed, tic: Tic.Game, snake: Snake.Game, cells: Cells.Game, mine: Mine.Game, corvid: Corvid.Game, duck: Duck.Game, obfuscator: Obf.Game, social: Social.State, belote: Belote.Game, poker: Poker.Game) -> Outcome:
-  match routed:
-    case Cube.Routed.Routed{game, response}:
-      Outcome.Outcome{Platform.Platform{tic, snake, cells, mine, game, corvid, duck, obfuscator, social, belote, poker}, response}
+def go.cube(req: HTTP.Request, p: Platform, now: U32) -> IO(Platform & HTTP.Response):
+  Platform{tic, snake, cells, mine, g, poker, belote, corvid, duck, obf, bar, elements, farm, social} = p
+  IO.bind(Cube.Game & HTTP.Response, Platform & HTTP.Response, Cube.route_at(req, unhold(Cube.Game, g), now),
+    r => IO.pure(Platform & HTTP.Response, put.cube(r, tic, snake, cells, mine, poker, belote, corvid, duck, obf, bar, elements, farm, social)))
 
-def belote_out(routed: Belote.Routed, tic: Tic.Game, snake: Snake.Game, cells: Cells.Game, mine: Mine.Game, cube: Cube.Game, corvid: Corvid.Game, duck: Duck.Game, obfuscator: Obf.Game, social: Social.State, poker: Poker.Game) -> Outcome:
-  match routed:
-    case Belote.Routed.Routed{game, response}:
-      Outcome.Outcome{Platform.Platform{tic, snake, cells, mine, cube, corvid, duck, obfuscator, social, game, poker}, response}
+def put.poker(r: Poker.Game & HTTP.Response, tic: Held<Tic.Game>, snake: Held<Snake.Game>, cells: Held<Cells.Game>, mine: Held<Mine.Game>, cube: Held<Cube.Game>, belote: Held<Belote.Game>, corvid: Held<Corvid.Game>, duck: Held<Duck.Game>, obf: Held<Obf.Game>, bar: Held<Bar.Bar>, elements: Held<Elements.Elements>, farm: Held<Farm.Game>, social: Held<Social.State>) -> Platform & HTTP.Response:
+  (g, resp) = r
+  (Platform{tic, snake, cells, mine, cube, Hold{g}, belote, corvid, duck, obf, bar, elements, farm, social}, resp)
 
-def corvid_out(routed: Corvid.Routed, tic: Tic.Game, snake: Snake.Game, cells: Cells.Game, mine: Mine.Game, cube: Cube.Game, duck: Duck.Game, obfuscator: Obf.Game, social: Social.State, belote: Belote.Game, poker: Poker.Game) -> Outcome:
-  match routed:
-    case Corvid.Routed.Routed{game, response}:
-      Outcome.Outcome{Platform.Platform{tic, snake, cells, mine, cube, game, duck, obfuscator, social, belote, poker}, response}
+def go.poker(req: HTTP.Request, p: Platform, now: U32) -> IO(Platform & HTTP.Response):
+  Platform{tic, snake, cells, mine, cube, g, belote, corvid, duck, obf, bar, elements, farm, social} = p
+  IO.bind(Poker.Game & HTTP.Response, Platform & HTTP.Response, Poker.route_at("/poker", req, unhold(Poker.Game, g)),
+    r => IO.pure(Platform & HTTP.Response, put.poker(r, tic, snake, cells, mine, cube, belote, corvid, duck, obf, bar, elements, farm, social)))
 
-def duck_out(routed: Duck.Routed, tic: Tic.Game, snake: Snake.Game, cells: Cells.Game, mine: Mine.Game, cube: Cube.Game, corvid: Corvid.Game, obfuscator: Obf.Game, social: Social.State, belote: Belote.Game, poker: Poker.Game) -> Outcome:
-  match routed:
-    case Duck.Routed.Routed{game, response}:
-      Outcome.Outcome{Platform.Platform{tic, snake, cells, mine, cube, corvid, game, obfuscator, social, belote, poker}, response}
+def put.belote(r: Belote.Game & HTTP.Response, tic: Held<Tic.Game>, snake: Held<Snake.Game>, cells: Held<Cells.Game>, mine: Held<Mine.Game>, cube: Held<Cube.Game>, poker: Held<Poker.Game>, corvid: Held<Corvid.Game>, duck: Held<Duck.Game>, obf: Held<Obf.Game>, bar: Held<Bar.Bar>, elements: Held<Elements.Elements>, farm: Held<Farm.Game>, social: Held<Social.State>) -> Platform & HTTP.Response:
+  (g, resp) = r
+  (Platform{tic, snake, cells, mine, cube, poker, Hold{g}, corvid, duck, obf, bar, elements, farm, social}, resp)
 
-def obf_out(routed: Obf.Routed, tic: Tic.Game, snake: Snake.Game, cells: Cells.Game, mine: Mine.Game, cube: Cube.Game, corvid: Corvid.Game, duck: Duck.Game, social: Social.State, belote: Belote.Game, poker: Poker.Game) -> Outcome:
-  match routed:
-    case Obf.Routed.Routed{game, response}:
-      Outcome.Outcome{Platform.Platform{tic, snake, cells, mine, cube, corvid, duck, game, social, belote, poker}, response}
+def go.belote(req: HTTP.Request, p: Platform, now: U32) -> IO(Platform & HTTP.Response):
+  Platform{tic, snake, cells, mine, cube, poker, g, corvid, duck, obf, bar, elements, farm, social} = p
+  IO.bind(Belote.Game & HTTP.Response, Platform & HTTP.Response, Belote.route_at("/belote", req, unhold(Belote.Game, g)),
+    r => IO.pure(Platform & HTTP.Response, put.belote(r, tic, snake, cells, mine, cube, poker, corvid, duck, obf, bar, elements, farm, social)))
 
-def social_out(routed: Social.Routed, tic: Tic.Game, snake: Snake.Game, cells: Cells.Game, mine: Mine.Game, cube: Cube.Game, corvid: Corvid.Game, duck: Duck.Game, obfuscator: Obf.Game, belote: Belote.Game, poker: Poker.Game) -> Outcome:
-  match routed:
-    case Social.Routed.Routed{state, response}:
-      Outcome.Outcome{Platform.Platform{tic, snake, cells, mine, cube, corvid, duck, obfuscator, state, belote, poker}, response}
+def put.corvid(r: Corvid.Game & HTTP.Response, tic: Held<Tic.Game>, snake: Held<Snake.Game>, cells: Held<Cells.Game>, mine: Held<Mine.Game>, cube: Held<Cube.Game>, poker: Held<Poker.Game>, belote: Held<Belote.Game>, duck: Held<Duck.Game>, obf: Held<Obf.Game>, bar: Held<Bar.Bar>, elements: Held<Elements.Elements>, farm: Held<Farm.Game>, social: Held<Social.State>) -> Platform & HTTP.Response:
+  (g, resp) = r
+  (Platform{tic, snake, cells, mine, cube, poker, belote, Hold{g}, duck, obf, bar, elements, farm, social}, resp)
 
-def poker_out(routed: Poker.Routed, tic: Tic.Game, snake: Snake.Game, cells: Cells.Game, mine: Mine.Game, cube: Cube.Game, corvid: Corvid.Game, duck: Duck.Game, obfuscator: Obf.Game, social: Social.State, belote: Belote.Game) -> Outcome:
-  match routed:
-    case Poker.Routed.Routed{game, response}:
-      Outcome.Outcome{Platform.Platform{tic, snake, cells, mine, cube, corvid, duck, obfuscator, social, belote, game}, response}
+def go.corvid(req: HTTP.Request, p: Platform, now: U32) -> IO(Platform & HTTP.Response):
+  Platform{tic, snake, cells, mine, cube, poker, belote, g, duck, obf, bar, elements, farm, social} = p
+  IO.bind(Corvid.Game & HTTP.Response, Platform & HTTP.Response, Corvid.route_at(req, unhold(Corvid.Game, g), now),
+    r => IO.pure(Platform & HTTP.Response, put.corvid(r, tic, snake, cells, mine, cube, poker, belote, duck, obf, bar, elements, farm, social)))
 
-def game_tic(request: HTTP.Request, platform: Platform) -> IO(Outcome):
-  match platform:
-    case Platform.Platform{tic, snake, cells, mine, cube, corvid, duck, obfuscator, social, belote, poker}:
-      do IO(Outcome):
-        routed <- Tic.request_route(request, tic)
-        return tic_out(routed, snake, cells, mine, cube, corvid, duck, obfuscator, social, belote, poker)
+def put.duck(r: Duck.Game & HTTP.Response, tic: Held<Tic.Game>, snake: Held<Snake.Game>, cells: Held<Cells.Game>, mine: Held<Mine.Game>, cube: Held<Cube.Game>, poker: Held<Poker.Game>, belote: Held<Belote.Game>, corvid: Held<Corvid.Game>, obf: Held<Obf.Game>, bar: Held<Bar.Bar>, elements: Held<Elements.Elements>, farm: Held<Farm.Game>, social: Held<Social.State>) -> Platform & HTTP.Response:
+  (g, resp) = r
+  (Platform{tic, snake, cells, mine, cube, poker, belote, corvid, Hold{g}, obf, bar, elements, farm, social}, resp)
 
-def game_snake(request: HTTP.Request, platform: Platform, now: U32) -> IO(Outcome):
-  match platform:
-    case Platform.Platform{tic, snake, cells, mine, cube, corvid, duck, obfuscator, social, belote, poker}:
-      do IO(Outcome):
-        routed <- Snake.request_route(request, Snake.game_advance(snake, now), now)
-        return snake_out(routed, tic, cells, mine, cube, corvid, duck, obfuscator, social, belote, poker)
+def go.duck(req: HTTP.Request, p: Platform, now: U32) -> IO(Platform & HTTP.Response):
+  Platform{tic, snake, cells, mine, cube, poker, belote, corvid, g, obf, bar, elements, farm, social} = p
+  IO.bind(Duck.Game & HTTP.Response, Platform & HTTP.Response, Duck.route(req, unhold(Duck.Game, g)),
+    r => IO.pure(Platform & HTTP.Response, put.duck(r, tic, snake, cells, mine, cube, poker, belote, corvid, obf, bar, elements, farm, social)))
 
-def game_cells(request: HTTP.Request, platform: Platform, now: U32) -> IO(Outcome):
-  match platform:
-    case Platform.Platform{tic, snake, cells, mine, cube, corvid, duck, obfuscator, social, belote, poker}:
-      do IO(Outcome):
-        routed <- Cells.request_route(request, Cells.game_advance(cells, now), now)
-        return cells_out(routed, tic, snake, mine, cube, corvid, duck, obfuscator, social, belote, poker)
+def put.obf(r: Obf.Game & HTTP.Response, tic: Held<Tic.Game>, snake: Held<Snake.Game>, cells: Held<Cells.Game>, mine: Held<Mine.Game>, cube: Held<Cube.Game>, poker: Held<Poker.Game>, belote: Held<Belote.Game>, corvid: Held<Corvid.Game>, duck: Held<Duck.Game>, bar: Held<Bar.Bar>, elements: Held<Elements.Elements>, farm: Held<Farm.Game>, social: Held<Social.State>) -> Platform & HTTP.Response:
+  (g, resp) = r
+  (Platform{tic, snake, cells, mine, cube, poker, belote, corvid, duck, Hold{g}, bar, elements, farm, social}, resp)
 
-def game_mine(request: HTTP.Request, platform: Platform, now: U32) -> IO(Outcome):
-  match platform:
-    case Platform.Platform{tic, snake, cells, mine, cube, corvid, duck, obfuscator, social, belote, poker}:
-      do IO(Outcome):
-        routed <- Mine.request_route(request, mine, now)
-        return mine_out(routed, tic, snake, cells, cube, corvid, duck, obfuscator, social, belote, poker)
+def go.obf(req: HTTP.Request, p: Platform, now: U32) -> IO(Platform & HTTP.Response):
+  Platform{tic, snake, cells, mine, cube, poker, belote, corvid, duck, g, bar, elements, farm, social} = p
+  IO.bind(Obf.Game & HTTP.Response, Platform & HTTP.Response, Obf.route(req, unhold(Obf.Game, g)),
+    r => IO.pure(Platform & HTTP.Response, put.obf(r, tic, snake, cells, mine, cube, poker, belote, corvid, duck, bar, elements, farm, social)))
 
-def game_cube(request: HTTP.Request, platform: Platform, now: U32) -> IO(Outcome):
-  match platform:
-    case Platform.Platform{tic, snake, cells, mine, cube, corvid, duck, obfuscator, social, belote, poker}:
-      do IO(Outcome):
-        routed <- Cube.request_route(request, cube, now)
-        return cube_out(routed, tic, snake, cells, mine, corvid, duck, obfuscator, social, belote, poker)
+def put.bar(r: Bar.Bar & HTTP.Response, tic: Held<Tic.Game>, snake: Held<Snake.Game>, cells: Held<Cells.Game>, mine: Held<Mine.Game>, cube: Held<Cube.Game>, poker: Held<Poker.Game>, belote: Held<Belote.Game>, corvid: Held<Corvid.Game>, duck: Held<Duck.Game>, obf: Held<Obf.Game>, elements: Held<Elements.Elements>, farm: Held<Farm.Game>, social: Held<Social.State>) -> Platform & HTTP.Response:
+  (g, resp) = r
+  (Platform{tic, snake, cells, mine, cube, poker, belote, corvid, duck, obf, Hold{g}, elements, farm, social}, resp)
 
-def game_belote(request: HTTP.Request, platform: Platform) -> IO(Outcome):
-  match platform:
-    case Platform.Platform{tic, snake, cells, mine, cube, corvid, duck, obfuscator, social, belote, poker}:
-      do IO(Outcome):
-        routed <- Belote.request_route(request, belote)
-        return belote_out(routed, tic, snake, cells, mine, cube, corvid, duck, obfuscator, social, poker)
+def go.bar(req: HTTP.Request, p: Platform, now: U32) -> IO(Platform & HTTP.Response):
+  Platform{tic, snake, cells, mine, cube, poker, belote, corvid, duck, obf, g, elements, farm, social} = p
+  IO.bind(Bar.Bar & HTTP.Response, Platform & HTTP.Response, Bar.route(req, unhold(Bar.Bar, g)),
+    r => IO.pure(Platform & HTTP.Response, put.bar(r, tic, snake, cells, mine, cube, poker, belote, corvid, duck, obf, elements, farm, social)))
 
-def game_poker(request: HTTP.Request, platform: Platform) -> IO(Outcome):
-  match platform:
-    case Platform.Platform{tic, snake, cells, mine, cube, corvid, duck, obfuscator, social, belote, poker}:
-      do IO(Outcome):
-        routed <- Poker.request_route(request, poker)
-        return poker_out(routed, tic, snake, cells, mine, cube, corvid, duck, obfuscator, social, belote)
+def put.elements(r: Elements.Elements & HTTP.Response, tic: Held<Tic.Game>, snake: Held<Snake.Game>, cells: Held<Cells.Game>, mine: Held<Mine.Game>, cube: Held<Cube.Game>, poker: Held<Poker.Game>, belote: Held<Belote.Game>, corvid: Held<Corvid.Game>, duck: Held<Duck.Game>, obf: Held<Obf.Game>, bar: Held<Bar.Bar>, farm: Held<Farm.Game>, social: Held<Social.State>) -> Platform & HTTP.Response:
+  (g, resp) = r
+  (Platform{tic, snake, cells, mine, cube, poker, belote, corvid, duck, obf, bar, Hold{g}, farm, social}, resp)
 
-def game_corvid(request: HTTP.Request, platform: Platform, now: U32) -> IO(Outcome):
-  match platform:
-    case Platform.Platform{tic, snake, cells, mine, cube, corvid, duck, obfuscator, social, belote, poker}:
-      do IO(Outcome):
-        routed <- Corvid.request_route(request, corvid, now)
-        return corvid_out(routed, tic, snake, cells, mine, cube, duck, obfuscator, social, belote, poker)
+def go.elements(req: HTTP.Request, p: Platform, now: U32) -> IO(Platform & HTTP.Response):
+  Platform{tic, snake, cells, mine, cube, poker, belote, corvid, duck, obf, bar, g, farm, social} = p
+  IO.bind(Elements.Elements & HTTP.Response, Platform & HTTP.Response, Elements.route(req, unhold(Elements.Elements, g)),
+    r => IO.pure(Platform & HTTP.Response, put.elements(r, tic, snake, cells, mine, cube, poker, belote, corvid, duck, obf, bar, farm, social)))
 
-def game_duck(request: HTTP.Request, platform: Platform) -> IO(Outcome):
-  match platform:
-    case Platform.Platform{tic, snake, cells, mine, cube, corvid, duck, obfuscator, social, belote, poker}:
-      do IO(Outcome):
-        routed <- Duck.request_route(request, duck)
-        return duck_out(routed, tic, snake, cells, mine, cube, corvid, obfuscator, social, belote, poker)
+def put.farm(r: Farm.Game & HTTP.Response, tic: Held<Tic.Game>, snake: Held<Snake.Game>, cells: Held<Cells.Game>, mine: Held<Mine.Game>, cube: Held<Cube.Game>, poker: Held<Poker.Game>, belote: Held<Belote.Game>, corvid: Held<Corvid.Game>, duck: Held<Duck.Game>, obf: Held<Obf.Game>, bar: Held<Bar.Bar>, elements: Held<Elements.Elements>, social: Held<Social.State>) -> Platform & HTTP.Response:
+  (g, resp) = r
+  (Platform{tic, snake, cells, mine, cube, poker, belote, corvid, duck, obf, bar, elements, Hold{g}, social}, resp)
 
-def game_obf(request: HTTP.Request, platform: Platform) -> IO(Outcome):
-  match platform:
-    case Platform.Platform{tic, snake, cells, mine, cube, corvid, duck, obfuscator, social, belote, poker}:
-      do IO(Outcome):
-        routed <- Obf.request_route(request, obfuscator)
-        return obf_out(routed, tic, snake, cells, mine, cube, corvid, duck, social, belote, poker)
+def go.farm(req: HTTP.Request, p: Platform, now: U32) -> IO(Platform & HTTP.Response):
+  Platform{tic, snake, cells, mine, cube, poker, belote, corvid, duck, obf, bar, elements, g, social} = p
+  IO.bind(Farm.Game & HTTP.Response, Platform & HTTP.Response, Farm.route(req, unhold(Farm.Game, g)),
+    r => IO.pure(Platform & HTTP.Response, put.farm(r, tic, snake, cells, mine, cube, poker, belote, corvid, duck, obf, bar, elements, social)))
 
-def game_social(request: HTTP.Request, platform: Platform, now: U32) -> IO(Outcome):
-  match platform:
-    case Platform.Platform{tic, snake, cells, mine, cube, corvid, duck, obfuscator, social, belote, poker}:
-      do IO(Outcome):
-        routed <- Social.request_route(request, social, now)
-        return social_out(routed, tic, snake, cells, mine, cube, corvid, duck, obfuscator, belote, poker)
+def put.social(r: Social.State & HTTP.Response, tic: Held<Tic.Game>, snake: Held<Snake.Game>, cells: Held<Cells.Game>, mine: Held<Mine.Game>, cube: Held<Cube.Game>, poker: Held<Poker.Game>, belote: Held<Belote.Game>, corvid: Held<Corvid.Game>, duck: Held<Duck.Game>, obf: Held<Obf.Game>, bar: Held<Bar.Bar>, elements: Held<Elements.Elements>, farm: Held<Farm.Game>) -> Platform & HTTP.Response:
+  (g, resp) = r
+  (Platform{tic, snake, cells, mine, cube, poker, belote, corvid, duck, obf, bar, elements, farm, Hold{g}}, resp)
 
-def core_index(platform: Platform) -> IO(Outcome):
-  do IO(Outcome):
-    response <- page("gabriel_demos/bendjogos_web/core/index.html")
-    return Outcome.Outcome{platform, response}
+def go.social(req: HTTP.Request, p: Platform, now: U32) -> IO(Platform & HTTP.Response):
+  Platform{tic, snake, cells, mine, cube, poker, belote, corvid, duck, obf, bar, elements, farm, g} = p
+  IO.bind(Social.State & HTTP.Response, Platform & HTTP.Response, Social.route(req, unhold(Social.State, g), now),
+    r => IO.pure(Platform & HTTP.Response, put.social(r, tic, snake, cells, mine, cube, poker, belote, corvid, duck, obf, bar, elements, farm)))
 
-def core_poker(platform: Platform) -> IO(Outcome):
-  do IO(Outcome):
-    response <- page("gabriel_demos/bendjogos_web/core/poker.html")
-    return Outcome.Outcome{platform, response}
+# The game mounted at a first path segment, 0 for none.
+def mount(+name: String) -> U32:
+  Bool.pick(U32, String.eq(name, "tic"), 1,
+  Bool.pick(U32, String.eq(name, "snake"), 2,
+  Bool.pick(U32, String.eq(name, "cells"), 3,
+  Bool.pick(U32, String.eq(name, "minecraft"), 4,
+  Bool.pick(U32, String.eq(name, "cubeworld2"), 5,
+  Bool.pick(U32, String.eq(name, "poker"), 6,
+  Bool.pick(U32, String.eq(name, "belote"), 7,
+  Bool.pick(U32, String.eq(name, "club-corvid"), 8,
+  Bool.pick(U32, String.eq(name, "duck-hunt"), 9,
+  Bool.pick(U32, String.eq(name, "obfuscator"), 10,
+  Bool.pick(U32, String.eq(name, "bar"), 11,
+  Bool.pick(U32, String.eq(name, "elements"), 12,
+  Bool.pick(U32, String.eq(name, "farmhands"), 13,
+  0)))))))))))))
 
-def core_poker_data(platform: Platform) -> IO(Outcome):
-  do IO(Outcome):
-    response <- script_file("gabriel_demos/bendjogos_web/core/poker_data.js")
-    return Outcome.Outcome{platform, response}
-
-def core_belote(platform: Platform) -> IO(Outcome):
-  do IO(Outcome):
-    response <- page("gabriel_demos/bendjogos_web/core/belote.html")
-    return Outcome.Outcome{platform, response}
-
-def core_belote_data(platform: Platform) -> IO(Outcome):
-  do IO(Outcome):
-    response <- script_file("gabriel_demos/bendjogos_web/core/belote_data.js")
-    return Outcome.Outcome{platform, response}
-
-def core_bend_a_beet(platform: Platform) -> IO(Outcome):
-  do IO(Outcome):
-    response <- page("gabriel_demos/bendjogos_web/core/bend-a-beet.html")
-    return Outcome.Outcome{platform, response}
-
-def core_bend_a_beet_data(platform: Platform) -> IO(Outcome):
-  do IO(Outcome):
-    response <- script_file("gabriel_demos/bendjogos_web/core/bend_a_beet_data.js")
-    return Outcome.Outcome{platform, response}
-
-def core_bend_a_beet_camera(platform: Platform) -> IO(Outcome):
-  do IO(Outcome):
-    response <- script_file("gabriel_demos/bendjogos_web/core/bend_a_beet_camera.js")
-    return Outcome.Outcome{platform, response}
-
-def core_bendio(platform: Platform) -> IO(Outcome):
-  do IO(Outcome):
-    response <- page("gabriel_demos/bendjogos_web/core/bendio-3d-land.html")
-    return Outcome.Outcome{platform, response}
-
-def core_bendio_data(platform: Platform) -> IO(Outcome):
-  do IO(Outcome):
-    response <- script_file("gabriel_demos/bendjogos_web/core/bendio_data.js")
-    return Outcome.Outcome{platform, response}
-
-def core_bendy_birds(platform: Platform) -> IO(Outcome):
-  do IO(Outcome):
-    response <- page("gabriel_demos/bendjogos_web/core/bendy-birds.html")
-    return Outcome.Outcome{platform, response}
-
-def core_bendy_birds_data(platform: Platform) -> IO(Outcome):
-  do IO(Outcome):
-    response <- script_file("gabriel_demos/bendjogos_web/core/bendy_birds_data.js")
-    return Outcome.Outcome{platform, response}
-
-def core_bendy_birds_result(platform: Platform) -> IO(Outcome):
-  do IO(Outcome):
-    response <- script_file("gabriel_demos/bendjogos_web/core/bendy_birds_result.js")
-    return Outcome.Outcome{platform, response}
-
-def core_bend_fishing(platform: Platform) -> IO(Outcome):
-  do IO(Outcome):
-    response <- page("gabriel_demos/bendjogos_web/core/bend-fishing.html")
-    return Outcome.Outcome{platform, response}
-
-def core_bend_fishing_data(platform: Platform) -> IO(Outcome):
-  do IO(Outcome):
-    response <- script_file("gabriel_demos/bendjogos_web/core/bend_fishing_data.js")
-    return Outcome.Outcome{platform, response}
-
-def core_bend_aquarium(platform: Platform) -> IO(Outcome):
-  do IO(Outcome):
-    response <- page("gabriel_demos/bendjogos_web/core/bend-aquarium.html")
-    return Outcome.Outcome{platform, response}
-
-def core_bend_aquarium_data(platform: Platform) -> IO(Outcome):
-  do IO(Outcome):
-    response <- script_file("gabriel_demos/bendjogos_web/core/bend_aquarium_data.js")
-    return Outcome.Outcome{platform, response}
-
-def core_bend_landscape(platform: Platform) -> IO(Outcome):
-  do IO(Outcome):
-    response <- page("gabriel_demos/bendjogos_web/core/bend-landscape.html")
-    return Outcome.Outcome{platform, response}
-
-def core_bend_landscape_data(platform: Platform) -> IO(Outcome):
-  do IO(Outcome):
-    response <- script_file("gabriel_demos/bendjogos_web/core/landscape_data.js")
-    return Outcome.Outcome{platform, response}
-
-def core_route(args: List(String), platform: Platform) -> IO(Outcome):
-  match args:
-    case List.Nil{}: core_index(platform)
-    case List.Cons{"", List.Nil{}}: core_index(platform)
-    case List.Cons{"poker", List.Nil{}}: core_poker(platform)
-    case List.Cons{"poker", List.Cons{"", List.Nil{}}}: core_poker(platform)
-    case List.Cons{"poker_data.js", List.Nil{}}: core_poker_data(platform)
-    case List.Cons{"belote", List.Nil{}}: core_belote(platform)
-    case List.Cons{"belote", List.Cons{"", List.Nil{}}}: core_belote(platform)
-    case List.Cons{"belote_data.js", List.Nil{}}: core_belote_data(platform)
-    case List.Cons{"bend-a-beet", List.Nil{}}: core_bend_a_beet(platform)
-    case List.Cons{"bend-a-beet", List.Cons{"", List.Nil{}}}: core_bend_a_beet(platform)
-    case List.Cons{"bend_a_beet_data.js", List.Nil{}}: core_bend_a_beet_data(platform)
-    case List.Cons{"bend_a_beet_camera.js", List.Nil{}}: core_bend_a_beet_camera(platform)
-    case List.Cons{"bendio-3d-land", List.Nil{}}: core_bendio(platform)
-    case List.Cons{"bendio-3d-land", List.Cons{"", List.Nil{}}}: core_bendio(platform)
-    case List.Cons{"bendio_data.js", List.Nil{}}: core_bendio_data(platform)
-    case List.Cons{"bendy-birds", List.Nil{}}: core_bendy_birds(platform)
-    case List.Cons{"bendy-birds", List.Cons{"", List.Nil{}}}: core_bendy_birds(platform)
-    case List.Cons{"bendy_birds_data.js", List.Nil{}}: core_bendy_birds_data(platform)
-    case List.Cons{"bendy_birds_result.js", List.Nil{}}: core_bendy_birds_result(platform)
-    case List.Cons{"bend-fishing", List.Nil{}}: core_bend_fishing(platform)
-    case List.Cons{"bend-fishing", List.Cons{"", List.Nil{}}}: core_bend_fishing(platform)
-    case List.Cons{"bend_fishing_data.js", List.Nil{}}: core_bend_fishing_data(platform)
-    case List.Cons{"bend-aquarium", List.Nil{}}: core_bend_aquarium(platform)
-    case List.Cons{"bend-aquarium", List.Cons{"", List.Nil{}}}: core_bend_aquarium(platform)
-    case List.Cons{"bend_aquarium_data.js", List.Nil{}}: core_bend_aquarium_data(platform)
-    case List.Cons{"bend-landscape", List.Nil{}}: core_bend_landscape(platform)
-    case List.Cons{"bend-landscape", List.Cons{"", List.Nil{}}}: core_bend_landscape(platform)
-    case List.Cons{"landscape_data.js", List.Nil{}}: core_bend_landscape_data(platform)
-    case other: IO.pure(Outcome, Outcome.Outcome{platform, HTTP.not_found()})
-
-def clustering_page(platform: Platform) -> IO(Outcome):
-  do IO(Outcome):
-    response <- page("gabriel_demos/bendjogos_web/clustering.html")
-    return Outcome.Outcome{platform, response}
-
-def static_route(name: String, args: List(String), request: HTTP.Request, platform: Platform, now: U32) -> IO(Outcome):
-  match String.eq_u32(name, "duck-hunt"):
-    case 0:
-      match String.eq_u32(name, "cubeworld2"):
-        case 0:
-          match String.eq_u32(name, "club-corvid"):
-            case 0:
-              match String.eq_u32(name, "obfuscator"):
-                case 0:
-                  match String.eq_u32(name, "snake"):
-                    case 0:
-                      match String.eq_u32(name, "cells"):
-                        case 0:
-                          match String.eq_u32(name, "tic"):
-                            case 0:
-                              match String.eq_u32(name, "minecraft"):
-                                case 0:
-                                  match String.eq_u32(name, "social"):
-                                    case 0:
-                                      match String.eq_u32(name, "bar"):
-                                        case 0:
-                                          match String.eq_u32(name, "elements"):
-                                            case 0:
-                                              match String.eq_u32(name, "core"):
-                                                case 0:
-                                                  match String.eq_u32(name, "poker"):
-                                                    case 0:
-                                                      match String.eq_u32(name, "belote"):
-                                                        case 0:
-                                                          IO.pure(Outcome, Outcome.Outcome{platform, HTTP.not_found()})
-                                                        case k14:
-                                                          game_belote(rewrite(request, suffix(args)), platform)
-                                                    case k13:
-                                                      game_poker(rewrite(request, suffix(args)), platform)
-                                                case k12: core_route(args, platform)
-                                            case k11:
-                                              do IO(Outcome):
-                                                response <- Elements.route(rewrite(request, suffix(args)))
-                                                return Outcome.Outcome{platform, response}
-                                        case k10:
-                                          do IO(Outcome):
-                                            response <- Bar.route(rewrite(request, suffix(args)))
-                                            return Outcome.Outcome{platform, response}
-                                    case k9:
-                                      game_social(request, platform, now)
-                                case k8:
-                                  game_mine(rewrite(request, suffix(args)), platform, now)
-                            case k7:
-                              game_tic(rewrite(request, suffix(args)), platform)
-                        case k6:
-                          game_cells(rewrite(request, suffix(args)), platform, now)
-                    case k5:
-                      game_snake(rewrite(request, suffix(args)), platform, now)
-                case k4:
-                  game_obf(rewrite(request, suffix(args)), platform)
-            case k3:
-              game_corvid(rewrite(request, suffix(args)), platform, now)
-        case k2:
-          game_cube(rewrite(request, suffix(args)), platform, now)
-    case k1:
-      game_duck(rewrite(request, suffix(args)), platform)
-
-def route_parts(parts: List(String), request: HTTP.Request, platform: Platform, now: U32) -> IO(Outcome):
-  match parts:
-    case List.Cons{root, List.Cons{"api", args}}:
-      game_social(request, platform, now)
-    case List.Cons{root, List.Cons{name, args}}:
-      match String.eq_u32(name, "clustering"):
-        case 0: static_route(name, args, request, platform, now)
-        case found:
-          match args:
-            case List.Nil{}: clustering_page(platform)
-            case List.Cons{"", List.Nil{}}: clustering_page(platform)
-            case other: IO.pure(Outcome, Outcome.Outcome{platform, HTTP.not_found()})
+def game_route(code: U32, req: HTTP.Request, p: Platform, now: U32) -> IO(Platform & HTTP.Response):
+  match code:
+    case 1:
+      go.tic(req, p, now)
+    case 2:
+      go.snake(req, p, now)
+    case 3:
+      go.cells(req, p, now)
+    case 4:
+      go.mine(req, p, now)
+    case 5:
+      go.cube(req, p, now)
+    case 6:
+      go.poker(req, p, now)
+    case 7:
+      go.belote(req, p, now)
+    case 8:
+      go.corvid(req, p, now)
+    case 9:
+      go.duck(req, p, now)
+    case 10:
+      go.obf(req, p, now)
+    case 11:
+      go.bar(req, p, now)
+    case 12:
+      go.elements(req, p, now)
+    case 13:
+      go.farm(req, p, now)
     case other:
-      IO.pure(Outcome, Outcome.Outcome{platform, HTTP.not_found()})
+      done(p, HTTP.not_found())
 
-def route(request: HTTP.Request, platform: Platform, now: U32) -> IO(Outcome):
-  match request:
-    case HTTP.Request.Request{method, path, headers, body}:
-      match String.eq_u32(path, "/"):
-        case 0:
-          match String.eq_u32(path, "/games/balloon-defense"):
-            case 0:
-              match String.eq_u32(path, "/social"):
-                case 0:
-                  match String.eq_u32(path, "/games/helicopter"):
-                    case 0:
-                      route_parts(String.split('/', path), HTTP.Request.Request{method, path, headers, body}, platform, now)
-                    case k3:
-                      do IO(Outcome):
-                        response <- page("gabriel_demos/bendjogos_web/games/helicopter.html")
-                        return Outcome.Outcome{platform, response}
-                case k_social:
-                  do IO(Outcome):
-                    response <- page("gabriel_demos/bendjogos_web/social.html")
-                    return Outcome.Outcome{platform, response}
-            case k2:
-              do IO(Outcome):
-                response <- page("gabriel_demos/bendjogos_web/games/balloon_defense.html")
-                return Outcome.Outcome{platform, response}
-        case k:
-          do IO(Outcome):
-            response <- index_page()
-            return Outcome.Outcome{platform, response}
 
-def outcome_send(outcome: Outcome, server: TCP, conn: HTTP) -> IO(U32):
-  match outcome:
-    case Outcome.Outcome{platform, response}:
-      do IO(U32):
-        sent <- HTTP.send_response(conn, HTTP.with_connection(0, response))
-        closed <- HTTP.close(conn)
-        serve(server, platform)
+# A page or script of this folder, relative to the repository root.
+def asset(p: Platform, name: String) -> IO(Platform & HTTP.Response):
+  do IO<Platform & HTTP.Response>:
+    r : HTTP.Response <- HTTP.file("Bend3/demos/bendjogos_web/" ++ name)
+    return (p, r)
 
-def inbound_serve(inbound: HTTP.Inbound, server: TCP, conn: HTTP, platform: Platform) -> IO(U32):
-  match inbound:
-    case HTTP.Inbound.Got{http11, request, rest}:
-      do IO(U32):
-        now <- clock_now_ms()
-        outcome <- route(request, platform, now)
-        outcome_send(outcome, server, conn)
-    case HTTP.Inbound.Closed{}:
-      do IO(U32):
-        closed <- HTTP.close(conn)
-        serve(server, platform)
-    case HTTP.Inbound.Bad{code, error}:
-      outcome_send(Outcome.Outcome{platform, HTTP.reply_error(code, error)}, server, conn)
+# Core pages (slug -> page) and generated scripts, as copied by sync_core.mjs.
+def core_file(+name: String) -> String:
+  Bool.pick(String, String.eq(name, "poker"), "poker.html",
+  Bool.pick(String, String.eq(name, "belote"), "belote.html",
+  Bool.pick(String, String.eq(name, "bend-a-beet"), "bend-a-beet.html",
+  Bool.pick(String, String.eq(name, "bendio-3d-land"), "bendio-3d-land.html",
+  Bool.pick(String, String.eq(name, "bendy-birds"), "bendy-birds.html",
+  Bool.pick(String, String.eq(name, "bend-fishing"), "bend-fishing.html",
+  Bool.pick(String, String.eq(name, "bend-aquarium"), "bend-aquarium.html",
+  Bool.pick(String, String.eq(name, "bend-landscape"), "bend-landscape.html",
+  Bool.pick(String, String.eq(name, "poker_data.js"), name,
+  Bool.pick(String, String.eq(name, "belote_data.js"), name,
+  Bool.pick(String, String.eq(name, "bend_a_beet_data.js"), name,
+  Bool.pick(String, String.eq(name, "bend_a_beet_camera.js"), name,
+  Bool.pick(String, String.eq(name, "bendio_data.js"), name,
+  Bool.pick(String, String.eq(name, "bendy_birds_data.js"), name,
+  Bool.pick(String, String.eq(name, "bendy_birds_result.js"), name,
+  Bool.pick(String, String.eq(name, "bend_fishing_data.js"), name,
+  Bool.pick(String, String.eq(name, "bend_aquarium_data.js"), name,
+  Bool.pick(String, String.eq(name, "landscape_data.js"), name, ""))))))))))))))))))
 
-def accept_result(result: Result((U32 & String), TCP), server: TCP, platform: Platform) -> IO(U32):
-  match result:
-    case Result.Done{fd}:
-      do IO(U32):
-        inbound <- HTTP.recv_request(HTTP.Plain{fd}, List.Nil{})
-        inbound_serve(inbound, server, HTTP.Plain{fd}, platform)
-    case Result.Fail{(code, error)}:
-      do IO(U32):
-        printed <- IO.print_err(String.flatten(["accept failed: ", error, "\n"]))
-        return 1
+def core_found.pick(missing: Bool, file: String, p: Platform) -> IO(Platform & HTTP.Response):
+  match missing:
+    case True{}:
+      done(p, HTTP.not_found())
+    case False{}:
+      asset(p, "core/" ++ file)
 
-def serve(server: TCP, platform: Platform) -> IO(U32):
-  do IO(U32):
-    result <- TCP.accept(server)
-    accept_result(result, server, platform)
+def core_found(+file: String, p: Platform) -> IO(Platform & HTTP.Response):
+  core_found.pick(String.is_empty(file), file, p)
 
-def main() -> IO(U32):
-  do IO(U32):
-    now <- clock_now_ms()
-    seed <- IO.rand_word()
-    result <- TCP.listen(8090)
-    match result:
-      case Result.Done{server}:
-        do IO(U32):
-          printed <- IO.write("BendJogos unified server listening on 0.0.0.0:8090\nopen http://<server-lan-ip>:8090\n")
-          serve(server, Platform.Platform{Tic.game_empty(), Snake.game_empty(now, seed), Cells.game_empty(now, seed + 1), Mine.game_empty(), Cube.game_empty(), Corvid.game_empty(), Duck.game_empty(), Obf.game_empty(), Social.empty(), Belote.game_empty(seed + 2), Poker.game_empty(seed + 3)})
-      case Result.Fail{(code, error)}:
-        do IO(U32):
-          printed <- IO.print_err(String.flatten(["listen failed: ", error, "\n"]))
-          return 1
+def core_route(args: List<&2, String>, p: Platform) -> IO(Platform & HTTP.Response):
+  match args:
+    case Nil{}:
+      asset(p, "core/index.html")
+    case name <> Nil{}:
+      core_found(core_file(name), p)
+    case other:
+      done(p, HTTP.not_found())
+
+# Exactly one page (`/name` or `/name/`), else 404.
+def page_only(args: List<&2, String>, file: String, p: Platform) -> IO(Platform & HTTP.Response):
+  match args:
+    case Nil{}:
+      asset(p, file)
+    case other:
+      done(p, HTTP.not_found())
+
+def games_route(args: List<&2, String>, p: Platform) -> IO(Platform & HTTP.Response):
+  match args:
+    case "balloon-defense" <> Nil{}:
+      asset(p, "games/balloon_defense.html")
+    case "helicopter" <> Nil{}:
+      asset(p, "games/helicopter.html")
+    case other:
+      done(p, HTTP.not_found())
+
+def route.segs(segs: List<&2, String>, req: HTTP.Request, p: Platform, +now: U32) -> IO(Platform & HTTP.Response):
+  match segs:
+    case Nil{}:
+      asset(p, "index.html")
+    case "social" <> Nil{}:
+      asset(p, "social.html")
+    case "social" <> rest:
+      go.social(req, p, now)
+    case "api" <> rest:
+      go.social(req, p, now)
+    case "clustering" <> rest:
+      page_only(rest, "clustering.html", p)
+    case "core" <> rest:
+      core_route(rest, p)
+    case "games" <> rest:
+      games_route(rest, p)
+    case +name <> rest:
+      game_route(mount(name), req, p, now)
+
+def route(req: HTTP.Request, p: Platform) -> IO(Platform & HTTP.Response):
+  HTTP.Request{method, +target, headers, body} = req
+  do IO<Platform & HTTP.Response>:
+    now : U32 <- Clock.now_ms()
+    route.segs(HTTP.segments(target), HTTP.Request{method, target, headers, body}, p, now)
+
+def main.listen(r: Result<&1, &1, U32 & String, Listener>, p: Platform) -> IO(Unit):
+  match r:
+    case Fail{(code, error)}:
+      IO.print_err("listen failed: " ++ error)
+    case Done{l}:
+      do IO<Unit>:
+        IO.print("BendJogos unified server listening on 0.0.0.0:8090\nopen http://<server-lan-ip>:8090 (run from the repository root)")
+        HTTP.serve_on(~Platform, ~route, l, p)
+
+def main() -> IO(Unit):
+  do IO<Unit>:
+    snake : Snake.Game <- Snake.init()
+    cells : Cells.Game <- Cells.init()
+    poker : Poker.Game <- Poker.init()
+    belote : Belote.Game <- Belote.init()
+    farm : Farm.Game <- Farm.init()
+    r : Result<&1, &1, U32 & String, Listener> <- TCP.listen("0.0.0.0", 8090)
+    main.listen(r, Platform{Hold{Tic.init()}, Hold{snake}, Hold{cells}, Hold{Mine.init()}, Hold{Cube.init()}, Hold{poker}, Hold{belote}, Hold{Corvid.init()}, Hold{Duck.init()}, Hold{Obf.init()}, Hold{Bar.init()}, Hold{Elements.init()}, Hold{farm}, Hold{Social.empty()}})

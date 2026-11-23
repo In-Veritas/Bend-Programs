@@ -116,9 +116,10 @@ clusteringButtons.at(-1).click();
 assert.match(clusteringElements.get("threadSummary").textContent, /8 threads solicitadas/);
 assert.match(clusteringElements.get("threadNote").textContent, /VClust\/Clusty: 8/);
 const serverSource = read("./web_bendjogos.bend");
-assert.match(serverSource, /String\.eq_u32\(name, "clustering"\)/);
-assert.match(serverSource, /bendjogos_web\/clustering\.html/);
-assert.match(serverSource, /case List\.Cons\{"", List\.Nil\{\}\}: clustering_page/);
+assert.match(serverSource, /case "clustering" <> rest:/);
+assert.match(serverSource, /page_only\(rest, "clustering\.html", p\)/);
+assert.match(serverSource, /"Bend3\/demos\/bendjogos_web\/" \+\+ name/);
+assert.match(html, /href="\/farmhands"/);
 
 const coreHome = fs.readFileSync(new URL("./core/index.html", import.meta.url), "utf8");
 const corePoker = fs.readFileSync(new URL("./core/poker.html", import.meta.url), "utf8");
@@ -163,9 +164,11 @@ for (const [index, match] of [...corePoker.matchAll(/<script(?:\s[^>]*)?>([\s\S]
 }
 const corePokerContext = { globalThis: {} };
 vm.runInNewContext(coreData, corePokerContext, { filename: "core-poker-data.js" });
-assert.equal(corePokerContext.globalThis.BEND2_POKER_DATA.$2.$, "PokerVerificationAudit");
-assert.equal(corePokerContext.globalThis.BEND2_POKER_DATA.$2.$6, 78);
-assert.equal(corePokerContext.globalThis.BEND2_POKER_DATA.$2.$7, 6);
+// Core Poker/Belote were re-ported to Bend 2.0.40: constructors are now
+// {$: "Name", field: value} with named fields instead of positional $n.
+assert.equal(corePokerContext.globalThis.BEND2_POKER_DATA.verification.$, "PokerVerificationAudit");
+assert.equal(corePokerContext.globalThis.BEND2_POKER_DATA.verification.certified_cases, 78);
+assert.equal(corePokerContext.globalThis.BEND2_POKER_DATA.verification.general_theorems, 6);
 assert.match(coreBelote, /href="\/belote"/);
 assert.match(coreBelote, /Bend2 Core · four AIs/);
 for (const [index, match] of [...coreBelote.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].entries()) {
@@ -173,9 +176,9 @@ for (const [index, match] of [...coreBelote.matchAll(/<script(?:\s[^>]*)?>([\s\S
 }
 const coreBeloteContext = { globalThis: {} };
 vm.runInNewContext(coreBeloteData, coreBeloteContext, { filename: "core-belote-data.js" });
-assert.equal(coreBeloteContext.globalThis.BEND2_BELOTE_DATA.$11.$, "BeloteVerificationAudit");
-assert.equal(coreBeloteContext.globalThis.BEND2_BELOTE_DATA.$11.$6, 119);
-assert.equal(coreBeloteContext.globalThis.BEND2_BELOTE_DATA.$11.$7, 4);
+assert.equal(coreBeloteContext.globalThis.BEND2_BELOTE_DATA.verification.$, "BeloteVerificationAudit");
+assert.equal(coreBeloteContext.globalThis.BEND2_BELOTE_DATA.verification.certified_cases, 119);
+assert.equal(coreBeloteContext.globalThis.BEND2_BELOTE_DATA.verification.general_theorems, 4);
 assert.match(coreBeet, /Bend-a-Beet/);
 assert.match(coreBeet, /20 general theorems · 35 closed certificates/);
 assert.match(coreBeet, /src="bend_a_beet_camera\.js"/);
