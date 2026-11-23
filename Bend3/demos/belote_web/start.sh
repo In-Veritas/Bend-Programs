@@ -1,11 +1,13 @@
 #!/bin/sh
+# Starts the belote server from the repository root (index.html is read
+# relative to it), building it first when needed.
 set -eu
 
-repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
+repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/../../.." && pwd)
 cd "$repo_root"
 
-if [ ! -x gabriel_demos/belote_web/web_belote ]; then
-  ./gabriel_demos/belote_web/build.sh
+if [ ! -x Bend3/demos/belote_web/build/web_belote ]; then
+  ./Bend3/demos/belote_web/build.sh
 fi
 
-exec ./gabriel_demos/belote_web/web_belote
+exec ./Bend3/demos/belote_web/build/web_belote

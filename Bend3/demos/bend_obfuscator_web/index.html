@@ -63,7 +63,7 @@
   <script>
   (() => {
     'use strict';
-    const KEYWORDS=new Set(`def type match case switch return do import as with bend open use let in if then elif else assert forall exists where Type Data Set U32 U64 F32 F64 String Char List Array IO Result Bytes true false`.split(/\s+/));
+    const KEYWORDS=new Set(`def type is law for exs match case switch return do import as with bend open use let in if then elif else assert forall exists where Type Data Kind Quant Set U32 U64 F32 F64 Nat Bool Unit String Char List Array IO Result Bytes true false`.split(/\s+/));
     const KEYLIKE=['iffy','ifif','endd','endend','elsee','elselse','addd','addadd','casey','casecase','matchh','matchmatch','returnn','retreturn','deff','defdef','lett','letlet','innn','inin','fory','forfor','switchh','switchswitch','typey','typetype','withh','withwith','doo','dodo','bendd','bendbend','openn','openopen','usee','useuse'];
     const DIRECTIVES=/^#\s*(no-halt|skip-native|interp-only)\b/;
     const idStart=character=>/[A-Za-z_$]/.test(character),idPart=character=>/[A-Za-z0-9_$~]/.test(character);
@@ -87,6 +87,7 @@
             while(end<source.length&&/[0-9_]/.test(source[end]))end++;
             if(source[end]==='.'&&/[0-9]/.test(source[end+1]||'')){kind='number-other';end++;while(end<source.length&&/[0-9_]/.test(source[end]))end++}
             if(/[eE]/.test(source[end]||'')&&/[+\-0-9]/.test(source[end+1]||'')){kind='number-other';end++;if(/[+\-]/.test(source[end]||''))end++;while(end<source.length&&/[0-9_]/.test(source[end]))end++}
+            if(kind==='number'&&source[end]==='n'&&!/[A-Za-z0-9_]/.test(source[end+1]||'')){kind='number-other';end++}
           }
           push(kind,source.slice(index,end),start);index=end;continue;
         }
@@ -104,12 +105,16 @@
     function regexEscape(value){return value.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}
     function splitTopLevel(text){const result=[];let start=0,depth=0,quote='';for(let index=0;index<text.length;index++){const character=text[index];if(quote){if(character==='\\')index++;else if(character===quote)quote='';continue}if(character==='"'||character==="'"){quote=character;continue}if('([{<'.includes(character))depth++;else if(')]}>'.includes(character))depth--;else if(character===','&&depth===0){result.push(text.slice(start,index));start=index+1}}result.push(text.slice(start));return result}
     function opaqueZero(rng){const left=3+(rng()%17),right=2+(rng()%11),tail=2+(rng()%23),same=`((${left} * ${right}) + ${tail})`;return `(${same} - ${same})`}
+    // Bend 2.0.40: a match scrutinizes a parameter, never a computed value,
+    // so each layer is a selector def (matching its own parameter) plus a
+    // bridge that feeds it the opaque zero. Both are emitted below their
+    // callee, because defs are checked in file order.
     function wrapperBlock(name,target,parameters,arguments_,returns,rng){
-      const selector=opaqueZero(rng),unused=rawName(rng,'elsee');
-      return `def ${name}(${parameters}) -> ${returns}:\n  match ${selector}:\n    case 0:\n      ${target}(${arguments_.join(', ')})\n    case ${unused}:\n      ${target}(${arguments_.join(', ')})`;
+      const selector=opaqueZero(rng),unused=rawName(rng,'elsee'),chooser=rawName(rng,pick(rng,KEYLIKE)),flag=rawName(rng,'casey');
+      return `def ${chooser}(${flag}: U32, ${parameters}) -> ${returns}:\n  match (${flag}):\n    case 0:\n      ${target}(${arguments_.join(', ')})\n    case ${unused}:\n      ${target}(${arguments_.join(', ')})\n\ndef ${name}(${parameters}) -> ${returns}:\n  ${chooser}((${selector} : U32), ${arguments_.join(', ')})`;
     }
     function splitFunctions(source,rng){
-      const lines=source.split('\n'),generated=[];let splitCount=0,callLayers=0;
+      const lines=source.split('\n'),generated=[],after=new Map();let splitCount=0,callLayers=0;
       for(let line=0;line<lines.length;line++){
         const header=lines[line].match(/^def\s+([a-z_][A-Za-z0-9_$~]*)\((.*)\)\s*->\s*(.+):\s*$/);if(!header||header[1]==='main')continue;
         let end=line+1;while(end<lines.length&&!/^(?:def|type|import)\s/.test(lines[end]))end++;
@@ -119,16 +124,23 @@
         if(parameters.some(name=>!name))continue;
         const hidden=rawName(rng,pick(rng,KEYLIKE)),bridges=[];for(let index=0,count=1+(rng()%3);index<count;index++)bridges.push(rawName(rng,pick(rng,KEYLIKE)));
         lines[line]=lines[line].replace(new RegExp(`^(def\\s+)${regexEscape(name)}(?=\\()`),`$1${hidden}`);
-        const chain=[name,...bridges,hidden];for(let index=0;index<chain.length-1;index++)generated.push(wrapperBlock(chain[index],chain[index+1],header[2],parameters,header[3],rng));
+        const chain=[name,...bridges,hidden],layers=[];for(let index=chain.length-2;index>=0;index--)layers.push(wrapperBlock(chain[index],chain[index+1],header[2],parameters,header[3],rng));
+        after.set(end,layers);generated.push(...layers);
         callLayers+=chain.length-1;
         splitCount++;line=end-1;
       }
-      return{source:lines.join('\n'),generated,splitCount,callLayers};
+      return{source:lines.join('\n'),generated,after,splitCount,callLayers};
     }
-    function decoyBlocks(rng,original,count){const blocks=[],names=new Set(original.match(/[A-Za-z_$][A-Za-z0-9_$~]*/g)||[]);for(let index=0;index<count;index++){let name;do{name=rawName(rng,pick(rng,KEYLIKE))}while(names.has(name));names.add(name);const value=rawName(rng,'addd'),unused=rawName(rng,'casey');blocks.push(`def ${name}(${value}: U32) -> U32:\n  match ${opaqueZero(rng)}:\n    case 0:\n      ${value}\n    case ${unused}:\n      ${value}`)}return blocks}
+    function decoyBlocks(rng,original,count){const blocks=[],names=new Set(original.match(/[A-Za-z_$][A-Za-z0-9_$~]*/g)||[]);for(let index=0;index<count;index++){let name;do{name=rawName(rng,pick(rng,KEYLIKE))}while(names.has(name));names.add(name);const value=rawName(rng,'addd'),unused=rawName(rng,'casey');const chooser=rawName(rng,pick(rng,KEYLIKE)),flag=rawName(rng,'elsee');blocks.push(`def ${chooser}(${flag}: U32, ${value}: U32) -> U32:\n  match (${flag}):\n    case 0:\n      ${value}\n    case ${unused}:\n      ${value}\n\ndef ${name}(${value}: U32) -> U32:\n  ${chooser}((${opaqueZero(rng)} : U32), ${value})`)}return blocks}
     function generateStructure(source,rng,{splitEligibleFunctions,insertDecoys,shuffleGenerated}){
-      const split=splitEligibleFunctions?splitFunctions(source,rng):{source,generated:[],splitCount:0,callLayers:0},decoys=insertDecoys?decoyBlocks(rng,source,2+(rng()%4)):[],generated=[...split.generated,...decoys];if(shuffleGenerated)shuffle(rng,generated);
-      const suffix=generated.map(block=>`${'\n'.repeat(3+(rng()%7))}${block}`).join('');return{source:split.source+suffix,splitCount:split.splitCount,callLayers:split.callLayers,decoyCount:decoys.length};
+      const split=splitEligibleFunctions?splitFunctions(source,rng):{source,generated:[],after:new Map(),splitCount:0,callLayers:0},decoys=insertDecoys?decoyBlocks(rng,source,2+(rng()%4)):[];
+      const lines=split.source.split('\n'),gaps=[];for(let line=0;line<=lines.length;line++)if(line===lines.length||/^def\s/.test(lines[line]))gaps.push(line);
+      const placed=new Map();const put=(line,block)=>{if(!placed.has(line))placed.set(line,[]);placed.get(line).push(block)};
+      for(const [line,layers] of split.after)for(const block of layers)put(line,block);
+      const order=shuffleGenerated?shuffle(rng,[...decoys]):decoys;for(const block of order)put(shuffleGenerated?pick(rng,gaps):lines.length,block);
+      const gap=()=>'\n'.repeat(3+(rng()%7)),out=[];
+      for(let line=0;line<=lines.length;line++){if(placed.has(line)){const blocks=placed.get(line);if(line<lines.length){for(const block of blocks)out.push(block+gap())}else{for(const block of blocks)out.push(gap()+block)}}if(line<lines.length)out.push(lines[line]+(line<lines.length-1?'\n':''))}
+      return{source:out.join(''),splitCount:split.splitCount,callLayers:split.callLayers,decoyCount:decoys.length};
     }
     function numberIsPattern(tokens,index,previous){const line=tokens[index].line;let cursor=previous[index];while(cursor>=0&&tokens[cursor].line===line){if(tokens[cursor].value===':')return false;if(tokens[cursor].type==='id'&&tokens[cursor].value==='case')return true;cursor=previous[cursor]}return false}
     function encodedAtom(number,rng,forbidden){let key=31+(rng()%67);while(key===forbidden)key++;if(number<=0xffffffff-key)return `((${number+key} - ${key}))`;return `((${number-key} + ${key}))`}
@@ -142,7 +154,7 @@
         else if(number>=noise)expression=`((${expression} - ${identity}) + ${identity})`;
         else expression=`(${expression} * ${atom(1)})`;
       }
-      return expression;
+      return `(${expression} : U32)`;
     }
     function coherentSpace(value,rng){if(value.includes('\n'))return value;const wide=rng()%5===0;return ' '.repeat((wide?38:3)+(rng()%(wide?35:29)))}
     function obfuscateBend(source,{stripComments=true,explodeNumbers=true,splitEligibleFunctions=true,insertDecoys=true,shuffleGenerated=true,chaoticSpacing=true,seed=randomSeed()}={}){
@@ -189,7 +201,7 @@
   (() => {
     'use strict';
     const $=id=>document.getElementById(id);
-    const example=`# no-halt\n# A small source-equivalence example.\nimport String\n\ntype Point:\n  Point{x: U32, y: U32}\n\ndef point_sum(point: Point) -> U32:\n  match point:\n    case Point{x, y}:\n      x + y\n\ndef main() -> U32:\n  point_sum(Point{x: 20, y: 22})\n`;
+    const example=`# A small source-equivalence example (Bend 2.0.40).\nimport Base\n\ntype Point is Data:\n  Point{x: U32, y: U32}\n\ndef point_sum(point: Point) -> U32:\n  match point:\n    case Point{x, y}:\n      (x + y : U32)\n\ndef main() -> U32:\n  point_sum(Point{20, 22})\n`;
     let currentMap=[],currentName='untitled.bend';
     function bytes(text){return new TextEncoder().encode(text).length}
     function updateSizes(){$('inputSize').textContent=bytes($('input').value)+' bytes';$('outputSize').textContent=bytes($('output').value)+' bytes'}

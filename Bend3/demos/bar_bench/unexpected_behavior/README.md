@@ -30,3 +30,22 @@ the viewport and needs negative y coordinates.
 
 The pure side adds a documented `+1000` bias; the presenter removes it. This
 keeps one command protocol without adding a second signed representation.
+
+## Retest on Bend 2.0.40 (2026-11-23)
+
+Also rechecked with the bendlang/bend source at 6b806192 (`bend` running
+`bend2/main.ts`); no difference from the 2.0.40 binary was seen for these
+files.
+
+- **compiled IO main was rejected**: does not reproduce. `main() -> IO(Unit)`
+  builds and runs for both front-ends.
+- **negative drawing coordinates do not fit `U32`**: still a property of the
+  design, not a bug; the +1000 bias is kept, and `../CommandGFX.bend` now
+  removes it while building the `Image`.
+- New, not a Bend bug: the old IO-loop chain (`push -> push_next -> push`,
+  `ring -> ring_next -> ring`) is mutual recursion, which Bend 2.0.40 forbids;
+  it became the pure state machine in `Bench.bend` (`step`/`pose`), driven by
+  Nat-fuel loops (terminal) or `App.run` (window).
+- Genuine issue hit: with the default GPU, the window build is 5-10x slower
+  per frame (`bugs/app-run-cuda-default-3x-slower`); run it with
+  `+RTS --gpu off -RTS`.

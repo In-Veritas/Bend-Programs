@@ -30,3 +30,16 @@ used by the demo has no sine primitive.
 The demo uses Bhaskara I's approximation plus explicit range reduction. Time
 wraps at `1000 * 2π` so the approximation never receives an unbounded phase.
 
+
+## Retest on Bend 2.0.40 (2026-11-23)
+
+Also rechecked with the bendlang/bend source at 6b806192; no difference from
+the 2.0.40 binary was seen for this file.
+
+- **compiled IO main was rejected**: does not reproduce; `main() -> IO(Unit)`
+  builds and runs.
+- **no trigonometric primitive**: no longer true, Base now has `F32.sin` and
+  friends. The demo keeps Bhaskara I (its point), and `--probe` measures it
+  against `F32.sin`: max error 0.0016 over [-20, 20].
+- Genuine issue hit: with the default GPU, frames are 5-10x slower
+  (`bugs/app-run-cuda-default-3x-slower`); run with `+RTS --gpu off -RTS`.

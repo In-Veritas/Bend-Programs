@@ -51,3 +51,12 @@ binary with `+RTS --gpu off -RTS` on CUDA machines.
 ## Hit by
 
 `Bend2/water_movement/main.bend` (native build of the App).
+
+Also hit by `Bend3/demos/elements/elements.bend` and
+`Bend3/demos/bar_bench/window_bar.bend` (640 x 400 App.run windows, 3k-12k
+image nodes per frame, no `!` of their own), rebuilt with the latest
+bendlang/bend source (6b806192): with the default GPU a frame takes 100-225 ms
+(`elements --demo`, 300 frames, did not finish in 60 s; `window_bar --demo`
+did not finish in 60 s), with `+RTS --gpu off -RTS` 17-60 ms (the paced 30 fps
+demos finish in 11 s and 27 s). Deleting the `.gpu` file does not help: the
+binary recompiles it on start. Same workaround documented in their READMEs.

@@ -19,19 +19,25 @@ not included.
 
 ## Run and verify
 
-From the Bend3 repository root:
+The source targets Bend 2.0.40 (and the current bendlang/bend `bend2/main.ts`,
+same CLI) and uses the shared `../HTTP.bend` and `../Compat.bend` modules.
+From the Bend-Programs repository root (the server reads
+`Bend3/demos/belote_web/index.html` relative to it):
 
 ```sh
-bun bend-ts/src/bend.ts gabriel_demos/belote_web/web_belote.bend --eval test
-./gabriel_demos/belote_web/build.sh
-./gabriel_demos/belote_web/start.sh
+bend Bend3/demos/belote_web/web_belote.bend --check-only   # ALL PROOFS CHECK
+(cd Bend3/demos/belote_web && bend probe.bend)            # prints 1
+./Bend3/demos/belote_web/build.sh     # native build into build/ (gitignored)
+./Bend3/demos/belote_web/start.sh     # serves http://0.0.0.0:8091
 ```
 
-The pure probe must print `1`. Open `http://localhost:8091` for the standalone
-table, or `http://<server-lan-ip>:8090/belote` through BendJogos.
+`probe.bend` runs the pure deal/ranking probe `test()` (five then eight
+cards per seat, all 32 cards dealt exactly once, trump points). Open
+`http://localhost:8091` for the standalone table, or
+`http://<server-lan-ip>:8090/belote` through BendJogos.
 
 The initial deal and the always-available **New random match** action obtain a
-fresh seed from Bend3's `IO.rand_word`; later hands advance that seed
+fresh seed from Base's `IO.random_u32`; later hands advance that seed
 deterministically. The HTTP regression test also resets the shared table when
 it finishes, so testing no longer leaves the next visitor looking at an already
 completed hand.
@@ -50,5 +56,33 @@ because the same Bend legality function gates both human and AI plays.
 The browser script has a syntax and surface regression check:
 
 ```sh
-node gabriel_demos/belote_web/test_client.mjs
+bun Bend3/demos/belote_web/test_client.mjs
+bun Bend3/demos/belote_web/test_server.mjs   # with the server running: one full hand
 ```
+
+## Hub interface
+
+`web_belote.bend` exposes, for a hub that imports it
+(`import ../belote_web/web_belote.bend as Belote`):
+
+- `Belote.Game`, the table state (`is Data`);
+- `Belote.init() -> IO(Game)` (fresh random seed) or `Belote.game_empty(seed)`;
+- `Belote.route(req, game) -> IO(Game & HTTP.Response)` for standalone-shaped
+  paths (`/`, `/state`, `/bid/<n>`, `/play/<card>`, `/auto`, `/next`, `/new`);
+- `Belote.route_at("/belote", req, game)`, the same with the mount prefix
+  stripped first (`/belote/state` is `/state`, `/belote` is the page).
+
+`main` is only `HTTP.serve(~Game, ~route, "0.0.0.0", 8091, init())`.
+`index.html` already prefixes its requests with `/belote` when mounted there.
+
+## Bend 2.0.40 port notes
+
+- Comparisons now answer `Bool`; the old U32-as-boolean `match (a == b)` rows
+  became small helpers matching `Bool` parameters, or `Bool.pick`.
+- Every counted loop (cards 0..31, suits, ranks, deal indices) counts down a
+  `Nat` fuel, so the whole file checks without `@unsafe`.
+- The second-round AI fallback suit is now a suit that is legal in round two;
+  before, a hand whose only valued suit was the turned one could make the
+  forced fourth AI bid repeat an illegal suit forever.
+- `game_auto` (unused by any route) was dropped; `/auto` steps exactly one seat.
+

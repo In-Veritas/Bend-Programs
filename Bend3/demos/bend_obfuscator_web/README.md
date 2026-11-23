@@ -72,17 +72,45 @@ and unreachable helpers are intentionally conservative source-level analogues.
 
 ## Run
 
-From the repository root:
-
 ```sh
-./gabriel_demos/bend_obfuscator_web/build.sh
-./gabriel_demos/bend_obfuscator_web/start.sh
+Bend3/demos/bend_obfuscator_web/build.sh    # runs the engine test, builds build/web_obfuscator
+Bend3/demos/bend_obfuscator_web/start.sh    # serves 0.0.0.0:8088 from the repository root
 ```
 
-Open `http://<server-lan-ip>:8088`.
+Open `http://<server-lan-ip>:8088` (also `/obfuscator`). `build/` is
+gitignored.
 
 The tool is also mounted inside the single-process BendJogos hub at
 `http://<server-lan-ip>:8090/obfuscator`.
+
+## Hub interface
+
+`web_obfuscator.bend` exposes, for
+`import ../bend_obfuscator_web/web_obfuscator.bend as Obf`: `Obf.Game` (pages
+served), `Obf.init()`, and `Obf.route(req: HTTP.Request, g: Obf.Game) ->
+IO(Obf.Game & HTTP.Response)`, which serves the page at `/` and at
+`/obfuscator` (prefixed or stripped), 404 elsewhere, 405 for non-GET. `main`
+is only `HTTP.serve(~Game, ~route, "0.0.0.0", 8088, init())`.
+
+## Output dialect: Bend 2.0.40
+
+The engine now emits Bend 2.0.40 source (it emitted old Bend3 before):
+
+- every encoded integer literal is one annotated expression,
+  `(((a - b) + (c - d)) : U32)`, since operators need a type;
+- a call layer is a selector def that matches its own parameter
+  (`match (flag):`, a match never scrutinizes a computed value) plus a bridge
+  that passes it the opaque zero; decoys have the same shape;
+- the layers of a helper are placed right below it, deepest first, because
+  defs are checked in file order; only the unreachable decoys are shuffled
+  into random top-level gaps;
+- `Nat` literals (`28n`) are protected tokens, and `is`, `law`, `exs`, `for`,
+  `Nat`, `Bool`, `Unit`, `Kind`, `Quant` are keywords.
+
+Checked on 2026-11-23: both fixed-seed fixtures check and evaluate to `42`,
+and three aggressive seeds of `Bend3/demos/bar_bench/Bench.bend` (16 helpers
+split, 44-54 call layers, ~350 literals encoded) print ALL PROOFS CHECK, one
+of them with a `main` that prints the same probe output as the original.
 
 ## Equivalence boundary
 
@@ -104,21 +132,21 @@ constructs every intermediate inside that range.
 Indirection and decoys increase source size, checking cost, and potentially
 runtime cost. A compiler may simplify many arithmetic identities or remove
 unreachable definitions, so the source can look much worse than the compiled
-artifact. The output should still be checked with the same Bend3 revision and
-flags as the input program.
+artifact. The output should still be checked with the same Bend version as the
+input program.
 
 The browser engine has a permanent regression check:
 
 ```sh
-node gabriel_demos/bend_obfuscator_web/test_obfuscator.mjs
+bun Bend3/demos/bend_obfuscator_web/test_obfuscator.mjs    # or node
 ```
 
 To also materialize and evaluate the fixed-seed regression fixture:
 
 ```sh
 BEND_OBFUSCATOR_OUTPUT=/tmp/obfuscator-overhaul.bend \
-  node gabriel_demos/bend_obfuscator_web/test_obfuscator.mjs
-bun bend-ts/src/bend.ts /tmp/obfuscator-overhaul.bend --eval main
+  bun Bend3/demos/bend_obfuscator_web/test_obfuscator.mjs
+bend /tmp/obfuscator-overhaul.bend
 ```
 
 The fixture must evaluate to `42`.

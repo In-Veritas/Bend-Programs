@@ -27,3 +27,16 @@ The build script retains `--no-halt`; no workaround was applied to Bend3.
 At `1ebc1acc`, the server source checks and compiles. Two distinct fixed-seed
 obfuscator outputs both check and evaluate to `42`. No new Bend parser,
 checker, compiler, or runtime anomaly was found during the obfuscator overhaul.
+
+## Retest on Bend 2.0.40 (2026-11-23)
+
+Also rechecked with the bendlang/bend source at 6b806192; no difference.
+
+- **the HTTP loop required `--no-halt`**: gone. The server is a
+  `HTTP.serve` call over `../HTTP.bend`, whose loops count down `Nat` fuel, so
+  it checks (ALL PROOFS CHECK) without any flag or `@unsafe`.
+- The browser engine's output was old Bend3 syntax and failed on Bend 2.0.40
+  (bare operators, `match` on a computed selector, generated helpers below
+  their callers, `28n` split into `28` + `n`). These are dialect changes, not
+  Bend bugs; the engine was retargeted (see the README's "Output dialect").
+  Both fixed-seed fixtures now check and evaluate to 42.

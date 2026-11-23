@@ -123,9 +123,10 @@ assert.ok(
   "unterminated literals must block export",
 );
 
-const structuralSource = `# no-halt
+const structuralSource = `import Base
+
 def add(left: U32, right: U32) -> U32:
-  left + right
+  (left + right : U32)
 
 def main() -> U32:
   add(20, 22)

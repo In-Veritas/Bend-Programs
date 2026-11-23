@@ -1,469 +1,283 @@
 # Duck Hunt: a Bend-owned single-player light-gun game with a shared LAN high score.
 #
-# Routes:
+# Routes (each also answers under the hub prefix /duck-hunt):
 #   GET /                         pixel-art browser game
-#   GET /state/<player>          current hunt state
-#   GET /start/<player>          begin a new ten-duck round
+#   GET /state/<player>           current hunt state
+#   GET /start/<player>           begin a new ten-duck round
 #   GET /shoot/<player>/<hit>/<band>
 #                                 spend a shell; band 0..3 rewards accuracy
-#   GET /next/<player>           advance after a hit or escaped duck
-#   GET /leave/<player>          remove this browser's hunt
+#   GET /next/<player>            advance after a hit or escaped duck
+#   GET /leave/<player>           remove this browser's hunt
 #
-# Build:
-#   bun bend-ts/src/bend.ts gabriel_demos/duck_hunt_web/web_duck_hunt.bend --no-halt -o gabriel_demos/duck_hunt_web/web_duck_hunt
+# Player status: 0 idle, 1 duck in flight, 2 duck resolved (hit or
+# escaped), 3 game over.
 #
-# no-halt
-# skip-native
+# Hub interface: `Game`, `init()`, and `route(req, game)`; `route` accepts
+# paths with or without the leading `/duck-hunt`.
+#
+# Build (from the repository root):
+#   ./Bend3/demos/duck_hunt_web/build.sh
+#   (bend Bend3/demos/duck_hunt_web/web_duck_hunt.bend -o Bend3/demos/duck_hunt_web/build/web_duck_hunt)
+import Base
+import ../HTTP.bend as HTTP
+import ../Compat.bend as Compat
 
-import ../../bend-base/Base
-import ../Compat
-import ../../bend-base/IO/TCP
-import ../../bend-base/IO/HTTP
-
-type Player:
+type Player is Data:
   Player{id: U32, score: U32, best: U32, round: U32, duck: U32, ammo: U32, round_hits: U32, total_hits: U32, status: U32, seed: U32}
 
-type Found:
-  Found{player: Player}
-  Missing{}
+type Game is Data:
+  Game{players: List<&2, Player>, high: U32, high_player: U32, tick: U32}
 
-type Game:
-  Game{players: List(Player), high: U32, high_player: U32, tick: U32}
-
-type Action:
+type Action is Data:
   Action{game: Game, ok: U32, note: String}
-
-type Routed:
-  Routed{game: Game, response: HTTP.Response}
 
 # ---------------------------------------------------------------- player
 
-def u32_min(a: U32, b: U32) -> U32:
-  match a < b:
-    case 0:
-      b
-    case k:
-      a
+# Qualifying hits per ten ducks: 6, rising by one every three rounds, up to 8.
+def required(+round: U32) -> U32:
+  U32.min(8, (6 + (round - 1 : U32) / 3 : U32))
 
-def u32_max(a: U32, b: U32) -> U32:
-  match a > b:
-    case 0:
-      b
-    case k:
-      a
+def points(band: U32, +round: U32) -> U32:
+  (450 + U32.min(3, band) * 250 + round * 50 : U32)
 
-def u32_required(round: U32) -> U32:
-  u32_min(8, 6 + ((round - 1) / 3))
+def shot_note(+hit: Bool, +ammo: U32) -> String:
+  Bool.pick(String, hit, "Direct hit.",
+  Bool.pick(String, U32.is_zero(ammo), "Out of shells. The duck escaped.",
+    "Miss. Track the flight and try again."))
 
-def u32_points(band: U32, round: U32) -> U32:
-  (450 + (u32_min(3, band) * 250)) + (round * 50)
-
-def u32_high_player(score: U32, high: U32, id: U32, previous: U32) -> U32:
-  match score > high:
-    case 0:
-      previous
-    case k:
+def player_id(p: Player) -> U32:
+  match p:
+    case Player{id, score, best, round, duck, ammo, round_hits, total_hits, status, seed}:
       id
 
-def u32_shot_note(hit: U32, ammo: U32) -> String:
-  match hit > 0:
-    case 0:
-      match ammo > 0:
-        case 0:
-          "Out of shells. The duck escaped."
-        case k:
-          "Miss. Track the flight and try again."
-    case k:
-      "Direct hit."
+def player_idle(+id: U32) -> Player:
+  Player{id, 0, 0, 1, 1, 3, 0, 0, 0, id}
 
-def player_idle(id: U32) -> Player:
-  Player.Player{id, 0, 0, 1, 1, 3, 0, 0, 0, id}
+def player_start(p: Player, seed: U32) -> Player:
+  match p:
+    case Player{id, score, best, round, duck, ammo, round_hits, total_hits, status, old}:
+      Player{id, 0, best, 1, 1, 3, 0, 0, 1, seed}
 
-def player_start(player: Player, seed: U32) -> Player:
-  match player:
-    case Player.Player{id, score, best, round, duck, ammo, round_hits, total_hits, status, old_seed}:
-      Player.Player{id, 0, best, 1, 1, 3, 0, 0, 1, seed}
+# Spend a shell (ammo > 0). A hit scores and resolves the duck; the last
+# missed shell lets it escape.
+def player_shoot(+p: Player, +hit: Bool, band: U32) -> Player:
+  Player{id, +score, +best, +round, duck, +ammo, +round_hits, +total_hits, status, seed} = p
+  +ammo2 = (ammo - 1 : U32)
+  +score2 = (score + points(band, round) : U32)
+  Bool.pick(Player, hit,
+    Player{id, score2, U32.max(best, score2), round, duck, ammo2, (round_hits + 1 : U32), (total_hits + 1 : U32), 2, seed},
+    Player{id, score, best, round, duck, ammo2, round_hits, total_hits, Bool.pick(U32, U32.is_zero(ammo2), 2, 1), seed})
 
-def player_shoot(player: Player, hit: U32, band: U32) -> Player:
-  match player:
-    case Player.Player{id, score, best, round, duck, ammo, round_hits, total_hits, status, seed}:
-      ammo2 = ammo - 1
-      match hit > 0:
-        case 0:
-          match ammo2:
-            case 0:
-              Player.Player{id, score, best, round, duck, 0, round_hits, total_hits, 2, seed}
-            case shells:
-              Player.Player{id, score, best, round, duck, shells, round_hits, total_hits, 1, seed}
-        case k:
-          score2 = score + u32_points(band, round)
-          Player.Player{id, score2, u32_max(best, score2), round, duck, ammo2, round_hits + 1, total_hits + 1, 2, seed}
+def player_next_duck(p: Player, seed: U32) -> Player:
+  match p:
+    case Player{id, score, best, round, duck, ammo, round_hits, total_hits, status, old}:
+      Player{id, score, best, round, (duck + 1 : U32), 3, round_hits, total_hits, 1, seed}
 
-def player_next_duck(player: Player, seed: U32) -> Player:
-  match player:
-    case Player.Player{id, score, best, round, duck, ammo, round_hits, total_hits, status, old_seed}:
-      Player.Player{id, score, best, round, duck + 1, 3, round_hits, total_hits, 1, seed}
+def player_next_round(p: Player, seed: U32) -> Player:
+  match p:
+    case Player{id, score, best, round, duck, ammo, round_hits, total_hits, status, old}:
+      Player{id, score, best, (round + 1 : U32), 1, 3, 0, total_hits, 1, seed}
 
-def player_next_round(player: Player, seed: U32) -> Player:
-  match player:
-    case Player.Player{id, score, best, round, duck, ammo, round_hits, total_hits, status, old_seed}:
-      Player.Player{id, score, best, round + 1, 1, 3, 0, total_hits, 1, seed}
+def player_game_over(p: Player) -> Player:
+  match p:
+    case Player{id, score, best, round, duck, ammo, round_hits, total_hits, status, seed}:
+      Player{id, score, best, round, duck, ammo, round_hits, total_hits, 3, seed}
 
-def player_game_over(player: Player) -> Player:
-  match player:
-    case Player.Player{id, score, best, round, duck, ammo, round_hits, total_hits, status, seed}:
-      Player.Player{id, score, best, round, duck, ammo, round_hits, total_hits, 3, seed}
-
-def player_json(player: Player) -> String:
-  match player:
-    case Player.Player{id, score, best, round, duck, ammo, round_hits, total_hits, status, seed}:
-      String.flatten([
-        "{\"id\":", String.from_u32(id),
-        ",\"score\":", String.from_u32(score),
-        ",\"best\":", String.from_u32(best),
-        ",\"round\":", String.from_u32(round),
-        ",\"duck\":", String.from_u32(duck),
-        ",\"ammo\":", String.from_u32(ammo),
-        ",\"roundHits\":", String.from_u32(round_hits),
-        ",\"totalHits\":", String.from_u32(total_hits),
-        ",\"status\":", String.from_u32(status),
-        ",\"seed\":", String.from_u32(seed),
-        ",\"required\":", String.from_u32(u32_required(round)),
-        "}"
-      ])
+def player_json(p: Player) -> String:
+  match p:
+    case Player{id, score, best, +round, duck, ammo, round_hits, total_hits, status, seed}:
+      HTTP.json_object([
+        ("id", U32.show(id)),
+        ("score", U32.show(score)),
+        ("best", U32.show(best)),
+        ("round", U32.show(round)),
+        ("duck", U32.show(duck)),
+        ("ammo", U32.show(ammo)),
+        ("roundHits", U32.show(round_hits)),
+        ("totalHits", U32.show(total_hits)),
+        ("status", U32.show(status)),
+        ("seed", U32.show(seed)),
+        ("required", U32.show(required(round)))])
 
 # ---------------------------------------------------------------- player list
 
-def list_player_find(players: List(Player), id: U32) -> Found:
+def players_find(players: List<&2, Player>, +id: U32) -> Maybe<&2, Player>:
   match players:
-    case List.Cons{head, tail}:
-      match head:
-        case Player.Player{stored, score, best, round, duck, ammo, round_hits, total_hits, status, seed}:
-          match stored == id:
-            case 0:
-              list_player_find(tail, id)
-            case k:
-              Found.Found{Player.Player{stored, score, best, round, duck, ammo, round_hits, total_hits, status, seed}}
-    case List.Nil{}:
-      Found.Missing{}
+    case Nil{}:
+      None{}
+    case +h <> t:
+      Bool.pick(Maybe<&2, Player>, U32.is_eq(player_id(h), id), Some{h}, players_find(t, id))
 
-def list_player_set(players: List(Player), player: Player) -> List(Player):
+# Replace the player with the same id, or append it.
+def players_set(players: List<&2, Player>, +p: Player) -> List<&2, Player>:
   match players:
-    case List.Cons{head, tail}:
-      match head:
-        case Player.Player{stored, old_score, old_best, old_round, old_duck, old_ammo, old_round_hits, old_total_hits, old_status, old_seed}:
-          match player:
-            case Player.Player{id, score, best, round, duck, ammo, round_hits, total_hits, status, seed}:
-              match stored == id:
-                case 0:
-                  List.Cons{
-                    Player.Player{stored, old_score, old_best, old_round, old_duck, old_ammo, old_round_hits, old_total_hits, old_status, old_seed},
-                    list_player_set(tail, Player.Player{id, score, best, round, duck, ammo, round_hits, total_hits, status, seed})
-                  }
-                case k:
-                  List.Cons{Player.Player{id, score, best, round, duck, ammo, round_hits, total_hits, status, seed}, tail}
-    case List.Nil{}:
-      List.Cons{player, List.Nil{}}
+    case Nil{}:
+      [p]
+    case +h <> +t:
+      Bool.pick(List<&2, Player>, U32.is_eq(player_id(h), player_id(p)), p <> t, h <> players_set(t, p))
 
-def list_player_remove(players: List(Player), id: U32) -> List(Player):
+def players_remove(players: List<&2, Player>, +id: U32) -> List<&2, Player>:
   match players:
-    case List.Nil{}:
-      List.Nil{}
-    case List.Cons{head, tail}:
-      match head:
-        case Player.Player{stored, score, best, round, duck, ammo, round_hits, total_hits, status, seed}:
-          match stored == id:
-            case 0:
-              List.Cons{Player.Player{stored, score, best, round, duck, ammo, round_hits, total_hits, status, seed}, list_player_remove(tail, id)}
-            case k:
-              tail
+    case Nil{}:
+      Nil{}
+    case +h <> +t:
+      Bool.pick(List<&2, Player>, U32.is_eq(player_id(h), id), t, h <> players_remove(t, id))
 
 # ---------------------------------------------------------------- game
 
-def game_empty() -> Game:
-  Game.Game{List.Nil{}, 0, 0, 1}
+def init() -> Game:
+  Game{Nil{}, 0, 0, 1}
 
-def game_error(game: Game, note: String) -> Action:
-  Action.Action{game, 0, note}
+def fail(g: Game, note: String) -> Action:
+  Action{g, 0, note}
 
-def game_ok(game: Game, note: String) -> Action:
-  Action.Action{game, 1, note}
+def ok(g: Game, note: String) -> Action:
+  Action{g, 1, note}
 
-def game_player(game: Game, id: U32) -> Player:
-  match game:
-    case Game.Game{players, high, high_player, tick}:
-      match list_player_find(players, id):
-        case Found.Found{player}:
-          player
-        case Found.Missing{}:
-          player_idle(id)
+def game_player(g: Game, +id: U32) -> Player:
+  match g:
+    case Game{players, high, high_player, tick}:
+      Maybe.default(&2, Player, players_find(players, id), player_idle(id))
 
-def game_seed(id: U32, tick: U32) -> U32:
-  ((id * 1664525) + (tick * 1013904223)) % 2147483647
+def seed_of(+id: U32, +tick: U32) -> U32:
+  ((id * 1664525 + tick * 1013904223 : U32) % 2147483647 : U32)
 
-def game_start(game: Game, id: U32) -> Action:
-  match game:
-    case Game.Game{players, high, high_player, tick}:
-      match id > 0:
-        case 0:
-          game_error(Game.Game{players, high, high_player, tick}, "Invalid hunter identity.")
-        case k:
-          player = player_start(game_player(Game.Game{players, high, high_player, tick}, id), game_seed(id, tick))
-          game_ok(Game.Game{list_player_set(players, player), high, high_player, tick + 1}, "Round one. Ten ducks. Make every shell count.")
+def game_start(+g: Game, +id: U32) -> Action:
+  Game{players, high, high_player, +tick} = g
+  Bool.pick(Action, U32.is_zero(id), fail(g, "Invalid hunter identity."),
+    ok(Game{players_set(players, player_start(game_player(g, id), seed_of(id, tick))), high, high_player, (tick + 1 : U32)},
+      "Round one. Ten ducks. Make every shell count."))
 
-def game_shoot_active(game: Game, player: Player, hit: U32, band: U32) -> Action:
-  match game:
-    case Game.Game{players, high, high_player, tick}:
-      match player:
-        case Player.Player{id, score, best, round, duck, ammo, round_hits, total_hits, status, seed}:
-          match ammo:
-            case 0:
-              game_error(Game.Game{players, high, high_player, tick}, "No shells remain for this duck.")
-            case shells:
-              shot = player_shoot(Player.Player{id, score, best, round, duck, shells, round_hits, total_hits, status, seed}, hit, band)
-              match shot:
-                case Player.Player{shot_id, shot_score, shot_best, shot_round, shot_duck, shot_ammo, shot_round_hits, shot_total_hits, shot_status, shot_seed}:
-                  high2 = u32_max(high, shot_score)
-                  high_player2 = u32_high_player(shot_score, high, shot_id, high_player)
-                  note = u32_shot_note(hit, shot_ammo)
-                  game_ok(Game.Game{list_player_set(players, shot), high2, high_player2, tick + 1}, note)
+def game_shoot.scored(+g: Game, +shot: Player, +hit: Bool) -> Action:
+  Game{players, +high, high_player, tick} = g
+  Player{+shot_id, +shot_score, shot_best, shot_round, shot_duck, +shot_ammo, shot_rh, shot_th, shot_status, shot_seed} = shot
+  ok(Game{players_set(players, shot), U32.max(high, shot_score),
+    Bool.pick(U32, U32.is_gt(shot_score, high), shot_id, high_player), (tick + 1 : U32)},
+    shot_note(hit, shot_ammo))
 
-def game_shoot(game: Game, id: U32, hit: U32, band: U32) -> Action:
-  match game:
-    case Game.Game{players, high, high_player, tick}:
-      match list_player_find(players, id):
-        case Found.Missing{}:
-          game_error(Game.Game{players, high, high_player, tick}, "Start a hunt before shooting.")
-        case Found.Found{player}:
-          match player:
-            case Player.Player{stored, score, best, round, duck, ammo, round_hits, total_hits, status, seed}:
-              match status == 1:
-                case 0:
-                  game_error(Game.Game{players, high, high_player, tick}, "Wait for the next duck.")
-                case k:
-                  game_shoot_active(Game.Game{players, high, high_player, tick}, Player.Player{stored, score, best, round, duck, ammo, round_hits, total_hits, status, seed}, hit, band)
+def game_shoot.active(+g: Game, +p: Player, +hit: Bool, band: U32) -> Action:
+  Player{id, score, best, round, duck, +ammo, round_hits, total_hits, status, seed} = p
+  Bool.pick(Action, U32.is_zero(ammo), fail(g, "No shells remain for this duck."),
+    game_shoot.scored(g, player_shoot(p, hit, band), hit))
 
-def game_next_resolved(game: Game, player: Player) -> Action:
-  match game:
-    case Game.Game{players, high, high_player, tick}:
-      match player:
-        case Player.Player{id, score, best, round, duck, ammo, round_hits, total_hits, status, seed}:
-          seed2 = game_seed(id, tick)
-          match duck < 10:
-            case 0:
-              match round_hits >= u32_required(round):
-                case 0:
-                  over = player_game_over(Player.Player{id, score, best, round, duck, ammo, round_hits, total_hits, status, seed})
-                  game_ok(Game.Game{list_player_set(players, over), high, high_player, tick + 1}, "The dog closes the book on this hunt.")
-                case k:
-                  advanced = player_next_round(Player.Player{id, score, best, round, duck, ammo, round_hits, total_hits, status, seed}, seed2)
-                  game_ok(Game.Game{list_player_set(players, advanced), high, high_player, tick + 1}, "Round clear. The next flock is faster.")
-            case k:
-              advanced = player_next_duck(Player.Player{id, score, best, round, duck, ammo, round_hits, total_hits, status, seed}, seed2)
-              game_ok(Game.Game{list_player_set(players, advanced), high, high_player, tick + 1}, "Next duck.")
+def game_shoot.found(m: Maybe<&2, Player>, +g: Game, +hit: Bool, band: U32) -> Action:
+  match m:
+    case None{}:
+      fail(g, "Start a hunt before shooting.")
+    case Some{+p}:
+      Player{id, score, best, round, duck, ammo, round_hits, total_hits, +status, seed} = p
+      Bool.pick(Action, U32.is_eq(status, 1), game_shoot.active(g, p, hit, band), fail(g, "Wait for the next duck."))
 
-def game_next(game: Game, id: U32) -> Action:
-  match game:
-    case Game.Game{players, high, high_player, tick}:
-      match list_player_find(players, id):
-        case Found.Missing{}:
-          game_error(Game.Game{players, high, high_player, tick}, "Start a hunt first.")
-        case Found.Found{player}:
-          match player:
-            case Player.Player{stored, score, best, round, duck, ammo, round_hits, total_hits, status, seed}:
-              match status == 2:
-                case 0:
-                  game_error(Game.Game{players, high, high_player, tick}, "This duck is still in flight.")
-                case k:
-                  game_next_resolved(Game.Game{players, high, high_player, tick}, Player.Player{stored, score, best, round, duck, ammo, round_hits, total_hits, status, seed})
+def game_shoot(+g: Game, +id: U32, hit: U32, band: U32) -> Action:
+  Game{players, high, high_player, tick} = g
+  game_shoot.found(players_find(players, id), g, Bool.not(U32.is_zero(hit)), band)
 
-def game_leave(game: Game, id: U32) -> Action:
-  match game:
-    case Game.Game{players, high, high_player, tick}:
-      game_ok(Game.Game{list_player_remove(players, id), high, high_player, tick + 1}, "")
+def game_next.resolved(+g: Game, +p: Player) -> Action:
+  Game{players, high, high_player, +tick} = g
+  Player{+id, score, best, +round, +duck, ammo, +round_hits, total_hits, status, seed} = p
+  +seed2 = seed_of(id, tick)
+  Bool.pick(Action, U32.is_lt(duck, 10),
+    ok(Game{players_set(players, player_next_duck(p, seed2)), high, high_player, (tick + 1 : U32)}, "Next duck."),
+  Bool.pick(Action, U32.is_ge(round_hits, required(round)),
+    ok(Game{players_set(players, player_next_round(p, seed2)), high, high_player, (tick + 1 : U32)}, "Round clear. The next flock is faster."),
+    ok(Game{players_set(players, player_game_over(p)), high, high_player, (tick + 1 : U32)}, "The dog closes the book on this hunt.")))
+
+def game_next.found(m: Maybe<&2, Player>, +g: Game) -> Action:
+  match m:
+    case None{}:
+      fail(g, "Start a hunt first.")
+    case Some{+p}:
+      Player{id, score, best, round, duck, ammo, round_hits, total_hits, +status, seed} = p
+      Bool.pick(Action, U32.is_eq(status, 2), game_next.resolved(g, p), fail(g, "This duck is still in flight."))
+
+def game_next(+g: Game, +id: U32) -> Action:
+  Game{players, high, high_player, tick} = g
+  game_next.found(players_find(players, id), g)
+
+def game_leave(g: Game, +id: U32) -> Action:
+  match g:
+    case Game{players, high, high_player, tick}:
+      ok(Game{players_remove(players, id), high, high_player, (tick + 1 : U32)}, "")
 
 # ---------------------------------------------------------------- json and routing
 
-def game_json(game: Game, id: U32, ok: U32, note: String) -> String:
-  match game:
-    case Game.Game{players, high, high_player, tick}:
-      String.flatten([
-        "{\"ok\":", String.from_u32(ok),
-        ",\"note\":\"", note,
-        "\",\"high\":", String.from_u32(high),
-        ",\"highPlayer\":", String.from_u32(high_player),
-        ",\"tick\":", String.from_u32(tick),
-        ",\"player\":", player_json(game_player(Game.Game{players, high, high_player, tick}, id)),
-        "}"
-      ])
+def game_json(+g: Game, +id: U32, ok: U32, note: String) -> String:
+  Game{players, high, high_player, tick} = g
+  HTTP.json_object([
+    ("ok", U32.show(ok)),
+    ("note", HTTP.quoted(note)),
+    ("high", U32.show(high)),
+    ("highPlayer", U32.show(high_player)),
+    ("tick", U32.show(tick)),
+    ("player", player_json(game_player(g, id)))])
 
-def game_response(game: Game, id: U32, ok: U32, note: String) -> HTTP.Response:
-  HTTP.Response.Response{200,
-    [HTTP.Header.Header{"Content-Type", "application/json; charset=utf-8"},
-     HTTP.Header.Header{"Cache-Control", "no-store, no-cache, must-revalidate"}],
-    Bytes.from_string(game_json(game, id, ok, note))}
+def action_reply(a: Action, +id: U32) -> Game & HTTP.Response:
+  Action{+g, ok, note} = a
+  (g, HTTP.json(game_json(g, id, ok, note)))
 
-def game_routed(game: Game, id: U32) -> Routed:
-  Routed.Routed{game, game_response(game, id, 1, "")}
+def arg(args: List<&2, String>, i: Nat) -> String:
+  Maybe.default(&2, String, List.get(&2, String, args, i), "")
 
-def game_missing(game: Game) -> Routed:
-  Routed.Routed{game, HTTP.not_found()}
+def argc(args: List<&2, String>) -> U32:
+  U32.from_nat(List.length(&2, String, args))
 
-def game_method(game: Game) -> Routed:
-  Routed.Routed{game, HTTP.reply(405, "text/plain; charset=utf-8", "Method Not Allowed\n")}
+type Out is Data:
+  Json{action: Action, id: U32}
+  Missing{game: Game}
 
-def action_routed(action: Action, id: U32) -> Routed:
-  match action:
-    case Action.Action{game, ok, note}:
-      Routed.Routed{game, game_response(game, id, ok, note)}
+def dispatch(+name: String, +args: List<&2, String>, +g: Game) -> Out:
+  +n = argc(args)
+  +id = Compat.to_u32(arg(args, 0n))
+  Bool.pick(Out, String.eq(name, "state") && U32.is_ge(n, 1), Json{ok(g, ""), id},
+  Bool.pick(Out, String.eq(name, "start") && U32.is_ge(n, 1), Json{game_start(g, id), id},
+  Bool.pick(Out, String.eq(name, "shoot") && U32.is_ge(n, 3),
+    Json{game_shoot(g, id, Compat.to_u32(arg(args, 1n)), Compat.to_u32(arg(args, 2n))), id},
+  Bool.pick(Out, String.eq(name, "next") && U32.is_ge(n, 1), Json{game_next(g, id), id},
+  Bool.pick(Out, String.eq(name, "leave") && U32.is_ge(n, 1), Json{game_leave(g, id), id},
+    Missing{g})))))
 
-def result_index(result: Result((U32 & String), String), game: Game) -> IO(Routed):
-  match result:
-    case Result.Done{html}:
-      IO.pure(Routed, Routed.Routed{game, HTTP.reply(200, "text/html; charset=utf-8", html)})
-    case Result.Fail{(code, error)}:
-      IO.pure(Routed, Routed.Routed{game, HTTP.reply(500, "text/plain; charset=utf-8", "index.html not found -- run from the repository root\n")})
+def respond(out: Out) -> IO(Game & HTTP.Response):
+  match out:
+    case Json{action, +id}:
+      IO.pure(Game & HTTP.Response, action_reply(action, id))
+    case Missing{g}:
+      IO.pure(Game & HTTP.Response, (g, HTTP.not_found()))
 
-def game_index(game: Game) -> IO(Routed):
-  do IO(Routed):
-    result <- IO.read_text("gabriel_demos/duck_hunt_web/index.html")
-    result_index(result, game)
+def page_reply(r: Result<&1, &1, U32 & String, String>) -> HTTP.Response:
+  match r:
+    case Done{body}:
+      HTTP.html(body)
+    case Fail{e}:
+      HTTP.reply(500, "text/plain; charset=utf-8", "index.html not found -- run from the repository root\n")
 
-def list_state(args: List(String), game: Game) -> IO(Routed):
-  match args:
-    case List.Cons{id, rest}:
-      IO.pure(Routed, game_routed(game, String.to_u32(id)))
-    case List.Nil{}:
-      IO.pure(Routed, game_missing(game))
+def index(g: Game) -> IO(Game & HTTP.Response):
+  do IO<Game & HTTP.Response>:
+    r : Result<&1, &1, U32 & String, String> <- HTTP.read_text("Bend3/demos/duck_hunt_web/index.html")
+    return (g, page_reply(r))
 
-def list_start(args: List(String), game: Game) -> IO(Routed):
-  match args:
-    case List.Cons{id, rest}:
-      player = String.to_u32(id)
-      IO.pure(Routed, action_routed(game_start(game, player), player))
-    case List.Nil{}:
-      IO.pure(Routed, game_missing(game))
+# Drop the hub prefix "duck-hunt" when present.
+def unprefix(segs: List<&2, String>) -> List<&2, String>:
+  match segs:
+    case Nil{}:
+      Nil{}
+    case +h <> +t:
+      Bool.pick(List<&2, String>, String.eq(h, "duck-hunt"), t, h <> t)
 
-def list_shoot(args: List(String), game: Game) -> IO(Routed):
-  match args:
-    case List.Cons{id, List.Cons{hit, List.Cons{band, rest}}}:
-      player = String.to_u32(id)
-      IO.pure(Routed, action_routed(game_shoot(game, player, String.to_u32(hit), String.to_u32(band)), player))
-    case other:
-      IO.pure(Routed, game_missing(game))
+def route.segs(get: Bool, segs: List<&2, String>, g: Game) -> IO(Game & HTTP.Response):
+  match get segs:
+    case False{} _:
+      IO.pure(Game & HTTP.Response, (g, HTTP.method_not_allowed()))
+    case True{} Nil{}:
+      index(g)
+    case True{} name <> args:
+      respond(dispatch(name, args, g))
 
-def list_next(args: List(String), game: Game) -> IO(Routed):
-  match args:
-    case List.Cons{id, rest}:
-      player = String.to_u32(id)
-      IO.pure(Routed, action_routed(game_next(game, player), player))
-    case List.Nil{}:
-      IO.pure(Routed, game_missing(game))
+def route(req: HTTP.Request, g: Game) -> IO(Game & HTTP.Response):
+  HTTP.Request{method, target, headers, body} = req
+  route.segs(String.eq(method, "GET"), unprefix(HTTP.segments(target)), g)
 
-def list_leave(args: List(String), game: Game) -> IO(Routed):
-  match args:
-    case List.Cons{id, rest}:
-      player = String.to_u32(id)
-      IO.pure(Routed, action_routed(game_leave(game, player), player))
-    case List.Nil{}:
-      IO.pure(Routed, game_missing(game))
-
-def string_route(name: String, args: List(String), game: Game) -> IO(Routed):
-  match String.eq_u32(name, ""):
-    case 0:
-      match String.eq_u32(name, "state"):
-        case 0:
-          match String.eq_u32(name, "start"):
-            case 0:
-              match String.eq_u32(name, "shoot"):
-                case 0:
-                  match String.eq_u32(name, "next"):
-                    case 0:
-                      match String.eq_u32(name, "leave"):
-                        case 0:
-                          IO.pure(Routed, game_missing(game))
-                        case k5:
-                          list_leave(args, game)
-                    case k4:
-                      list_next(args, game)
-                case k3:
-                  list_shoot(args, game)
-            case k2:
-              list_start(args, game)
-        case k1:
-          list_state(args, game)
-    case root:
-      game_index(game)
-
-def list_route(parts: List(String), game: Game) -> IO(Routed):
-  match parts:
-    case List.Cons{root, List.Cons{name, args}}:
-      string_route(name, args, game)
-    case List.Cons{root, List.Nil{}}:
-      game_index(game)
-    case List.Nil{}:
-      game_index(game)
-
-def request_route(request: HTTP.Request, game: Game) -> IO(Routed):
-  match request:
-    case HTTP.Request.Request{method, path, headers, body}:
-      match String.eq_u32(method, "GET"):
-        case 0:
-          IO.pure(Routed, game_method(game))
-        case k:
-          list_route(String.split('/', path), game)
-
-# ---------------------------------------------------------------- server
-
-def routed_send(routed: Routed, server: TCP, conn: HTTP) -> IO(U32):
-  match routed:
-    case Routed.Routed{game, response}:
-      do IO(U32):
-        sent <- HTTP.send_response(conn, HTTP.with_connection(0, response))
-        closed <- HTTP.close(conn)
-        u32_serve(server, game)
-
-def inbound_serve(inbound: HTTP.Inbound, server: TCP, conn: HTTP, game: Game) -> IO(U32):
-  match inbound:
-    case HTTP.Inbound.Got{http11, request, rest}:
-      do IO(U32):
-        routed <- request_route(request, game)
-        routed_send(routed, server, conn)
-    case HTTP.Inbound.Closed{}:
-      do IO(U32):
-        closed <- HTTP.close(conn)
-        u32_serve(server, game)
-    case HTTP.Inbound.Bad{code, error}:
-      routed_send(Routed.Routed{game, HTTP.reply_error(code, error)}, server, conn)
-
-def result_accept(result: Result((U32 & String), TCP), server: TCP, game: Game) -> IO(U32):
-  match result:
-    case Result.Done{fd}:
-      do IO(U32):
-        inbound <- HTTP.recv_request(HTTP.Plain{fd}, List.Nil{})
-        inbound_serve(inbound, server, HTTP.Plain{fd}, game)
-    case Result.Fail{(code, error)}:
-      do IO(U32):
-        printed <- IO.print_err(String.flatten(["accept failed: ", error, "\n"]))
-        return 1
-
-def u32_serve(server: TCP, game: Game) -> IO(U32):
-  do IO(U32):
-    result <- TCP.accept(server)
-    result_accept(result, server, game)
-
-def result_main(result: Result((U32 & String), TCP)) -> IO(U32):
-  match result:
-    case Result.Done{server}:
-      do IO(U32):
-        printed <- IO.write("Duck Hunt listening on all interfaces (0.0.0.0:8089)\nopen http://<server-lan-ip>:8089\n")
-        u32_serve(server, game_empty())
-    case Result.Fail{(code, error)}:
-      do IO(U32):
-        printed <- IO.print_err(String.flatten(["listen failed: ", error, "\n"]))
-        return 1
-
-def main() -> IO(U32):
-  do IO(U32):
-    result <- TCP.listen(8089)
-    result_main(result)
+def main() -> IO(Unit):
+  do IO<Unit>:
+    IO.print("Duck Hunt listening on all interfaces (0.0.0.0:8089)")
+    IO.print("open http://<server-lan-ip>:8089 (run from the repository root)")
+    HTTP.serve(~Game, ~route, "0.0.0.0", 8089, init())

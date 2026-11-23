@@ -1,21 +1,26 @@
-# gabriel_demos
+# bar_bench
 
-Interactive Bend3 demos. Everything here runs as a **compiled native
-binary** — the interpreter deliberately performs no IO (it prints the
-pending effect tree instead), so build with `-o`.
+The bar-bending bench, in a terminal (`bend_bar.bend`) and in a window
+(`window_bar.bend`). Both share the physics and the animation state
+machine in `Bench.bend`.
 
-Verified against upstream Bend3 `1ebc1acc` on 2026-08-17; that revision
-contains the earlier `io_main` fix.
+Ported to Bend 2.0.40 (and rechecked with the bendlang/bend source at
+6b806192) on 2026-11-23: every file prints ALL PROOFS CHECK, with no
+`@unsafe`. Commands below run from the repository root; build outputs go to
+`/tmp`.
 
 ## bend_bar — the bar-bending bench
 
 ```
-bun bend-ts/src/bend.ts gabriel_demos/bar_bench/bend_bar.bend --no-halt -o gabriel_demos/bar_bench/bend_bar
-./gabriel_demos/bar_bench/bend_bar     # needs a real terminal (ANSI + line input)
+bend Bend3/demos/bar_bench/bend_bar.bend -o /tmp/bend_bar
+/tmp/bend_bar                     # an ANSI terminal; input is read by line
+printf '1\n4\n3\n4\nq\n' | /tmp/bend_bar > /tmp/frames.txt   # scripted
 ```
 
-Keys: `1` steel, `2` rubber, `3` carbon fiber, `4` (or Enter) bends the
-selected bar, `q` quits. Each bend loads a fresh specimen.
+Keys (then Enter): `1` steel, `2` rubber, `3` carbon fiber, `4`/`b` (or an
+empty line) bends the selected bar, `q` quits. Each bend loads a fresh
+specimen. Input is read from `/dev/stdin` line by line (Base has no raw
+keyboard read), as the old `IO.read_line` did.
 
 A displacement-controlled cantilever bend test, the way a real bench
 does it: the crosshead imposes tip deflection (0 → 30 cm, smoothstep),
@@ -43,27 +48,37 @@ formula.
 ## window_bar — the same bench, in a real OS window
 
 ```
-bun bend-ts/src/bend.ts gabriel_demos/bar_bench/window_bar.bend --no-halt -o gabriel_demos/bar_bench/window_bar
-./gabriel_demos/bar_bench/window_bar           # keys go to the window: 1 2 3, 4/space/enter bends, q quits
-./gabriel_demos/bar_bench/window_bar --demo    # unattended: steel, rubber, carbon, exit
+bend Bend3/demos/bar_bench/window_bar.bend -o /tmp/window_bar
+/tmp/window_bar +RTS --gpu off -RTS          # keys go to the window: 1 2 3, 4/b/space/enter bends, q quits
+/tmp/window_bar --demo +RTS --gpu off -RTS   # unattended: steel, rubber, carbon, exit (~27 s)
+/tmp/window_bar --probe                      # headless: no window, no display needed
 ```
 
-Current Bend3's install `IO.Op` is fixed: a user C-bodied effect must have a
-matching installed constructor. The old `win_open`/`win_frame`/`win_close`
-effect therefore no longer compiles. `CommandGFX.bend` preserves the demo's
-pure flat command stream while adapting it to the standard `IO/GFX` module:
+The window is Base's `App.run` model: the state is `Bar{sel, phase, demo,
+paced, last}`, `view` renders the current `Bench.Phase` and `tick` reads the
+frame's events and advances the bench one 33 ms frame when the wall clock
+says so (the old demo slept 33 ms per frame). The pure side still emits the
+demos' flat `List<U32>` draw-command stream (clear / rect / 3x5 digit, y
+biased by +1000); [`../CommandGFX.bend`](../CommandGFX.bend) parses it into
+rectangles and builds the frame's `Image` quadtree top-down (a square is one
+`Pix` as soon as its topmost rectangle covers it), about 3-4k leaves per
+640x400 frame, and decodes `Key`/`Close` events back to the old key codes.
+`effs/window.c` is the historical Cocoa effect, kept as a record, not used.
 
-- `win_open(w, h, title) -> IO(U32)` opens the standard GFX window;
-- `win_frame(cmds: List(U32)) -> IO(U32)` rasterizes a flat command
-  stream (clear / rect / 3×5 digit; y carries a +1000 bias so the pure
-  side never builds a negative), present, pump events, return the key
-  pressed (0 none, `'q'` if the window was closed)
-- `win_close() -> IO(U32)` lets process teardown close the window.
+`--probe` prints, per material, what the table above promises, measured on
+the state machine frame by frame (steel: peak force 1000.0 N, first yielding
+frame at 4.5 cm [the 4.17 cm threshold falls between frames], rest 23.75 cm,
+springback 6.25 cm, 16.3 Hz model / 16.9 Hz from zero crossings; rubber:
+1.2 N, overshoot to -18.6 cm, back to -0.1 cm, 0.7 Hz; carbon: snaps at
+26.7 cm), checks pixels of rendered frames (bar row, 30 cm tip deflection =
+84 px, load arrow, red snap flash, fracture mark, fallen bar), and drives the
+real `tick` through `App.play` with scripted key events.
 
-The adapter builds a depth-9 quadtree image (2×2 display pixels) and maps the
-standard key/close events back to the demo's U32 controls. The old
-`effs/window.c` remains as historical source but is not imported.
+On this CUDA machine run the window builds with `+RTS --gpu off -RTS`:
+`App.run` frees every frame with `Image.drop!`, which puts the program on the
+GPU and makes each frame 5-10x slower (see
+`bugs/app-run-cuda-default-3x-slower`).
 
-## Bend3 issues and unexpected behavior
+## Bend issues and unexpected behavior
 
 See [`unexpected_behavior/README.md`](unexpected_behavior/README.md).

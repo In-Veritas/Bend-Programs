@@ -1,411 +1,336 @@
 # window_bar: the bar-bending bench, in a real OS window.
 #
 # Same physics as bend_bar.bend (see its header: Euler-Bernoulli cantilever,
-# real material data, modal release dynamics), but rendered into a Cocoa
-# window through a custom IO effect (effs/window.c) instead of the terminal.
-# The pure fragment computes every frame's geometry as F32 physics and emits
-# a flat List<U32> of draw commands; the effect rasterizes and presents them
-# and reports the pressed key back. Bend computes, the effect displays --
-# the same quarantine every other effect lives under.
+# real material data, modal release dynamics), shared through Bench.bend,
+# but drawn in a window by Base's App.run instead of the terminal. The
+# pure side computes every frame's geometry as F32 physics and emits the
+# demos' flat List<U32> of draw commands (the same stream the web twin
+# sends to its canvas); ../CommandGFX.bend turns it into an Image
+# quadtree and the window's events back into the old key codes.
 #
 # keys (in the window): 1 steel, 2 rubber, 3 carbon fiber,
-#                       4 / b / space / enter = Bend!, q quits
+#                       4 / b / space / enter = Bend!, q (or closing) quits
 #
-# build:  bun bend-ts/src/bend.ts gabriel_demos/bar_bench/window_bar.bend --no-halt -o gabriel_demos/bar_bench/window_bar
-# run:    ./gabriel_demos/bar_bench/window_bar
-# demo:   ./gabriel_demos/bar_bench/window_bar --demo    (one steel bend, then exits)
-#
-# no-halt
-# skip-native
-
-import ../../bend-base/Base
-import ../Compat
-import ../CommandGFX
-
-# ---------------------------------------------------------------- window effect
-
-def win_open(w: U32, h: U32, title: String) -> IO(U32):
-  CommandGFX.open(title, w, h)
-
-def win_frame(cmds: List(U32)) -> IO(U32):
-  CommandGFX.frame_key(cmds)
-
-def win_close() -> IO(U32):
-  CommandGFX.close()
-
-# ---------------------------------------------------------------- small math
-
-def fmin(a: F32, b: F32) -> F32:
-  match b < a:
-    case 0:
-      a
-    case k:
-      b
-
-def clamp0(x: F32) -> F32:
-  match x < 0.0:
-    case 0:
-      x
-    case k:
-      0.0
-
-def fabs(x: F32) -> F32:
-  match x < 0.0:
-    case 0:
-      x
-    case k:
-      0.0 - x
-
-def fsqrt_go(n: U32, a: F32, x: F32) -> F32:
-  match n:
-    case 0:
-      x
-    case m:
-      fsqrt_go(m - 1, a, (x + (a / x)) * 0.5)
-
-def fsqrt(a: F32) -> F32:
-  match a > 0.0:
-    case 0:
-      0.0
-    case k:
-      fsqrt_go(28, a, (a * 0.5) + 1.0)
+# build:  bend Bend3/demos/bar_bench/window_bar.bend -o /tmp/window_bar
+# run:    /tmp/window_bar
+# demo:   /tmp/window_bar --demo     (unattended: steel, rubber, carbon, exit)
+# probe:  /tmp/window_bar --probe    (headless: no window; prints the
+#                                     physics and checks rendered frames)
+import Base
+import ../Clock.bend as Clock
+import ../CommandGFX.bend as GFX
+import ./Bench.bend as Bench
 
 # ---------------------------------------------------------------- materials
-# (data and derivations: see bend_bar.bend / README)
+# (data and derivations: see Bench.bend / bend_bar.bend / README)
 
-type Mat:
-  Steel{}
-  Rubber{}
-  Cfrp{}
-
-type PV:
-  PV{q: F32, v: F32}
-
-def mat_id(m: Mat) -> U32:
+def m_rgb(m: Bench.Mat) -> U32:
   match m:
-    case Mat.Steel{}:
-      1
-    case Mat.Rubber{}:
-      2
-    case Mat.Cfrp{}:
-      3
-
-def mat_of(sel: U32) -> Mat:
-  match sel == 2:
-    case 0:
-      match sel == 3:
-        case 0:
-          Mat.Steel{}
-        case k:
-          Mat.Cfrp{}
-    case j:
-      Mat.Rubber{}
-
-def m_e(m: Mat) -> F32:
-  match m:
-    case Mat.Steel{}:
-      200.0e9
-    case Mat.Rubber{}:
-      0.05e9
-    case Mat.Cfrp{}:
-      135.0e9
-
-def m_rho(m: Mat) -> F32:
-  match m:
-    case Mat.Steel{}:
-      7850.0
-    case Mat.Rubber{}:
-      1100.0
-    case Mat.Cfrp{}:
-      1600.0
-
-def m_zeta(m: Mat) -> F32:
-  match m:
-    case Mat.Steel{}:
-      0.002
-    case Mat.Rubber{}:
-      0.15
-    case Mat.Cfrp{}:
-      0.005
-
-def m_omega(m: Mat) -> F32:
-  fsqrt((m_e(m) * 2.6667e-8) / (m_rho(m) * 8.0e-4)) * 3.5160
-
-def m_slow(m: Mat) -> U32:
-  match m:
-    case Mat.Steel{}:
-      32
-    case Mat.Rubber{}:
-      1
-    case Mat.Cfrp{}:
-      64
-
-def m_rgb(m: Mat) -> U32:
-  match m:
-    case Mat.Steel{}:
+    case Bench.Steel{}:
       13160668
-    case Mat.Rubber{}:
+    case Bench.Rubber{}:
       15249448
-    case Mat.Cfrp{}:
+    case Bench.Cfrp{}:
       4738136
 
-def m_name(m: Mat) -> String:
+def m_name(m: Bench.Mat) -> String:
   match m:
-    case Mat.Steel{}:
+    case Bench.Steel{}:
       "steel AISI 1020 (E=200 GPa, sy=250 MPa): yields, keeps a set, rings at 16.3 Hz (slow-mo 1/32)"
-    case Mat.Rubber{}:
+    case Bench.Rubber{}:
       "rubber vulcanized NR (E=0.05 GPa): ~1 N does it, full recovery, 0.7 Hz wobble in real time"
-    case Mat.Cfrp{}:
+    case Bench.Cfrp{}:
       "carbon UD CFRP (E=135 GPa, eu~0.8%): no yield -- snaps at the root at ~1.08 GPa"
-
-# smoothstep crosshead ramp to 0.30 m over 46 frames
-def pdelta(n: U32) -> F32:
-  u = U32.to_f32(45 - n) / 45.0
-  0.30 * ((3.0 - (2.0 * u)) * (u * u))
-
-def sstep(pv: PV, rest: F32, w: F32, z: F32, h: F32) -> PV:
-  match pv:
-    case PV.PV{q, v}:
-      a = (0.0 - ((w * w) * (q - rest))) - (((2.0 * z) * w) * v)
-      v2 = v + (h * a)
-      PV.PV{q + (h * v2), v2}
-
-def ssteps(k: U32, pv: PV, rest: F32, w: F32, z: F32, h: F32) -> PV:
-  match k:
-    case 0:
-      pv
-    case j:
-      ssteps(j - 1, sstep(pv, rest, w, z, h), rest, w, z, h)
 
 # ---------------------------------------------------------------- draw commands
 # canvas 640x400; wall at x=36; bar 60 columns from x=48, 9 px each;
 # baseline y=120, 280 px per meter of deflection; y carries the +1000 bias
 
-def cmd_clear(rgb: U32, t: List(U32)) -> List(U32):
-  List.Cons{0, List.Cons{rgb, t}}
-
-def cmd_rect(x: U32, yb: U32, w: U32, h: U32, rgb: U32, t: List(U32)) -> List(U32):
-  List.Cons{1, List.Cons{x, List.Cons{yb, List.Cons{w, List.Cons{h, List.Cons{rgb, t}}}}}}
-
-def cmd_digit(x: U32, yb: U32, s: U32, d: U32, rgb: U32, t: List(U32)) -> List(U32):
-  List.Cons{2, List.Cons{x, List.Cons{yb, List.Cons{s, List.Cons{d, List.Cons{rgb, t}}}}}}
+def pick(c: Bool, a: U32, b: U32) -> U32:
+  match c:
+    case True{}:
+      a
+    case False{}:
+      b
 
 # biased pixel row of bar column j: y = 120 + 280*(deflection + fall) - 3
-def ypx(j: U32, d: F32, rx: F32, fl: F32) -> U32:
-  xi = U32.to_f32(j) / 59.0
-  y = (((d * rx) * ((3.0 * (xi * xi)) - ((xi * xi) * xi))) / 2.0) + fl
-  F32.to_u32(clamp0((117.0 + (y * 280.0)) + 1000.5))
+def ypx(+j: U32, +d: F32, +rx: F32, +fl: F32) -> U32:
+  +xi = (U32.to_f32(j) / 59.0 : F32)
+  +y = (d * rx * (3.0 * (xi * xi) - xi * xi * xi) / 2.0 + fl : F32)
+  F32.to_u32(Bench.clamp0((117.0 + y * 280.0 + 1000.5 : F32)))
 
-def bar_cmds(j: U32, rgb: U32, d: F32, rx: F32, fl: F32, t: List(U32)) -> List(U32):
+def bar_cmds(+j: Nat, +rgb: U32, +d: F32, +rx: F32, +fl: F32, t: List<&2, U32>) -> List<&2, U32>:
   match j:
-    case 0:
+    case 0n:
       t
-    case k:
-      bar_cmds(k - 1, rgb, d, rx, fl, cmd_rect(48 + ((k - 1) * 9), ypx(k - 1, d, rx, fl), 9, 6, rgb, t))
+    case 1n+k:
+      +c = U32.from_nat(k)
+      bar_cmds(k, rgb, d, rx, fl, GFX.cmd_rect((48 + c * 9 : U32), ypx(c, d, rx, fl), 9, 6, rgb, t))
 
-def sel_under(x: U32, on: U32, t: List(U32)) -> List(U32):
+def sel_under(on: Bool, +x: U32, t: List<&2, U32>) -> List<&2, U32>:
   match on:
-    case 0:
+    case True{}:
+      GFX.cmd_rect(x, 1384, 48, 3, 16777215, t)
+    case False{}:
       t
-    case k:
-      cmd_rect(x, 1384, 48, 3, 16777215, t)
 
-def btn_cmd(i: U32, rgb: U32, sel: U32, t: List(U32)) -> List(U32):
-  x = 48 + ((i - 1) * 64)
-  cmd_rect(x, 1352, 48, 28, rgb, cmd_digit(x + 18, 1356, 4, i, 16777215, sel_under(x, sel == i, t)))
+def btn_cmd(+i: U32, rgb: U32, +sel: U32, t: List<&2, U32>) -> List<&2, U32>:
+  +x = (48 + (i - 1) * 64 : U32)
+  GFX.cmd_rect(x, 1352, 48, 28, rgb, GFX.cmd_glyph((x + 18 : U32), 1356, 4, i, 16777215, sel_under(U32.is_eq(sel, i), x, t)))
 
-def btns_cmds(sel: U32, t: List(U32)) -> List(U32):
+def btns_cmds(+sel: U32, t: List<&2, U32>) -> List<&2, U32>:
   btn_cmd(1, 10134708, sel, btn_cmd(2, 14196768, sel, btn_cmd(3, 3159100, sel, btn_cmd(4, 3055172, sel, t))))
 
 # the load arrow: a red pusher above the bar tip while the crosshead drives
-def arrow_cmds(ar: U32, d: F32, t: List(U32)) -> List(U32):
+def arrow_cmds(ar: Bool, +d: F32, t: List<&2, U32>) -> List<&2, U32>:
   match ar:
-    case 0:
+    case True{}:
+      +tip = ypx(59, d, 1.0, 0.0)
+      GFX.cmd_rect(577, (tip - 42 : U32), 13, 8, 14696512, GFX.cmd_rect(580, (tip - 36 : U32), 7, 28, 14696512, t))
+    case False{}:
       t
-    case k:
-      tip = ypx(59, d, 1.0, 0.0)
-      cmd_rect(577, tip - 42, 13, 8, 14696512, cmd_rect(580, tip - 36, 7, 28, 14696512, t))
 
-def brk_cmds(brk: U32, t: List(U32)) -> List(U32):
+def brk_cmds(brk: Bool, t: List<&2, U32>) -> List<&2, U32>:
   match brk:
-    case 0:
+    case True{}:
+      GFX.cmd_rect(44, 1108, 10, 18, 14696512, t)
+    case False{}:
       t
-    case k:
-      cmd_rect(44, 1108, 10, 18, 14696512, t)
 
-def flash_rgb(m: Mat, flash: U32) -> U32:
-  match flash:
-    case 0:
-      m_rgb(m)
-    case k:
-      14696512
-
-def draw(m: Mat, d: F32, rx: F32, fl: F32, ar: U32, brk: U32, flash: U32, sel: U32) -> List(U32):
-  rgb = flash_rgb(m, flash)
-  cmd_clear(1317918,
-    cmd_rect(36, 1040, 8, 320, 6317680,
-      bar_cmds(60, rgb, d, rx, fl,
+def draw(+m: Bench.Mat, pose: Bench.Pose, +sel: U32) -> List<&2, U32>:
+  Bench.Pose{+d, rx, fl, fN, ar, brk, flash, st} = pose
+  GFX.cmd_clear(1317918,
+    GFX.cmd_rect(36, 1040, 8, 320, 6317680,
+      bar_cmds(60n, pick(flash, 14696512, m_rgb(m)), d, rx, fl,
         arrow_cmds(ar, d,
           brk_cmds(brk,
-            btns_cmds(sel, List.Nil{}))))))
+            btns_cmds(sel, Nil{}))))))
 
-# ---------------------------------------------------------------- animation
+# ---------------------------------------------------------------- app state
 
-def frame(cmds: List(U32)) -> IO(U32):
-  do IO(U32):
-    k <- win_frame(cmds)
-    _ <- IO.sleep(33)
-    return k
+# sel: the selected material (1..3); phase: the bench animation; demo:
+# run steel, rubber, carbon unattended, then quit; paced: advance one
+# frame per 33 ms of wall clock (off in the headless probe); last: the
+# clock of the last advanced frame.
+type Bar is Data:
+  Bar{sel: U32, phase: Bench.Phase, demo: Bool, paced: Bool, last: U32}
 
-def push(n: U32, m: Mat, sel: U32) -> IO(U32):
-  d = pdelta(n)
-  match (mat_id(m) == 3) && (d > 0.26666):
-    case 0:
-      push_frame(n, m, sel)
-    case k:
-      snap(m, sel)
+def frame_cmds(b: Bar) -> List<&2, U32>:
+  Bar{+sel, phase, demo, paced, last} = b
+  +m = Bench.mat_of(sel)
+  draw(m, Bench.pose(m, phase), sel)
 
-def push_frame(n: U32, m: Mat, sel: U32) -> IO(U32):
-  do IO(U32):
-    _ <- frame(draw(m, pdelta(n), 1.0, 0.0, 1, 0, 0, sel))
-    push_next(n, m, sel)
+def view(b: Bar) -> Bar & Image:
+  +b2 = b
+  (b2, GFX.image(10n, frame_cmds(b2)))
 
-def push_next(n: U32, m: Mat, sel: U32) -> IO(U32):
-  match n:
-    case 0:
-      release(m, sel)
-    case k:
-      push(k - 1, m, sel)
+def done(b: Bar) -> IO(Maybe<Bar>):
+  IO.pure(Maybe<Bar>, Some{b})
 
-def snap(m: Mat, sel: U32) -> IO(U32):
-  do IO(U32):
-    _ <- IO.write("  *** SNAP -- sigma_root ~ 1.08 GPa at eps ~ 0.8%, no yield, no warning\n")
-    snap_flash(4, m, sel)
+def quit() -> IO(Maybe<Bar>):
+  do IO<Maybe<Bar>>:
+    IO.print("bye")
+    return None{}
 
-def snap_flash(n: U32, m: Mat, sel: U32) -> IO(U32):
-  match n:
-    case 0:
-      fall(50, 0.0, 0.0, m, sel)
-    case k:
-      do IO(U32):
-        _ <- frame(draw(m, 0.2667, 1.0, 0.0, 0, 1, k % 2, sel))
-        snap_flash(k - 1, m, sel)
+def bending(+sel: U32) -> IO(Unit):
+  IO.print("bending " ++ m_name(Bench.mat_of(sel)))
 
-# the freed bar straightens (stored elastic energy) and falls; slow-mo 1/4
-def fall(n: U32, v: F32, fl: F32, m: Mat, sel: U32) -> IO(U32):
-  t = U32.to_f32(50 - n) * 0.00825
-  rx = clamp0(1.0 - (t / 0.15))
-  v2 = v + (9.81 * 0.00825)
-  f2 = fl + (v2 * 0.00825)
-  do IO(U32):
-    _ <- frame(draw(m, 0.2667, rx, f2, 0, 1, 0, sel))
-    fall_next(n, v2, f2, m, sel)
+def is_flash4(ph: Bench.Phase) -> Bool:
+  match ph:
+    case Bench.Flash{4}:
+      True{}
+    case _:
+      False{}
 
-def fall_next(n: U32, v: F32, fl: F32, m: Mat, sel: U32) -> IO(U32):
-  match n:
-    case 0:
-      do IO(U32):
-        _ <- IO.sleep(900)
-        return 0
-    case k:
-      fall(k - 1, v, fl, m, sel)
+def snap_note(on: Bool) -> IO(Unit):
+  match on:
+    case True{}:
+      IO.print("  *** SNAP -- sigma_root ~ 1.08 GPa at eps ~ 0.8%, no yield, no warning")
+    case False{}:
+      IO.pure(Unit, Unit{})
 
-def ring(n: U32, pv: PV, rest: F32, m: Mat, sel: U32) -> IO(U32):
-  match pv:
-    case PV.PV{q, v}:
-      h = (0.033 / U32.to_f32(m_slow(m))) / 4.0
-      p2 = ssteps(4, PV.PV{q, v}, rest, m_omega(m), m_zeta(m), h)
-      do IO(U32):
-        _ <- frame(draw(m, q, 1.0, 0.0, 0, 0, 0, sel))
-        ring_next(n, p2, rest, m, sel)
-
-def ring_next(n: U32, pv: PV, rest: F32, m: Mat, sel: U32) -> IO(U32):
-  match n:
-    case 0:
-      do IO(U32):
-        _ <- IO.sleep(900)
-        return 0
-    case k:
-      ring(k - 1, pv, rest, m, sel)
-
-def release(m: Mat, sel: U32) -> IO(U32):
-  match m:
-    case Mat.Steel{}:
-      # permanent set = 0.30 - F_p*L^3/3EI = 0.2375 m
-      ring(200, PV.PV{0.30, 0.0}, 0.2375, Mat.Steel{}, sel)
-    case Mat.Rubber{}:
-      ring(240, PV.PV{0.30, 0.0}, 0.0, Mat.Rubber{}, sel)
-    case Mat.Cfrp{}:
-      ring(200, PV.PV{0.30, 0.0}, 0.0, Mat.Cfrp{}, sel)
-
-# ---------------------------------------------------------------- ui loop
-
-def quit() -> IO(U32):
-  do IO(U32):
-    _ <- win_close()
-    _ <- IO.write("bye\n")
-    return 0
-
-def run_bend(sel: U32) -> IO(U32):
-  do IO(U32):
-    _ <- IO.write(List.concat(Char, "bending ", List.concat(Char, m_name(mat_of(sel)), "\n")))
-    _ <- push(45, mat_of(sel), sel)
-    menu(sel)
-
-def key(sel: U32, k: U32) -> IO(U32):
-  match (k == 113) || (k == 81):
-    case 0:
-      match ((k == 52) || (k == 98)) || ((k == 13) || (k == 32)):
-        case 0:
-          match (k >= 49) && (k <= 51):
-            case 0:
-              idle(sel)
-            case k1:
-              menu(k - 48)
-        case k2:
-          run_bend(sel)
-    case k3:
+# A bend just ended: back to the menu, or (demo) the next material.
+def ended(demo: Bool, last_mat: Bool, +sel: U32, paced: Bool, +now: U32) -> IO(Maybe<Bar>):
+  match demo last_mat:
+    case True{} True{}:
       quit()
+    case True{} False{}:
+      +next = (sel + 1 : U32)
+      do IO<Maybe<Bar>>:
+        bending(next)
+        return Some{Bar{next, Bench.start(Bench.mat_of(next)), True{}, paced, now}}
+    case False{} _:
+      done(Bar{sel, Bench.Menu{}, False{}, paced, now})
 
-def idle(sel: U32) -> IO(U32):
-  do IO(U32):
-    _ <- IO.sleep(33)
-    menu(sel)
+def moved(ended_now: Bool, +sel: U32, +ph: Bench.Phase, demo: Bool, paced: Bool, +now: U32) -> IO(Maybe<Bar>):
+  match ended_now:
+    case True{}:
+      ended(demo, U32.is_ge(sel, 3), sel, paced, now)
+    case False{}:
+      do IO<Maybe<Bar>>:
+        snap_note(is_flash4(ph))
+        return Some{Bar{sel, ph, demo, paced, now}}
 
-def menu(sel: U32) -> IO(U32):
-  do IO(U32):
-    k <- win_frame(draw(mat_of(sel), 0.0, 1.0, 0.0, 0, 0, 0, sel))
-    key(sel, k)
+# One 33 ms frame of the bench.
+def advance.go(was_menu: Bool, +sel: U32, +ph: Bench.Phase, demo: Bool, paced: Bool, +now: U32) -> IO(Maybe<Bar>):
+  match was_menu:
+    case True{}:
+      done(Bar{sel, ph, demo, paced, now})
+    case False{}:
+      moved(Bench.is_menu(ph), sel, ph, demo, paced, now)
 
-def demo() -> IO(U32):
-  do IO(U32):
-    _ <- IO.write("demo: steel, rubber, carbon, then exit\n")
-    _ <- push(45, Mat.Steel{}, 1)
-    _ <- push(45, Mat.Rubber{}, 2)
-    _ <- push(45, Mat.Cfrp{}, 3)
-    quit()
+def advance(b: Bar, +now: U32) -> IO(Maybe<Bar>):
+  Bar{+sel, +phase, demo, paced, last} = b
+  advance.go(Bench.is_menu(phase), sel, Bench.step(Bench.mat_of(sel), phase, 27), demo, paced, now)
 
-def fail_open() -> IO(U32):
-  do IO(U32):
-    _ <- IO.write("could not open a window\n")
-    return 1
+def advance.at(due: Bool, b: Bar, +now: U32) -> IO(Maybe<Bar>):
+  match due:
+    case True{}:
+      advance(b, now)
+    case False{}:
+      done(b)
 
-def go2(a: List(String)) -> IO(U32):
-  match a:
-    case List.Nil{}:
-      menu(1)
-    case List.Cons{h, t}:
-      demo()
+def advance.paced(b: Bar, paced: Bool, +last: U32) -> IO(Maybe<Bar>):
+  match paced:
+    case True{}:
+      do IO<Maybe<Bar>>:
+        +now : U32 <- Clock.now_ms()
+        advance.at(U32.is_ge((now - last : U32), 33), b, now)
+    case False{}:
+      advance(b, 0)
 
-def go(a: List(String), ok: U32) -> IO(U32):
-  match ok:
-    case 0:
-      fail_open()
-    case k:
-      go2(a)
+def tick.advance(b: Bar) -> IO(Maybe<Bar>):
+  Bar{sel, phase, demo, +paced, +last} = b
+  advance.paced(Bar{sel, phase, demo, paced, last}, paced, last)
 
-def main() -> IO(U32):
-  do IO(U32):
-    a <- IO.args()
-    ok <- win_open(640, 400, "Bend3 bar bench -- 1 steel  2 rubber  3 carbon  4 bend  q quit")
-    go(a, ok)
+# 0 nothing, 1 quit, 2 select 1..3, 3 Bend!
+def key_kind(+k: U32) -> U32:
+  pick(U32.is_eq(k, 113) || U32.is_eq(k, 81), 1,
+  pick(U32.is_eq(k, 52) || U32.is_eq(k, 98) || U32.is_eq(k, 13) || U32.is_eq(k, 32), 3,
+  pick(U32.is_ge(k, 49) && U32.is_le(k, 51), 2, 0)))
+
+def tick.menu(menu: Bool, kind: U32, +k: U32, b: Bar) -> IO(Maybe<Bar>):
+  match menu kind:
+    case True{} 2:
+      Bar{sel, phase, demo, paced, last} = b
+      tick.advance(Bar{(k - 48 : U32), phase, demo, paced, last})
+    case True{} 3:
+      Bar{+sel, phase, demo, paced, last} = b
+      do IO<Maybe<Bar>>:
+        bending(sel)
+        tick.advance(Bar{sel, Bench.start(Bench.mat_of(sel)), demo, paced, last})
+    case _ _:
+      tick.advance(b)
+
+def tick.key.go(q: Bool, +kind: U32, +k: U32, b: Bar) -> IO(Maybe<Bar>):
+  match q:
+    case True{}:
+      quit()
+    case False{}:
+      Bar{sel, +phase, demo, paced, last} = b
+      tick.menu(Bench.is_menu(phase), kind, k, Bar{sel, phase, demo, paced, last})
+
+def tick.key(+kind: U32, +k: U32, b: Bar) -> IO(Maybe<Bar>):
+  tick.key.go(U32.is_eq(kind, 1), kind, k, b)
+
+# keys are read only at the menu, as the old loop did; q or closing the
+# window quits at any time
+def tick(events: List<Event>, b: Bar) -> IO(Maybe<Bar>):
+  +k = GFX.key_event(events)
+  tick.key(key_kind(k), k, b)
+
+# ---------------------------------------------------------------- headless probe
+
+def check(name: String, +got: U32, +want: U32) -> IO(Unit):
+  IO.print(Bool.pick(String, U32.is_eq(got, want), "ok   ", "FAIL ") ++ name ++ ": "
+    ++ U32.show(got) ++ " (want " ++ U32.show(want) ++ ")")
+
+def frame_image(+sel: U32, ph: Bench.Phase) -> Image:
+  GFX.image(10n, frame_cmds(Bar{sel, ph, False{}, False{}, 0}))
+
+def replicate(n: Nat) -> List<List<Event>>:
+  match n:
+    case 0n:
+      Nil{}
+    case 1n+k:
+      Nil{} <> replicate(k)
+
+def press(+code: U32) -> List<Event>:
+  [Key{code, True{}}]
+
+def probe_play(r: Maybe<Bar>) -> IO(Unit):
+  match r:
+    case None{}:
+      IO.print("ok   scripted App.play: 2, 4, 320 frames, q -> quit")
+    case Some{b}:
+      IO.print("FAIL scripted App.play did not quit")
+
+def probe_menu(r: Maybe<Bar>) -> IO(Unit):
+  match r:
+    case Some{Bar{sel, Bench.Menu{}, demo, paced, last}}:
+      check("after a rubber bend the bench is back at the menu, sel", sel, 2)
+    case _:
+      IO.print("FAIL a rubber bend did not return to the menu")
+
+def probe() -> IO(Unit):
+  +steel = frame_image(1, Bench.Menu{})
+  +tip = frame_image(1, Bench.Push{0})
+  +flash = frame_image(1, Bench.Flash{3})
+  +carbon = frame_image(3, Bench.Fall{0, 0.4, 0.1})
+  do IO<Unit>:
+    IO.print("window_bar probe (no window)")
+    IO.print(Bench.probe.show(Bench.Steel{}))
+    IO.print(Bench.probe.show(Bench.Rubber{}))
+    IO.print(Bench.probe.show(Bench.Cfrp{}))
+    check("menu: background at (300,300)", GFX.pixel(10n, steel, 300, 300), 1317918)
+    check("menu: steel bar root at (52,119)", GFX.pixel(10n, steel, 52, 119), 13160668)
+    check("menu: steel bar tip at rest (583,119)", GFX.pixel(10n, steel, 583, 119), 13160668)
+    check("menu: wall at (40,200)", GFX.pixel(10n, steel, 40, 200), 6317680)
+    check("menu: button 1 glyph cell (72,358)", GFX.pixel(10n, steel, 72, 358), 16777215)
+    check("full push: tip moved down 30 cm = 84 px (583,203)", GFX.pixel(10n, tip, 583, 203), 13160668)
+    check("full push: rest row now empty (583,119)", GFX.pixel(10n, tip, 583, 119), 1317918)
+    check("full push: load arrow above the tip (583,162)", GFX.pixel(10n, tip, 583, 162), 14696512)
+    check("snap flash: bar drawn red (52,119)", GFX.pixel(10n, flash, 52, 119), 14696512)
+    check("snap: root fracture mark (48,112)", GFX.pixel(10n, flash, 48, 112), 14696512)
+    check("carbon falling 10 cm: rest row empty (60,119)", GFX.pixel(10n, carbon, 60, 119), 1317918)
+    check("carbon falling 10 cm: straightened bar 29 px lower (60,147)", GFX.pixel(10n, carbon, 60, 147), 4738136)
+    IO.print("menu frame: " ++ U32.show(GFX.leaves(steel)) ++ " leaves, full push: "
+      ++ U32.show(GFX.leaves(tip)) ++ " leaves (vs 409600 pixels)")
+    r1 : Maybe<Bar> <- App.play(~Bar, ~App{view, tick}, press(50) <> press(52) <> replicate(320n), Bar{1, Bench.Menu{}, False{}, False{}, 0})
+    probe_menu(r1)
+    r2 : Maybe<Bar> <- App.play(~Bar, ~App{view, tick},
+      press(50) <> press(52) <> List.append(&1, List<Event>, replicate(320n), [press(113)]),
+      Bar{1, Bench.Menu{}, False{}, False{}, 0})
+    probe_play(r2)
+
+# ---------------------------------------------------------------- main
+
+def run(r: Result<&1, &1, U32 & String, Window>, b: Bar) -> IO(Unit):
+  match r:
+    case Fail{e}:
+      IO.print("could not open a window")
+    case Done{w}:
+      App.loop(~Bar, ~App{view, tick}, 4294967295n, w, b)
+
+def open(b: Bar) -> IO(Unit):
+  do IO<Unit>:
+    r : Result<&1, &1, U32 & String, Window> <- Window.open("Bend bar bench -- 1 steel  2 rubber  3 carbon  4 bend  q quit", 640, 400)
+    run(r, b)
+
+def go(+now: U32, args: List<String>) -> IO(Unit):
+  match args:
+    case prog <> "--probe" <> rest:
+      probe()
+    case prog <> a <> rest:
+      do IO<Unit>:
+        IO.print("demo: steel, rubber, carbon, then exit")
+        bending(1)
+        open(Bar{1, Bench.start(Bench.Steel{}), True{}, True{}, now})
+    case _:
+      open(Bar{1, Bench.Menu{}, False{}, True{}, now})
+
+def main() -> IO(Unit):
+  do IO<Unit>:
+    args : List<String> <- IO.args()
+    +now : U32 <- Clock.now_ms()
+    go(now, args)

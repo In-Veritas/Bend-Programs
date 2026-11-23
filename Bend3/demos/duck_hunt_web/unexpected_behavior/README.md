@@ -33,3 +33,33 @@ bun bend-ts/src/bend.ts gabriel_demos/duck_hunt_web/unexpected_behavior/mre_expr
 
 At `1ebc1acc`, the parser reports an `expected ':'`-style syntax diagnostic at
 the opening brace. `match` remains the accepted source form.
+
+## Retest on Bend 2.0.40 (2026-11-23)
+
+Retested with the released Bend 2.0.40 binary and the bendlang/bend source
+checkout at 6b806192 (both report `bend 2.0.40`).
+
+- Later-definition scoping / `--no-halt`: obsolete. Defs may only call defs
+  above them (by design), the server loop lives in `../HTTP.bend`'s
+  fuel-bounded `HTTP.serve`, and the port prints ALL PROOFS CHECK with no
+  `@unsafe` and no flags.
+- `mre_expression_if.bend`: still rejected. This is by design, not a bug:
+  `bend guide` says "there is no `if` syntax yet. Use `match` on `True{}` and
+  `False{}` instead." The errors are not very helpful, because `if` parses
+  as a plain identifier:
+
+  ```text
+  $ bend Bend3/demos/duck_hunt_web/unexpected_behavior/mre_expression_if.bend
+  SOME PROOFS FAIL
+  Error:
+  - expected : 'def', 'type' or 'law'
+  - observed : '1'
+  Location:
+  4>|   if 1 > 0 { 1 } else { 0 }
+    |      ^
+  ```
+
+  With `import Base` and `if U32.is_gt(1, 0) { 1 } else { 0 }` the error is
+  `expected '=' observed '{'`, and the indented `if c:` / `else:` form gives
+  `expected '=' observed ':'`. The port uses `match` on a `Bool` parameter or
+  `Bool.pick(T, cond, a, b)` (which evaluates both sides) instead.

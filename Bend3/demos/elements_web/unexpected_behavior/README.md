@@ -30,3 +30,14 @@ There is no Bend-to-JavaScript browser target in this checkout.
 The Bend executable is the HTTP and simulation server. The browser page is a
 thin canvas presenter for the returned draw commands.
 
+
+## Retest on Bend 2.0.40 (2026-11-23)
+
+Also rechecked with the bendlang/bend source at 6b806192; no difference.
+
+- **compiled IO main was rejected**: does not reproduce.
+- **no direct browser compilation**: Bend now has JS targets, but the demo
+  keeps its server-owned scene. Imports are namespaces now, so the scene is
+  imported from `../elements/elements.bend` instead of being a copy.
+- As with bar_bench_web, the checked-in page fetched `/elements/frame/...`;
+  the port's `route` accepts the path with and without that prefix.

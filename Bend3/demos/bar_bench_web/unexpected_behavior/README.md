@@ -30,3 +30,16 @@ instead compiles the native server.
 The Bend program owns HTTP routing and physics. A small static browser canvas
 only rasterizes the command stream returned by the server.
 
+
+## Retest on Bend 2.0.40 (2026-11-23)
+
+Also rechecked with the bendlang/bend source at 6b806192; no difference.
+
+- **compiled IO main was rejected**: does not reproduce.
+- **no browser compilation target**: Bend now has `-o file.js` / `.mjs` and
+  `bend page.html -o dist`, but the demo keeps its design (the Bend server owns
+  routing and physics; the page only rasterizes).
+- Found while porting, not a Bend bug: the checked-in `index.html` fetched
+  `/bar/frame/...` (the hub's prefix), which the old standalone server
+  answered with 404. The port's `route` accepts both `/frame/...` and
+  `/bar/frame/...`.

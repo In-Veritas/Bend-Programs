@@ -7,7 +7,7 @@
 #
 #   [1] Steel   [2] Rubber   [3] Carbon Fiber   [4] Bend!   (q quits)
 #
-# Real data, real algorithms:
+# Real data, real algorithms (in Bench.bend, shared with window_bar.bend):
 #   geometry     L = 1.0 m, b = 40 mm, h = 20 mm rectangle
 #                I = b*h^3/12 = 2.6667e-8 m^4, c = h/2 = 0.01 m, A = 8e-4 m^2
 #   deflection   Euler-Bernoulli tip-load curve y(x) = d*(3xi^2 - xi^3)/2
@@ -29,512 +29,297 @@
 #                4 substeps/frame; steel/carbon shown in slow motion
 #                (playback factor in the HUD -- 16-30 Hz can't render at 30fps)
 #
-# build:  bun bend-ts/src/bend.ts gabriel_demos/bar_bench/bend_bar.bend --no-halt -o gabriel_demos/bar_bench/bend_bar
-# run:    ./gabriel_demos/bar_bench/bend_bar        (needs a real terminal for input)
-#
-# no-halt
-# skip-native
-
-import ../../bend-base/Base
-import ../Compat
-
-type Mat:
-  Steel{}
-  Rubber{}
-  Cfrp{}
-
-type PV:
-  PV{q: F32, v: F32}
+# build:  bend Bend3/demos/bar_bench/bend_bar.bend -o /tmp/bend_bar
+# run:    /tmp/bend_bar        (type a key and Enter: input is read by line)
+# script: printf '2\n4\nq\n' | /tmp/bend_bar > /tmp/frames.txt
+import Base
+import ./Bench.bend as Bench
 
 # ---------------------------------------------------------------- ansi
 
 def ansi(s: String) -> String:
-  List.Cons{Char.Char{27}, s}
-
-def cat(a: String, b: String) -> String:
-  List.concat(Char, a, b)
-
-def cat3(a: String, b: String, c: String) -> String:
-  cat(a, cat(b, c))
+  SCon{Char.from_u32(27), s}
 
 def red(s: String) -> String:
-  cat3(ansi("[31;1m"), s, ansi("[0m"))
+  ansi("[31;1m") ++ s ++ ansi("[0m")
 
 def eol() -> String:
-  cat(ansi("[K"), "\n")
+  ansi("[K") ++ "\n"
+
+def pick(c: Bool, a: U32, b: U32) -> U32:
+  match c:
+    case True{}:
+      a
+    case False{}:
+      b
+
+def picks(c: Bool, a: String, b: String) -> String:
+  match c:
+    case True{}:
+      a
+    case False{}:
+      b
 
 # ---------------------------------------------------------------- numbers
 
-def u32s_go(n: U32, k: String) -> String:
-  match n:
-    case 0:
-      k
-    case m:
-      u32s_go(m / 10, List.Cons{Char.Char{48 + (m % 10)}, k})
-
-def u32s(n: U32) -> String:
-  match n:
-    case 0:
-      "0"
-    case m:
-      u32s_go(m, "")
-
-def fmin(a: F32, b: F32) -> F32:
-  match b < a:
-    case 0:
-      a
-    case k:
-      b
-
-def clamp0(x: F32) -> F32:
-  match x < 0.0:
-    case 0:
-      x
-    case k:
-      0.0
-
-def fabs(x: F32) -> F32:
-  match x < 0.0:
-    case 0:
-      x
-    case k:
-      0.0 - x
-
 # one decimal: 12.3
-def f1(x: F32) -> String:
-  n = F32.to_u32((fabs(x) * 10.0) + 0.5)
-  cat(u32s(n / 10), List.Cons{Char.Char{46}, List.Cons{Char.Char{48 + (n % 10)}, ""}})
+def f1(+x: F32) -> String:
+  Bench.f1(x)
 
 # percent with two decimals, from a strain fraction: 0.0037 -> 0.37
-def fpct(x: F32) -> String:
-  n = F32.to_u32((fabs(x) * 10000.0) + 0.5)
-  cat(u32s(n / 100), List.Cons{Char.Char{46}, List.Cons{Char.Char{48 + ((n / 10) % 10)}, List.Cons{Char.Char{48 + (n % 10)}, ""}}})
+def fpct(+x: F32) -> String:
+  +n = F32.to_u32((Bench.fabs(x) * 10000.0 + 0.5 : F32))
+  U32.show((n / 100 : U32)) ++ "." ++ U32.show((n / 10 % 10 : U32)) ++ U32.show((n % 10 : U32))
 
-# Newton sqrt: x <- (x + a/x)/2
-def fsqrt_go(n: U32, a: F32, x: F32) -> F32:
-  match n:
-    case 0:
-      x
-    case m:
-      fsqrt_go(m - 1, a, (x + (a / x)) * 0.5)
+# ---------------------------------------------------------------- material text
 
-def fsqrt(a: F32) -> F32:
-  match a > 0.0:
-    case 0:
-      0.0
-    case k:
-      fsqrt_go(28, a, (a * 0.5) + 1.0)
-
-# ---------------------------------------------------------------- material data
-
-def mat_id(m: Mat) -> U32:
+def m_col(m: Bench.Mat) -> String:
   match m:
-    case Mat.Steel{}:
-      1
-    case Mat.Rubber{}:
-      2
-    case Mat.Cfrp{}:
-      3
-
-def mat_of(sel: U32) -> Mat:
-  match sel == 2:
-    case 0:
-      match sel == 3:
-        case 0:
-          Mat.Steel{}
-        case k:
-          Mat.Cfrp{}
-    case j:
-      Mat.Rubber{}
-
-def m_e(m: Mat) -> F32:            # Young's modulus, Pa
-  match m:
-    case Mat.Steel{}:
-      200.0e9
-    case Mat.Rubber{}:
-      0.05e9
-    case Mat.Cfrp{}:
-      135.0e9
-
-def m_rho(m: Mat) -> F32:          # density, kg/m^3
-  match m:
-    case Mat.Steel{}:
-      7850.0
-    case Mat.Rubber{}:
-      1100.0
-    case Mat.Cfrp{}:
-      1600.0
-
-def m_zeta(m: Mat) -> F32:         # damping ratio
-  match m:
-    case Mat.Steel{}:
-      0.002
-    case Mat.Rubber{}:
-      0.15
-    case Mat.Cfrp{}:
-      0.005
-
-def m_col(m: Mat) -> String:       # bar color
-  match m:
-    case Mat.Steel{}:
+    case Bench.Steel{}:
       ansi("[97;1m")
-    case Mat.Rubber{}:
+    case Bench.Rubber{}:
       ansi("[33;1m")
-    case Mat.Cfrp{}:
+    case Bench.Cfrp{}:
       ansi("[90;1m")
 
-def m_name(m: Mat) -> String:
+def m_name(m: Bench.Mat) -> String:
   match m:
-    case Mat.Steel{}:
+    case Bench.Steel{}:
       "STEEL  AISI 1020 mild:  E=200 GPa  sy=250 MPa  rho=7850  zeta=0.2%  120 HB"
-    case Mat.Rubber{}:
+    case Bench.Rubber{}:
       "RUBBER vulcanized NR:   E=0.05 GPa  elastic>500%  rho=1100  zeta=15%  60 Shore A"
-    case Mat.Cfrp{}:
+    case Bench.Cfrp{}:
       "CARBON UD CFRP 0-deg:   E=135 GPa  eu~0.8% (compr)  rho=1600  zeta=0.5%  no yield"
 
-# 3*E*I/L^3, N per m of tip deflection (I = 2.6667e-8, L = 1)
-def m_stiff(m: Mat) -> F32:
-  m_e(m) * 8.0e-8
-
-# plastic-hinge force cap: sigma_y*b*h^2/4 / L for steel, effectively none else
-def m_fcap(m: Mat) -> F32:
+def rel_st.go(m: Bench.Mat, +hz: String) -> String:
   match m:
-    case Mat.Steel{}:
-      1000.0
-    case Mat.Rubber{}:
-      1.0e9
-    case Mat.Cfrp{}:
-      1.0e9
+    case Bench.Steel{}:
+      "RELEASED: springback + set, ringing f1=" ++ hz ++ " Hz  (slow-mo 1/32)"
+    case Bench.Rubber{}:
+      "RELEASED: full recovery, wobbling f1=" ++ hz ++ " Hz  (real time)"
+    case Bench.Cfrp{}:
+      "RELEASED: ringing f1=" ++ hz ++ " Hz  (slow-mo 1/64)"
 
-# first cantilever mode, rad/s: 3.5160*sqrt(E*I/(rho*A))/L^2
-def m_omega(m: Mat) -> F32:
-  fsqrt((m_e(m) * 2.6667e-8) / (m_rho(m) * 8.0e-4)) * 3.5160
+def rel_st(+m: Bench.Mat) -> String:
+  rel_st.go(m, f1((Bench.m_omega(m) / 6.2832 : F32)))
 
-def m_slow(m: Mat) -> U32:         # slow-motion playback divisor on release
-  match m:
-    case Mat.Steel{}:
-      32
-    case Mat.Rubber{}:
-      1
-    case Mat.Cfrp{}:
-      64
+def status(+m: Bench.Mat, st: Bench.Status) -> String:
+  match st:
+    case Bench.StReady{}:
+      "READY -- fresh specimen loaded. [4]/Enter bends it."
+    case Bench.StPushing{}:
+      "PUSHING (crosshead down)"
+    case Bench.StYielding{}:
+      red("YIELDING -- plastic flow past sy=250 MPa")
+    case Bench.StSnap{}:
+      red("*** SNAP! sigma_root ~ 1.08 GPa, eps ~ 0.8% ***")
+    case Bench.StSnapped{}:
+      red("SNAPPED at the root -- no yield, no warning  (slow-mo 1/4)")
+    case Bench.StReleased{}:
+      rel_st(m)
 
 # ---------------------------------------------------------------- scene
 
-# d: tip deflection (m, + is down); rx: shape relax 1..0 (snap energy release);
-# fl: free-fall offset (m); fN: force HUD; st: status; ar: show load arrow;
-# brk: show root fracture; sel: 1..3 button highlight
-type Scene:
-  Scene{m: Mat, d: F32, rx: F32, fl: F32, fN: F32, st: String, ar: U32, brk: U32, sel: U32}
+# The bar's shape for one frame: tip deflection d, shape relax rx,
+# free-fall offset fl; ar shows the load arrow, brk the root fracture.
+type Shape is Data:
+  Shape{d: F32, rx: F32, fl: F32, ar: Bool, brk: Bool}
 
 # screen row of bar column j (0..59): rest row 8, 24 px per meter, 999 = clipped
-def brow(j: U32, d: F32, rx: F32, fl: F32) -> U32:
-  xi = U32.to_f32(j) / 59.0
-  y = (((d * rx) * ((3.0 * (xi * xi)) - ((xi * xi) * xi))) / 2.0) + fl
-  match y < 0.0:
-    case 0:
-      r = 8 + F32.to_u32((y * 24.0) + 0.5)
-      match r > 15:
-        case 0:
-          r
-        case k1:
-          999
-    case k2:
-      up = F32.to_u32(((0.0 - y) * 24.0) + 0.5)
-      match up > 8:
-        case 0:
-          8 - up
-        case k3:
-          999
+def brow.down(+y: F32) -> U32:
+  +r = (8 + F32.to_u32((y * 24.0 + 0.5 : F32)) : U32)
+  pick(U32.is_gt(r, 15), 999, r)
 
-def next_j(j: U32) -> U32:
-  match j == 59:
-    case 0:
-      j + 1
-    case k:
-      j
+def brow.up(+y: F32) -> U32:
+  +up = F32.to_u32(((0.0 - y) * 24.0 + 0.5 : F32))
+  pick(U32.is_gt(up, 8), 999, (8 - up : U32))
 
-def rdiff(a: U32, b: U32) -> U32:
-  match a == 999:
-    case 0:
-      match a < b:
-        case 0:
-          a - b
-        case k:
-          b - a
-    case z:
-      0
+def brow.at(neg: Bool, +y: F32) -> U32:
+  match neg:
+    case True{}:
+      brow.up(y)
+    case False{}:
+      brow.down(y)
 
-def glyph(dr: U32) -> String:
-  match dr == 0:
-    case 0:
-      match dr == 1:
-        case 0:
-          "|"
-        case k1:
-          "\\"
-    case k2:
-      "="
+def brow(+j: U32, sh: Shape) -> U32:
+  Shape{+d, +rx, +fl, ar, brk} = sh
+  +xi = (U32.to_f32(j) / 59.0 : F32)
+  +y = (d * rx * (3.0 * (xi * xi) - xi * xi * xi) / 2.0 + fl : F32)
+  brow.at(F32.is_lt(y, 0.0), y)
 
-def bar_cell(i: U32, j: U32, sc: Scene) -> String:
-  match sc:
-    case Scene.Scene{m, d, rx, fl, fN, st, ar, brk, sel}:
-      r = brow(j, d, rx, fl)
-      match i == r:
-        case 0:
-          match ((ar == 1) && (j == 59)) && ((i + 1) == r):
-            case 0:
-              match ((brk == 1) && (j == 0)) && (i == 8):
-                case 0:
-                  " "
-                case k1:
-                  red("x")
-            case k2:
-              red("v")
-        case k3:
-          rn = brow(next_j(j), d, rx, fl)
-          cat3(m_col(m), glyph(rdiff(rn, r)), ansi("[0m"))
+def next_j(+j: U32) -> U32:
+  pick(U32.is_eq(j, 59), j, (j + 1 : U32))
 
-def cell(i: U32, jc: U32, sc: Scene) -> String:
-  match (jc == 3) || (jc == 4):
-    case 0:
-      match (jc >= 5) && (jc <= 64):
-        case 0:
-          " "
-        case k1:
-          bar_cell(i, jc - 5, sc)
-    case k2:
+def rdiff(+a: U32, +b: U32) -> U32:
+  pick(U32.is_eq(a, 999), 0, pick(U32.is_lt(a, b), (b - a : U32), (a - b : U32)))
+
+def glyph(+dr: U32) -> String:
+  picks(U32.is_eq(dr, 0), "=", picks(U32.is_eq(dr, 1), "\\", "|"))
+
+def bar_cell.at(on_bar: Bool, arrow: Bool, crack: Bool, +m: Bench.Mat, +j: U32, +r: U32,
+  +sh: Shape) -> String:
+  match on_bar arrow crack:
+    case True{} _ _:
+      m_col(m) ++ glyph(rdiff(brow(next_j(j), sh), r)) ++ ansi("[0m")
+    case False{} True{} _:
+      red("v")
+    case False{} False{} True{}:
+      red("x")
+    case False{} False{} False{}:
+      " "
+
+def bar_cell(+i: U32, +j: U32, +m: Bench.Mat, +sh: Shape) -> String:
+  Shape{d, rx, fl, +ar, +brk} = sh
+  +r = brow(j, sh)
+  bar_cell.at(U32.is_eq(i, r), ar && U32.is_eq(j, 59) && U32.is_eq((i + 1 : U32), r),
+    brk && U32.is_eq(j, 0) && U32.is_eq(i, 8), m, j, r, sh)
+
+def cell.at(wall: Bool, bar: Bool, +i: U32, +jc: U32, +m: Bench.Mat, +sh: Shape) -> String:
+  match wall bar:
+    case True{} _:
       "#"
+    case False{} True{}:
+      bar_cell(i, (jc - 5 : U32), m, sh)
+    case False{} False{}:
+      " "
 
-def cells_go(i: U32, jc: U32, sc: Scene) -> String:
-  match jc == 70:
-    case 0:
-      cat(cell(i, jc, sc), cells_go(i, jc + 1, sc))
-    case k:
+def cell(+i: U32, +jc: U32, +m: Bench.Mat, +sh: Shape) -> String:
+  cell.at(U32.is_eq(jc, 3) || U32.is_eq(jc, 4), U32.is_ge(jc, 5) && U32.is_le(jc, 64), i, jc, m, sh)
+
+# columns jc .. 69 of row i
+def cells(n: Nat, +i: U32, +jc: U32, +m: Bench.Mat, +sh: Shape) -> String:
+  match n:
+    case 0n:
       eol()
+    case 1n+k:
+      cell(i, jc, m, sh) ++ cells(k, i, (jc + 1 : U32), m, sh)
 
-def rows_go(i: U32, sc: Scene) -> String:
-  match i == 16:
-    case 0:
-      cat(cells_go(i, 0, sc), rows_go(i + 1, sc))
-    case k:
+# rows i .. 15
+def rows(n: Nat, +i: U32, +m: Bench.Mat, +sh: Shape) -> String:
+  match n:
+    case 0n:
       ""
+    case 1n+k:
+      cells(70n, i, 0, m, sh) ++ rows(k, (i + 1 : U32), m, sh)
 
-def btn(lbl: String, on: U32) -> String:
+def btn(lbl: String, on: Bool) -> String:
   match on:
-    case 0:
+    case True{}:
+      ansi("[7m") ++ lbl ++ ansi("[0m")
+    case False{}:
       lbl
-    case k:
-      cat3(ansi("[7m"), lbl, ansi("[0m"))
 
 # displayed root stress: steel is stress-capped at yield (EPP), others linear
-def s_show(m: Mat, smpa: F32) -> F32:
+def s_show(m: Bench.Mat, +smpa: F32) -> F32:
   match m:
-    case Mat.Steel{}:
-      fmin(smpa, 250.0)
-    case Mat.Rubber{}:
-      smpa
-    case Mat.Cfrp{}:
+    case Bench.Steel{}:
+      Bench.fmin(smpa, 250.0)
+    case _:
       smpa
 
 # strain/stress gauges read the loading fiber; valid only while the
 # crosshead is pushing (after yield or release the root state is residual)
-def gauges(m: Mat, d: F32, ar: U32) -> String:
+def gauges(+m: Bench.Mat, +d: F32, ar: Bool) -> String:
   match ar:
-    case 0:
+    case False{}:
       "eps_root= --     s_root= --      "
-    case k:
-      eps = fabs(d) * 0.03
-      smpa = s_show(m, (m_e(m) * eps) / 1.0e6)
-      cat(cat3("eps_root=", fpct(eps), "%   "), cat3("s_root=", u32s(F32.to_u32(smpa + 0.5)), " MPa   "))
+    case True{}:
+      +eps = (Bench.fabs(d) * 0.03 : F32)
+      +smpa = s_show(m, (Bench.m_e(m) * eps / 1.0e6 : F32))
+      "eps_root=" ++ fpct(eps) ++ "%   s_root=" ++ U32.show(F32.to_u32((smpa + 0.5 : F32))) ++ " MPa   "
 
-def hud(sc: Scene) -> String:
-  match sc:
-    case Scene.Scene{m, d, rx, fl, fN, st, ar, brk, sel}:
-      l1 = cat3("  F=", f1(fN), " N   ")
-      l2 = cat3("tip=", f1(fabs(d) * 100.0), " cm   ")
-      cat3(cat(cat(l1, l2), gauges(m, d, ar)), st, eol())
+def hud(+m: Bench.Mat, +d: F32, +fN: F32, +ar: Bool, st: String) -> String:
+  "  F=" ++ f1(fN) ++ " N   tip=" ++ f1((Bench.fabs(d) * 100.0 : F32)) ++ " cm   "
+    ++ gauges(m, d, ar) ++ st ++ eol()
 
-def render(sc: Scene) -> String:
-  match sc:
-    case Scene.Scene{m, d, rx, fl, fN, st, ar, brk, sel}:
-      top = cat3("  BEND^3 BAR BENCH -- displacement-controlled cantilever bend test", eol(), cat3("  ", m_name(m), eol()))
-      bt = cat3("  ", cat(cat(btn("[1] Steel", sel == 1), cat("  ", btn("[2] Rubber", sel == 2))), cat(cat("  ", btn("[3] Carbon Fiber", sel == 3)), "  [4] Bend!   (q quits)")), eol())
-      body = cat(rows_go(0, Scene.Scene{m, d, rx, fl, fN, st, ar, brk, sel}), hud(Scene.Scene{m, d, rx, fl, fN, st, ar, brk, sel}))
-      cat3(ansi("[H"), cat(top, body), cat3(bt, "  > ", ansi("[K")))
+def render(+m: Bench.Mat, pose: Bench.Pose, +sel: U32) -> String:
+  Bench.Pose{+d, rx, fl, fN, +ar, brk, flash, st} = pose
+  ansi("[H")
+    ++ "  BEND^3 BAR BENCH -- displacement-controlled cantilever bend test" ++ eol()
+    ++ "  " ++ m_name(m) ++ eol()
+    ++ rows(16n, 0, m, Shape{d, rx, fl, ar, brk})
+    ++ hud(m, d, fN, ar, status(m, st))
+    ++ "  " ++ btn("[1] Steel", U32.is_eq(sel, 1)) ++ "  " ++ btn("[2] Rubber", U32.is_eq(sel, 2))
+    ++ "  " ++ btn("[3] Carbon Fiber", U32.is_eq(sel, 3)) ++ "  [4] Bend!   (q quits)" ++ eol()
+    ++ "  > " ++ ansi("[K")
 
 # ---------------------------------------------------------------- animation
 
-def frame(sc: Scene) -> IO(U32):
-  do IO(U32):
-    _ <- IO.write(render(sc))
-    _ <- IO.sleep(33)
-    return 0
+# One bend, frame by frame, until the bench is back at the menu
+# (at most `fuel` frames; a bend takes 120-320).
+def animate(fuel: Nat, done: Bool, +m: Bench.Mat, +sel: U32, +ph: Bench.Phase) -> IO(Unit):
+  match fuel done:
+    case 0n _:
+      IO.pure(Unit, Unit{})
+    case _ True{}:
+      IO.pure(Unit, Unit{})
+    case 1n+f False{}:
+      +next = Bench.step(m, ph, 36)
+      do IO<Unit>:
+        IO.write(render(m, Bench.pose(m, ph), sel))
+        IO.sleep(33)
+        animate(f, Bench.is_menu(next), m, sel, next)
 
-# smoothstep displacement ramp: n counts NPUSH..0, target 0.30 m
-def pdelta(n: U32) -> F32:
-  u = U32.to_f32(45 - n) / 45.0
-  0.30 * ((3.0 - (2.0 * u)) * (u * u))
-
-def push_st(m: Mat, d: F32) -> String:
-  match (mat_id(m) == 1) && (d > 0.0417):
-    case 0:
-      "PUSHING (crosshead down)"
-    case k:
-      red("YIELDING -- plastic flow past sy=250 MPa")
-
-def push(n: U32, m: Mat, sel: U32) -> IO(U32):
-  d = pdelta(n)
-  match (mat_id(m) == 3) && (d > 0.26666):
-    case 0:
-      push_frame(n, m, sel)
-    case k:
-      snap_flash(4, m, sel)
-
-def push_frame(n: U32, m: Mat, sel: U32) -> IO(U32):
-  d = pdelta(n)
-  fc = fmin(d * m_stiff(m), m_fcap(m))
-  do IO(U32):
-    _ <- frame(Scene.Scene{m, d, 1.0, 0.0, fc, push_st(m, d), 1, 0, sel})
-    push_next(n, m, sel)
-
-def push_next(n: U32, m: Mat, sel: U32) -> IO(U32):
-  match n:
-    case 0:
-      release(m, sel)
-    case k:
-      push(k - 1, m, sel)
-
-# --- carbon snap: flash, then the bar tears off the root and falls, its
-# stored elastic shape releasing (rx -> 0) while gravity takes it
-def snap_flash(n: U32, m: Mat, sel: U32) -> IO(U32):
-  match n:
-    case 0:
-      fall(50, 0.0, 0.0, m, sel)
-    case k:
-      do IO(U32):
-        _ <- frame(Scene.Scene{m, 0.2667, 1.0, 0.0, 2880.0, red("*** SNAP! sigma_root ~ 1.08 GPa, eps ~ 0.8% ***"), 0, 1, sel})
-        snap_flash(k - 1, m, sel)
-
-def fall(n: U32, v: F32, fl: F32, m: Mat, sel: U32) -> IO(U32):
-  t = U32.to_f32(50 - n) * 0.00825
-  rx = clamp0(1.0 - (t / 0.15))
-  v2 = v + (9.81 * 0.00825)
-  f2 = fl + (v2 * 0.00825)
-  do IO(U32):
-    _ <- frame(Scene.Scene{m, 0.2667, rx, f2, 0.0, red("SNAPPED at the root -- no yield, no warning  (slow-mo 1/4)"), 0, 1, sel})
-    fall_next(n, v2, f2, m, sel)
-
-def fall_next(n: U32, v: F32, fl: F32, m: Mat, sel: U32) -> IO(U32):
-  match n:
-    case 0:
-      do IO(U32):
-        _ <- IO.sleep(1200)
-        return 0
-    case k:
-      fall(k - 1, v, fl, m, sel)
-
-# --- release: the modal oscillator about the rest shape
-def sstep(pv: PV, rest: F32, w: F32, z: F32, h: F32) -> PV:
-  match pv:
-    case PV.PV{q, v}:
-      a = (0.0 - ((w * w) * (q - rest))) - (((2.0 * z) * w) * v)
-      v2 = v + (h * a)
-      PV.PV{q + (h * v2), v2}
-
-def ssteps(k: U32, pv: PV, rest: F32, w: F32, z: F32, h: F32) -> PV:
-  match k:
-    case 0:
-      pv
-    case j:
-      ssteps(j - 1, sstep(pv, rest, w, z, h), rest, w, z, h)
-
-def ring(n: U32, pv: PV, rest: F32, m: Mat, st: String, sel: U32) -> IO(U32):
-  match pv:
-    case PV.PV{q, v}:
-      w = m_omega(m)
-      h = (0.033 / U32.to_f32(m_slow(m))) / 4.0
-      p2 = ssteps(4, PV.PV{q, v}, rest, w, m_zeta(m), h)
-      do IO(U32):
-        _ <- frame(Scene.Scene{m, q, 1.0, 0.0, 0.0, st, 0, 0, sel})
-        ring_next(n, p2, rest, m, st, sel)
-
-def ring_next(n: U32, pv: PV, rest: F32, m: Mat, st: String, sel: U32) -> IO(U32):
-  match n:
-    case 0:
-      do IO(U32):
-        _ <- IO.sleep(1200)
-        return 0
-    case k:
-      ring(k - 1, pv, rest, m, st, sel)
-
-def rel_st(m: Mat) -> String:
-  hz = f1(m_omega(m) / 6.2832)
-  match m:
-    case Mat.Steel{}:
-      cat3("RELEASED: springback + set, ringing f1=", hz, " Hz  (slow-mo 1/32)")
-    case Mat.Rubber{}:
-      cat3("RELEASED: full recovery, wobbling f1=", hz, " Hz  (real time)")
-    case Mat.Cfrp{}:
-      cat3("RELEASED: ringing f1=", hz, " Hz  (slow-mo 1/64)")
-
-def release(m: Mat, sel: U32) -> IO(U32):
-  match m:
-    case Mat.Steel{}:
-      # permanent set = 0.30 - F_p*L^3/3EI = 0.30 - 1000/16000 = 0.2375 m
-      ring(200, PV.PV{0.30, 0.0}, 0.2375, Mat.Steel{}, rel_st(Mat.Steel{}), sel)
-    case Mat.Rubber{}:
-      ring(240, PV.PV{0.30, 0.0}, 0.0, Mat.Rubber{}, rel_st(Mat.Rubber{}), sel)
-    case Mat.Cfrp{}:
-      ring(200, PV.PV{0.30, 0.0}, 0.0, Mat.Cfrp{}, rel_st(Mat.Cfrp{}), sel)
+def run_bend(+sel: U32) -> IO(Unit):
+  +m = Bench.mat_of(sel)
+  animate(1000n, False{}, m, sel, Bench.start(m))
 
 # ---------------------------------------------------------------- ui loop
 
-def quit() -> IO(U32):
-  do IO(U32):
-    _ <- IO.write(cat3(ansi("[?25h"), ansi("[0m"), "\n"))
-    return 0
+def quit(file: File) -> IO(Unit):
+  do IO<Unit>:
+    File.close(file)
+    IO.write(ansi("[?25h") ++ ansi("[0m") ++ "\n")
 
-def dispatch(sel: U32, r: Result((U32 & String), String)) -> IO(U32):
+# 0 nothing, 1 quit, 2 select 1..3, 3 Bend! (an empty line bends too)
+def key_kind(+cp: U32) -> U32:
+  pick(U32.is_eq(cp, 113) || U32.is_eq(cp, 81), 1,
+  pick(U32.is_eq(cp, 52) || U32.is_eq(cp, 98) || U32.is_eq(cp, 66) || U32.is_eq(cp, 10) || U32.is_eq(cp, 13), 3,
+  pick(U32.is_ge(cp, 49) && U32.is_le(cp, 51), 2, 0)))
+
+def menu.key(kind: U32, +cp: U32, +sel: U32, file: File, rest: U32 -> File -> IO(Unit)) -> IO(Unit):
+  match kind:
+    case 1:
+      quit(file)
+    case 2:
+      rest((cp - 48 : U32), file)
+    case 3:
+      do IO<Unit>:
+        run_bend(sel)
+        rest(sel, file)
+    case _:
+      rest(sel, file)
+
+def menu.line(line: String, +sel: U32, file: File, rest: U32 -> File -> IO(Unit)) -> IO(Unit):
+  match line:
+    case SNil{}:
+      quit(file)
+    case SCon{h, t}:
+      +cp = Char.to_u32(h)
+      menu.key(key_kind(cp), cp, sel, file, rest)
+
+def menu.got(got: File & Result<&1, &1, U32 & String, String>, +sel: U32,
+  rest: U32 -> File -> IO(Unit)) -> IO(Unit):
+  (file, r) = got
   match r:
-    case Result.Fail{(code, err)}:
-      quit()
-    case Result.Done{s}:
-      match s:
-        case List.Nil{}:
-          run_bend(sel)
-        case List.Cons{h, t}:
-          key(sel, h)
+    case Fail{e}:
+      quit(file)
+    case Done{line}:
+      menu.line(line, sel, file, rest)
 
-def key(sel: U32, h: Char) -> IO(U32):
-  match h:
-    case Char.Char{cp}:
-      match (cp == 113) || (cp == 81):
-        case 0:
-          match ((cp == 52) || (cp == 98)) || (cp == 66):
-            case 0:
-              match (cp >= 49) && (cp <= 51):
-                case 0:
-                  menu(sel)
-                case k1:
-                  menu(cp - 48)
-            case k2:
-              run_bend(sel)
-        case k3:
-          quit()
+def menu(fuel: Nat, +sel: U32, file: File) -> IO(Unit):
+  match fuel:
+    case 0n:
+      quit(file)
+    case 1n+f:
+      +m = Bench.mat_of(sel)
+      do IO<Unit>:
+        IO.write(render(m, Bench.pose(m, Bench.Menu{}), sel))
+        got : File & Result<&1, &1, U32 & String, String> <- File.read_line(file, 256)
+        menu.got(got, sel, s => fl => menu(f, s, fl))
 
-def run_bend(sel: U32) -> IO(U32):
-  do IO(U32):
-    _ <- push(45, mat_of(sel), sel)
-    menu(sel)
-
-def menu(sel: U32) -> IO(U32):
-  do IO(U32):
-    _ <- IO.write(render(Scene.Scene{mat_of(sel), 0.0, 1.0, 0.0, 0.0, "READY -- fresh specimen loaded. [4]/Enter bends it.", 0, 0, sel}))
-    r <- IO.read_line()
-    dispatch(sel, r)
-
-def main() -> IO(U32):
-  do IO(U32):
-    _ <- IO.write(cat(ansi("[2J"), ansi("[?25l")))
-    menu(1)
+def main() -> IO(Unit):
+  do IO<Unit>:
+    IO.write(ansi("[2J") ++ ansi("[?25l"))
+    stdin : File <- IO.try(File, File.open("/dev/stdin", "r"))
+    menu(4294967295n, 1, stdin)

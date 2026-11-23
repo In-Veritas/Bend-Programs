@@ -1,7 +1,7 @@
 # Club Corvid
 
 Club Corvid is an original, compact multiplayer social world written in
-Bend3. Each visitor is a charming chubby corvid who can waddle around four
+Bend (ported to Bend 2.0.40). Each visitor is a charming chubby corvid who can waddle around four
 shared locations, see the flock, chat with everyone in the current room, and
 play four arcade minigames. Each room has a themed catalog, interactive
 sound-producing scenery, and its own small original song.
@@ -20,12 +20,23 @@ recordings, external assets, or CDN dependencies.
 
 ## Run it
 
-From the repository root:
+Requires the `bend` 2.0.40 CLI on `PATH`. From the repository root:
 
 ```sh
-./gabriel_demos/club_corvid_web/build.sh
-./gabriel_demos/club_corvid_web/start.sh
+bend Bend3/demos/club_corvid_web/web_club_corvid.bend --check-only   # ALL PROOFS CHECK
+./Bend3/demos/club_corvid_web/build.sh   # bend ... -o Bend3/demos/club_corvid_web/build/web_club_corvid
+./Bend3/demos/club_corvid_web/start.sh   # builds if needed, runs from the repository root
 ```
+
+The server reads `Bend3/demos/club_corvid_web/index.html` relative to the
+repository root, so always launch it from there (`start.sh` does).
+
+Tests (bun): `bun Bend3/demos/club_corvid_web/test_client.mjs` checks the
+browser client offline; with a freshly started server,
+`bun Bend3/demos/club_corvid_web/test_server.mjs` plays the whole protocol
+(join and name rules, movement and clamping, rooms, UTF-8 chat and its
+24-message history, catalog buying/equipping, all four minigames, leaving, the
+twelve-bird limit) and prints `/state` timings.
 
 Open `http://localhost:8087`, or replace `localhost` with the server's LAN IP
 to join from another machine. State is deliberately in-memory and resets
@@ -87,11 +98,25 @@ and chat without encoding state into paths.
 | `POST /equip` | `id\nitem` | Equip an owned item (`0` removes it) |
 | `POST /leave` | `id` | Leave immediately |
 
-`web_club_corvid.bend` exports `Game`, `Routed`, `game_empty`, and
-`request_route` for composition into a single-server hub.
+## Hub interface
 
-## Bend3 behavior notes
+`web_club_corvid.bend` is importable as a module
+(`import ../club_corvid_web/web_club_corvid.bend as Corvid`) and exposes:
 
-The exact unexpected behavior encountered while building this demo is kept
-under [`unexpected_behavior/`](unexpected_behavior/README.md). No Bend3
-compiler or runtime file was modified to make the demo work.
+- `Corvid.Game` — the state type (`is Data`);
+- `Corvid.init()` — an empty club (pure);
+- `Corvid.route(req: HTTP.Request, g: Corvid.Game) -> IO(Corvid.Game & HTTP.Response)`
+  — reads the clock itself (`HTTP.serve` shape);
+- `Corvid.route_at(req, g, now: U32)` — the same with an explicit clock.
+
+Both routes accept the path with or without the leading `/club-corvid`
+segment, so the hub can pass its request through unchanged. `main` is only
+`HTTP.serve(~Game, ~route, "0.0.0.0", 8087, init())`.
+
+## Bend behavior notes
+
+The unexpected behavior encountered while building this demo, and its Bend
+2.0.40 retest, are kept under
+[`unexpected_behavior/`](unexpected_behavior/README.md). No Bend compiler or
+runtime file was modified to make the demo work, and the 2.0.40 port uses no
+`@unsafe`.

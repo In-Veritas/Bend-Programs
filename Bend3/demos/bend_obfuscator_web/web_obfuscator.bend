@@ -1,111 +1,63 @@
-# Bend3 Source Obfuscator: a private browser editor served by Bend3.
+# Bend Source Obfuscator: a private browser editor served by Bend.
 # The transformation runs locally in the page; no pasted source is retained.
 #
-# build: ./gabriel_demos/bend_obfuscator_web/build.sh
-# run:   ./gabriel_demos/bend_obfuscator_web/start.sh
-# open:  http://<server-lan-ip>:8088
+# routes (also under /obfuscator, the BendJogos hub's prefix):
+#   GET /    index.html (read from disk: run from the repo root)
 #
-# no-halt
-# skip-native
+# build: Bend3/demos/bend_obfuscator_web/build.sh
+# run:   Bend3/demos/bend_obfuscator_web/start.sh
+# open:  http://<server-lan-ip>:8088
+import Base
+import ../HTTP.bend as HTTP
+import ../Compat.bend as Compat
 
-import ../../bend-base/Base
-import ../Compat
-import ../../bend-base/IO/TCP
-import ../../bend-base/IO/HTTP
-
-type Game:
+# The state: how many pages were served.
+type Game is Data:
   Game{served: U32}
 
-type Routed:
-  Routed{game: Game, response: HTTP.Response}
+def init() -> Game:
+  Game{0}
 
-# ---------------------------------------------------------------- Game
+def done(g: Game, r: HTTP.Response) -> IO(Game & HTTP.Response):
+  IO.pure(Game & HTTP.Response, (g, r))
 
-def game_empty() -> Game:
-  Game.Game{0}
+def index(g: Game) -> IO(Game & HTTP.Response):
+  Game{n} = g
+  do IO<Game & HTTP.Response>:
+    r : HTTP.Response <- HTTP.file("Bend3/demos/bend_obfuscator_web/index.html")
+    done(Game{(n + 1 : U32)}, r)
 
-def game_page(game: Game) -> Game:
-  match game:
-    case Game.Game{served}:
-      Game.Game{served + 1}
+# segments after the optional "obfuscator" prefix
+def route.app(get: Bool, segs: List<&2, String>, g: Game) -> IO(Game & HTTP.Response):
+  match get segs:
+    case False{} _:
+      done(g, HTTP.method_not_allowed())
+    case True{} Nil{}:
+      index(g)
+    case True{} _:
+      done(g, HTTP.not_found())
 
-# ---------------------------------------------------------------- Result
+def route.strip(prefixed: Bool, segs: List<&2, String>) -> List<&2, String>:
+  match prefixed segs:
+    case True{} h <> t:
+      t
+    case _ other:
+      other
 
-def result_index(result: Result((U32 & String), String), game: Game) -> Routed:
-  match result:
-    case Result.Done{html}:
-      Routed.Routed{game_page(game), HTTP.reply(200, "text/html; charset=utf-8", html)}
-    case Result.Fail{(code, error)}:
-      Routed.Routed{game, HTTP.reply(500, "text/plain; charset=utf-8", "index.html not found -- run from the repository root\n")}
+def route.first(segs: List<&2, String>) -> Bool:
+  match segs:
+    case h <> t:
+      Compat.eq(h, "obfuscator")
+    case Nil{}:
+      False{}
 
-# ---------------------------------------------------------------- Request
+# Handles /, and the hub's /obfuscator unchanged.
+def route(req: HTTP.Request, g: Game) -> IO(Game & HTTP.Response):
+  HTTP.Request{+method, +target, headers, body} = req
+  +segs = HTTP.segments(target)
+  route.app(String.eq(method, "GET"), route.strip(route.first(segs), segs), g)
 
-def request_route(request: HTTP.Request, game: Game) -> IO(Routed):
-  match request:
-    case HTTP.Request.Request{method, path, headers, body}:
-      match String.eq_u32(method, "GET"):
-        case 0:
-          IO.pure(Routed, Routed.Routed{game, HTTP.reply(405, "text/plain; charset=utf-8", "Method Not Allowed\n")})
-        case get:
-          match String.eq_u32(path, "/"):
-            case 0:
-              IO.pure(Routed, Routed.Routed{game, HTTP.not_found()})
-            case root:
-              do IO(Routed):
-                result <- IO.read_text("gabriel_demos/bend_obfuscator_web/index.html")
-                return result_index(result, game)
-
-# ---------------------------------------------------------------- server
-
-def routed_send(routed: Routed, server: TCP, conn: HTTP) -> IO(U32):
-  match routed:
-    case Routed.Routed{game, response}:
-      do IO(U32):
-        sent <- HTTP.send_response(conn, HTTP.with_connection(0, response))
-        closed <- HTTP.close(conn)
-        u32_serve(server, game)
-
-def inbound_serve(inbound: HTTP.Inbound, server: TCP, conn: HTTP, game: Game) -> IO(U32):
-  match inbound:
-    case HTTP.Inbound.Got{http11, request, rest}:
-      do IO(U32):
-        routed <- request_route(request, game)
-        routed_send(routed, server, conn)
-    case HTTP.Inbound.Closed{}:
-      do IO(U32):
-        closed <- HTTP.close(conn)
-        u32_serve(server, game)
-    case HTTP.Inbound.Bad{code, error}:
-      routed_send(Routed.Routed{game, HTTP.reply_error(code, error)}, server, conn)
-
-def result_accept(result: Result((U32 & String), TCP), server: TCP, game: Game) -> IO(U32):
-  match result:
-    case Result.Done{fd}:
-      do IO(U32):
-        inbound <- HTTP.recv_request(HTTP.Plain{fd}, List.Nil{})
-        inbound_serve(inbound, server, HTTP.Plain{fd}, game)
-    case Result.Fail{(code, error)}:
-      do IO(U32):
-        printed <- IO.print_err(String.flatten(["accept failed: ", error, "\n"]))
-        return 1
-
-def u32_serve(server: TCP, game: Game) -> IO(U32):
-  do IO(U32):
-    result <- TCP.accept(server)
-    result_accept(result, server, game)
-
-def result_main(result: Result((U32 & String), TCP)) -> IO(U32):
-  match result:
-    case Result.Done{server}:
-      do IO(U32):
-        printed <- IO.write("Bend3 Source Obfuscator listening on 0.0.0.0:8088\nopen http://<server-lan-ip>:8088\n")
-        u32_serve(server, game_empty())
-    case Result.Fail{(code, error)}:
-      do IO(U32):
-        printed <- IO.print_err(String.flatten(["listen failed: ", error, "\n"]))
-        return 1
-
-def main() -> IO(U32):
-  do IO(U32):
-    result <- TCP.listen(8088)
-    result_main(result)
+def main() -> IO(Unit):
+  do IO<Unit>:
+    IO.print("Bend Source Obfuscator listening on 0.0.0.0:8088\nopen http://<server-lan-ip>:8088")
+    HTTP.serve(~Game, ~route, "0.0.0.0", 8088, init())

@@ -1,8 +1,11 @@
 #!/bin/sh
+# Builds the native poker server into Bend3/demos/poker_web/build/ (gitignored).
 set -eu
 
-repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/../.." && pwd)
+repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/../../.." && pwd)
 cd "$repo_root"
 
-bun bend-ts/src/bend.ts gabriel_demos/poker_web/web_poker.bend --no-halt -o gabriel_demos/poker_web/web_poker
-printf '%s\n' 'Bend3 Poker built.'
+mkdir -p Bend3/demos/poker_web/build
+bend Bend3/demos/poker_web/web_poker.bend --check-only
+bend Bend3/demos/poker_web/web_poker.bend -o Bend3/demos/poker_web/build/web_poker
+printf '%s\n' 'Built Bend3/demos/poker_web/build/web_poker.'

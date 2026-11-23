@@ -25,3 +25,15 @@ compiler workaround is embedded in the program.
 
 At current revision `1ebc1acc`, later-definition scoping is fixed. The shared
 MRE now records the remaining termination-checking behavior.
+
+## Retest on Bend 2.0.40 (2026-11-23)
+
+Tested with the released `bend 2.0.40` binary and with the bendlang/bend
+source checkout at `6b806192`. The forward-reference server cycle no longer
+exists: the port uses the shared `../HTTP.bend` toolkit (`HTTP.serve`, a
+Nat-fuelled loop), so there is no later-defined `u32_serve` to call and no
+`--no-halt` mode is needed (2.0.40 has none; defs are checked in file order).
+The shared MRE
+[`mre_mutual_scope.bend`](../../minecraft_web/unexpected_behavior/mre_mutual_scope.bend)
+is now rejected (see its retest note there); the soundness issue does not
+reproduce. The port checks with ALL PROOFS CHECK and no `@unsafe`.

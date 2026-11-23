@@ -1,7 +1,7 @@
 # CubeWorld 2
 
 CubeWorld 2 is a first-person multiplayer voxel survival game whose shared
-world and gameplay rules are written in Bend3. The browser draws the scene and
+world and gameplay rules are written in Bend (ported to Bend 2.0.40). The browser draws the scene and
 captures input; Bend owns terrain, player positions, NPC pursuit, attacks,
 health, respawns, mining, and construction.
 
@@ -23,12 +23,20 @@ health, respawns, mining, and construction.
 
 ## Build and run
 
-From the repository root:
+Requires the `bend` 2.0.40 CLI on `PATH`. From the repository root:
 
 ```sh
-./gabriel_demos/cubeworld2_web/build.sh
-./gabriel_demos/cubeworld2_web/start.sh
+bend Bend3/demos/cubeworld2_web/web_cubeworld2.bend --check-only   # ALL PROOFS CHECK
+./Bend3/demos/cubeworld2_web/build.sh   # bend ... -o Bend3/demos/cubeworld2_web/build/web_cubeworld2
+./Bend3/demos/cubeworld2_web/start.sh   # runs from the repository root
 ```
+
+The server reads `Bend3/demos/cubeworld2_web/index.html` relative to the
+repository root, so always launch it from there (`start.sh` does). With a
+freshly started server, `bun Bend3/demos/cubeworld2_web/test_server.mjs`
+checks the protocol (generated world against the JS formula, joins, limits,
+movement, mining, building, PvP and respawn, real-time raider cadence, a
+raider fight) and prints `/state` timings.
 
 Open `http://<server-lan-ip>:8086`. The server binds all interfaces so another
 device on the same network can join. State is kept in memory and resets when
@@ -68,14 +76,27 @@ All successful game routes return a complete strict-JSON snapshot:
 - `GET /attack-player/<player>/<target-slot>`
 - `GET /leave/<player>`
 
-The module exports `Game`, `Routed`, `game_empty`, and `request_route` for
-composition into a one-port host. The BendJogos host strips the route prefix
-before calling `request_route` and threads the returned game state back into
-its unified platform state.
+## Hub interface
 
-## Bend3 behavior notes
+`web_cubeworld2.bend` is importable as a module
+(`import ../cubeworld2_web/web_cubeworld2.bend as Cube`) and exposes:
 
-The exact environment and minimal reproduction for the default-checker
-forward-loop scoping behavior are preserved in
-[`unexpected_behavior/README.md`](unexpected_behavior/README.md). The demo
-uses the existing `--no-halt` whole-book mode and does not modify Bend3.
+- `Cube.Game` — the state type (`is Data`);
+- `Cube.init()` — the initial world and raiders (pure);
+- `Cube.route(req: HTTP.Request, g: Cube.Game) -> IO(Cube.Game & HTTP.Response)`
+  — reads the clock itself (`HTTP.serve` shape);
+- `Cube.route_at(req, g, now: U32)` — the same with an explicit clock;
+- `Cube.game_advance(g, now)` — steps the raiders if 650 ms have passed
+  (`/state` already calls it).
+
+Both routes accept the path with or without the leading `/cubeworld2`
+segment, so the hub can pass its request through unchanged. `main` is only
+`HTTP.serve(~Game, ~route, "0.0.0.0", 8086, init())`.
+
+## Bend behavior notes
+
+The historical forward-loop scoping behavior and its Bend 2.0.40 retest are
+in [`unexpected_behavior/README.md`](unexpected_behavior/README.md). The
+2.0.40 port needs no `--no-halt`/`@unsafe`: the server loop is the shared
+`../HTTP.bend` toolkit (Nat fuel) and the world is built by Nat-fuelled
+structural recursion.

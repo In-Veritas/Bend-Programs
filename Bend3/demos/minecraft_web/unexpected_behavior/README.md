@@ -34,3 +34,26 @@ bun bend-ts/src/bend.ts gabriel_demos/minecraft_web/unexpected_behavior/mre_mutu
 
 This is a mutual-termination soundness issue rather than the historical
 scoping issue.
+
+## Retest on Bend 2.0.40 (2026-11-23)
+
+Tested with the released `bend 2.0.40` binary and with the bendlang/bend
+source checkout at `6b806192` (`bun bend2/main.ts`, also reporting 2.0.40);
+both behave the same.
+
+- **Later-definition scoping (historical):** no longer an issue by design.
+  Defs are checked in file order; a call to a def written below is rejected
+  with `expected: a def whose body is implemented before the def is used`.
+  There is no `--no-halt`/whole-book mode any more; `@unsafe` is the only
+  opt-out and it is reported (`SOME PROOFS FAIL ... defs that depend on
+  @unsafe`).
+- **Reachable mutual nontermination accepted (current issue at `1ebc1acc`):**
+  fixed. `mre_mutual_scope.bend` as saved has no `import Base`, so 2.0.40
+  stops earlier with `expected: a defined name / observed: U32`. With
+  `import Base` added, the two-def cycle is rejected
+  (`SOME PROOFS FAIL`, `u32_second` must be implemented before use); marking
+  both defs `@unsafe` makes the check report them instead of accepting
+  silently. Nothing to move to `bugs/`.
+- The port itself needs neither: the server loop is `../HTTP.bend`'s
+  Nat-fuelled `HTTP.serve`, and the file checks with ALL PROOFS CHECK and no
+  `@unsafe`.

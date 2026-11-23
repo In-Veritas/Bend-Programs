@@ -53,3 +53,17 @@ unified server.
 
 Both demos now import the single effect declared by `gabriel_demos/Clock.bend`.
 
+
+## Retest on Bend 2.0.40 (2026-11-23)
+
+Retested with the released Bend 2.0.40 binary and the bendlang/bend source
+checkout at 6b806192 (both report `bend 2.0.40`), after porting the demo to
+the shared `../HTTP.bend` toolkit.
+
+- `main: expected a word` (IO main rejected): does not reproduce; `main()
+  -> IO(Unit)` compiles natively and serves.
+- `--no-halt` for the server loop: no longer needed (the flag is gone). The
+  loop lives in `HTTP.serve`, which counts down `Nat` fuel, so the file
+  prints ALL PROOFS CHECK with no `@unsafe`.
+- Duplicated clock effect: obsolete. Imports are namespaces now
+  (`import ../Clock.bend as Clock`), so two modules can no longer collide.
