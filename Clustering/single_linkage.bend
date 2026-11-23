@@ -2,6 +2,8 @@
 # Roots always decrease, so the smallest input index represents a component.
 import Base
 import ./lib/common.bend as C
+import ./lib/vclust_index.bend as V
+import ./lib/lz_ani_graph.bend as LZG
 
 law find_root:
   for fuel: Nat
@@ -48,55 +50,39 @@ def union(parents, size, left, right):
     )},
     find_root(C.to_nat(size), parents, left))
 
-law scan_columns:
-  for fuel: Nat
-  for +column: U32
+law scan_neighbors:
+  for neighbors: C.Neighbors
   for +row: U32
   for +size: U32
-  for +threshold: U32
-  for matrix: Array<U32>
   for parents: Array<U32>
-  Array<U32> & Array<U32>
+  Array<U32>
 
-def scan_columns(fuel, column, row, size, threshold, matrix, parents):
-  match fuel:
-    case Zero{}:
-      (matrix, parents)
-    case Succ{rest}:
-      C.apply(Array<U32> & U32, Array<U32> & Array<U32>,
-        \{Tuple: next => score => (
-          updated = C.branch(Array<U32>, U32.is_ge(score, threshold), \{
-            True: (
-              union(parents, size, row, column)
-            )
-            False: (
-              parents
-            )
-          })
-          scan_columns(rest, U32.add(column, 1), row, size, threshold, next, updated)
-        )},
-        Array.get(U32, matrix, U32.add(U32.mul(row, size), column)))
+def scan_neighbors(neighbors, row, size, parents):
+  match neighbors:
+    case C.NeighborsNil{}:
+      parents
+    case C.NeighborsCon{column, score, tail}:
+      scan_neighbors(tail, row, size, union(parents, size, row, column))
 
 law scan_rows:
   for fuel: Nat
   for +row: U32
   for +size: U32
-  for +threshold: U32
-  for matrix: Array<U32>
+  for rows: Array<C.Neighbors>
   for parents: Array<U32>
   Array<U32>
 
-def scan_rows(fuel, row, size, threshold, matrix, parents):
+def scan_rows(fuel, row, size, rows, parents):
   match fuel:
     case Zero{}:
       parents
     case Succ{rest}:
-      C.apply(Array<U32> & Array<U32>, Array<U32>,
-        \{Tuple: next => updated => (
-          scan_rows(rest, U32.add(row, 1), size, threshold, next, updated)
+      C.apply(Array<C.Neighbors> & C.Neighbors, Array<U32>,
+        \{Tuple: next => neighbors => (
+          updated = scan_neighbors(neighbors, row, size, parents)
+          scan_rows(rest, U32.add(row, 1), size, next, updated)
         )},
-        scan_columns(C.to_nat(U32.sub(U32.sub(size, row), 1)), U32.add(row, 1),
-        row, size, threshold, matrix, parents))
+        Array.get(C.Neighbors, rows, row))
 
 law flatten:
   for fuel: Nat
@@ -119,7 +105,7 @@ def flatten(fuel, index, size, parents, labels):
         find_root(C.to_nat(size), parents, index))
 
 law cluster:
-  for matrix: Array<U32>
+  for graph: C.SparseGraph
   for +size: U32
   for threshold: U32
   for resolution: U32
@@ -127,30 +113,40 @@ law cluster:
   for passes: Nat
   Result<String, Array<U32>>
 
-def cluster(matrix, size, threshold, resolution, seed, passes):
-  parents = scan_rows(C.to_nat(size), 0, size, threshold, matrix,
-    C.labels_identity(size))
-  Done{flatten(C.to_nat(size), 0, size, parents, C.array_new(size, 0))}
+def cluster(graph, size, threshold, resolution, seed, passes):
+  match graph:
+    case C.SparseGraph{raw_size, rows}:
+      parents = scan_rows(C.to_nat(size), 0, size, rows, C.labels_identity(size))
+      Done{flatten(C.to_nat(size), 0, size, parents, C.array_new(size, 0))}
 
 law run_dataset:
   for dataset: C.Dataset
   for +threshold: U32
   for reverse: Bool
+  for fast: Bool
+  for lz: Bool
+  for kmer_minimum: U32
+  for kmer_identity: U32
   for resolution: U32
   for seed: U32
   for passes: Nat
   IO(Unit)
 
-def run_dataset(dataset, threshold, reverse, resolution, seed, passes):
+def run_dataset(dataset, threshold, reverse, fast, lz, kmer_minimum,
+                kmer_identity, resolution, seed, passes):
   match dataset:
     case C.Dataset{items, raw_size}:
       +size = {raw_size : U32}
       C.apply(List<C.Record> & List<C.Record>, IO(Unit),
         \{Tuple: input => output => (
-          matrix = C.matrix_build(input, size, reverse)
+          graph = C.branch(C.SparseGraph, lz, \{
+            True: LZG.sparse_build(input, size, threshold, kmer_minimum,
+              kmer_identity)
+            False: V.sparse_build(input, size, threshold, reverse, fast)
+          })
           do IO<Unit>:
             labels: Array<U32> <- C.result_unwrap(Array<U32>,
-              cluster(matrix, size, threshold, resolution, seed, passes))
+              cluster(graph, size, threshold, resolution, seed, passes))
             C.output(output, labels)
         )},
         C.records_copy(items))
@@ -161,10 +157,12 @@ law run_config:
 
 def run_config(config):
   match config:
-    case C.Config{identity, alphabet, reverse, resolution, seed, passes}:
+    case C.Config{identity, alphabet, reverse, fast, lz, kmer_minimum,
+                  kmer_identity, resolution, seed, passes}:
       do IO<Unit>:
         dataset: C.Dataset <- C.fasta_read(alphabet)
-        run_dataset(dataset, identity, reverse, resolution, seed, passes)
+        run_dataset(dataset, identity, reverse, fast, lz, kmer_minimum,
+          kmer_identity, resolution, seed, passes)
 
 law main:
   IO(Unit)

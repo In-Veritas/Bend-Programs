@@ -156,11 +156,14 @@ class ClusteringTests(unittest.TestCase):
         cls.temporary.cleanup()
 
     def run_program(self, algorithm, fasta, backend="c", threshold=9000,
-                    reverse=False, seed=1, resolution=5000, passes=100, **settings):
+                    reverse=False, seed=1, resolution=5000, passes=100,
+                    fast=False, lz=False, **settings):
         path = self.folder / "input.fasta"
         path.write_bytes(fasta if isinstance(fasta, bytes) else fasta.encode())
         env = dict(os.environ, CLUSTER_INPUT=str(path), CLUSTER_DNA="1",
                    CLUSTER_IDENTITY=str(threshold), CLUSTER_REVERSE=str(int(reverse)),
+                   CLUSTER_FAST=str(int(fast)),
+                   CLUSTER_LZ_ANI=str(int(lz)),
                    CLUSTER_SEED=str(seed), CLUSTER_RESOLUTION=str(resolution),
                    CLUSTER_PASSES=str(passes), CLUSTER_REPRESENTATIVES="")
         env.update(settings)
@@ -252,10 +255,65 @@ class ClusteringTests(unittest.TestCase):
             b = a[:12] + "A" + a[12:28] + a[29:]
             self.check_fixture([a, b, reverse_complement(a), "A" * 45, "A" * 44], 9000, True)
 
+    def test_fast_mode_is_explicit_and_backend_stable(self):
+        sequences = ["ACGT" * 20, "ACGT" * 20, "TGCA" * 20,
+                     "A" * 80, "A" * 80]
+        fasta = "".join(f">fast_{i}\n{s}\n" for i, s in enumerate(sequences))
+        for algorithm in ALGORITHMS:
+            c = self.run_program(algorithm, fasta, threshold=9500, fast=True)
+            js = self.run_program(algorithm, fasta, "js", 9500, fast=True)
+            labels = self.assert_success(c)
+            self.assert_success(js)
+            self.assertEqual(c.stdout, js.stdout)
+            self.assertEqual(labels[0], labels[1])
+            self.assertEqual(labels[3], labels[4])
+        process = self.run_launcher("single-linkage", self.folder / "input.fasta",
+                                    "--identity", "0.95", "--fast")
+        self.assertEqual(process.returncode, 0, process.stderr)
+
+        # Records shorter than one 15-mer and reverse-complement mode use the
+        # documented pairwise fallback and must preserve the exact result.
+        short = ">a\nAAAC\n>b\nGTTT\n>c\nAAAT\n"
+        for algorithm in ALGORITHMS:
+            for reverse in (False, True):
+                exact = self.run_program(algorithm, short, threshold=7500,
+                                         reverse=reverse)
+                accelerated = self.run_program(algorithm, short, threshold=7500,
+                                               reverse=reverse, fast=True)
+                self.assert_success(exact)
+                self.assert_success(accelerated)
+                self.assertEqual(accelerated.stdout, exact.stdout)
+
+    def test_lz_ani_mode_is_explicit_and_backend_stable(self):
+        fasta = (ROOT / "tests/fixtures/lz_ani_numeric.fasta").read_text()
+        for algorithm in ALGORITHMS:
+            with self.subTest(algorithm=algorithm):
+                native = self.run_program(algorithm, fasta, threshold=9800,
+                                          lz=True)
+                javascript = self.run_program(algorithm, fasta, "js", 9800,
+                                              lz=True)
+                labels = self.assert_success(native)
+                self.assert_success(javascript)
+                self.assertEqual(native.stdout, javascript.stdout)
+                self.assertEqual(len(native.stdout.splitlines()), 10)
+                if algorithm == "single-linkage":
+                    # The default Kmer-db gate (20 canonical 25-mers and
+                    # ani-shorter >= .70) precedes LZ-ANI. On these deliberately
+                    # tiny 59-61 nt records it retains only the exact and
+                    # reverse-complement pairs, matching Kmer-db 2.3.1.
+                    self.assertEqual(labels, [0, 0, 2, 0, 4, 5, 6, 7, 8])
+
+        path = self.folder / "input.fasta"
+        path.write_text(fasta)
+        process = self.run_launcher("single-linkage", path, "--identity",
+                                    "0.98", "--lz-ani", "--min-kmers",
+                                    "20", "--min-ident", "0.7")
+        self.assertEqual(process.returncode, 0, process.stderr)
+
     def test_invalid_inputs_and_settings(self):
         bad = ["ACGT\n", ">\nACGT\n", ">a\n>b\nACGT\n", ">a\n",
                ">a\nAC-GT\n", ">a\n123\n", ">a\nAC?T\n", ">a\nMEEP\n",
-               b">a\x00\nACGT\n", ">a\n" + "A" * 30001]
+               b">a\x00\nACGT\n", ">a\n" + "A" * 300001]
         for backend in ("c", "js"):
             for fasta in bad:
                 process = self.run_program("uclust", fasta, backend)
@@ -269,11 +327,11 @@ class ClusteringTests(unittest.TestCase):
                 self.assertEqual(process.stdout, "")
 
     def test_record_limit(self):
-        fasta = ">a\nA\n" * 2049
+        fasta = ">a\nA\n" * 16385
         for backend in ("c", "js"):
             process = self.run_program("uclust", fasta, backend)
             self.assertNotEqual(process.returncode, 0)
-            self.assertIn("2048-record", process.stderr)
+            self.assertIn("16384-record", process.stderr)
 
     def test_chunk_boundary(self):
         # Several records cross the 64 KiB file-read boundary without quadratic DP.
@@ -284,7 +342,7 @@ class ClusteringTests(unittest.TestCase):
 
     def test_supported_input_boundaries(self):
         for backend in ("c", "js"):
-            process = self.run_program("uclust", ">long\n" + "ACGT" * 7500, backend)
+            process = self.run_program("uclust", ">long\n" + "ACGT" * 75000, backend)
             self.assertEqual(self.assert_success(process), [0])
             process = self.run_program("uclust", ">duplicate\nA\n" * 2048, backend)
             self.assertEqual(self.assert_success(process), [0] * 2048)
@@ -347,6 +405,17 @@ class ClusteringTests(unittest.TestCase):
             [sys.executable, str(ROOT / "run.py"), algorithm, str(source),
              "--compiler", str(COMPILER), "--backend", backend, *map(str, options)],
             capture_output=True, text=True, timeout=60)
+
+    def test_launcher_thread_option(self):
+        source = ROOT / "tests/fixtures/chain.fasta"
+        native = self.run_launcher("single-linkage", source, "--identity", "0.75",
+                                   "--threads", "4")
+        self.assertEqual(native.returncode, 0, native.stderr)
+        self.assertEqual(read_table(native.stdout)[0], [0, 0, 0, 3])
+        javascript = self.run_launcher("single-linkage", source, "--threads", "2",
+                                       backend="js")
+        self.assertNotEqual(javascript.returncode, 0)
+        self.assertIn("JavaScript backend is single-threaded", javascript.stderr)
 
     def test_folder_independent_files_all_algorithms_and_backends(self):
         with tempfile.TemporaryDirectory(dir=self.folder) as folder:
@@ -477,7 +546,7 @@ class ClusteringTests(unittest.TestCase):
                 file.truncate(launcher.MAX_INPUT_BYTES + 1)
             process = self.run_launcher("uclust", source)
             self.assertNotEqual(process.returncode, 0)
-            self.assertIn("64 MiB", process.stderr)
+            self.assertIn("256 MiB", process.stderr)
             self.assertIn("b.fasta", process.stderr)
 
     def graph_run(self, graph, backend, seed=1, resolution=5000, **settings):
@@ -489,6 +558,49 @@ class ClusteringTests(unittest.TestCase):
                                  capture_output=True, text=True, timeout=30)
         self.assertEqual(process.returncode, 0, process.stderr)
         return [int(x) for x in process.stdout.splitlines()]
+
+    def test_graph_algorithms_do_not_restore_dense_pair_storage(self):
+        common = (ROOT / "lib/common.bend").read_text()
+        score = (ROOT / "lib/fast_score.bend").read_text()
+        indexed = (ROOT / "lib/vclust_index.bend").read_text()
+        self.assertIn("type SparseGraph is Type:", common)
+        self.assertIn("Array<Neighbors>", common)
+        self.assertNotIn("def matrix_build", common)
+        self.assertIn("type Posting is Data:", indexed)
+        self.assertIn("def index_sketch", indexed)
+        self.assertIn("def postings_gather", indexed)
+        self.assertIn("indexed_score_agrees", indexed)
+        self.assertIn("indexed_score_agrees", score)
+        self.assertIn("zero_common_is_rejected", score)
+        self.assertNotIn("U32.mul(size, size)", indexed)
+        for name in ("single_linkage", "complete_linkage", "set_cover", "leiden",
+                     "uclust", "cd_hit"):
+            source = (ROOT / f"{name}.bend").read_text()
+            with self.subTest(algorithm=name):
+                self.assertIn("V.sparse_build", source)
+                self.assertNotIn("matrix_build", source)
+                self.assertNotIn("U32.mul(size, size)", source)
+
+    def test_fast_score_laws_pass_proven_kernel(self):
+        process = subprocess.run(
+            ["bun", str(COMPILER / "bend2/main.ts"),
+             str(ROOT / "lib/fast_score.bend"), "--verdict"],
+            capture_output=True, text=True, timeout=20,
+        )
+        self.assertEqual(process.returncode, 0, process.stdout + process.stderr)
+        self.assertIn("ALL PROOFS CHECK", process.stdout)
+
+    def test_streaming_packed_prefilter_architecture(self):
+        common = (ROOT / "lib/common.bend").read_text()
+        packing = (ROOT / "lib/packing.bend").read_text()
+        self.assertIn("bases: P.Sequence", common)
+        self.assertIn("file_parse(4097n", common)
+        self.assertNotIn("file_read_all", common)
+        self.assertIn("P.signature(for_words", common)
+        self.assertIn("P.sketch(for_sketch", common)
+        self.assertIn("def alignment_banded", common)
+        self.assertIn("def fast_sketch_score", common)
+        self.assertIn("def signature15", packing)
 
     def test_leiden_graph_invariants(self):
         rng = random.Random(91205)

@@ -3,12 +3,14 @@
 # Refinement uses seeded uniform selection; see README for variant details.
 import Base
 import ./lib/common.bend as C
+import ./lib/vclust_index.bend as V
+import ./lib/lz_ani_graph.bend as LZG
 
 # Types
 # =====
 
 type Graph is Type:
-  Graph{size: U32, edges: Array<U32>, mass: Array<U32>}
+  Graph{size: U32, rows: Array<C.Neighbors>, mass: Array<U32>}
 
 type Stats is Type:
   Stats{edges: Array<U32>, mass: Array<U32>, count: Array<U32>}
@@ -54,9 +56,9 @@ law graph_copy:
 
 def graph_copy(graph):
   match graph:
-    case Graph{raw, edges, mass}:
+    case Graph{raw, rows, mass}:
       +size = {raw : U32}
-      C.apply(Array<U32> & Array<U32>, Graph & Graph,
+      C.apply(Array<C.Neighbors> & Array<C.Neighbors>, Graph & Graph,
         \{Tuple: e1 => e2 => (
           C.apply(Array<U32> & Array<U32>, Graph & Graph,
             \{Tuple: m1 => m2 => (
@@ -64,7 +66,7 @@ def graph_copy(graph):
             )},
             Array.clone(U32, mass))
         )},
-        Array.clone(U32, edges))
+        Array.clone(C.Neighbors, rows))
 
 law array_add:
   for array: Array<U32>
@@ -92,58 +94,99 @@ def stats_add(stats, community, edge, mass):
       Stats{array_add(edges, community, edge),
         array_add(masses, community, mass), array_add(counts, community, 1)}
 
-law stats_rows:
+law stats_nodes:
   for fuel: Nat
   for +index: U32
   for +node: U32
-  for +size: U32
-  for edges: Array<U32>
   for mass: Array<U32>
   for labels: Array<U32>
   for stats: Stats
   Stats
 
-def stats_rows(fuel, index, node, size, edges, mass, labels, stats):
+def stats_nodes(fuel, index, node, mass, labels, stats):
   match fuel:
     case Zero{}:
       stats
     case Succ{rest}:
       C.apply(Array<U32> & U32, Stats,
-        \{Tuple: next_edges => edge => (
+        \{Tuple: next_mass => weight => (
           C.apply(Array<U32> & U32, Stats,
-            \{Tuple: next_mass => weight => (
-              C.apply(Array<U32> & U32, Stats,
-                \{Tuple: next_labels => community => (
-                  next_stats = C.branch(Stats, U32.is_eq(index, node), \{
-                    True: (
-                      stats
-                    )
-                    False: (
-                      stats_add(stats, community, edge, weight)
-                    )
-                  })
-                  stats_rows(rest, U32.add(index, 1), node, size, next_edges, next_mass,
-                    next_labels, next_stats)
-                )},
-                Array.get(U32, labels, index))
+            \{Tuple: next_labels => community => (
+              next_stats = C.branch(Stats, U32.is_eq(index, node), \{
+                True: (
+                  stats
+                )
+                False: (
+                  stats_add(stats, community, 0, weight)
+                )
+              })
+              stats_nodes(rest, U32.add(index, 1), node, next_mass,
+                next_labels, next_stats)
             )},
-            Array.get(U32, mass, index))
+            Array.get(U32, labels, index))
         )},
-        Array.get(U32, edges, U32.add(U32.mul(node, size), index)))
+        Array.get(U32, mass, index))
+
+law stats_edge_add:
+  for stats: Stats
+  for +community: U32
+  for edge: U32
+  Stats
+
+def stats_edge_add(stats, community, edge):
+  match stats:
+    case Stats{edges, mass, counts}:
+      Stats{array_add(edges, community, edge), mass, counts}
+
+law stats_neighbors:
+  for neighbors: C.Neighbors
+  for labels: Array<U32>
+  for stats: Stats
+  for +node: U32
+  Stats
+
+def stats_neighbors(neighbors, labels, stats, node):
+  match neighbors:
+    case C.NeighborsNil{}:
+      stats
+    case C.NeighborsCon{raw_target, weight, tail}:
+      +target = {raw_target : U32}
+      C.branch(Stats, U32.is_eq(target, node), \{
+        True: (
+          stats_neighbors(tail, labels, stats, node)
+        )
+        False: (
+          C.apply(Array<U32> & U32, Stats,
+            \{Tuple: next_labels => community => (
+              stats_neighbors(tail, next_labels,
+                stats_edge_add(stats, community, weight), node)
+            )},
+            Array.get(U32, labels, target))
+        )
+      })
 
 law node_stats:
   for graph: Graph
   for labels: Array<U32>
-  for node: U32
+  for +node: U32
   Stats
 
 def node_stats(graph, labels, node):
   match graph:
-    case Graph{raw, edges, mass}:
+    case Graph{raw, rows, mass}:
       +size = {raw : U32}
       initial = {Stats{C.array_new(size, 0), C.array_new(size, 0),
         C.array_new(size, 0)} : Stats}
-      stats_rows(C.to_nat(size), 0, node, size, edges, mass, labels, initial)
+      C.apply(Array<U32> & Array<U32>, Stats,
+        \{Tuple: l1 => l2 => (
+          base = stats_nodes(C.to_nat(size), 0, node, mass, l1, initial)
+          C.apply(Array<C.Neighbors> & C.Neighbors, Stats,
+            \{Tuple: unused_rows => neighbors => (
+              stats_neighbors(neighbors, l2, base, node)
+            )},
+            Array.get(C.Neighbors, rows, node))
+        )},
+        Array.clone(U32, labels))
 
 law penalty:
   for resolution: U32
@@ -325,53 +368,45 @@ def move_nodes(fuel, size, resolution, seed, graph, labels):
         shuffle(C.to_nat(size), U32.sub(size, 1), seed,
         C.labels_identity(size)))
 
-law boundary_columns:
-  for fuel: Nat
-  for +index: U32
-  for +row: U32
-  for +size: U32
+law boundary_neighbors:
+  for neighbors: C.Neighbors
   for +parent: U32
   for +community: U32
-  for edges: Array<U32>
   for parents: Array<U32>
   for refined: Array<U32>
   for total: U32
-  (Array<U32> & Array<U32> & Array<U32>) & U32
+  (Array<U32> & Array<U32>) & U32
 
-def boundary_columns(fuel, index, row, size, parent, community, edges, parents, refined, total):
-  match fuel:
-    case Zero{}:
-      ((edges, parents, refined), total)
-    case Succ{rest}:
-      C.apply(Array<U32> & U32, (Array<U32> & Array<U32> & Array<U32>) & U32,
-        \{Tuple: next_edges => edge => (
-          C.apply(Array<U32> & U32, (Array<U32> & Array<U32> & Array<U32>) & U32,
-            \{Tuple: next_parents => other_parent => (
-              C.apply(Array<U32> & U32, (Array<U32> & Array<U32> & Array<U32>) & U32,
-                \{Tuple: next_refined => other_community => (
-                  included = U32.is_eq(parent, other_parent) &&
-                    U32.is_ne(community, other_community)
-                  boundary_columns(rest, U32.add(index, 1), row, size, parent, community,
-                    next_edges, next_parents, next_refined,
-                    U32.add(total, C.select(included, edge, 0)))
-                )},
-                Array.get(U32, refined, index))
+def boundary_neighbors(neighbors, parent, community, parents, refined, total):
+  match neighbors:
+    case C.NeighborsNil{}:
+      ((parents, refined), total)
+    case C.NeighborsCon{raw_target, edge, tail}:
+      +target = {raw_target : U32}
+      C.apply(Array<U32> & U32, (Array<U32> & Array<U32>) & U32,
+        \{Tuple: next_parents => other_parent => (
+          C.apply(Array<U32> & U32, (Array<U32> & Array<U32>) & U32,
+            \{Tuple: next_refined => other_community => (
+              included = U32.is_eq(parent, other_parent) &&
+                U32.is_ne(community, other_community)
+              boundary_neighbors(tail, parent, community, next_parents,
+                next_refined, U32.add(total, C.select(included, edge, 0)))
             )},
-            Array.get(U32, parents, index))
+            Array.get(U32, refined, target))
         )},
-        Array.get(U32, edges, U32.add(U32.mul(row, size), index)))
+        Array.get(U32, parents, target))
 
 law boundary_rows:
   for fuel: Nat
   for +row: U32
   for +size: U32
-  for edges: Array<U32>
+  for rows: Array<C.Neighbors>
   for parents: Array<U32>
   for refined: Array<U32>
   for boundary: Array<U32>
   Array<U32>
 
-def boundary_rows(fuel, row, size, edges, parents, refined, boundary):
+def boundary_rows(fuel, row, size, rows, parents, refined, boundary):
   match fuel:
     case Zero{}:
       boundary
@@ -381,15 +416,18 @@ def boundary_rows(fuel, row, size, edges, parents, refined, boundary):
           C.apply(Array<U32> & U32, Array<U32>,
             \{Tuple: next_refined => raw_community => (
               +community = {raw_community : U32}
-              C.apply((Array<U32> & Array<U32> & Array<U32>) & U32, Array<U32>,
-                \{Tuple: \{Tuple: next_edges => \{Tuple: updated_parents => updated_refined => total => (
-                  next_boundary = array_add(boundary, community, total)
-                  boundary_rows(rest, U32.add(row, 1), size, next_edges, updated_parents,
-                    updated_refined, next_boundary)
-                )}}},
-
-                boundary_columns(C.to_nat(size), 0, row, size, parent, community,
-                edges, next_parents, next_refined, 0))
+              C.apply(Array<C.Neighbors> & C.Neighbors, Array<U32>,
+                \{Tuple: next_rows => neighbors => (
+                  C.apply((Array<U32> & Array<U32>) & U32, Array<U32>,
+                    \{Tuple: \{Tuple: updated_parents => updated_refined => total => (
+                      next_boundary = array_add(boundary, community, total)
+                      boundary_rows(rest, U32.add(row, 1), size, next_rows,
+                        updated_parents, updated_refined, next_boundary)
+                    )}},
+                    boundary_neighbors(neighbors, parent, community,
+                    next_parents, next_refined, 0))
+                )},
+                Array.get(C.Neighbors, rows, row))
             )},
             Array.get(U32, refined, row))
         )},
@@ -403,9 +441,9 @@ law boundaries:
 
 def boundaries(graph, parents, refined):
   match graph:
-    case Graph{raw, edges, mass}:
+    case Graph{raw, rows, mass}:
       +size = {raw : U32}
-      boundary_rows(C.to_nat(size), 0, size, edges, parents, refined,
+      boundary_rows(C.to_nat(size), 0, size, rows, parents, refined,
         C.array_new(size, 0))
 
 law well_connected:
@@ -710,55 +748,83 @@ law compact_labels:
 def compact_labels(labels, size, limit):
   compact(C.to_nat(size), 0, limit, labels, C.array_new(limit, limit), 0)
 
-law aggregate_columns:
-  for fuel: Nat
-  for +index: U32
-  for +row: U32
-  for +old_size: U32
-  for +new_size: U32
-  for +community: U32
-  for edges: Array<U32>
-  for refined: Array<U32>
-  for result: Array<U32>
-  Array<U32> & Array<U32> & Array<U32>
+law neighbor_weight_add:
+  for neighbors: C.Neighbors
+  for +target: U32
+  for +value: U32
+  C.Neighbors
 
-def aggregate_columns(fuel, index, row, old_size, new_size, community, edges, refined, result):
-  match fuel:
-    case Zero{}:
-      (edges, refined, result)
-    case Succ{rest}:
-      C.apply(Array<U32> & U32, Array<U32> & Array<U32> & Array<U32>,
-        \{Tuple: next_edges => edge => (
-          C.apply(Array<U32> & U32, Array<U32> & Array<U32> & Array<U32>,
-            \{Tuple: next_refined => target => (
-              updated = array_add(result, U32.add(U32.mul(community, new_size), target), edge)
-              aggregate_columns(rest, U32.add(index, 1), row, old_size, new_size, community,
-                next_edges, next_refined, updated)
-            )},
-            Array.get(U32, refined, index))
+def neighbor_weight_add(neighbors, target, value):
+  match neighbors:
+    case C.NeighborsNil{}:
+      C.NeighborsCon{target, value, C.NeighborsNil{}}
+    case C.NeighborsCon{raw_other, raw_weight, tail}:
+      +other = {raw_other : U32}
+      +weight = {raw_weight : U32}
+      C.branch(C.Neighbors, U32.is_eq(other, target), \{
+        True: (
+          C.NeighborsCon{other, U32.add(weight, value), tail}
+        )
+        False: (
+          C.NeighborsCon{other, weight,
+            neighbor_weight_add(tail, target, value)}
+        )
+      })
+
+law row_weight_add:
+  for rows: Array<C.Neighbors>
+  for +source: U32
+  for +target: U32
+  for value: U32
+  Array<C.Neighbors>
+
+def row_weight_add(rows, source, target, value):
+  C.apply(Array<C.Neighbors> & C.Neighbors, Array<C.Neighbors>,
+    \{Tuple: next_rows => neighbors => (
+      Array.set(C.Neighbors, next_rows, source,
+        neighbor_weight_add(neighbors, target, value))
+    )},
+    Array.get(C.Neighbors, rows, source))
+
+law aggregate_neighbors:
+  for neighbors: C.Neighbors
+  for +community: U32
+  for refined: Array<U32>
+  for result: Array<C.Neighbors>
+  Array<U32> & Array<C.Neighbors>
+
+def aggregate_neighbors(neighbors, community, refined, result):
+  match neighbors:
+    case C.NeighborsNil{}:
+      (refined, result)
+    case C.NeighborsCon{target, edge, tail}:
+      C.apply(Array<U32> & U32, Array<U32> & Array<C.Neighbors>,
+        \{Tuple: next_refined => target_community => (
+          updated = row_weight_add(result, community, target_community, edge)
+          aggregate_neighbors(tail, community, next_refined, updated)
         )},
-        Array.get(U32, edges, U32.add(U32.mul(row, old_size), index)))
+        Array.get(U32, refined, target))
 
 law aggregate_rows:
   for fuel: Nat
   for +row: U32
   for +old_size: U32
   for +new_size: U32
-  for edges: Array<U32>
+  for rows: Array<C.Neighbors>
   for mass: Array<U32>
   for refined: Array<U32>
   for parents: Array<U32>
-  for new_edges: Array<U32>
+  for new_rows: Array<C.Neighbors>
   for new_mass: Array<U32>
   for new_parents: Array<U32>
   Graph & Array<U32>
 
-def aggregate_rows(fuel, row, old_size, new_size, edges, mass, refined, parents, new_edges, new_mass, new_parents):
+def aggregate_rows(fuel, row, old_size, new_size, rows, mass, refined, parents, new_rows, new_mass, new_parents):
   match fuel:
     case Zero{}:
       C.apply(Array<U32> & U32, Graph & Array<U32>,
         \{Tuple: compact_parents => count => (
-          (Graph{new_size, new_edges, new_mass}, compact_parents)
+          (Graph{new_size, new_rows, new_mass}, compact_parents)
         )},
         compact_labels(new_parents, new_size,
         old_size))
@@ -770,17 +836,20 @@ def aggregate_rows(fuel, row, old_size, new_size, edges, mass, refined, parents,
               C.apply(Array<U32> & U32, Graph & Array<U32>,
                 \{Tuple: next_parents => parent => (
                   +community = {raw_community : U32}
-                  C.apply(Array<U32> & Array<U32> & Array<U32>, Graph & Array<U32>,
-                    \{Tuple: next_edges => \{Tuple: updated_refined => updated_edges => (
-                      updated_mass = array_add(new_mass, community, weight)
-                      updated_parents = Array.set(U32, new_parents, community, parent)
-                      aggregate_rows(rest, U32.add(row, 1), old_size, new_size, next_edges,
-                        next_mass, updated_refined, next_parents, updated_edges,
-                        updated_mass, updated_parents)
-                    )}},
-                    aggregate_columns(
-                    C.to_nat(old_size), 0, row, old_size, new_size, community, edges,
-                    next_refined, new_edges))
+                  C.apply(Array<C.Neighbors> & C.Neighbors, Graph & Array<U32>,
+                    \{Tuple: next_rows => neighbors => (
+                      C.apply(Array<U32> & Array<C.Neighbors>, Graph & Array<U32>,
+                        \{Tuple: updated_refined => updated_rows => (
+                          updated_mass = array_add(new_mass, community, weight)
+                          updated_parents = Array.set(U32, new_parents, community, parent)
+                          aggregate_rows(rest, U32.add(row, 1), old_size, new_size,
+                            next_rows, next_mass, updated_refined, next_parents,
+                            updated_rows, updated_mass, updated_parents)
+                        )},
+                        aggregate_neighbors(neighbors, community, next_refined,
+                        new_rows))
+                    )},
+                    Array.get(C.Neighbors, rows, row))
                 )},
                 Array.get(U32, parents, row))
             )},
@@ -797,10 +866,11 @@ law aggregate:
 
 def aggregate(graph, refined, parents, new_size):
   match graph:
-    case Graph{raw_size, edges, mass}:
+    case Graph{raw_size, rows, mass}:
       +old_size = {raw_size : U32}
-      aggregate_rows(C.to_nat(old_size), 0, old_size, new_size, edges, mass,
-        refined, parents, C.array_new(U32.mul(new_size, new_size), 0),
+      aggregate_rows(C.to_nat(old_size), 0, old_size, new_size, rows, mass,
+        refined, parents,
+        Array.new(C.Neighbors, C.array_depth(31n, new_size, 1, 0n), C.NeighborsNil{}),
         C.array_new(new_size, 0), C.array_new(new_size, 0))
 
 law canonical_minima:
@@ -937,30 +1007,38 @@ def levels(fuel, size, original_size, resolution, seed, passes, graph, parents, 
           n => s => g => p => m => levels(rest, n, original_size,
             resolution, s, passes, g, p, m))
 
-law graph_threshold:
+law graph_unweight_row:
+  for neighbors: C.Neighbors
+  C.Neighbors
+
+def graph_unweight_row(neighbors):
+  match neighbors:
+    case C.NeighborsNil{}:
+      C.NeighborsNil{}
+    case C.NeighborsCon{target, score, tail}:
+      C.NeighborsCon{target, 1, graph_unweight_row(tail)}
+
+law graph_unweight:
   for fuel: Nat
   for +index: U32
-  for +size: U32
-  for +threshold: U32
-  for matrix: Array<U32>
-  Array<U32>
+  for rows: Array<C.Neighbors>
+  Array<C.Neighbors>
 
-def graph_threshold(fuel, index, size, threshold, matrix):
+def graph_unweight(fuel, index, rows):
   match fuel:
     case Zero{}:
-      matrix
+      rows
     case Succ{rest}:
-      C.apply(Array<U32> & U32, Array<U32>,
-        \{Tuple: next => value => (
-          off_diagonal = U32.is_ne(U32.div(index, size), U32.mod(index, size))
-          edge = C.select(off_diagonal && U32.is_ge(value, threshold), 1, 0)
-          updated = Array.set(U32, next, index, edge)
-          graph_threshold(rest, U32.add(index, 1), size, threshold, updated)
+      C.apply(Array<C.Neighbors> & C.Neighbors, Array<C.Neighbors>,
+        \{Tuple: next => neighbors => (
+          updated = Array.set(C.Neighbors, next, index,
+            graph_unweight_row(neighbors))
+          graph_unweight(rest, U32.add(index, 1), updated)
         )},
-        Array.get(U32, matrix, index))
+        Array.get(C.Neighbors, rows, index))
 
 law cluster:
-  for matrix: Array<U32>
+  for sparse: C.SparseGraph
   for +size: U32
   for threshold: U32
   for resolution: U32
@@ -968,33 +1046,44 @@ law cluster:
   for passes: Nat
   Result<String, Array<U32>>
 
-def cluster(matrix, size, threshold, resolution, seed, passes):
-  edges = graph_threshold(C.to_nat(U32.mul(size, size)), 0, size, threshold, matrix)
-  graph = {Graph{size, edges, C.array_new(size, 1)} : Graph}
-  do Result<&1, &1, String, Array<U32>>:
-    labels: Array<U32> <- levels(Succ{C.to_nat(size)}, size, size, resolution,
-      seed, passes, graph, C.labels_identity(size), C.labels_identity(size))
-    return canonicalize(labels, size)
+def cluster(sparse, size, threshold, resolution, seed, passes):
+  match sparse:
+    case C.SparseGraph{raw_size, rows}:
+      graph = {Graph{size, graph_unweight(C.to_nat(size), 0, rows),
+        C.array_new(size, 1)} : Graph}
+      do Result<&1, &1, String, Array<U32>>:
+        labels: Array<U32> <- levels(Succ{C.to_nat(size)}, size, size, resolution,
+          seed, passes, graph, C.labels_identity(size), C.labels_identity(size))
+        return canonicalize(labels, size)
 
 law run_dataset:
   for dataset: C.Dataset
   for +threshold: U32
   for reverse: Bool
+  for fast: Bool
+  for lz: Bool
+  for kmer_minimum: U32
+  for kmer_identity: U32
   for resolution: U32
   for seed: U32
   for passes: Nat
   IO(Unit)
 
-def run_dataset(dataset, threshold, reverse, resolution, seed, passes):
+def run_dataset(dataset, threshold, reverse, fast, lz, kmer_minimum,
+                kmer_identity, resolution, seed, passes):
   match dataset:
     case C.Dataset{items, raw_size}:
       +size = {raw_size : U32}
       C.apply(List<C.Record> & List<C.Record>, IO(Unit),
         \{Tuple: input => output => (
-          matrix = C.matrix_build(input, size, reverse)
+          graph = C.branch(C.SparseGraph, lz, \{
+            True: LZG.sparse_build(input, size, threshold, kmer_minimum,
+              kmer_identity)
+            False: V.sparse_build(input, size, threshold, reverse, fast)
+          })
           do IO<Unit>:
             labels: Array<U32> <- C.result_unwrap(Array<U32>,
-              cluster(matrix, size, threshold, resolution, seed, passes))
+              cluster(graph, size, threshold, resolution, seed, passes))
             C.output(output, labels)
         )},
         C.records_copy(items))
@@ -1005,10 +1094,12 @@ law run_config:
 
 def run_config(config):
   match config:
-    case C.Config{identity, alphabet, reverse, resolution, seed, passes}:
+    case C.Config{identity, alphabet, reverse, fast, lz, kmer_minimum,
+                  kmer_identity, resolution, seed, passes}:
       do IO<Unit>:
         dataset: C.Dataset <- C.fasta_read(alphabet)
-        run_dataset(dataset, identity, reverse, resolution, seed, passes)
+        run_dataset(dataset, identity, reverse, fast, lz, kmer_minimum,
+          kmer_identity, resolution, seed, passes)
 
 law main:
   IO(Unit)

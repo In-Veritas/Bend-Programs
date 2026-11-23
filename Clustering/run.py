@@ -22,18 +22,18 @@ ALGORITHMS = {
     "leiden": "leiden",
 }
 FASTA_SUFFIXES = {".fasta", ".fa", ".fna", ".ffn", ".frn", ".fas", ".fsa"}
-MAX_INPUT_BYTES = 64 * 1024 * 1024
+MAX_INPUT_BYTES = 256 * 1024 * 1024
 
 
 def default_compiler():
     configured = os.environ.get("BEND_REPO") or os.environ.get("BEND_CORE")
     if configured:
         return Path(configured)
-    public = ROOT.parent.parent / "bend"
-    legacy = ROOT.parent.parent / "bend2-core"
-    if (public / "bend2/main.ts").is_file() or not (legacy / "bend2/main.ts").is_file():
-        return public
-    return legacy
+    current = ROOT.parent.parent / "bend"
+    fallback = ROOT.parent.parent / "bend2-core"
+    if (current / "bend2/main.ts").is_file() or not (fallback / "bend2/main.ts").is_file():
+        return current
+    return fallback
 
 
 def fraction(value):
@@ -65,7 +65,7 @@ def bounded_integer(limit, minimum=0):
     return parse
 
 
-def build(algorithm, backend, compiler):
+def build(algorithm, backend, compiler, threads=1):
     bun = shutil.which("bun")
     if not bun:
         raise RuntimeError("Bun is required to compile Bend (bun was not found)")
@@ -105,7 +105,7 @@ def build(algorithm, backend, compiler):
             os.replace(product, executable)
     if backend == "js":
         return [bun, str(executable)]
-    return [str(executable), "--threads", "1", "--gpu", "off"]
+    return [str(executable), "--threads", str(threads), "--gpu", "off"]
 
 
 def same_path(left, right):
@@ -131,7 +131,7 @@ def input_files(path, recursive=False, output_dir=None):
         raise ValueError(f"FASTA file or folder not found: {path}")
     for file in files:
         if file.stat().st_size > MAX_INPUT_BYTES:
-            raise ValueError(f"FASTA input exceeds 64 MiB: {file}")
+            raise ValueError(f"FASTA input exceeds 256 MiB: {file}")
     return files
 
 
@@ -139,7 +139,7 @@ def main():
     parser = argparse.ArgumentParser(
         description="Cluster DNA/RNA FASTA records using algorithms written in Bend.",
         epilog="Output is TSV in input order. Indices are zero-based. "
-               "Inputs are limited to 2048 records, 30000 residues per record, and 64 MiB.",
+               "Inputs are limited to 16384 records, 300000 residues per record, and 256 MiB.",
     )
     parser.add_argument("algorithm", choices=ALGORITHMS)
     parser.add_argument("input", type=Path, help="uncompressed FASTA file or folder; "
@@ -150,6 +150,22 @@ def main():
                         help="inclusive identity threshold; default: 0.9")
     parser.add_argument("--strand", choices=("plus", "both"), default="plus",
                         help="compare the supplied strand or also reverse complements")
+    scoring = parser.add_mutually_exclusive_group()
+    scoring.add_argument("--fast", action="store_true",
+                         help="replace long-sequence alignment with an indexed approximate "
+                              "64-bin 15-mer MinHash score; much faster, but may miss or "
+                              "admit cluster edges")
+    scoring.add_argument("--lz-ani", action="store_true",
+                         help="use the Bend LZ-ANI port and Vclust's symmetric total-ANI "
+                              "metric after a sparse canonical 25-mer prefilter")
+    parser.add_argument("--min-kmers", type=bounded_integer(4294967295, 1),
+                        default=20,
+                        help="minimum shared unique canonical 25-mers for an LZ-ANI "
+                             "candidate; default: 20 (Vclust/Kmer-db default)")
+    parser.add_argument("--min-ident", type=fraction, default=7000,
+                        metavar="FRACTION",
+                        help="minimum Kmer-db ani-shorter candidate estimate; "
+                             "default: 0.7")
     parser.add_argument("--resolution", type=fraction, default=5000, metavar="FRACTION",
                         help="Leiden CPM resolution on the unweighted graph; default: 0.5")
     parser.add_argument("--seed", type=bounded_integer(4294967295), default=1,
@@ -163,10 +179,14 @@ def main():
                         help="folder results directory (default: INPUT/clusters/ALGORITHM); "
                         "writes a TSV and representative FASTA for every input file")
     parser.add_argument("--backend", choices=("c", "js"), default="c")
+    parser.add_argument("--threads", type=bounded_integer(256, 1), default=1,
+                        help="native Bend runtime CPU threads; default: 1")
     parser.add_argument("--compiler", type=Path,
                         default=default_compiler(),
                         help="Bend checkout (default: sibling bend; falls back to bend2-core)")
     args = parser.parse_args()
+    if args.backend == "js" and args.threads != 1:
+        parser.error("the JavaScript backend is single-threaded; use --threads 1")
     batch = args.input.is_dir()
     if batch:
         if args.output is not None or args.representatives is not None:
@@ -202,11 +222,15 @@ def main():
     temporary = []
     table = None
     try:
-        command = build(args.algorithm, args.backend, args.compiler.resolve())
+        command = build(args.algorithm, args.backend, args.compiler.resolve(), args.threads)
         env = dict(os.environ)
         env.update(CLUSTER_DNA="1",
                    CLUSTER_IDENTITY=str(args.identity),
                    CLUSTER_REVERSE=str(int(args.strand == "both")),
+                   CLUSTER_FAST=str(int(args.fast)),
+                   CLUSTER_LZ_ANI=str(int(args.lz_ani)),
+                   CLUSTER_KMER_MINIMUM=str(args.min_kmers),
+                   CLUSTER_KMER_IDENTITY=str(args.min_ident),
                    CLUSTER_RESOLUTION=str(args.resolution), CLUSTER_SEED=str(args.seed),
                    CLUSTER_PASSES=str(args.passes))
         for source, output, representatives in jobs:
