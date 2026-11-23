@@ -2,7 +2,7 @@
 
 This is a CHIP-8 emulator written in Bend. It interprets CHIP-8 bytecode; it
 is not a Bend-to-CHIP-8 compiler. It was written for the old bend2-core and is
-now ported to Bend 2.0.40, which compiles it to a native binary (or JS).
+now ported to the latest Bend (bendlang/bend, `bend 2.0.40`), which compiles it to a native binary (or JS).
 
 The compatibility profile is the original COSMAC VIP CHIP-8: 4 KiB memory,
 program start at `0x200`, sixteen 8-bit V registers, a 12-entry call stack,
@@ -30,10 +30,13 @@ that draws the sixteen font digits in two rows.
 ## Bundled self-test ROM
 
 The old Bend2 Core had no IO runtime, so the ROM had to be embedded as a hex
-`String` in [`rom.bend`](rom.bend). Bend 2 has file IO, so real ROMs now come
-from files and the embedded-ROM bridge is no longer on the runtime path for
+`String` in [`rom.bend`](rom.bend). The owner's later Core revision gained an
+IO loop and file operations, but still no argv, so it kept the embedded ROM
+and wrapped the pure self-check as `main_value()` printed by an IO `main`.
+The latest Bend has `IO.args`, so real ROMs now come from files named on the
+command line and the embedded-ROM bridge is no longer on the runtime path for
 them; `rom.bend` remains only as the self-test fixture used when no ROM path
-is given. The hex parser (pairs of hex digits, any whitespace between them;
+is given, and `main_value()` (the owner's name) is that self-check. The hex parser (pairs of hex digits, any whitespace between them;
 malformed or odd-length text halts with code 5) is kept for that fixture.
 
 There is still no real-time keyboard: `machine_key` is the pure input seam a

@@ -36,3 +36,24 @@ does not recognize the two constant definitions. Inlining their Base bodies
 exposes the otherwise intentionally unsupported `U32{Word(...)}` structural
 representation. Authored programs use the equivalent current U32 literals
 `0` and `1` until the Base/compiler seam is fixed.
+
+## Retest on the latest Bend (bendlang/bend source, `bend 2.0.40`)
+
+The original MRE (kept unchanged above, old `assert` syntax) no longer parses,
+and its premise is gone: the latest Base has no `U32.zero` / `U32.one` at all
+(`bend base U32.zero` answers "Base has no U32.zero"; calling it reports
+`expected: a defined name`). U32 literals (`0`, `1`) are the public spelling.
+
+`u32_constant_c_emission_latest.bend` is the current-syntax analogue: the two
+constants are ordinary defs (`0` and `U32.from_nat(1n)`). It does **not**
+reproduce:
+
+```sh
+bend u32_constant_c_emission_latest.bend                 # 1
+bend u32_constant_c_emission_latest.bend -o /tmp/u.c     # C emitted
+bend u32_constant_c_emission_latest.bend -o /tmp/u && /tmp/u     # 1
+bend u32_constant_c_emission_latest.bend -o /tmp/u.js && bun /tmp/u.js  # 1
+```
+
+No `tocl: a structural view of a machine word` error occurs; the issue is
+resolved (by removal of the two Base constants) and needs no bug report.

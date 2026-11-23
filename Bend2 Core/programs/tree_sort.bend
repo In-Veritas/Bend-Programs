@@ -53,5 +53,17 @@ def input() -> List<&2, U32>:
 def expected() -> List<&2, U32>:
   Con{1, Con{3, Con{7, Con{10, Con{19, Con{24, Con{42, Con{56, Con{61, Con{88, Nil{}}}}}}}}}}}
 
-def main() -> Bool:
+def main_value() -> Bool:
   list_eq(inorder(from_list(input()), Nil{}), expected())
+
+# The executable entry prints the pure self-check, so `bend FILE`, a native
+# build and the JS build all report True{} through the same IO path.
+def main_show_bool(value: Bool) -> IO(Unit):
+  match value:
+    case False{}:
+      IO.print("False{}")
+    case True{}:
+      IO.print("True{}")
+
+def main() -> IO(Unit):
+  main_show_bool(main_value())

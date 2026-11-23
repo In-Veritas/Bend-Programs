@@ -34,5 +34,17 @@ def champion(tree: Bracket) -> U32:
       a b = champion(left) champion(right)
       winner(a, b)
 
-def main() -> Bool:
+def main_value() -> Bool:
   U32.is_eq(champion(seed(6n, 42)), 995)
+
+# The executable entry prints the pure self-check, so `bend FILE`, a native
+# build and the JS build all report True{} through the same IO path.
+def main_show_bool(value: Bool) -> IO(Unit):
+  match value:
+    case False{}:
+      IO.print("False{}")
+    case True{}:
+      IO.print("True{}")
+
+def main() -> IO(Unit):
+  main_show_bool(main_value())

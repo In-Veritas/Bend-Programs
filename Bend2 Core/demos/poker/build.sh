@@ -2,7 +2,7 @@
 # Build poker_data.js, the browser artifact of poker.bend, with Bend 2.0.40.
 #
 # `bend poker.bend -o X.mjs` emits an ES module whose default export holds
-# every non-IO def. The viewer (and the BendJogos hub) load the result as a
+# every non-IO def (the IO `main` is not exported). The viewer (and the BendJogos hub) load the result as a
 # classic <script>, so the module's single `export default {` is turned into a
 # local binding inside an IIFE and only the evaluated report is published as
 # the browser global BEND2_POKER_DATA. Nothing else in the emitted code changes.
@@ -10,7 +10,7 @@ set -eu
 cd "$(dirname "$0")"
 name=poker
 global=BEND2_POKER_DATA
-meta="{ compiler: 'Bend 2.0.40', source: '$name.bend', deterministic: true }"
+meta="{ compiler: 'Bend 2.0.40 (latest source)', source: '$name.bend', deterministic: true }"
 
 tmp="$(mktemp -d "${TMPDIR:-/tmp}/bend-$name.XXXXXX")"
 trap 'rm -rf "$tmp"' EXIT
@@ -28,7 +28,7 @@ fi
   echo "(() => {"
   sed 's/export default {/const bend_exports = {/' "$tmp/$name.mjs"
   echo
-  echo "globalThis.$global = bend_exports.main();"
+  echo "globalThis.$global = bend_exports.main_value();"
   echo "globalThis.${global%_DATA}_META = Object.freeze($meta);"
   echo "})();"
 } > "${name}_data.js"

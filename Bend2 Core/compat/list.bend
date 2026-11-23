@@ -1,27 +1,17 @@
 import Base
 
-# Compatibility for the two structural List operations pruned from the
-# upstream launch-sized Base library. Programs import this file as List.
+# Compatibility for the two structural List operations that the old
+# bend2-core Base lacked. Programs import this file as List.
+# Ported to the latest Bend (bendlang/bend): `assert`+`def` pairs became typed defs.
 
-assert length:
-  forall -A: Type
-  forall values: List<A>
-  Nat
-
-def length(A, values):
+def length(-A: Type, values: List<A>) -> Nat:
   match values:
     case Nil{}:
       0n
     case Con{head, tail}:
       1n+length(A, tail)
 
-assert append:
-  forall -A: Type
-  forall left: List<A>
-  forall right: List<A>
-  List<A>
-
-def append(A, left, right):
+def append(-A: Type, left: List<A>, right: List<A>) -> List<A>:
   match left:
     case Nil{}:
       right

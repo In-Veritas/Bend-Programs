@@ -20,7 +20,7 @@ def isqrt(n: U32) -> U32:
 def test(n: U32, expected: U32) -> Bool:
   U32.is_eq(isqrt(n), expected)
 
-def main() -> Bool:
+def main_value() -> Bool:
   t0 = test(0, 0)
   t1 = test(1, 1)
   t2 = test(99, 9)
@@ -30,3 +30,15 @@ def main() -> Bool:
   root_max = U32.sub(U32.shln(1, 16n), 1)
   t5 = test(max, root_max)
   Bool.and(Bool.and(Bool.and(t0, t1), Bool.and(t2, t3)), Bool.and(t4, t5))
+
+# The executable entry prints the pure self-check, so `bend FILE`, a native
+# build and the JS build all report True{} through the same IO path.
+def main_show_bool(value: Bool) -> IO(Unit):
+  match value:
+    case False{}:
+      IO.print("False{}")
+    case True{}:
+      IO.print("True{}")
+
+def main() -> IO(Unit):
+  main_show_bool(main_value())

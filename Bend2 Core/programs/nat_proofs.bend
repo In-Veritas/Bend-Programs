@@ -3,7 +3,7 @@ import Base
 # GNat. Each `law` states a claim for every input; the `def` of the same name
 # proves it by case analysis (refl), the recursive call (the induction
 # hypothesis), and `%e : P` rewrites. `bend nat_proofs.bend` prints ALL
-# PROOFS CHECK only when every law holds; main then instantiates add_n_z.
+# PROOFS CHECK only when every law holds; main_value instantiates add_n_z.
 
 type GNat is Data:
   Z{}
@@ -73,5 +73,14 @@ def add_comm(n, m):
       %add_comm(k, m) : {S{add(k, m)} == S{_} : GNat}
       {==}
 
-def main() -> {add(S{Z{}}, Z{}) == S{Z{}} : GNat}:
+# main_value instantiates add_n_z; main only accepts that (erased) proof and
+# prints "-", as in the owner's Core version: the proofs are the content, and
+# `bend nat_proofs.bend --check-only` is the gate.
+def main_value() -> {add(S{Z{}}, Z{}) == S{Z{}} : GNat}:
   add_n_z(S{Z{}})
+
+def main_accept_proof(-value: {add(S{Z{}}, Z{}) == S{Z{}} : GNat}) -> IO(Unit):
+  IO.print("-")
+
+def main() -> IO(Unit):
+  main_accept_proof(main_value())

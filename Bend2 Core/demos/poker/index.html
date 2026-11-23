@@ -44,7 +44,16 @@
     .meter i { display:block; height:100%; background:linear-gradient(90deg,#db9d3e,#ffde76); }
     .categories { display:grid; grid-template-columns:1fr auto; gap:2px 8px; font-size:12px; }
     footer { margin:14px 0 4px; color:var(--muted); text-align:center; font-size:12px; }.runtime-toggle{position:fixed;right:14px;bottom:14px;z-index:20;padding:9px 12px;border:1px solid #a88b48;border-radius:10px;background:#0b2925ee;box-shadow:0 8px 24px #0008;color:var(--gold);font-weight:800;text-decoration:none}
-    @media (max-width:800px) { .players,.odds-grid { grid-template-columns:repeat(2,1fr); } .table { border-radius:30px; } }
+    .proof-audit { margin-top:16px; padding:16px; border:1px solid #a88b48; border-radius:12px; background:#0b2925; }
+    .proof-head { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .proof-head h2 { margin:0; color:var(--gold); font:700 18px Georgia,serif; }
+    .proof-count { padding:4px 8px; border-radius:999px; background:#153d36; color:var(--gold); font-size:12px; }
+    .proof-scope,.proof-limit { color:var(--muted); }
+    .proof-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin:12px 0; }
+    .proof-item { padding:10px; border-left:3px solid #60b98a; border-radius:6px; background:#071c1a; }
+    .proof-item b { display:block; margin-bottom:3px; color:#8ee0af; }
+    .proof-limit { margin:0; font-size:12px; }
+    @media (max-width:800px) { .players,.odds-grid { grid-template-columns:repeat(2,1fr); } .proof-grid { grid-template-columns:1fr; } .table { border-radius:30px; } }
     @media (max-width:480px) { .players,.odds-grid { grid-template-columns:1fr; } header { flex-wrap:wrap; } header label { margin-left:0; } }
   </style>
 </head>
@@ -66,6 +75,16 @@
       <span class="step-count" id="counter"></span><label>Speed <input id="speed" type="range" min="350" max="2600" value="1200" step="50"></label>
     </div>
     <section class="odds-grid" id="odds"></section>
+    <section class="proof-audit">
+      <div class="proof-head"><h2 id="proof-title"></h2><span class="proof-count" id="proof-count"></span></div>
+      <p class="proof-scope" id="proof-scope"></p>
+      <div class="proof-grid">
+        <article class="proof-item"><b>Finite outcome witnesses</b><span id="proof-fairness"></span></article>
+        <article class="proof-item"><b>Seat-coverage certificates</b><span id="proof-unrigged"></span></article>
+        <article class="proof-item"><b>Table certificates</b><span id="proof-odds"></span></article>
+      </div>
+      <p class="proof-limit" id="proof-limit"></p>
+    </section>
     <footer>All deals, actions, stacks, pots and estimates above are returned by <code>poker.bend</code>. JavaScript only decodes, schedules and renders that immutable report.</footer>
   </main>
   <script src="poker_data.js"></script>
@@ -78,8 +97,13 @@
       const player = p => ({ seat:p.seat,name:p.name,personality:p.personality,active:p.active,stack:p.stack,cards:list(p.cards),best:p.best,odds:odds(p.odds) });
       const step = s => ({ phase:s.phase,note:s.note,actor:s.actor,action:s.action,amount:s.amount,pot:s.pot,board:list(s.board),players:list(s.players).map(player) });
       const timeline = t => ({ variant:t.variant,seed:t.seed,dealer:t.dealer,winner:t.winner,steps:list(t.steps).map(step) });
+      const verificationAudit = p => ({ title:p.title,scope:p.scope,fairness:p.fairness,unrigged:p.unrigged,odds:p.odds,limitation:p.limitation,certifiedCases:p.certified_cases,generalTheorems:p.general_theorems });
       if (!globalThis.BEND2_POKER_DATA || globalThis.BEND2_POKER_DATA.$ !== "PokerReport") throw new Error("Bend2 Core poker artifact missing");
       const games={texas:timeline(BEND2_POKER_DATA.texas),omaha:timeline(BEND2_POKER_DATA.omaha)};
+      const audit=verificationAudit(BEND2_POKER_DATA.verification);
+      $("proof-title").textContent=audit.title; $("proof-count").textContent=`${audit.generalTheorems} general theorems · ${audit.certifiedCases} closed certificates`;
+      $("proof-scope").textContent=audit.scope; $("proof-fairness").textContent=audit.fairness;
+      $("proof-unrigged").textContent=audit.unrigged; $("proof-odds").textContent=audit.odds; $("proof-limit").textContent=audit.limitation;
       const ranks="23456789TJQKA", suits=["♣","♦","♥","♠"];
       let mode="texas", at=0, timer=0;
       const card = id => { const rank=ranks[id%13], suit=suits[Math.floor(id/13)], red=suit==="♦"||suit==="♥"; return `<div class="card ${red?"red":""}">${rank}<br>${suit}</div>`; };
@@ -97,7 +121,7 @@
       function play(){ if(timer){stop();return;} $("play").textContent="Ⅱ Pause"; timer=setInterval(()=>{const n=games[mode].steps.length;if(at+1>=n){stop();return;}at++;render();},Number($("speed").value)); }
       $("variant").onchange=e=>{stop();mode=e.target.value;at=0;render();}; $("first").onclick=()=>{stop();at=0;render();}; $("prev").onclick=()=>{stop();at=Math.max(0,at-1);render();}; $("next").onclick=()=>{stop();at=Math.min(games[mode].steps.length-1,at+1);render();}; $("play").onclick=play; $("speed").onchange=()=>{if(timer){stop();play();}};
       render();
-      globalThis.BEND2_POKER_VIEWER={games,render,select(value){mode=value;at=0;$("variant").value=value;render();}};
+      globalThis.BEND2_POKER_VIEWER={games,audit,render,select(value){mode=value;at=0;$("variant").value=value;render();}};
     })();
   </script>
 </body>

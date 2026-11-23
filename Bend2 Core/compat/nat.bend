@@ -1,21 +1,11 @@
 import Base
 
-# Compatibility for small Nat projections pruned from the upstream Base
-# library. Programs import this file as Nat.
+# Compatibility for small Nat projections that the old bend2-core Base lacked.
+# Programs import this file as Nat.
+# Ported to the latest Bend (bendlang/bend): `assert`+`def` pairs became typed defs.
 
-assert mod:
-  forall dividend: Nat
-  forall divisor: Nat
-  Nat
+def mod(dividend: Nat, divisor: Nat) -> Nat:
+  Nat.mod(dividend, divisor)
 
-def mod(dividend, divisor):
-  (quotient, remainder) = Nat.divmod(dividend, divisor)
-  remainder
-
-assert is_eq:
-  forall left: Nat
-  forall right: Nat
-  Bool
-
-def is_eq(left, right):
-  Cmp.is_eq(Nat.cmp(left, right))
+def is_eq(left: Nat, right: Nat) -> Bool:
+  Nat.is_eq(left, right)

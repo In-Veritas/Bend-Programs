@@ -172,6 +172,19 @@ function io_eff(k, run) {
   }
   $0eff[k] = run;
 }
+(() => {
+// IO
+// ==
+
+function io_print(text) {
+  io_std(io_bytes(text + "\n"));
+  return { $: "Unit" };
+}
+
+io_eff("IO.print", io_print);
+
+})();
+
 // Program
 // =======
 
@@ -441,13 +454,35 @@ function $play_step(_index_0) {
   return $play_step_at(_index_0, $$phase_info(_index_0), $$points(nat_chk(_index_0 + 1)));
 }
 
-function $play_steps_go(_fuel_0, _index_0, _rest_0) {
+function $play_indices_go(_fuel_0, _index_0) {
   if (_fuel_0 == 0) {
-    return _rest_0;
+    return {$: "Nil"};
   } else {
     const _pred_0 = (_fuel_0 - 1);
-    return {$: "Con", "head": $$play_step(_index_0), "tail": $$play_steps_go(_pred_0, nat_chk(_index_0 + 1), _rest_0)};
+    return {$: "Con", "head": _index_0, "tail": $$play_indices_go(_pred_0, nat_chk(_index_0 + 1))};
   }
+}
+
+function $play_steps_from_indices(_indices_0) {
+  if (_indices_0.$ === "Nil") {
+    return {$: "Nil"};
+  } else {
+    const _index_0 = _indices_0["head"];
+    const _tail_0 = _indices_0["tail"];
+    return {$: "Con", "head": $$play_step(_index_0), "tail": $$play_steps_from_indices(_tail_0)};
+  }
+}
+
+function $play_steps_from_indices_length_theorem(_indices_0) {
+  if (_indices_0.$ === "Nil") {
+    return null;
+  } else {
+    return null;
+  }
+}
+
+function $play_steps() {
+  return $play_steps_from_indices($$play_indices_go(32, 0));
 }
 
 function $bidding_steps() {
@@ -459,7 +494,7 @@ function $outcome_steps() {
 }
 
 function $all_steps() {
-  return $List_append($$bidding_steps(), $$play_steps_go(32, 0, $$outcome_steps()));
+  return $List_append($$List_append($$bidding_steps(), $$play_steps()), $$outcome_steps());
 }
 
 function $card_suit(_card_0) {
@@ -529,6 +564,275 @@ function $trump_strength(_card_0) {
   return $trump_strength_of((_x_0 ));
 }
 
+function $deck_seen_before(_fuel_0, _index_0, _card_0) {
+  if (_fuel_0 == 0) {
+    return false;
+  } else {
+    const _pred_0 = (_fuel_0 - 1);
+    const _x_0 = $$deck_card(_index_0);
+    const _x_1 = (_card_0 === _x_0);
+    const _x_2 = $$deck_seen_before(_pred_0, nat_chk(_index_0 + 1), _card_0);
+    return (_x_1 || _x_2);
+  }
+}
+
+function $deck_card_valid(_index_0) {
+  const _card_0 = $$deck_card(_index_0);
+  return $Bool_and((_card_0 < 32), $$Bool_not($$deck_seen_before(_index_0, 0, _card_0)));
+}
+
+function $card_in_hand(_cards_0, _card_0) {
+  if (_cards_0.$ === "Nil") {
+    return false;
+  } else {
+    const _head_0 = _cards_0["head"];
+    const _tail_0 = _cards_0["tail"];
+    const _x_0 = (_head_0 === _card_0);
+    const _x_1 = $$card_in_hand(_tail_0, _card_0);
+    return (_x_0 || _x_1);
+  }
+}
+
+function $current_hand(_index_0) {
+  const _x_0 = $$play_actor(_index_0);
+  return $remaining_hand((_x_0 ), _index_0);
+}
+
+function $play_owned(_index_0) {
+  return $card_in_hand($$current_hand(_index_0), $$play_card(_index_0));
+}
+
+function $table_before(_index_0) {
+  const _x_0 = $$u32($$div4(_index_0));
+  const _x_1 = (Math.imul(_x_0, 4) >>> 0);
+  return $table_go($$mod4(_index_0), (_x_1 ));
+}
+
+function $card_strength(_card_0) {
+  const _x_0 = $$card_suit(_card_0);
+  return $Bool_pick((_x_0 === 2), $$trump_strength(_card_0), (8 === 0 ? _card_0 : _card_0 % 8));
+}
+
+function $card_beats_go(_candidate_trump_0, _current_trump_0, _same_suit_0, _higher_0) {
+  if (_candidate_trump_0) {
+    if (!_current_trump_0) {
+      return true;
+    } else {
+      return _higher_0;
+    }
+  } else {
+    if (_current_trump_0) {
+      return false;
+    } else {
+      return $Bool_and(_same_suit_0, _higher_0);
+    }
+  }
+}
+
+function $card_beats(_candidate_0, _current_0) {
+  const _candidate_suit_0 = $$card_suit(_candidate_0);
+  const _current_suit_0 = $$card_suit(_current_0);
+  const _x_0 = $$card_strength(_candidate_0);
+  const _x_1 = $$card_strength(_current_0);
+  return $card_beats_go((_candidate_suit_0 === 2), (_current_suit_0 === 2), (_candidate_suit_0 === _current_suit_0), (_x_0 > _x_1));
+}
+
+function $played_card_beats(_candidate_0, _current_0) {
+  const _candidate_card_0 = _candidate_0["card"];
+  const _current_card_0 = _current_0["card"];
+  return $card_beats(_candidate_card_0, _current_card_0);
+}
+
+function $winning_play_go($0, $1) {
+  for (;;) {
+    {
+      const _cards_0 = $0;
+      const _winner_0 = $1;
+      if (_cards_0.$ === "Nil") {
+        return _winner_0;
+      } else {
+        const _head_0 = _cards_0["head"];
+        const _tail_0 = _cards_0["tail"];
+        $0 = _tail_0;
+        $1 = $$Bool_pick($$played_card_beats(_head_0, _winner_0), _head_0, _winner_0);
+        continue;
+      }
+    }
+  }
+}
+
+function $winning_play(_cards_0) {
+  if (_cards_0.$ === "Nil") {
+    return {$: "PlayedCard", "seat": 0, "card": 0};
+  } else {
+    const _head_0 = _cards_0["head"];
+    const _tail_0 = _cards_0["tail"];
+    return $winning_play_go(_tail_0, _head_0);
+  }
+}
+
+function $played_seat(_played_0) {
+  const _seat_0 = _played_0["seat"];
+  return _seat_0;
+}
+
+function $winning_seat(_cards_0) {
+  return $played_seat($$winning_play(_cards_0));
+}
+
+function $u32_max(_a_0, _b_0) {
+  return $Bool_pick((_a_0 > _b_0), _a_0, _b_0);
+}
+
+function $highest_trump_strength_go($0, $1) {
+  for (;;) {
+    {
+      const _cards_0 = $0;
+      const _maximum_0 = $1;
+      if (_cards_0.$ === "Nil") {
+        return _maximum_0;
+      } else {
+        const _t_0 = _cards_0["head"];
+        const _card_0 = _t_0["card"];
+        const _tail_0 = _cards_0["tail"];
+        const _x_0 = $$card_suit(_card_0);
+        $0 = _tail_0;
+        $1 = $$Bool_pick((_x_0 === 2), $$u32_max($$trump_strength(_card_0), _maximum_0), _maximum_0);
+        continue;
+      }
+    }
+  }
+}
+
+function $hand_has_higher_trump(_cards_0, _strength_0) {
+  if (_cards_0.$ === "Nil") {
+    return false;
+  } else {
+    const _head_0 = _cards_0["head"];
+    const _tail_0 = _cards_0["tail"];
+    const _x_0 = $$card_suit(_head_0);
+    const _x_1 = $$trump_strength(_head_0);
+    const _x_2 = $$Bool_and((_x_0 === 2), (_x_1 > _strength_0));
+    const _x_3 = $$hand_has_higher_trump(_tail_0, _strength_0);
+    return (_x_2 || _x_3);
+  }
+}
+
+function $table_is_empty(_cards_0) {
+  if (_cards_0.$ === "Nil") {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+function $table_led_suit(_cards_0) {
+  if (_cards_0.$ === "Nil") {
+    return 0;
+  } else {
+    const _t_0 = _cards_0["head"];
+    const _card_0 = _t_0["card"];
+    return $card_suit(_card_0);
+  }
+}
+
+function $play_is_leading(_index_0) {
+  return $table_is_empty($$table_before(_index_0));
+}
+
+function $play_led_suit(_index_0) {
+  return $table_led_suit($$table_before(_index_0));
+}
+
+function $play_has_led_suit(_index_0) {
+  return $has_suit($$current_hand(_index_0), $$play_led_suit(_index_0));
+}
+
+function $play_led_is_trump(_index_0) {
+  const _x_0 = $$play_led_suit(_index_0);
+  return (_x_0 === 2);
+}
+
+function $play_has_trump(_index_0) {
+  return $has_suit($$current_hand(_index_0), 2);
+}
+
+function $play_highest_trump(_index_0) {
+  return $highest_trump_strength_go($$table_before(_index_0), 0);
+}
+
+function $play_has_higher_trump(_index_0) {
+  return $hand_has_higher_trump($$current_hand(_index_0), $$play_highest_trump(_index_0));
+}
+
+function $play_card_matches_led(_index_0) {
+  const _x_0 = $$card_suit($$play_card(_index_0));
+  const _x_1 = $$play_led_suit(_index_0);
+  return (_x_0 === _x_1);
+}
+
+function $play_card_is_trump(_index_0) {
+  const _x_0 = $$card_suit($$play_card(_index_0));
+  return (_x_0 === 2);
+}
+
+function $play_card_overtrumps(_index_0) {
+  const _x_0 = $$trump_strength($$play_card(_index_0));
+  const _x_1 = $$play_highest_trump(_index_0);
+  return (_x_0 > _x_1);
+}
+
+function $play_partner_winning(_index_0) {
+  const _x_0 = $$play_actor(_index_0);
+  const _x_1 = ((_x_0 + 2) >>> 0);
+  const _partner_0 = (4 === 0 ? _x_1 : _x_1 % 4);
+  const _x_2 = $$winning_seat($$table_before(_index_0));
+  return (_x_2 === _partner_0);
+}
+
+function $play_follows_suit(_index_0) {
+  const _x_0 = $$play_is_leading(_index_0);
+  const _x_1 = $$Bool_not($$play_has_led_suit(_index_0));
+  const _x_2 = (_x_0 || _x_1);
+  const _x_3 = $$play_card_matches_led(_index_0);
+  return (_x_2 || _x_3);
+}
+
+function $play_rises(_index_0) {
+  const _x_0 = $$Bool_not($$play_has_higher_trump(_index_0));
+  const _x_1 = $$play_card_overtrumps(_index_0);
+  return (_x_0 || _x_1);
+}
+
+function $play_trump_rule(_index_0) {
+  const _leading_0 = $$play_is_leading(_index_0);
+  const _has_led_0 = $$play_has_led_suit(_index_0);
+  const _x_0 = $$Bool_not($$play_led_is_trump(_index_0));
+  const _x_1 = $$play_rises(_index_0);
+  const _following_0 = $$Bool_and(_has_led_0, (_x_0 || _x_1));
+  const _x_2 = $$play_partner_winning(_index_0);
+  const _x_3 = $$Bool_not($$play_has_trump(_index_0));
+  const _x_4 = (_x_2 || _x_3);
+  const _x_5 = $$Bool_and($$play_card_is_trump(_index_0), $$play_rises(_index_0));
+  const _void_0 = $$Bool_and($$Bool_not(_has_led_0), (_x_4 || _x_5));
+  const _x_6 = (_leading_0 || _following_0);
+  return (_x_6 || _void_0);
+}
+
+function $play_legal(_index_0) {
+  return $Bool_and($$Bool_and($$play_owned(_index_0), $$play_follows_suit(_index_0)), $$play_trump_rule(_index_0));
+}
+
+function $trick_table(_trick_0) {
+  const _x_0 = $$u32(_trick_0);
+  const _x_1 = (Math.imul(_x_0, 4) >>> 0);
+  return $table_go(4, (_x_1 ));
+}
+
+function $trick_winner(_trick_0) {
+  return $winning_seat($$trick_table(_trick_0));
+}
+
 function $rules_valid() {
   const _cut_void_0 = $$Bool_not($$has_suit($$remaining_hand(1, 9), 0));
   const _overtrump_void_0 = $$Bool_not($$has_suit($$remaining_hand(2, 10), 0));
@@ -554,8 +858,424 @@ function $rules_valid() {
   return $Bool_and($$Bool_and($$Bool_and($$Bool_and($$Bool_and($$Bool_and($$Bool_and(_cut_void_0, _overtrump_void_0), _cut_0), _overtrump_0), _last_0), _total_0), _made_0), _tricks_0);
 }
 
-function $main() {
-  return {$: "BeloteReport", "seed": 1, "dealer": 3, "taker": 1, "trump": 2, "valid": $$rules_valid(), "card_points_ns": 47, "card_points_ew": 115, "score_ns": 47, "score_ew": 115, "outcome": "Contract made: East-West win the hand 115 to 47.", "steps": $$all_steps()};
+function $check_seat_index(_seat_0) {
+  if (_seat_0.$ === "BSeat0") {
+    return 0;
+  } else if (_seat_0.$ === "BSeat1") {
+    return 1;
+  } else if (_seat_0.$ === "BSeat2") {
+    return 2;
+  } else {
+    return 3;
+  }
+}
+
+function $check_trick_index(_trick_0) {
+  if (_trick_0.$ === "BTrick0") {
+    return 0;
+  } else if (_trick_0.$ === "BTrick1") {
+    return 1;
+  } else if (_trick_0.$ === "BTrick2") {
+    return 2;
+  } else if (_trick_0.$ === "BTrick3") {
+    return 3;
+  } else if (_trick_0.$ === "BTrick4") {
+    return 4;
+  } else if (_trick_0.$ === "BTrick5") {
+    return 5;
+  } else if (_trick_0.$ === "BTrick6") {
+    return 6;
+  } else {
+    return 7;
+  }
+}
+
+function $check_play_index(_play_0) {
+  if (_play_0.$ === "BPlay00") {
+    return 0;
+  } else if (_play_0.$ === "BPlay01") {
+    return 1;
+  } else if (_play_0.$ === "BPlay02") {
+    return 2;
+  } else if (_play_0.$ === "BPlay03") {
+    return 3;
+  } else if (_play_0.$ === "BPlay04") {
+    return 4;
+  } else if (_play_0.$ === "BPlay05") {
+    return 5;
+  } else if (_play_0.$ === "BPlay06") {
+    return 6;
+  } else if (_play_0.$ === "BPlay07") {
+    return 7;
+  } else if (_play_0.$ === "BPlay08") {
+    return 8;
+  } else if (_play_0.$ === "BPlay09") {
+    return 9;
+  } else if (_play_0.$ === "BPlay10") {
+    return 10;
+  } else if (_play_0.$ === "BPlay11") {
+    return 11;
+  } else if (_play_0.$ === "BPlay12") {
+    return 12;
+  } else if (_play_0.$ === "BPlay13") {
+    return 13;
+  } else if (_play_0.$ === "BPlay14") {
+    return 14;
+  } else if (_play_0.$ === "BPlay15") {
+    return 15;
+  } else if (_play_0.$ === "BPlay16") {
+    return 16;
+  } else if (_play_0.$ === "BPlay17") {
+    return 17;
+  } else if (_play_0.$ === "BPlay18") {
+    return 18;
+  } else if (_play_0.$ === "BPlay19") {
+    return 19;
+  } else if (_play_0.$ === "BPlay20") {
+    return 20;
+  } else if (_play_0.$ === "BPlay21") {
+    return 21;
+  } else if (_play_0.$ === "BPlay22") {
+    return 22;
+  } else if (_play_0.$ === "BPlay23") {
+    return 23;
+  } else if (_play_0.$ === "BPlay24") {
+    return 24;
+  } else if (_play_0.$ === "BPlay25") {
+    return 25;
+  } else if (_play_0.$ === "BPlay26") {
+    return 26;
+  } else if (_play_0.$ === "BPlay27") {
+    return 27;
+  } else if (_play_0.$ === "BPlay28") {
+    return 28;
+  } else if (_play_0.$ === "BPlay29") {
+    return 29;
+  } else if (_play_0.$ === "BPlay30") {
+    return 30;
+  } else {
+    return 31;
+  }
+}
+
+function $trick_expected_points(_trick_0) {
+  if (_trick_0.$ === "BTrick0") {
+    return 18;
+  } else if (_trick_0.$ === "BTrick1") {
+    return 16;
+  } else if (_trick_0.$ === "BTrick2") {
+    return 13;
+  } else if (_trick_0.$ === "BTrick3") {
+    return 17;
+  } else if (_trick_0.$ === "BTrick4") {
+    return 15;
+  } else if (_trick_0.$ === "BTrick5") {
+    return 17;
+  } else if (_trick_0.$ === "BTrick6") {
+    return 25;
+  } else {
+    return 41;
+  }
+}
+
+function $trick_expected_winner(_trick_0) {
+  if (_trick_0.$ === "BTrick0") {
+    return 0;
+  } else if (_trick_0.$ === "BTrick1") {
+    return 0;
+  } else if (_trick_0.$ === "BTrick2") {
+    return 2;
+  } else if (_trick_0.$ === "BTrick3") {
+    return 3;
+  } else if (_trick_0.$ === "BTrick4") {
+    return 1;
+  } else if (_trick_0.$ === "BTrick5") {
+    return 1;
+  } else if (_trick_0.$ === "BTrick6") {
+    return 1;
+  } else {
+    return 1;
+  }
+}
+
+function $deck_cards_certificate(_play_0) {
+  if (_play_0.$ === "BPlay00") {
+    return null;
+  } else if (_play_0.$ === "BPlay01") {
+    return null;
+  } else if (_play_0.$ === "BPlay02") {
+    return null;
+  } else if (_play_0.$ === "BPlay03") {
+    return null;
+  } else if (_play_0.$ === "BPlay04") {
+    return null;
+  } else if (_play_0.$ === "BPlay05") {
+    return null;
+  } else if (_play_0.$ === "BPlay06") {
+    return null;
+  } else if (_play_0.$ === "BPlay07") {
+    return null;
+  } else if (_play_0.$ === "BPlay08") {
+    return null;
+  } else if (_play_0.$ === "BPlay09") {
+    return null;
+  } else if (_play_0.$ === "BPlay10") {
+    return null;
+  } else if (_play_0.$ === "BPlay11") {
+    return null;
+  } else if (_play_0.$ === "BPlay12") {
+    return null;
+  } else if (_play_0.$ === "BPlay13") {
+    return null;
+  } else if (_play_0.$ === "BPlay14") {
+    return null;
+  } else if (_play_0.$ === "BPlay15") {
+    return null;
+  } else if (_play_0.$ === "BPlay16") {
+    return null;
+  } else if (_play_0.$ === "BPlay17") {
+    return null;
+  } else if (_play_0.$ === "BPlay18") {
+    return null;
+  } else if (_play_0.$ === "BPlay19") {
+    return null;
+  } else if (_play_0.$ === "BPlay20") {
+    return null;
+  } else if (_play_0.$ === "BPlay21") {
+    return null;
+  } else if (_play_0.$ === "BPlay22") {
+    return null;
+  } else if (_play_0.$ === "BPlay23") {
+    return null;
+  } else if (_play_0.$ === "BPlay24") {
+    return null;
+  } else if (_play_0.$ === "BPlay25") {
+    return null;
+  } else if (_play_0.$ === "BPlay26") {
+    return null;
+  } else if (_play_0.$ === "BPlay27") {
+    return null;
+  } else if (_play_0.$ === "BPlay28") {
+    return null;
+  } else if (_play_0.$ === "BPlay29") {
+    return null;
+  } else if (_play_0.$ === "BPlay30") {
+    return null;
+  } else {
+    return null;
+  }
+}
+
+function $hand_size_certificate(_seat_0) {
+  if (_seat_0.$ === "BSeat0") {
+    return null;
+  } else if (_seat_0.$ === "BSeat1") {
+    return null;
+  } else if (_seat_0.$ === "BSeat2") {
+    return null;
+  } else {
+    return null;
+  }
+}
+
+function $play_owned_certificate(_play_0) {
+  if (_play_0.$ === "BPlay00") {
+    return null;
+  } else if (_play_0.$ === "BPlay01") {
+    return null;
+  } else if (_play_0.$ === "BPlay02") {
+    return null;
+  } else if (_play_0.$ === "BPlay03") {
+    return null;
+  } else if (_play_0.$ === "BPlay04") {
+    return null;
+  } else if (_play_0.$ === "BPlay05") {
+    return null;
+  } else if (_play_0.$ === "BPlay06") {
+    return null;
+  } else if (_play_0.$ === "BPlay07") {
+    return null;
+  } else if (_play_0.$ === "BPlay08") {
+    return null;
+  } else if (_play_0.$ === "BPlay09") {
+    return null;
+  } else if (_play_0.$ === "BPlay10") {
+    return null;
+  } else if (_play_0.$ === "BPlay11") {
+    return null;
+  } else if (_play_0.$ === "BPlay12") {
+    return null;
+  } else if (_play_0.$ === "BPlay13") {
+    return null;
+  } else if (_play_0.$ === "BPlay14") {
+    return null;
+  } else if (_play_0.$ === "BPlay15") {
+    return null;
+  } else if (_play_0.$ === "BPlay16") {
+    return null;
+  } else if (_play_0.$ === "BPlay17") {
+    return null;
+  } else if (_play_0.$ === "BPlay18") {
+    return null;
+  } else if (_play_0.$ === "BPlay19") {
+    return null;
+  } else if (_play_0.$ === "BPlay20") {
+    return null;
+  } else if (_play_0.$ === "BPlay21") {
+    return null;
+  } else if (_play_0.$ === "BPlay22") {
+    return null;
+  } else if (_play_0.$ === "BPlay23") {
+    return null;
+  } else if (_play_0.$ === "BPlay24") {
+    return null;
+  } else if (_play_0.$ === "BPlay25") {
+    return null;
+  } else if (_play_0.$ === "BPlay26") {
+    return null;
+  } else if (_play_0.$ === "BPlay27") {
+    return null;
+  } else if (_play_0.$ === "BPlay28") {
+    return null;
+  } else if (_play_0.$ === "BPlay29") {
+    return null;
+  } else if (_play_0.$ === "BPlay30") {
+    return null;
+  } else {
+    return null;
+  }
+}
+
+function $play_legal_certificate(_play_0) {
+  if (_play_0.$ === "BPlay00") {
+    return null;
+  } else if (_play_0.$ === "BPlay01") {
+    return null;
+  } else if (_play_0.$ === "BPlay02") {
+    return null;
+  } else if (_play_0.$ === "BPlay03") {
+    return null;
+  } else if (_play_0.$ === "BPlay04") {
+    return null;
+  } else if (_play_0.$ === "BPlay05") {
+    return null;
+  } else if (_play_0.$ === "BPlay06") {
+    return null;
+  } else if (_play_0.$ === "BPlay07") {
+    return null;
+  } else if (_play_0.$ === "BPlay08") {
+    return null;
+  } else if (_play_0.$ === "BPlay09") {
+    return null;
+  } else if (_play_0.$ === "BPlay10") {
+    return null;
+  } else if (_play_0.$ === "BPlay11") {
+    return null;
+  } else if (_play_0.$ === "BPlay12") {
+    return null;
+  } else if (_play_0.$ === "BPlay13") {
+    return null;
+  } else if (_play_0.$ === "BPlay14") {
+    return null;
+  } else if (_play_0.$ === "BPlay15") {
+    return null;
+  } else if (_play_0.$ === "BPlay16") {
+    return null;
+  } else if (_play_0.$ === "BPlay17") {
+    return null;
+  } else if (_play_0.$ === "BPlay18") {
+    return null;
+  } else if (_play_0.$ === "BPlay19") {
+    return null;
+  } else if (_play_0.$ === "BPlay20") {
+    return null;
+  } else if (_play_0.$ === "BPlay21") {
+    return null;
+  } else if (_play_0.$ === "BPlay22") {
+    return null;
+  } else if (_play_0.$ === "BPlay23") {
+    return null;
+  } else if (_play_0.$ === "BPlay24") {
+    return null;
+  } else if (_play_0.$ === "BPlay25") {
+    return null;
+  } else if (_play_0.$ === "BPlay26") {
+    return null;
+  } else if (_play_0.$ === "BPlay27") {
+    return null;
+  } else if (_play_0.$ === "BPlay28") {
+    return null;
+  } else if (_play_0.$ === "BPlay29") {
+    return null;
+  } else if (_play_0.$ === "BPlay30") {
+    return null;
+  } else {
+    return null;
+  }
+}
+
+function $trick_points_certificate(_trick_0) {
+  if (_trick_0.$ === "BTrick0") {
+    return null;
+  } else if (_trick_0.$ === "BTrick1") {
+    return null;
+  } else if (_trick_0.$ === "BTrick2") {
+    return null;
+  } else if (_trick_0.$ === "BTrick3") {
+    return null;
+  } else if (_trick_0.$ === "BTrick4") {
+    return null;
+  } else if (_trick_0.$ === "BTrick5") {
+    return null;
+  } else if (_trick_0.$ === "BTrick6") {
+    return null;
+  } else {
+    return null;
+  }
+}
+
+function $trick_winner_certificate(_trick_0) {
+  if (_trick_0.$ === "BTrick0") {
+    return null;
+  } else if (_trick_0.$ === "BTrick1") {
+    return null;
+  } else if (_trick_0.$ === "BTrick2") {
+    return null;
+  } else if (_trick_0.$ === "BTrick3") {
+    return null;
+  } else if (_trick_0.$ === "BTrick4") {
+    return null;
+  } else if (_trick_0.$ === "BTrick5") {
+    return null;
+  } else if (_trick_0.$ === "BTrick6") {
+    return null;
+  } else {
+    return null;
+  }
+}
+
+function $score_total_certificate() {
+  return null;
+}
+
+function $report_length_certificate() {
+  return null;
+}
+
+function $rules_valid_certificate() {
+  return null;
+}
+
+function $verification_audit() {
+  return {$: "BeloteVerificationAudit", "title": "Machine-checked Belote conservation proof and trace audit", "scope": "A multi-lemma semantic proof covers every finite card-movement history; one smaller mapping lemma and closed certificates cover the observer trace.", "deck": "Certificates check that the deal is an in-range permutation and every hand has eight cards.", "legality": "Certificates check ownership, follow-suit, cut, trump-rise, partner and overtrump decisions in all 32 plays.", "scoring": "Certificates check all trick winners and points, the 162-point total, and all 36 snapshots.", "limitation": "The semantic summit preserves every card identity and printed point value through arbitrary deals, plays, and trick collections. Contract bonuses are outside that invariant; the 119 trace certificates do not generalize to every deal.", "certified_cases": 119, "general_theorems": 4};
+}
+
+function $main_value() {
+  return {$: "BeloteReport", "seed": 1, "dealer": 3, "taker": 1, "trump": 2, "valid": $$rules_valid(), "card_points_ns": 47, "card_points_ew": 115, "score_ns": 47, "score_ew": 115, "outcome": "Contract made: East-West win the hand 115 to 47.", "steps": $$all_steps(), "verification": $$verification_audit()};
+}
+
+function $main_accept_value(_value_0) {
+  return (_x_0) => $IO_print("Ready{}", _x_0);
 }
 
 function $List_append(_xs_0, _ys_0) {
@@ -580,6 +1300,14 @@ function $Nat_is_eq(_a_0, _b_0) {
   return $Cmp_is_eq(cmp_new(_a_0, _b_0));
 }
 
+function $Bool_and(_a_0, _b_0) {
+  if (!_a_0) {
+    return false;
+  } else {
+    return _b_0;
+  }
+}
+
 function $Bool_not(_b_0) {
   if (!_b_0) {
     return true;
@@ -588,12 +1316,8 @@ function $Bool_not(_b_0) {
   }
 }
 
-function $Bool_and(_a_0, _b_0) {
-  if (!_a_0) {
-    return false;
-  } else {
-    return _b_0;
-  }
+function $IO_print(_text_0, _k_0) {
+  return { $: "IO.print", args: [str_out(_text_0)], kont: (x) => _k_0(x) };
 }
 
 function $Cmp_is_eq(_c_0) {
@@ -624,9 +1348,12 @@ const $$players = $players;
 const $$table = $table;
 const $$phase_info = $phase_info;
 const $$points = $points;
+const $$play_indices_go = $play_indices_go;
 const $$play_step = $play_step;
-const $$play_steps_go = $play_steps_go;
+const $$play_steps_from_indices = $play_steps_from_indices;
 const $$bidding_steps = $bidding_steps;
+const $$play_steps = $play_steps;
+const $$List_append = $List_append;
 const $$outcome_steps = $outcome_steps;
 const $$Nat_is_eq = $Nat_is_eq;
 const $$card_suit = $card_suit;
@@ -634,13 +1361,39 @@ const $$card_points = $card_points;
 const $$sum_four = $sum_four;
 const $$Bool_pick = $Bool_pick;
 const $$has_suit = $has_suit;
+const $$deck_seen_before = $deck_seen_before;
 const $$Bool_not = $Bool_not;
+const $$card_in_hand = $card_in_hand;
+const $$current_hand = $current_hand;
 const $$trump_strength = $trump_strength;
-const $$trick_points = $trick_points;
+const $$card_strength = $card_strength;
+const $$played_card_beats = $played_card_beats;
+const $$winning_play = $winning_play;
+const $$u32_max = $u32_max;
 const $$Bool_and = $Bool_and;
+const $$hand_has_higher_trump = $hand_has_higher_trump;
+const $$table_before = $table_before;
+const $$play_led_suit = $play_led_suit;
+const $$play_highest_trump = $play_highest_trump;
+const $$winning_seat = $winning_seat;
+const $$play_is_leading = $play_is_leading;
+const $$play_has_led_suit = $play_has_led_suit;
+const $$play_card_matches_led = $play_card_matches_led;
+const $$play_has_higher_trump = $play_has_higher_trump;
+const $$play_card_overtrumps = $play_card_overtrumps;
+const $$play_led_is_trump = $play_led_is_trump;
+const $$play_rises = $play_rises;
+const $$play_partner_winning = $play_partner_winning;
+const $$play_has_trump = $play_has_trump;
+const $$play_card_is_trump = $play_card_is_trump;
+const $$play_owned = $play_owned;
+const $$play_follows_suit = $play_follows_suit;
+const $$play_trump_rule = $play_trump_rule;
+const $$trick_table = $trick_table;
+const $$trick_points = $trick_points;
 const $$rules_valid = $rules_valid;
 const $$all_steps = $all_steps;
-const $$List_append = $List_append;
+const $$verification_audit = $verification_audit;
 const TAB_0 = [1, 28, 27, 26, 3, 7, 6, 14, 5, 11, 17, 22, 29, 19, 18, 23, 20, 25, 10, 24, 9, 0, 15, 31, 30, 4, 13, 16, 2, 8, 21, 12];
 const TAB_1 = [7, 5, 0, 4, 14, 11, 9, 13, 6, 17, 20, 2, 24, 30, 28, 29, 12, 3, 22, 10, 23, 25, 21, 27, 18, 31, 16, 26, 19, 15, 8, 1];
 const TAB_2 = [0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 2, 3, 0, 1, 3, 0, 1, 2, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0];
@@ -673,7 +1426,10 @@ const TAB_3 = [0, 1, 6, 7, 2, 3, 4, 5];const bend_exports = {
   "points": run_lib((a0) => run_loop($points(nat_in(a0))), 1),
   "play_step_at": run_lib((a0,a1,a2) => run_loop($play_step_at(nat_in(a0),a1,a2)), 3),
   "play_step": run_lib((a0) => run_loop($play_step(nat_in(a0))), 1),
-  "play_steps_go": run_lib((a0,a1,a2) => run_loop($play_steps_go(nat_in(a0),nat_in(a1),a2)), 3),
+  "play_indices_go": run_lib((a0,a1) => run_loop($play_indices_go(nat_in(a0),nat_in(a1))), 2),
+  "play_steps_from_indices": run_lib((a0) => run_loop($play_steps_from_indices(a0)), 1),
+  "play_steps_from_indices_length_theorem": run_lib((a0) => run_loop($play_steps_from_indices_length_theorem(a0)), 1),
+  "play_steps": run_lib(() => run_loop($play_steps()), 0),
   "bidding_steps": run_lib(() => run_loop($bidding_steps()), 0),
   "outcome_steps": run_lib(() => run_loop($outcome_steps()), 0),
   "all_steps": run_lib(() => run_loop($all_steps()), 0),
@@ -685,10 +1441,62 @@ const TAB_3 = [0, 1, 6, 7, 2, 3, 4, 5];const bend_exports = {
   "has_suit": run_lib((a0,a1) => run_loop($has_suit(a0,a1)), 2),
   "trump_strength_of": run_lib((a0) => run_loop($trump_strength_of(nat_in(a0))), 1),
   "trump_strength": run_lib((a0) => run_loop($trump_strength(a0)), 1),
+  "deck_seen_before": run_lib((a0,a1,a2) => run_loop($deck_seen_before(nat_in(a0),nat_in(a1),a2)), 3),
+  "deck_card_valid": run_lib((a0) => run_loop($deck_card_valid(nat_in(a0))), 1),
+  "card_in_hand": run_lib((a0,a1) => run_loop($card_in_hand(a0,a1)), 2),
+  "current_hand": run_lib((a0) => run_loop($current_hand(nat_in(a0))), 1),
+  "play_owned": run_lib((a0) => run_loop($play_owned(nat_in(a0))), 1),
+  "table_before": run_lib((a0) => run_loop($table_before(nat_in(a0))), 1),
+  "card_strength": run_lib((a0) => run_loop($card_strength(a0)), 1),
+  "card_beats.go": run_lib((a0,a1,a2,a3) => run_loop($card_beats_go(a0,a1,a2,a3)), 4),
+  "card_beats": run_lib((a0,a1) => run_loop($card_beats(a0,a1)), 2),
+  "played_card_beats": run_lib((a0,a1) => run_loop($played_card_beats(a0,a1)), 2),
+  "winning_play_go": run_lib((a0,a1) => run_loop($winning_play_go(a0,a1)), 2),
+  "winning_play": run_lib((a0) => run_loop($winning_play(a0)), 1),
+  "played_seat": run_lib((a0) => run_loop($played_seat(a0)), 1),
+  "winning_seat": run_lib((a0) => run_loop($winning_seat(a0)), 1),
+  "u32_max": run_lib((a0,a1) => run_loop($u32_max(a0,a1)), 2),
+  "highest_trump_strength_go": run_lib((a0,a1) => run_loop($highest_trump_strength_go(a0,a1)), 2),
+  "hand_has_higher_trump": run_lib((a0,a1) => run_loop($hand_has_higher_trump(a0,a1)), 2),
+  "table_is_empty": run_lib((a0) => run_loop($table_is_empty(a0)), 1),
+  "table_led_suit": run_lib((a0) => run_loop($table_led_suit(a0)), 1),
+  "play_is_leading": run_lib((a0) => run_loop($play_is_leading(nat_in(a0))), 1),
+  "play_led_suit": run_lib((a0) => run_loop($play_led_suit(nat_in(a0))), 1),
+  "play_has_led_suit": run_lib((a0) => run_loop($play_has_led_suit(nat_in(a0))), 1),
+  "play_led_is_trump": run_lib((a0) => run_loop($play_led_is_trump(nat_in(a0))), 1),
+  "play_has_trump": run_lib((a0) => run_loop($play_has_trump(nat_in(a0))), 1),
+  "play_highest_trump": run_lib((a0) => run_loop($play_highest_trump(nat_in(a0))), 1),
+  "play_has_higher_trump": run_lib((a0) => run_loop($play_has_higher_trump(nat_in(a0))), 1),
+  "play_card_matches_led": run_lib((a0) => run_loop($play_card_matches_led(nat_in(a0))), 1),
+  "play_card_is_trump": run_lib((a0) => run_loop($play_card_is_trump(nat_in(a0))), 1),
+  "play_card_overtrumps": run_lib((a0) => run_loop($play_card_overtrumps(nat_in(a0))), 1),
+  "play_partner_winning": run_lib((a0) => run_loop($play_partner_winning(nat_in(a0))), 1),
+  "play_follows_suit": run_lib((a0) => run_loop($play_follows_suit(nat_in(a0))), 1),
+  "play_rises": run_lib((a0) => run_loop($play_rises(nat_in(a0))), 1),
+  "play_trump_rule": run_lib((a0) => run_loop($play_trump_rule(nat_in(a0))), 1),
+  "play_legal": run_lib((a0) => run_loop($play_legal(nat_in(a0))), 1),
+  "trick_table": run_lib((a0) => run_loop($trick_table(nat_in(a0))), 1),
+  "trick_winner": run_lib((a0) => run_loop($trick_winner(nat_in(a0))), 1),
   "rules_valid": run_lib(() => run_loop($rules_valid()), 0),
-  "main": run_lib(() => run_loop($main()), 0),
+  "check_seat_index": run_lib((a0) => run_loop($check_seat_index(a0)), 1),
+  "check_trick_index": run_lib((a0) => run_loop($check_trick_index(a0)), 1),
+  "check_play_index": run_lib((a0) => run_loop($check_play_index(a0)), 1),
+  "trick_expected_points": run_lib((a0) => run_loop($trick_expected_points(a0)), 1),
+  "trick_expected_winner": run_lib((a0) => run_loop($trick_expected_winner(a0)), 1),
+  "deck_cards_certificate": run_lib((a0) => run_loop($deck_cards_certificate(a0)), 1),
+  "hand_size_certificate": run_lib((a0) => run_loop($hand_size_certificate(a0)), 1),
+  "play_owned_certificate": run_lib((a0) => run_loop($play_owned_certificate(a0)), 1),
+  "play_legal_certificate": run_lib((a0) => run_loop($play_legal_certificate(a0)), 1),
+  "trick_points_certificate": run_lib((a0) => run_loop($trick_points_certificate(a0)), 1),
+  "trick_winner_certificate": run_lib((a0) => run_loop($trick_winner_certificate(a0)), 1),
+  "score_total_certificate": run_lib(() => run_loop($score_total_certificate()), 0),
+  "report_length_certificate": run_lib(() => run_loop($report_length_certificate()), 0),
+  "rules_valid_certificate": run_lib(() => run_loop($rules_valid_certificate()), 0),
+  "verification_audit": run_lib(() => run_loop($verification_audit()), 0),
+  "main_value": run_lib(() => run_loop($main_value()), 0),
+  "main_accept_value": run_lib((a0) => run_loop($main_accept_value(a0)), 1),
 };
 
-globalThis.BEND2_BELOTE_DATA = bend_exports.main();
+globalThis.BEND2_BELOTE_DATA = bend_exports.main_value();
 globalThis.BEND2_BELOTE_META = Object.freeze({ compiler: 'Bend 2.0.40', source: 'belote.bend', deterministic: true, seed: 1 });
 })();

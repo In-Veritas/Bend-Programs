@@ -1,39 +1,25 @@
+import Base
 import ./poker_proofs.bend as Proof
 
-# Referencing the polymorphic theorem functions makes Core validate their
-# complete bodies.  The values erase before either executable backend runs.
-assert verified:
-  forall -payload: Proof.PokerPayloadConservationClaim()
-  forall -count: Proof.PokerChipCountConservationClaim()
-  forall -value: Proof.PokerChipValueConservationClaim()
-  Bool
-
-def verified(payload, count, value):
+# Referencing the quantified theorem functions makes Bend check their complete
+# bodies against the named public claims.  The erased arguments vanish before
+# either executable backend runs, so the entry only reports True{}.
+def verified(-payload: Proof.PokerPayloadConservationClaim(), -count: Proof.PokerChipCountConservationClaim(), -value: Proof.PokerChipValueConservationClaim()) -> Bool:
   True{}
 
-assert main_value:
-  Bool
-
-def main_value():
+def main_value() -> Bool:
   verified(
     Proof.history_payload_conservation_theorem,
     Proof.history_chip_count_conservation_theorem,
     Proof.history_chip_value_conservation_theorem
   )
 
-assert main_show_bool:
-  forall value: Bool
-  IO(Unit)
-
-def main_show_bool(value):
+def main_show_bool(value: Bool) -> IO(Unit):
   match value:
     case False{}:
       IO.print("False{}")
     case True{}:
       IO.print("True{}")
 
-assert main:
-  IO(Unit)
-
-def main():
-  main_show_bool(main_value!())
+def main() -> IO(Unit):
+  main_show_bool(main_value())

@@ -39,5 +39,17 @@ def valid(tree: NodeTree) -> Bool:
     case tree:
       False{}
 
-def main() -> Bool:
+def main_value() -> Bool:
   valid(port(Node{Node{Leaf{1}, Leaf{2}}, Leaf{3}}))
+
+# The executable entry prints the pure self-check, so `bend FILE`, a native
+# build and the JS build all report True{} through the same IO path.
+def main_show_bool(value: Bool) -> IO(Unit):
+  match value:
+    case False{}:
+      IO.print("False{}")
+    case True{}:
+      IO.print("True{}")
+
+def main() -> IO(Unit):
+  main_show_bool(main_value())

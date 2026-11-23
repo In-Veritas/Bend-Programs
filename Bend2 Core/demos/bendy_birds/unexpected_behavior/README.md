@@ -43,3 +43,25 @@ proof theorem and use that theorem in the erased `Claim` field. This preserves
 the same universally quantified property and lets the checker, JavaScript
 backend, and application run agree. The minimized file deliberately retains
 the failing inline form as regression evidence.
+
+## Retest on the latest Bend (bendlang/bend source, `bend 2.0.40`)
+
+The original MRE above uses the old `assert` syntax and no longer parses.
+`erased_proof_continuation_latest.bend` ports it: the same recursive `Claim`
+with an erased equality field built from the proofs of two sequential calls
+(`box_claim(head)` and `list_claim(tail)`). Because the latest Bend matches only
+parameters, the two results are opened by a helper `list_claim.join` instead
+of nested `match f(x):` continuations. It does **not** reproduce:
+
+```sh
+bend erased_proof_continuation_latest.bend --check-only   # ALL PROOFS CHECK
+bend erased_proof_continuation_latest.bend                # True{}
+bend erased_proof_continuation_latest.bend -o /tmp/e.c    # C emitted
+bend erased_proof_continuation_latest.bend -o /tmp/e && /tmp/e          # True{}
+bend erased_proof_continuation_latest.bend -o /tmp/e.js && bun /tmp/e.js  # True{}
+```
+
+The same holds with the original's GPU-style calls (`box_claim!(head)`,
+`check!()`): check, interpreter, native and JS all print `True{}`. No
+`ReferenceError` and no `tocl: a use of an unbound binder` occur, so no bug
+report was filed. (Retest only; the bendy_birds port itself is separate.)

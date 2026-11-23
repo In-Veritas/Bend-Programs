@@ -888,13 +888,18 @@ def selftest_text(ok: Bool) -> String:
     case False{}:
       "False{}"
 
+# The owner's Core naming: `main_value` is the pure, deterministic self-check
+# (the bundled ROM's expected final state); `main` with no ROM path prints it.
+def main_value() -> Bool:
+  selftest()
+
 def start(args: List<String>) -> IO(Unit):
   match args:
     case Con{program, Con{path, rest}}:
       run_file(path, steps_arg(rest))
     case other:
       do IO<Unit>:
-        IO.print(selftest_text(selftest()))
+        IO.print(selftest_text(main_value()))
 
 def main() -> IO(Unit):
   do IO<Unit>:

@@ -23,3 +23,15 @@
   `(a, b) = f(x)` is a match, so (as the guide's "match inspects a parameter"
   rule says) it is only accepted on a parameter or pattern variable, never on
   a call or a local `let` binder. The port passes the pair to a helper def.
+
+## Merge with the owner's newer Core version (latest Bend source)
+
+- The owner's later bend2-core commit deleted this log (its notes were
+  obsolete there too); it is kept here for history as the port brief asks.
+- `main` is now `IO(Unit)` (prints `Ready{}`) and the report is
+  `main_value()`, so `build.sh` publishes `bend_exports.main_value()`; the
+  `.mjs` module does not export the IO `main`.
+- Erased (`-field`) constructor fields are dropped from the JS export, so the
+  proof-carrying audit record reaches the page as just its string/count
+  fields. No new Bend bug was found while porting the conservation proofs or
+  the 78 certificates.

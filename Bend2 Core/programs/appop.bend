@@ -27,7 +27,7 @@ def appop.go(o: Nat, a: U32, +b: U32) -> U32:
 def appop(o: U32, a: U32, b: U32) -> U32:
   appop.go(U32.to_nat(o), a, b)
 
-def main() -> Bool:
+def main_value() -> Bool:
   x = appop(42, 6, 7)
   y = appop(43, 1, 1)
   z = appop(47, 84, 2)
@@ -35,3 +35,15 @@ def main() -> Bool:
   Bool.and(
     U32.is_eq(U32.add(U32.add(x, y), z), 86),
     U32.is_eq(safe, 9))
+
+# The executable entry prints the pure self-check, so `bend FILE`, a native
+# build and the JS build all report True{} through the same IO path.
+def main_show_bool(value: Bool) -> IO(Unit):
+  match value:
+    case False{}:
+      IO.print("False{}")
+    case True{}:
+      IO.print("True{}")
+
+def main() -> IO(Unit):
+  main_show_bool(main_value())
