@@ -208,6 +208,37 @@ exist. If `results/` is absent it exits before building or running Bend. This is
 an ordinary launcher UX limitation and is not recorded as unexpected Bend
 behavior.
 
+### Retest on Bend 2.0.40 (2026-11-23)
+
+Re-run with Bend 2.0.40 (`6b806192284fc9c64404d9b0b59c937f568d87ec`) on Linux
+x86_64 (12 threads, Ubuntu clang 21.1.8) after `./download.sh` (the raw FASTA's
+SHA-256 matched). Every output below is **byte-identical** to the recorded
+file or hash; no Bend source changes were needed.
+
+- Full 10,021-record `--fast --identity 0.95`, native C: all six
+  `fast_*_identity_0.95.tsv` reproduced. JavaScript single linkage
+  reproduced `fast_js_single-linkage_identity_0.95.tsv` (6 min 19 s,
+  3.05 GiB peak RSS).
+- `earlyvir_shortest16.fasta`, `--identity 0.90 --strand both`: all six
+  algorithms on both backends reproduced `cd_hit_identity_0.90.tsv` and the
+  input-identical representative FASTA.
+- `tests/prefilter_benchmark.bend`: counters equal `tests/prefilter_reference.py`
+  on both 1,000-record samples. The stratified sample matches the 15,790
+  candidates and roughly 31 MiB RSS reported in `VCLUST_ARCHITECTURE.md`.
+  `results/prefilter_identity_0.95.run.json` predates the streaming/sketch
+  rewrite (program hash `d300579c…`), so its counters and times describe an
+  older program.
+
+Timings are not comparable with the macOS arm64 records. The full fast runs
+overlapped with other jobs at load average 5–13, and single-thread work on this
+machine is about 2.2–2.6× slower. Sequential C wall times were 3 min 54 s
+(complete linkage) and 3 min 57 s (set cover) at load about 7. The single
+linkage, UCLUST and CD-HIT runs took 12 min 40 s at load 11–13, and Leiden took
+8 min 38 s. All runs peaked at about 431–539 MiB RSS. On the same machine,
+`prefilter_benchmark` on the stratified sample took 12.2–12.6 s with 2.0.40 and
+11.4–11.9 s with a 2.0.38 (`de26a917`) build. On the shortest sample it took
+3.7 s with both. Output was identical in every case.
+
 ## Attribution
 
 Shah, S. A. et al. Expanding known viral diversity in the healthy infant gut.

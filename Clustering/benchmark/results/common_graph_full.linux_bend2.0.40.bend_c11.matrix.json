@@ -1,0 +1,1477 @@
+{
+  "schema": 1,
+  "status": "valid",
+  "benchmark": "common immutable ANI graph clustering kernel",
+  "input": {
+    "ani": {
+      "path": "../datasets/infant_gut_virome/results/vclust_full.ani_0.95.graph.tsv",
+      "bytes": 196855,
+      "sha256": "2b6d6140593cc7970fcafc2d8d4d757143c932ab58d12bf4852726fc23b8ab72"
+    },
+    "ids": {
+      "path": "../datasets/infant_gut_virome/results/vclust_full.identity_0.70.ani.ids.tsv",
+      "bytes": 169415,
+      "sha256": "f3e99322941d104dfd6ca07146e5a6d588dec6d90cc5cda2c0d49c4cab7b28e2"
+    },
+    "metric": "ani",
+    "threshold": 0.95,
+    "source_fasta": {
+      "path": "../datasets/infant_gut_virome/raw/all.curated.vOTUs.EarlyVir.fna",
+      "bytes": 255006683,
+      "sha256": "e3a458156d7a2ed6be0ae8feefec9ceaa2af1640f28bb87c116f7fa045811dab"
+    }
+  },
+  "toolchain": {
+    "c_compiler": "cc (Ubuntu 15.2.0-16ubuntu1) 15.2.0",
+    "c_compiler_command": "cc",
+    "c_flags": "-O3 -std=c11 -Wall -Wextra -Wpedantic",
+    "c_link_flags": "",
+    "c_fixed_libraries": "-lm",
+    "c_makefile_sha256": "994c9060de0313f0c8cfb606b0df78a4797b6c4f5d3558b71639b3159598e4c9",
+    "c_source_sha256": "36de5e7bd2300424c24b4ae423dbb5e109233a9cf346d2883d78848728f837be",
+    "c_binary_sha256": "084bf2e8a421fbdbc18c7c4a6fd2f179446c0e4615a00398da2cf363aa4cacd0",
+    "clusty": null,
+    "clusty_thread_note": "Clusty 1.2.2 accepts the undocumented -t option but its Graph constructor clamps the effective count to at least four",
+    "bend_revision": "6b806192284fc9c64404d9b0b59c937f568d87ec",
+    "bend_emit_command": [
+      "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/bin/bun",
+      "/home/veritas/Bioinformatique/Higher Order Company/Bend/bend2/main.ts",
+      "/home/veritas/Bend-Programs/Clustering/benchmark/bend_common_graph/main.bend",
+      "-o",
+      "/tmp/common-graph-matrix-_3t3ajlv/bend-common-graph.c"
+    ],
+    "bend_compile_command": [
+      "/usr/bin/clang",
+      "-O2",
+      "-std=c11",
+      "-lpthread",
+      "-lm",
+      "/tmp/common-graph-matrix-_3t3ajlv/bend-common-graph.c",
+      "-o",
+      "/tmp/common-graph-matrix-_3t3ajlv/bend-common-graph"
+    ],
+    "bend_binary_sha256": "bb81f27e329c8ac329c3605b66563fce7b2bbe04e213e499c19c990294d13f59",
+    "bend_source_sha256": {
+      "/home/veritas/Bend-Programs/Clustering/benchmark/bend_common_graph/main.bend": "fe034a6ed67561f792c6cba1d516f0970e5920f70621fb07b6880496d00a9497",
+      "/home/veritas/Bend-Programs/Clustering/benchmark/bend_common_graph/graph_io.bend": "54f607bd8f21168917b1a28aacaee1614e6e273abe9c633b49831e8f605464c2",
+      "/home/veritas/Bend-Programs/Clustering/benchmark/bend_common_graph/algorithms.bend": "040e25a582c4af64cf5c8e6fdcaac7f2af07740638ba770e8d295e1c87f40b46",
+      "/home/veritas/Bend-Programs/Clustering/lib/common.bend": "3e1d94d4c11bafd9f8a1f56d9c6a75247cb9fc2d644b71c0807c74fba5a30663",
+      "/home/veritas/Bend-Programs/Clustering/lib/packing.bend": "9b69f6f70589fcd4b9b3a7f495bcb53a5f09fe0f49ec72ca73154ca0041baff1",
+      "/home/veritas/Bend-Programs/Clustering/single_linkage.bend": "12a081d2e59270bcec30f4c5efaf1a8473a679a4db39685a1fc955e3c5376883",
+      "/home/veritas/Bend-Programs/Clustering/complete_linkage.bend": "a8673167056643bb9b665afcddca5df39116eda9ae81889efe6791fba9e425d2",
+      "/home/veritas/Bend-Programs/Clustering/set_cover.bend": "569768ad676bfe220e5fa93fa53d1a94ce4efde830faec181993da9495978133"
+    },
+    "bend_thread_note": "the native runtime receives the requested worker count; these benchmark kernels contain no explicit parallel form",
+    "platform": {
+      "system": "Linux",
+      "release": "7.0.0-43-generic",
+      "machine": "x86_64"
+    }
+  },
+  "configuration": {
+    "algorithms": [
+      "single",
+      "complete",
+      "uclust",
+      "cd-hit",
+      "set-cover"
+    ],
+    "requested_threads": [
+      1
+    ],
+    "repeats": 3,
+    "energy_mode": "off",
+    "execution_order": "repeat, requested threads, algorithm; implementation order reverses between repeats"
+  },
+  "comparisons": [
+    {
+      "algorithm": "single",
+      "repeat": 1,
+      "requested_threads": 1,
+      "memberships_equal": true,
+      "membership_sha256_by_implementation": {
+        "bend-c": "bc02e4ffe7f607068c16162124e082058edc8dbb2c4951ca0eef1fd54abbcf0e",
+        "c11": "bc02e4ffe7f607068c16162124e082058edc8dbb2c4951ca0eef1fd54abbcf0e"
+      }
+    },
+    {
+      "algorithm": "complete",
+      "repeat": 1,
+      "requested_threads": 1,
+      "memberships_equal": true,
+      "membership_sha256_by_implementation": {
+        "bend-c": "63d26ee64ea176c9d28e24adca23156e39c444e679e2d1b69f973db58600385e",
+        "c11": "63d26ee64ea176c9d28e24adca23156e39c444e679e2d1b69f973db58600385e"
+      }
+    },
+    {
+      "algorithm": "uclust",
+      "repeat": 1,
+      "requested_threads": 1,
+      "memberships_equal": true,
+      "membership_sha256_by_implementation": {
+        "bend-c": "c553682c4d6af6c131ebaf2283685ba41d0115f384dbef319c0a9b997f57e540",
+        "c11": "c553682c4d6af6c131ebaf2283685ba41d0115f384dbef319c0a9b997f57e540"
+      }
+    },
+    {
+      "algorithm": "cd-hit",
+      "repeat": 1,
+      "requested_threads": 1,
+      "memberships_equal": true,
+      "membership_sha256_by_implementation": {
+        "bend-c": "ee46e90471f5fba6c304332aaa0dc7221ce1c64ed3818f4ed5f12a4cb42b70ea",
+        "c11": "ee46e90471f5fba6c304332aaa0dc7221ce1c64ed3818f4ed5f12a4cb42b70ea"
+      }
+    },
+    {
+      "algorithm": "set-cover",
+      "repeat": 1,
+      "requested_threads": 1,
+      "memberships_equal": true,
+      "membership_sha256_by_implementation": {
+        "bend-c": "3c7e37a7abe50ff05668e642043778278e7b33aed86d6ae0a94a818814137bd6",
+        "c11": "3c7e37a7abe50ff05668e642043778278e7b33aed86d6ae0a94a818814137bd6"
+      }
+    },
+    {
+      "algorithm": "single",
+      "repeat": 2,
+      "requested_threads": 1,
+      "memberships_equal": true,
+      "membership_sha256_by_implementation": {
+        "c11": "bc02e4ffe7f607068c16162124e082058edc8dbb2c4951ca0eef1fd54abbcf0e",
+        "bend-c": "bc02e4ffe7f607068c16162124e082058edc8dbb2c4951ca0eef1fd54abbcf0e"
+      }
+    },
+    {
+      "algorithm": "complete",
+      "repeat": 2,
+      "requested_threads": 1,
+      "memberships_equal": true,
+      "membership_sha256_by_implementation": {
+        "c11": "63d26ee64ea176c9d28e24adca23156e39c444e679e2d1b69f973db58600385e",
+        "bend-c": "63d26ee64ea176c9d28e24adca23156e39c444e679e2d1b69f973db58600385e"
+      }
+    },
+    {
+      "algorithm": "uclust",
+      "repeat": 2,
+      "requested_threads": 1,
+      "memberships_equal": true,
+      "membership_sha256_by_implementation": {
+        "c11": "c553682c4d6af6c131ebaf2283685ba41d0115f384dbef319c0a9b997f57e540",
+        "bend-c": "c553682c4d6af6c131ebaf2283685ba41d0115f384dbef319c0a9b997f57e540"
+      }
+    },
+    {
+      "algorithm": "cd-hit",
+      "repeat": 2,
+      "requested_threads": 1,
+      "memberships_equal": true,
+      "membership_sha256_by_implementation": {
+        "c11": "ee46e90471f5fba6c304332aaa0dc7221ce1c64ed3818f4ed5f12a4cb42b70ea",
+        "bend-c": "ee46e90471f5fba6c304332aaa0dc7221ce1c64ed3818f4ed5f12a4cb42b70ea"
+      }
+    },
+    {
+      "algorithm": "set-cover",
+      "repeat": 2,
+      "requested_threads": 1,
+      "memberships_equal": true,
+      "membership_sha256_by_implementation": {
+        "c11": "3c7e37a7abe50ff05668e642043778278e7b33aed86d6ae0a94a818814137bd6",
+        "bend-c": "3c7e37a7abe50ff05668e642043778278e7b33aed86d6ae0a94a818814137bd6"
+      }
+    },
+    {
+      "algorithm": "single",
+      "repeat": 3,
+      "requested_threads": 1,
+      "memberships_equal": true,
+      "membership_sha256_by_implementation": {
+        "bend-c": "bc02e4ffe7f607068c16162124e082058edc8dbb2c4951ca0eef1fd54abbcf0e",
+        "c11": "bc02e4ffe7f607068c16162124e082058edc8dbb2c4951ca0eef1fd54abbcf0e"
+      }
+    },
+    {
+      "algorithm": "complete",
+      "repeat": 3,
+      "requested_threads": 1,
+      "memberships_equal": true,
+      "membership_sha256_by_implementation": {
+        "bend-c": "63d26ee64ea176c9d28e24adca23156e39c444e679e2d1b69f973db58600385e",
+        "c11": "63d26ee64ea176c9d28e24adca23156e39c444e679e2d1b69f973db58600385e"
+      }
+    },
+    {
+      "algorithm": "uclust",
+      "repeat": 3,
+      "requested_threads": 1,
+      "memberships_equal": true,
+      "membership_sha256_by_implementation": {
+        "bend-c": "c553682c4d6af6c131ebaf2283685ba41d0115f384dbef319c0a9b997f57e540",
+        "c11": "c553682c4d6af6c131ebaf2283685ba41d0115f384dbef319c0a9b997f57e540"
+      }
+    },
+    {
+      "algorithm": "cd-hit",
+      "repeat": 3,
+      "requested_threads": 1,
+      "memberships_equal": true,
+      "membership_sha256_by_implementation": {
+        "bend-c": "ee46e90471f5fba6c304332aaa0dc7221ce1c64ed3818f4ed5f12a4cb42b70ea",
+        "c11": "ee46e90471f5fba6c304332aaa0dc7221ce1c64ed3818f4ed5f12a4cb42b70ea"
+      }
+    },
+    {
+      "algorithm": "set-cover",
+      "repeat": 3,
+      "requested_threads": 1,
+      "memberships_equal": true,
+      "membership_sha256_by_implementation": {
+        "bend-c": "3c7e37a7abe50ff05668e642043778278e7b33aed86d6ae0a94a818814137bd6",
+        "c11": "3c7e37a7abe50ff05668e642043778278e7b33aed86d6ae0a94a818814137bd6"
+      }
+    }
+  ],
+  "runs": [
+    {
+      "implementation": "bend-c",
+      "algorithm": "single",
+      "repeat": 1,
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "command": [
+        "/usr/bin/env",
+        "CLUSTER_GRAPH_INPUT=/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/results/vclust_full.ani_0.95.graph.tsv",
+        "CLUSTER_GRAPH_SIZE=10021",
+        "CLUSTER_GRAPH_ALGORITHM=0",
+        "CLUSTER_GRAPH_THRESHOLD=950000",
+        "/tmp/common-graph-matrix-_3t3ajlv/bend-common-graph",
+        "--threads",
+        "1",
+        "--gpu",
+        "off"
+      ],
+      "metrics": {
+        "time_real_seconds": 0.027610533999904874,
+        "time_user_seconds": 0.023237999999999998,
+        "time_system_seconds": 0.0038729999999999997,
+        "maximum_resident_bytes": 18169856,
+        "maximum_resident_note": "maximum RSS reported for the measured command"
+      },
+      "energy": {
+        "available": false,
+        "source": "macOS powermetrics cpu_power",
+        "reason": "disabled"
+      },
+      "clusters": 6373,
+      "membership_sha256": "bc02e4ffe7f607068c16162124e082058edc8dbb2c4951ca0eef1fd54abbcf0e",
+      "output_sha256": "6df0cc07ffb5a827fa14e588c5119d1c53b5c5eaadc9532263b8e85f0363a95a"
+    },
+    {
+      "implementation": "c11",
+      "algorithm": "single",
+      "repeat": 1,
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "command": [
+        "/home/veritas/Bend-Programs/Clustering/c_baseline/cluster_graph",
+        "--input",
+        "../datasets/infant_gut_virome/results/vclust_full.ani_0.95.graph.tsv",
+        "--ids",
+        "../datasets/infant_gut_virome/results/vclust_full.identity_0.70.ani.ids.tsv",
+        "--output",
+        "/tmp/common-graph-matrix-_3t3ajlv/c11-single-t1-r1.tsv",
+        "--algorithm",
+        "single",
+        "--metric",
+        "ani",
+        "--threshold",
+        "0.95",
+        "--threads",
+        "1"
+      ],
+      "metrics": {
+        "time_real_seconds": 0.005076368999652914,
+        "time_user_seconds": 0.00377,
+        "time_system_seconds": 0.0009419999999999999,
+        "maximum_resident_bytes": 18112512,
+        "maximum_resident_note": "maximum RSS reported for the measured command"
+      },
+      "energy": {
+        "available": false,
+        "source": "macOS powermetrics cpu_power",
+        "reason": "disabled"
+      },
+      "clusters": 6373,
+      "membership_sha256": "bc02e4ffe7f607068c16162124e082058edc8dbb2c4951ca0eef1fd54abbcf0e",
+      "output_sha256": "37406258901f89ad0f8010c6761588e51138192539bd311d70f026632ab24f46"
+    },
+    {
+      "implementation": "bend-c",
+      "algorithm": "complete",
+      "repeat": 1,
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "command": [
+        "/usr/bin/env",
+        "CLUSTER_GRAPH_INPUT=/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/results/vclust_full.ani_0.95.graph.tsv",
+        "CLUSTER_GRAPH_SIZE=10021",
+        "CLUSTER_GRAPH_ALGORITHM=1",
+        "CLUSTER_GRAPH_THRESHOLD=950000",
+        "/tmp/common-graph-matrix-_3t3ajlv/bend-common-graph",
+        "--threads",
+        "1",
+        "--gpu",
+        "off"
+      ],
+      "metrics": {
+        "time_real_seconds": 8.771389571999862,
+        "time_user_seconds": 8.757974,
+        "time_system_seconds": 0.005003,
+        "maximum_resident_bytes": 17944576,
+        "maximum_resident_note": "maximum RSS reported for the measured command"
+      },
+      "energy": {
+        "available": false,
+        "source": "macOS powermetrics cpu_power",
+        "reason": "disabled"
+      },
+      "clusters": 7181,
+      "membership_sha256": "63d26ee64ea176c9d28e24adca23156e39c444e679e2d1b69f973db58600385e",
+      "output_sha256": "a6f718ce479dc415300ea675556e6de0e9d82c222004a66f57958317fb66bf71"
+    },
+    {
+      "implementation": "c11",
+      "algorithm": "complete",
+      "repeat": 1,
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "command": [
+        "/home/veritas/Bend-Programs/Clustering/c_baseline/cluster_graph",
+        "--input",
+        "../datasets/infant_gut_virome/results/vclust_full.ani_0.95.graph.tsv",
+        "--ids",
+        "../datasets/infant_gut_virome/results/vclust_full.identity_0.70.ani.ids.tsv",
+        "--output",
+        "/tmp/common-graph-matrix-_3t3ajlv/c11-complete-t1-r1.tsv",
+        "--algorithm",
+        "complete",
+        "--metric",
+        "ani",
+        "--threshold",
+        "0.95",
+        "--threads",
+        "1"
+      ],
+      "metrics": {
+        "time_real_seconds": 1.4195386319997851,
+        "time_user_seconds": 1.41707,
+        "time_system_seconds": 0.001005,
+        "maximum_resident_bytes": 18055168,
+        "maximum_resident_note": "maximum RSS reported for the measured command"
+      },
+      "energy": {
+        "available": false,
+        "source": "macOS powermetrics cpu_power",
+        "reason": "disabled"
+      },
+      "clusters": 7181,
+      "membership_sha256": "63d26ee64ea176c9d28e24adca23156e39c444e679e2d1b69f973db58600385e",
+      "output_sha256": "3f59c5b4bfaf6e291f263e00988932a9464f93cd5c679cdb26ee2b2c8066fd1a"
+    },
+    {
+      "implementation": "bend-c",
+      "algorithm": "uclust",
+      "repeat": 1,
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "command": [
+        "/usr/bin/env",
+        "CLUSTER_GRAPH_INPUT=/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/results/vclust_full.ani_0.95.graph.tsv",
+        "CLUSTER_GRAPH_SIZE=10021",
+        "CLUSTER_GRAPH_ALGORITHM=2",
+        "CLUSTER_GRAPH_THRESHOLD=950000",
+        "/tmp/common-graph-matrix-_3t3ajlv/bend-common-graph",
+        "--threads",
+        "1",
+        "--gpu",
+        "off"
+      ],
+      "metrics": {
+        "time_real_seconds": 4.979151471000478,
+        "time_user_seconds": 4.968909,
+        "time_system_seconds": 0.0019979999999999998,
+        "maximum_resident_bytes": 17924096,
+        "maximum_resident_note": "maximum RSS reported for the measured command"
+      },
+      "energy": {
+        "available": false,
+        "source": "macOS powermetrics cpu_power",
+        "reason": "disabled"
+      },
+      "clusters": 6890,
+      "membership_sha256": "c553682c4d6af6c131ebaf2283685ba41d0115f384dbef319c0a9b997f57e540",
+      "output_sha256": "83da0d50b00a76b2f421b1dc6d41eb464f1a9b0d3d79a737b692ac126eb96785"
+    },
+    {
+      "implementation": "c11",
+      "algorithm": "uclust",
+      "repeat": 1,
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "command": [
+        "/home/veritas/Bend-Programs/Clustering/c_baseline/cluster_graph",
+        "--input",
+        "../datasets/infant_gut_virome/results/vclust_full.ani_0.95.graph.tsv",
+        "--ids",
+        "../datasets/infant_gut_virome/results/vclust_full.identity_0.70.ani.ids.tsv",
+        "--output",
+        "/tmp/common-graph-matrix-_3t3ajlv/c11-uclust-t1-r1.tsv",
+        "--algorithm",
+        "uclust",
+        "--metric",
+        "ani",
+        "--threshold",
+        "0.95",
+        "--threads",
+        "1"
+      ],
+      "metrics": {
+        "time_real_seconds": 0.06524454599912133,
+        "time_user_seconds": 0.06276999999999999,
+        "time_system_seconds": 0.001992,
+        "maximum_resident_bytes": 18092032,
+        "maximum_resident_note": "maximum RSS reported for the measured command"
+      },
+      "energy": {
+        "available": false,
+        "source": "macOS powermetrics cpu_power",
+        "reason": "disabled"
+      },
+      "clusters": 6890,
+      "membership_sha256": "c553682c4d6af6c131ebaf2283685ba41d0115f384dbef319c0a9b997f57e540",
+      "output_sha256": "4121c310143fab3e51d3d5f748eac40c2253fa4578097bec8510718e5e72c160"
+    },
+    {
+      "implementation": "bend-c",
+      "algorithm": "cd-hit",
+      "repeat": 1,
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "command": [
+        "/usr/bin/env",
+        "CLUSTER_GRAPH_INPUT=/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/results/vclust_full.ani_0.95.graph.tsv",
+        "CLUSTER_GRAPH_SIZE=10021",
+        "CLUSTER_GRAPH_ALGORITHM=3",
+        "CLUSTER_GRAPH_THRESHOLD=950000",
+        "/tmp/common-graph-matrix-_3t3ajlv/bend-common-graph",
+        "--threads",
+        "1",
+        "--gpu",
+        "off"
+      ],
+      "metrics": {
+        "time_real_seconds": 3.707167905999995,
+        "time_user_seconds": 3.698801,
+        "time_system_seconds": 0.001997,
+        "maximum_resident_bytes": 18018304,
+        "maximum_resident_note": "maximum RSS reported for the measured command"
+      },
+      "energy": {
+        "available": false,
+        "source": "macOS powermetrics cpu_power",
+        "reason": "disabled"
+      },
+      "clusters": 6890,
+      "membership_sha256": "ee46e90471f5fba6c304332aaa0dc7221ce1c64ed3818f4ed5f12a4cb42b70ea",
+      "output_sha256": "317ed2536f513af84698d90f5a86b042608c99880ffc0772a6d8af1607652930"
+    },
+    {
+      "implementation": "c11",
+      "algorithm": "cd-hit",
+      "repeat": 1,
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "command": [
+        "/home/veritas/Bend-Programs/Clustering/c_baseline/cluster_graph",
+        "--input",
+        "../datasets/infant_gut_virome/results/vclust_full.ani_0.95.graph.tsv",
+        "--ids",
+        "../datasets/infant_gut_virome/results/vclust_full.identity_0.70.ani.ids.tsv",
+        "--output",
+        "/tmp/common-graph-matrix-_3t3ajlv/c11-cd-hit-t1-r1.tsv",
+        "--algorithm",
+        "cd-hit",
+        "--metric",
+        "ani",
+        "--threshold",
+        "0.95",
+        "--threads",
+        "1"
+      ],
+      "metrics": {
+        "time_real_seconds": 0.05500135800048156,
+        "time_user_seconds": 0.053627999999999995,
+        "time_system_seconds": 0.000993,
+        "maximum_resident_bytes": 18169856,
+        "maximum_resident_note": "maximum RSS reported for the measured command"
+      },
+      "energy": {
+        "available": false,
+        "source": "macOS powermetrics cpu_power",
+        "reason": "disabled"
+      },
+      "clusters": 6890,
+      "membership_sha256": "ee46e90471f5fba6c304332aaa0dc7221ce1c64ed3818f4ed5f12a4cb42b70ea",
+      "output_sha256": "0a6993eb7f80f662793b13f293e2368acaad50a135f262ca7373e6227d2fa645"
+    },
+    {
+      "implementation": "bend-c",
+      "algorithm": "set-cover",
+      "repeat": 1,
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "command": [
+        "/usr/bin/env",
+        "CLUSTER_GRAPH_INPUT=/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/results/vclust_full.ani_0.95.graph.tsv",
+        "CLUSTER_GRAPH_SIZE=10021",
+        "CLUSTER_GRAPH_ALGORITHM=4",
+        "CLUSTER_GRAPH_THRESHOLD=950000",
+        "/tmp/common-graph-matrix-_3t3ajlv/bend-common-graph",
+        "--threads",
+        "1",
+        "--gpu",
+        "off"
+      ],
+      "metrics": {
+        "time_real_seconds": 0.06952190500032884,
+        "time_user_seconds": 0.06676,
+        "time_system_seconds": 0.001992,
+        "maximum_resident_bytes": 17952768,
+        "maximum_resident_note": "maximum RSS reported for the measured command"
+      },
+      "energy": {
+        "available": false,
+        "source": "macOS powermetrics cpu_power",
+        "reason": "disabled"
+      },
+      "clusters": 6618,
+      "membership_sha256": "3c7e37a7abe50ff05668e642043778278e7b33aed86d6ae0a94a818814137bd6",
+      "output_sha256": "27a6dd879aff76bf3eca56800f58e30b765674955a02ff06dd5427dfd9b88e2e"
+    },
+    {
+      "implementation": "c11",
+      "algorithm": "set-cover",
+      "repeat": 1,
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "command": [
+        "/home/veritas/Bend-Programs/Clustering/c_baseline/cluster_graph",
+        "--input",
+        "../datasets/infant_gut_virome/results/vclust_full.ani_0.95.graph.tsv",
+        "--ids",
+        "../datasets/infant_gut_virome/results/vclust_full.identity_0.70.ani.ids.tsv",
+        "--output",
+        "/tmp/common-graph-matrix-_3t3ajlv/c11-set-cover-t1-r1.tsv",
+        "--algorithm",
+        "set-cover",
+        "--metric",
+        "ani",
+        "--threshold",
+        "0.95",
+        "--threads",
+        "1"
+      ],
+      "metrics": {
+        "time_real_seconds": 0.005917900999520498,
+        "time_user_seconds": 0.002802,
+        "time_system_seconds": 0.002802,
+        "maximum_resident_bytes": 18063360,
+        "maximum_resident_note": "maximum RSS reported for the measured command"
+      },
+      "energy": {
+        "available": false,
+        "source": "macOS powermetrics cpu_power",
+        "reason": "disabled"
+      },
+      "clusters": 6618,
+      "membership_sha256": "3c7e37a7abe50ff05668e642043778278e7b33aed86d6ae0a94a818814137bd6",
+      "output_sha256": "878dd0055733523c5cef42f865cdc3452397df745a9230c7519b86806bf03b64"
+    },
+    {
+      "implementation": "c11",
+      "algorithm": "single",
+      "repeat": 2,
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "command": [
+        "/home/veritas/Bend-Programs/Clustering/c_baseline/cluster_graph",
+        "--input",
+        "../datasets/infant_gut_virome/results/vclust_full.ani_0.95.graph.tsv",
+        "--ids",
+        "../datasets/infant_gut_virome/results/vclust_full.identity_0.70.ani.ids.tsv",
+        "--output",
+        "/tmp/common-graph-matrix-_3t3ajlv/c11-single-t1-r2.tsv",
+        "--algorithm",
+        "single",
+        "--metric",
+        "ani",
+        "--threshold",
+        "0.95",
+        "--threads",
+        "1"
+      ],
+      "metrics": {
+        "time_real_seconds": 0.00521785999990243,
+        "time_user_seconds": 0.002887,
+        "time_system_seconds": 0.0019249999999999998,
+        "maximum_resident_bytes": 17920000,
+        "maximum_resident_note": "maximum RSS reported for the measured command"
+      },
+      "energy": {
+        "available": false,
+        "source": "macOS powermetrics cpu_power",
+        "reason": "disabled"
+      },
+      "clusters": 6373,
+      "membership_sha256": "bc02e4ffe7f607068c16162124e082058edc8dbb2c4951ca0eef1fd54abbcf0e",
+      "output_sha256": "37406258901f89ad0f8010c6761588e51138192539bd311d70f026632ab24f46"
+    },
+    {
+      "implementation": "bend-c",
+      "algorithm": "single",
+      "repeat": 2,
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "command": [
+        "/usr/bin/env",
+        "CLUSTER_GRAPH_INPUT=/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/results/vclust_full.ani_0.95.graph.tsv",
+        "CLUSTER_GRAPH_SIZE=10021",
+        "CLUSTER_GRAPH_ALGORITHM=0",
+        "CLUSTER_GRAPH_THRESHOLD=950000",
+        "/tmp/common-graph-matrix-_3t3ajlv/bend-common-graph",
+        "--threads",
+        "1",
+        "--gpu",
+        "off"
+      ],
+      "metrics": {
+        "time_real_seconds": 0.027062789000410703,
+        "time_user_seconds": 0.025523999999999998,
+        "time_system_seconds": 0.0009809999999999999,
+        "maximum_resident_bytes": 18083840,
+        "maximum_resident_note": "maximum RSS reported for the measured command"
+      },
+      "energy": {
+        "available": false,
+        "source": "macOS powermetrics cpu_power",
+        "reason": "disabled"
+      },
+      "clusters": 6373,
+      "membership_sha256": "bc02e4ffe7f607068c16162124e082058edc8dbb2c4951ca0eef1fd54abbcf0e",
+      "output_sha256": "6df0cc07ffb5a827fa14e588c5119d1c53b5c5eaadc9532263b8e85f0363a95a"
+    },
+    {
+      "implementation": "c11",
+      "algorithm": "complete",
+      "repeat": 2,
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "command": [
+        "/home/veritas/Bend-Programs/Clustering/c_baseline/cluster_graph",
+        "--input",
+        "../datasets/infant_gut_virome/results/vclust_full.ani_0.95.graph.tsv",
+        "--ids",
+        "../datasets/infant_gut_virome/results/vclust_full.identity_0.70.ani.ids.tsv",
+        "--output",
+        "/tmp/common-graph-matrix-_3t3ajlv/c11-complete-t1-r2.tsv",
+        "--algorithm",
+        "complete",
+        "--metric",
+        "ani",
+        "--threshold",
+        "0.95",
+        "--threads",
+        "1"
+      ],
+      "metrics": {
+        "time_real_seconds": 1.3970479820000037,
+        "time_user_seconds": 1.393402,
+        "time_system_seconds": 0.0009989999999999999,
+        "maximum_resident_bytes": 18239488,
+        "maximum_resident_note": "maximum RSS reported for the measured command"
+      },
+      "energy": {
+        "available": false,
+        "source": "macOS powermetrics cpu_power",
+        "reason": "disabled"
+      },
+      "clusters": 7181,
+      "membership_sha256": "63d26ee64ea176c9d28e24adca23156e39c444e679e2d1b69f973db58600385e",
+      "output_sha256": "3f59c5b4bfaf6e291f263e00988932a9464f93cd5c679cdb26ee2b2c8066fd1a"
+    },
+    {
+      "implementation": "bend-c",
+      "algorithm": "complete",
+      "repeat": 2,
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "command": [
+        "/usr/bin/env",
+        "CLUSTER_GRAPH_INPUT=/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/results/vclust_full.ani_0.95.graph.tsv",
+        "CLUSTER_GRAPH_SIZE=10021",
+        "CLUSTER_GRAPH_ALGORITHM=1",
+        "CLUSTER_GRAPH_THRESHOLD=950000",
+        "/tmp/common-graph-matrix-_3t3ajlv/bend-common-graph",
+        "--threads",
+        "1",
+        "--gpu",
+        "off"
+      ],
+      "metrics": {
+        "time_real_seconds": 8.387651447999815,
+        "time_user_seconds": 8.376808,
+        "time_system_seconds": 0.006000999999999999,
+        "maximum_resident_bytes": 18100224,
+        "maximum_resident_note": "maximum RSS reported for the measured command"
+      },
+      "energy": {
+        "available": false,
+        "source": "macOS powermetrics cpu_power",
+        "reason": "disabled"
+      },
+      "clusters": 7181,
+      "membership_sha256": "63d26ee64ea176c9d28e24adca23156e39c444e679e2d1b69f973db58600385e",
+      "output_sha256": "a6f718ce479dc415300ea675556e6de0e9d82c222004a66f57958317fb66bf71"
+    },
+    {
+      "implementation": "c11",
+      "algorithm": "uclust",
+      "repeat": 2,
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "command": [
+        "/home/veritas/Bend-Programs/Clustering/c_baseline/cluster_graph",
+        "--input",
+        "../datasets/infant_gut_virome/results/vclust_full.ani_0.95.graph.tsv",
+        "--ids",
+        "../datasets/infant_gut_virome/results/vclust_full.identity_0.70.ani.ids.tsv",
+        "--output",
+        "/tmp/common-graph-matrix-_3t3ajlv/c11-uclust-t1-r2.tsv",
+        "--algorithm",
+        "uclust",
+        "--metric",
+        "ani",
+        "--threshold",
+        "0.95",
+        "--threads",
+        "1"
+      ],
+      "metrics": {
+        "time_real_seconds": 0.07928138900024351,
+        "time_user_seconds": 0.07875599999999999,
+        "time_system_seconds": 0.0,
+        "maximum_resident_bytes": 18116608,
+        "maximum_resident_note": "maximum RSS reported for the measured command"
+      },
+      "energy": {
+        "available": false,
+        "source": "macOS powermetrics cpu_power",
+        "reason": "disabled"
+      },
+      "clusters": 6890,
+      "membership_sha256": "c553682c4d6af6c131ebaf2283685ba41d0115f384dbef319c0a9b997f57e540",
+      "output_sha256": "4121c310143fab3e51d3d5f748eac40c2253fa4578097bec8510718e5e72c160"
+    },
+    {
+      "implementation": "bend-c",
+      "algorithm": "uclust",
+      "repeat": 2,
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "command": [
+        "/usr/bin/env",
+        "CLUSTER_GRAPH_INPUT=/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/results/vclust_full.ani_0.95.graph.tsv",
+        "CLUSTER_GRAPH_SIZE=10021",
+        "CLUSTER_GRAPH_ALGORITHM=2",
+        "CLUSTER_GRAPH_THRESHOLD=950000",
+        "/tmp/common-graph-matrix-_3t3ajlv/bend-common-graph",
+        "--threads",
+        "1",
+        "--gpu",
+        "off"
+      ],
+      "metrics": {
+        "time_real_seconds": 5.024059746000603,
+        "time_user_seconds": 5.012978,
+        "time_system_seconds": 0.005,
+        "maximum_resident_bytes": 18173952,
+        "maximum_resident_note": "maximum RSS reported for the measured command"
+      },
+      "energy": {
+        "available": false,
+        "source": "macOS powermetrics cpu_power",
+        "reason": "disabled"
+      },
+      "clusters": 6890,
+      "membership_sha256": "c553682c4d6af6c131ebaf2283685ba41d0115f384dbef319c0a9b997f57e540",
+      "output_sha256": "83da0d50b00a76b2f421b1dc6d41eb464f1a9b0d3d79a737b692ac126eb96785"
+    },
+    {
+      "implementation": "c11",
+      "algorithm": "cd-hit",
+      "repeat": 2,
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "command": [
+        "/home/veritas/Bend-Programs/Clustering/c_baseline/cluster_graph",
+        "--input",
+        "../datasets/infant_gut_virome/results/vclust_full.ani_0.95.graph.tsv",
+        "--ids",
+        "../datasets/infant_gut_virome/results/vclust_full.identity_0.70.ani.ids.tsv",
+        "--output",
+        "/tmp/common-graph-matrix-_3t3ajlv/c11-cd-hit-t1-r2.tsv",
+        "--algorithm",
+        "cd-hit",
+        "--metric",
+        "ani",
+        "--threshold",
+        "0.95",
+        "--threads",
+        "1"
+      ],
+      "metrics": {
+        "time_real_seconds": 0.05535091399997327,
+        "time_user_seconds": 0.053992,
+        "time_system_seconds": 0.0009989999999999999,
+        "maximum_resident_bytes": 17776640,
+        "maximum_resident_note": "maximum RSS reported for the measured command"
+      },
+      "energy": {
+        "available": false,
+        "source": "macOS powermetrics cpu_power",
+        "reason": "disabled"
+      },
+      "clusters": 6890,
+      "membership_sha256": "ee46e90471f5fba6c304332aaa0dc7221ce1c64ed3818f4ed5f12a4cb42b70ea",
+      "output_sha256": "0a6993eb7f80f662793b13f293e2368acaad50a135f262ca7373e6227d2fa645"
+    },
+    {
+      "implementation": "bend-c",
+      "algorithm": "cd-hit",
+      "repeat": 2,
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "command": [
+        "/usr/bin/env",
+        "CLUSTER_GRAPH_INPUT=/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/results/vclust_full.ani_0.95.graph.tsv",
+        "CLUSTER_GRAPH_SIZE=10021",
+        "CLUSTER_GRAPH_ALGORITHM=3",
+        "CLUSTER_GRAPH_THRESHOLD=950000",
+        "/tmp/common-graph-matrix-_3t3ajlv/bend-common-graph",
+        "--threads",
+        "1",
+        "--gpu",
+        "off"
+      ],
+      "metrics": {
+        "time_real_seconds": 3.690137823000441,
+        "time_user_seconds": 3.682622,
+        "time_system_seconds": 0.006000999999999999,
+        "maximum_resident_bytes": 17924096,
+        "maximum_resident_note": "maximum RSS reported for the measured command"
+      },
+      "energy": {
+        "available": false,
+        "source": "macOS powermetrics cpu_power",
+        "reason": "disabled"
+      },
+      "clusters": 6890,
+      "membership_sha256": "ee46e90471f5fba6c304332aaa0dc7221ce1c64ed3818f4ed5f12a4cb42b70ea",
+      "output_sha256": "317ed2536f513af84698d90f5a86b042608c99880ffc0772a6d8af1607652930"
+    },
+    {
+      "implementation": "c11",
+      "algorithm": "set-cover",
+      "repeat": 2,
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "command": [
+        "/home/veritas/Bend-Programs/Clustering/c_baseline/cluster_graph",
+        "--input",
+        "../datasets/infant_gut_virome/results/vclust_full.ani_0.95.graph.tsv",
+        "--ids",
+        "../datasets/infant_gut_virome/results/vclust_full.identity_0.70.ani.ids.tsv",
+        "--output",
+        "/tmp/common-graph-matrix-_3t3ajlv/c11-set-cover-t1-r2.tsv",
+        "--algorithm",
+        "set-cover",
+        "--metric",
+        "ani",
+        "--threshold",
+        "0.95",
+        "--threads",
+        "1"
+      ],
+      "metrics": {
+        "time_real_seconds": 0.005790998000520631,
+        "time_user_seconds": 0.004541,
+        "time_system_seconds": 0.000908,
+        "maximum_resident_bytes": 18223104,
+        "maximum_resident_note": "maximum RSS reported for the measured command"
+      },
+      "energy": {
+        "available": false,
+        "source": "macOS powermetrics cpu_power",
+        "reason": "disabled"
+      },
+      "clusters": 6618,
+      "membership_sha256": "3c7e37a7abe50ff05668e642043778278e7b33aed86d6ae0a94a818814137bd6",
+      "output_sha256": "878dd0055733523c5cef42f865cdc3452397df745a9230c7519b86806bf03b64"
+    },
+    {
+      "implementation": "bend-c",
+      "algorithm": "set-cover",
+      "repeat": 2,
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "command": [
+        "/usr/bin/env",
+        "CLUSTER_GRAPH_INPUT=/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/results/vclust_full.ani_0.95.graph.tsv",
+        "CLUSTER_GRAPH_SIZE=10021",
+        "CLUSTER_GRAPH_ALGORITHM=4",
+        "CLUSTER_GRAPH_THRESHOLD=950000",
+        "/tmp/common-graph-matrix-_3t3ajlv/bend-common-graph",
+        "--threads",
+        "1",
+        "--gpu",
+        "off"
+      ],
+      "metrics": {
+        "time_real_seconds": 0.06954714599942236,
+        "time_user_seconds": 0.066872,
+        "time_system_seconds": 0.001996,
+        "maximum_resident_bytes": 18051072,
+        "maximum_resident_note": "maximum RSS reported for the measured command"
+      },
+      "energy": {
+        "available": false,
+        "source": "macOS powermetrics cpu_power",
+        "reason": "disabled"
+      },
+      "clusters": 6618,
+      "membership_sha256": "3c7e37a7abe50ff05668e642043778278e7b33aed86d6ae0a94a818814137bd6",
+      "output_sha256": "27a6dd879aff76bf3eca56800f58e30b765674955a02ff06dd5427dfd9b88e2e"
+    },
+    {
+      "implementation": "bend-c",
+      "algorithm": "single",
+      "repeat": 3,
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "command": [
+        "/usr/bin/env",
+        "CLUSTER_GRAPH_INPUT=/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/results/vclust_full.ani_0.95.graph.tsv",
+        "CLUSTER_GRAPH_SIZE=10021",
+        "CLUSTER_GRAPH_ALGORITHM=0",
+        "CLUSTER_GRAPH_THRESHOLD=950000",
+        "/tmp/common-graph-matrix-_3t3ajlv/bend-common-graph",
+        "--threads",
+        "1",
+        "--gpu",
+        "off"
+      ],
+      "metrics": {
+        "time_real_seconds": 0.026633526999830792,
+        "time_user_seconds": 0.022713,
+        "time_system_seconds": 0.003244,
+        "maximum_resident_bytes": 18096128,
+        "maximum_resident_note": "maximum RSS reported for the measured command"
+      },
+      "energy": {
+        "available": false,
+        "source": "macOS powermetrics cpu_power",
+        "reason": "disabled"
+      },
+      "clusters": 6373,
+      "membership_sha256": "bc02e4ffe7f607068c16162124e082058edc8dbb2c4951ca0eef1fd54abbcf0e",
+      "output_sha256": "6df0cc07ffb5a827fa14e588c5119d1c53b5c5eaadc9532263b8e85f0363a95a"
+    },
+    {
+      "implementation": "c11",
+      "algorithm": "single",
+      "repeat": 3,
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "command": [
+        "/home/veritas/Bend-Programs/Clustering/c_baseline/cluster_graph",
+        "--input",
+        "../datasets/infant_gut_virome/results/vclust_full.ani_0.95.graph.tsv",
+        "--ids",
+        "../datasets/infant_gut_virome/results/vclust_full.identity_0.70.ani.ids.tsv",
+        "--output",
+        "/tmp/common-graph-matrix-_3t3ajlv/c11-single-t1-r3.tsv",
+        "--algorithm",
+        "single",
+        "--metric",
+        "ani",
+        "--threshold",
+        "0.95",
+        "--threads",
+        "1"
+      ],
+      "metrics": {
+        "time_real_seconds": 0.005029713000112679,
+        "time_user_seconds": 0.003751,
+        "time_system_seconds": 0.000937,
+        "maximum_resident_bytes": 18030592,
+        "maximum_resident_note": "maximum RSS reported for the measured command"
+      },
+      "energy": {
+        "available": false,
+        "source": "macOS powermetrics cpu_power",
+        "reason": "disabled"
+      },
+      "clusters": 6373,
+      "membership_sha256": "bc02e4ffe7f607068c16162124e082058edc8dbb2c4951ca0eef1fd54abbcf0e",
+      "output_sha256": "37406258901f89ad0f8010c6761588e51138192539bd311d70f026632ab24f46"
+    },
+    {
+      "implementation": "bend-c",
+      "algorithm": "complete",
+      "repeat": 3,
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "command": [
+        "/usr/bin/env",
+        "CLUSTER_GRAPH_INPUT=/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/results/vclust_full.ani_0.95.graph.tsv",
+        "CLUSTER_GRAPH_SIZE=10021",
+        "CLUSTER_GRAPH_ALGORITHM=1",
+        "CLUSTER_GRAPH_THRESHOLD=950000",
+        "/tmp/common-graph-matrix-_3t3ajlv/bend-common-graph",
+        "--threads",
+        "1",
+        "--gpu",
+        "off"
+      ],
+      "metrics": {
+        "time_real_seconds": 8.064442060000147,
+        "time_user_seconds": 8.060306,
+        "time_system_seconds": 0.002,
+        "maximum_resident_bytes": 18108416,
+        "maximum_resident_note": "maximum RSS reported for the measured command"
+      },
+      "energy": {
+        "available": false,
+        "source": "macOS powermetrics cpu_power",
+        "reason": "disabled"
+      },
+      "clusters": 7181,
+      "membership_sha256": "63d26ee64ea176c9d28e24adca23156e39c444e679e2d1b69f973db58600385e",
+      "output_sha256": "a6f718ce479dc415300ea675556e6de0e9d82c222004a66f57958317fb66bf71"
+    },
+    {
+      "implementation": "c11",
+      "algorithm": "complete",
+      "repeat": 3,
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "command": [
+        "/home/veritas/Bend-Programs/Clustering/c_baseline/cluster_graph",
+        "--input",
+        "../datasets/infant_gut_virome/results/vclust_full.ani_0.95.graph.tsv",
+        "--ids",
+        "../datasets/infant_gut_virome/results/vclust_full.identity_0.70.ani.ids.tsv",
+        "--output",
+        "/tmp/common-graph-matrix-_3t3ajlv/c11-complete-t1-r3.tsv",
+        "--algorithm",
+        "complete",
+        "--metric",
+        "ani",
+        "--threshold",
+        "0.95",
+        "--threads",
+        "1"
+      ],
+      "metrics": {
+        "time_real_seconds": 1.3925075659999493,
+        "time_user_seconds": 1.383802,
+        "time_system_seconds": 0.0,
+        "maximum_resident_bytes": 18223104,
+        "maximum_resident_note": "maximum RSS reported for the measured command"
+      },
+      "energy": {
+        "available": false,
+        "source": "macOS powermetrics cpu_power",
+        "reason": "disabled"
+      },
+      "clusters": 7181,
+      "membership_sha256": "63d26ee64ea176c9d28e24adca23156e39c444e679e2d1b69f973db58600385e",
+      "output_sha256": "3f59c5b4bfaf6e291f263e00988932a9464f93cd5c679cdb26ee2b2c8066fd1a"
+    },
+    {
+      "implementation": "bend-c",
+      "algorithm": "uclust",
+      "repeat": 3,
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "command": [
+        "/usr/bin/env",
+        "CLUSTER_GRAPH_INPUT=/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/results/vclust_full.ani_0.95.graph.tsv",
+        "CLUSTER_GRAPH_SIZE=10021",
+        "CLUSTER_GRAPH_ALGORITHM=2",
+        "CLUSTER_GRAPH_THRESHOLD=950000",
+        "/tmp/common-graph-matrix-_3t3ajlv/bend-common-graph",
+        "--threads",
+        "1",
+        "--gpu",
+        "off"
+      ],
+      "metrics": {
+        "time_real_seconds": 4.973003754999809,
+        "time_user_seconds": 4.969442,
+        "time_system_seconds": 0.0020009999999999997,
+        "maximum_resident_bytes": 18112512,
+        "maximum_resident_note": "maximum RSS reported for the measured command"
+      },
+      "energy": {
+        "available": false,
+        "source": "macOS powermetrics cpu_power",
+        "reason": "disabled"
+      },
+      "clusters": 6890,
+      "membership_sha256": "c553682c4d6af6c131ebaf2283685ba41d0115f384dbef319c0a9b997f57e540",
+      "output_sha256": "83da0d50b00a76b2f421b1dc6d41eb464f1a9b0d3d79a737b692ac126eb96785"
+    },
+    {
+      "implementation": "c11",
+      "algorithm": "uclust",
+      "repeat": 3,
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "command": [
+        "/home/veritas/Bend-Programs/Clustering/c_baseline/cluster_graph",
+        "--input",
+        "../datasets/infant_gut_virome/results/vclust_full.ani_0.95.graph.tsv",
+        "--ids",
+        "../datasets/infant_gut_virome/results/vclust_full.identity_0.70.ani.ids.tsv",
+        "--output",
+        "/tmp/common-graph-matrix-_3t3ajlv/c11-uclust-t1-r3.tsv",
+        "--algorithm",
+        "uclust",
+        "--metric",
+        "ani",
+        "--threshold",
+        "0.95",
+        "--threads",
+        "1"
+      ],
+      "metrics": {
+        "time_real_seconds": 0.07902686199940945,
+        "time_user_seconds": 0.078586,
+        "time_system_seconds": 0.0,
+        "maximum_resident_bytes": 17915904,
+        "maximum_resident_note": "maximum RSS reported for the measured command"
+      },
+      "energy": {
+        "available": false,
+        "source": "macOS powermetrics cpu_power",
+        "reason": "disabled"
+      },
+      "clusters": 6890,
+      "membership_sha256": "c553682c4d6af6c131ebaf2283685ba41d0115f384dbef319c0a9b997f57e540",
+      "output_sha256": "4121c310143fab3e51d3d5f748eac40c2253fa4578097bec8510718e5e72c160"
+    },
+    {
+      "implementation": "bend-c",
+      "algorithm": "cd-hit",
+      "repeat": 3,
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "command": [
+        "/usr/bin/env",
+        "CLUSTER_GRAPH_INPUT=/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/results/vclust_full.ani_0.95.graph.tsv",
+        "CLUSTER_GRAPH_SIZE=10021",
+        "CLUSTER_GRAPH_ALGORITHM=3",
+        "CLUSTER_GRAPH_THRESHOLD=950000",
+        "/tmp/common-graph-matrix-_3t3ajlv/bend-common-graph",
+        "--threads",
+        "1",
+        "--gpu",
+        "off"
+      ],
+      "metrics": {
+        "time_real_seconds": 3.9679817050000565,
+        "time_user_seconds": 3.966545,
+        "time_system_seconds": 0.0,
+        "maximum_resident_bytes": 18178048,
+        "maximum_resident_note": "maximum RSS reported for the measured command"
+      },
+      "energy": {
+        "available": false,
+        "source": "macOS powermetrics cpu_power",
+        "reason": "disabled"
+      },
+      "clusters": 6890,
+      "membership_sha256": "ee46e90471f5fba6c304332aaa0dc7221ce1c64ed3818f4ed5f12a4cb42b70ea",
+      "output_sha256": "317ed2536f513af84698d90f5a86b042608c99880ffc0772a6d8af1607652930"
+    },
+    {
+      "implementation": "c11",
+      "algorithm": "cd-hit",
+      "repeat": 3,
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "command": [
+        "/home/veritas/Bend-Programs/Clustering/c_baseline/cluster_graph",
+        "--input",
+        "../datasets/infant_gut_virome/results/vclust_full.ani_0.95.graph.tsv",
+        "--ids",
+        "../datasets/infant_gut_virome/results/vclust_full.identity_0.70.ani.ids.tsv",
+        "--output",
+        "/tmp/common-graph-matrix-_3t3ajlv/c11-cd-hit-t1-r3.tsv",
+        "--algorithm",
+        "cd-hit",
+        "--metric",
+        "ani",
+        "--threshold",
+        "0.95",
+        "--threads",
+        "1"
+      ],
+      "metrics": {
+        "time_real_seconds": 0.055797222000364854,
+        "time_user_seconds": 0.055427,
+        "time_system_seconds": 0.0,
+        "maximum_resident_bytes": 18010112,
+        "maximum_resident_note": "maximum RSS reported for the measured command"
+      },
+      "energy": {
+        "available": false,
+        "source": "macOS powermetrics cpu_power",
+        "reason": "disabled"
+      },
+      "clusters": 6890,
+      "membership_sha256": "ee46e90471f5fba6c304332aaa0dc7221ce1c64ed3818f4ed5f12a4cb42b70ea",
+      "output_sha256": "0a6993eb7f80f662793b13f293e2368acaad50a135f262ca7373e6227d2fa645"
+    },
+    {
+      "implementation": "bend-c",
+      "algorithm": "set-cover",
+      "repeat": 3,
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "command": [
+        "/usr/bin/env",
+        "CLUSTER_GRAPH_INPUT=/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/results/vclust_full.ani_0.95.graph.tsv",
+        "CLUSTER_GRAPH_SIZE=10021",
+        "CLUSTER_GRAPH_ALGORITHM=4",
+        "CLUSTER_GRAPH_THRESHOLD=950000",
+        "/tmp/common-graph-matrix-_3t3ajlv/bend-common-graph",
+        "--threads",
+        "1",
+        "--gpu",
+        "off"
+      ],
+      "metrics": {
+        "time_real_seconds": 0.06809468600022228,
+        "time_user_seconds": 0.065415,
+        "time_system_seconds": 0.002012,
+        "maximum_resident_bytes": 17911808,
+        "maximum_resident_note": "maximum RSS reported for the measured command"
+      },
+      "energy": {
+        "available": false,
+        "source": "macOS powermetrics cpu_power",
+        "reason": "disabled"
+      },
+      "clusters": 6618,
+      "membership_sha256": "3c7e37a7abe50ff05668e642043778278e7b33aed86d6ae0a94a818814137bd6",
+      "output_sha256": "27a6dd879aff76bf3eca56800f58e30b765674955a02ff06dd5427dfd9b88e2e"
+    },
+    {
+      "implementation": "c11",
+      "algorithm": "set-cover",
+      "repeat": 3,
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "command": [
+        "/home/veritas/Bend-Programs/Clustering/c_baseline/cluster_graph",
+        "--input",
+        "../datasets/infant_gut_virome/results/vclust_full.ani_0.95.graph.tsv",
+        "--ids",
+        "../datasets/infant_gut_virome/results/vclust_full.identity_0.70.ani.ids.tsv",
+        "--output",
+        "/tmp/common-graph-matrix-_3t3ajlv/c11-set-cover-t1-r3.tsv",
+        "--algorithm",
+        "set-cover",
+        "--metric",
+        "ani",
+        "--threshold",
+        "0.95",
+        "--threads",
+        "1"
+      ],
+      "metrics": {
+        "time_real_seconds": 0.005806784000014886,
+        "time_user_seconds": 0.0045119999999999995,
+        "time_system_seconds": 0.0009019999999999999,
+        "maximum_resident_bytes": 17915904,
+        "maximum_resident_note": "maximum RSS reported for the measured command"
+      },
+      "energy": {
+        "available": false,
+        "source": "macOS powermetrics cpu_power",
+        "reason": "disabled"
+      },
+      "clusters": 6618,
+      "membership_sha256": "3c7e37a7abe50ff05668e642043778278e7b33aed86d6ae0a94a818814137bd6",
+      "output_sha256": "878dd0055733523c5cef42f865cdc3452397df745a9230c7519b86806bf03b64"
+    }
+  ],
+  "summary": [
+    {
+      "implementation": "bend-c",
+      "algorithm": "cd-hit",
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "repeats": 3,
+      "median_wall_seconds": 3.707167905999995,
+      "median_user_seconds": 3.698801,
+      "median_system_seconds": 0.001997,
+      "median_maximum_resident_bytes": 18018304,
+      "median_estimated_cpu_joules": null,
+      "membership_sha256": "ee46e90471f5fba6c304332aaa0dc7221ce1c64ed3818f4ed5f12a4cb42b70ea",
+      "clusters": 6890
+    },
+    {
+      "implementation": "bend-c",
+      "algorithm": "complete",
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "repeats": 3,
+      "median_wall_seconds": 8.387651447999815,
+      "median_user_seconds": 8.376808,
+      "median_system_seconds": 0.005003,
+      "median_maximum_resident_bytes": 18100224,
+      "median_estimated_cpu_joules": null,
+      "membership_sha256": "63d26ee64ea176c9d28e24adca23156e39c444e679e2d1b69f973db58600385e",
+      "clusters": 7181
+    },
+    {
+      "implementation": "bend-c",
+      "algorithm": "set-cover",
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "repeats": 3,
+      "median_wall_seconds": 0.06952190500032884,
+      "median_user_seconds": 0.06676,
+      "median_system_seconds": 0.001996,
+      "median_maximum_resident_bytes": 17952768,
+      "median_estimated_cpu_joules": null,
+      "membership_sha256": "3c7e37a7abe50ff05668e642043778278e7b33aed86d6ae0a94a818814137bd6",
+      "clusters": 6618
+    },
+    {
+      "implementation": "bend-c",
+      "algorithm": "single",
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "repeats": 3,
+      "median_wall_seconds": 0.027062789000410703,
+      "median_user_seconds": 0.023237999999999998,
+      "median_system_seconds": 0.003244,
+      "median_maximum_resident_bytes": 18096128,
+      "median_estimated_cpu_joules": null,
+      "membership_sha256": "bc02e4ffe7f607068c16162124e082058edc8dbb2c4951ca0eef1fd54abbcf0e",
+      "clusters": 6373
+    },
+    {
+      "implementation": "bend-c",
+      "algorithm": "uclust",
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "repeats": 3,
+      "median_wall_seconds": 4.979151471000478,
+      "median_user_seconds": 4.969442,
+      "median_system_seconds": 0.0020009999999999997,
+      "median_maximum_resident_bytes": 18112512,
+      "median_estimated_cpu_joules": null,
+      "membership_sha256": "c553682c4d6af6c131ebaf2283685ba41d0115f384dbef319c0a9b997f57e540",
+      "clusters": 6890
+    },
+    {
+      "implementation": "c11",
+      "algorithm": "cd-hit",
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "repeats": 3,
+      "median_wall_seconds": 0.05535091399997327,
+      "median_user_seconds": 0.053992,
+      "median_system_seconds": 0.000993,
+      "median_maximum_resident_bytes": 18010112,
+      "median_estimated_cpu_joules": null,
+      "membership_sha256": "ee46e90471f5fba6c304332aaa0dc7221ce1c64ed3818f4ed5f12a4cb42b70ea",
+      "clusters": 6890
+    },
+    {
+      "implementation": "c11",
+      "algorithm": "complete",
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "repeats": 3,
+      "median_wall_seconds": 1.3970479820000037,
+      "median_user_seconds": 1.393402,
+      "median_system_seconds": 0.0009989999999999999,
+      "median_maximum_resident_bytes": 18223104,
+      "median_estimated_cpu_joules": null,
+      "membership_sha256": "63d26ee64ea176c9d28e24adca23156e39c444e679e2d1b69f973db58600385e",
+      "clusters": 7181
+    },
+    {
+      "implementation": "c11",
+      "algorithm": "set-cover",
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "repeats": 3,
+      "median_wall_seconds": 0.005806784000014886,
+      "median_user_seconds": 0.0045119999999999995,
+      "median_system_seconds": 0.000908,
+      "median_maximum_resident_bytes": 18063360,
+      "median_estimated_cpu_joules": null,
+      "membership_sha256": "3c7e37a7abe50ff05668e642043778278e7b33aed86d6ae0a94a818814137bd6",
+      "clusters": 6618
+    },
+    {
+      "implementation": "c11",
+      "algorithm": "single",
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "repeats": 3,
+      "median_wall_seconds": 0.005076368999652914,
+      "median_user_seconds": 0.003751,
+      "median_system_seconds": 0.0009419999999999999,
+      "median_maximum_resident_bytes": 18030592,
+      "median_estimated_cpu_joules": null,
+      "membership_sha256": "bc02e4ffe7f607068c16162124e082058edc8dbb2c4951ca0eef1fd54abbcf0e",
+      "clusters": 6373
+    },
+    {
+      "implementation": "c11",
+      "algorithm": "uclust",
+      "requested_threads": 1,
+      "effective_threads": 1,
+      "repeats": 3,
+      "median_wall_seconds": 0.07902686199940945,
+      "median_user_seconds": 0.078586,
+      "median_system_seconds": 0.0,
+      "median_maximum_resident_bytes": 18092032,
+      "median_estimated_cpu_joules": null,
+      "membership_sha256": "c553682c4d6af6c131ebaf2283685ba41d0115f384dbef319c0a9b997f57e540",
+      "clusters": 6890
+    }
+  ]
+}

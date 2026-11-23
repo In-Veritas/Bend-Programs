@@ -25,15 +25,50 @@ FASTA_SUFFIXES = {".fasta", ".fa", ".fna", ".ffn", ".frn", ".fas", ".fsa"}
 MAX_INPUT_BYTES = 256 * 1024 * 1024
 
 
+def is_checkout(path):
+    return (Path(path) / "bend2" / "main.ts").is_file()
+
+
 def default_compiler():
+    """Return a Bend source checkout or a `bend` executable.
+
+    Order: BEND_REPO (or legacy BEND_CORE) checkout; BEND (a checkout or an
+    executable); the sibling ../../bend checkout; the legacy ../../bend2-core
+    checkout; the `bend` on PATH; finally ../../bend (reported as missing).
+    """
     configured = os.environ.get("BEND_REPO") or os.environ.get("BEND_CORE")
     if configured:
         return Path(configured)
+    explicit = os.environ.get("BEND")
+    if explicit:
+        found = Path(explicit)
+        if not found.exists() and shutil.which(explicit):
+            found = Path(shutil.which(explicit))
+        return found
     current = ROOT.parent.parent / "bend"
     fallback = ROOT.parent.parent / "bend2-core"
-    if (current / "bend2/main.ts").is_file() or not (fallback / "bend2/main.ts").is_file():
+    if is_checkout(current):
         return current
-    return fallback
+    if is_checkout(fallback):
+        return fallback
+    on_path = shutil.which("bend")
+    if on_path:
+        return Path(on_path)
+    return current
+
+
+def compiler_command(compiler):
+    """Command prefix that runs the Bend CLI, followed by a source path."""
+    compiler = Path(compiler)
+    if is_checkout(compiler):
+        bun = shutil.which("bun")
+        if not bun:
+            raise RuntimeError("Bun is required to compile Bend (bun was not found)")
+        return [bun, str(compiler / "bend2" / "main.ts")]
+    if compiler.is_file() and os.access(compiler, os.X_OK):
+        return [str(compiler)]
+    raise RuntimeError(f"Bend compiler not found: {compiler} (expected a checkout "
+                       "containing bend2/main.ts or a bend executable)")
 
 
 def fraction(value):
@@ -67,19 +102,21 @@ def bounded_integer(limit, minimum=0):
 
 def build(algorithm, backend, compiler, threads=1):
     bun = shutil.which("bun")
-    if not bun:
-        raise RuntimeError("Bun is required to compile Bend (bun was not found)")
-    entry = compiler / "bend2" / "main.ts"
-    if not entry.is_file():
-        raise RuntimeError(f"Bend compiler not found: {entry}")
-    compiler_files = sorted((compiler / "bend2").glob("*.ts"))
-    compiler_files += [compiler / "bend2" / "base.bend"]
-    compiler_files += sorted((compiler / "bend2" / "effs").glob("*"))
+    if backend == "js" and not bun:
+        raise RuntimeError("Bun is required to run generated JavaScript (bun was not found)")
+    compile_prefix = compiler_command(compiler)
+    if is_checkout(compiler):
+        compiler_files = sorted((compiler / "bend2").glob("*.ts"))
+        compiler_files += [compiler / "bend2" / "base.bend"]
+        compiler_files += sorted((compiler / "bend2" / "effs").glob("*"))
+    else:
+        compiler_files = [Path(compile_prefix[0]).resolve()]
     source_files = [ROOT / f"{ALGORITHMS[algorithm]}.bend"]
     source_files += sorted((ROOT / "lib").glob("*.bend"))
     digest = hashlib.sha256()
     digest.update(f"v2:{backend}:{platform.machine()}:{platform.system()}".encode())
-    digest.update(subprocess.check_output([bun, "--version"]))
+    if bun:
+        digest.update(subprocess.check_output([bun, "--version"]))
     clang = shutil.which("clang") if backend == "c" else None
     if backend == "c":
         if not clang:
@@ -95,8 +132,9 @@ def build(algorithm, backend, compiler, threads=1):
         cache.mkdir(parents=True, exist_ok=True)
         with tempfile.TemporaryDirectory(prefix="build-", dir=cache) as folder:
             emitted = Path(folder) / ("program.js" if backend == "js" else "program.c")
-            subprocess.run([bun, str(entry), str(source_files[0]), "-o", str(emitted)],
-                           cwd=compiler, check=True, env=dict(os.environ, BEND_NO_TELEMETRY="1"))
+            subprocess.run(compile_prefix + [str(source_files[0]), "-o", str(emitted)],
+                           cwd=compiler if is_checkout(compiler) else ROOT, check=True,
+                           env=dict(os.environ, BEND_NO_TELEMETRY="1"))
             product = emitted
             if backend == "c":
                 product = Path(folder) / "program"
@@ -183,7 +221,8 @@ def main():
                         help="native Bend runtime CPU threads; default: 1")
     parser.add_argument("--compiler", type=Path,
                         default=default_compiler(),
-                        help="Bend checkout (default: sibling bend; falls back to bend2-core)")
+                        help="Bend checkout or bend executable (default: $BEND_REPO, $BEND, "
+                             "sibling ../../bend, ../../bend2-core, then bend on PATH)")
     args = parser.parse_args()
     if args.backend == "js" and args.threads != 1:
         parser.error("the JavaScript backend is single-threaded; use --threads 1")

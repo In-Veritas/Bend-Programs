@@ -60,6 +60,13 @@ directions.
 
 ## Validation commands
 
+Last re-run on 2026-11-23 with Bend 2.0.40
+(`6b806192284fc9c64404d9b0b59c937f568d87ec`, Linux x86_64). The native C and
+JavaScript fixture test passed, and `lz_ani.bend` all-to-all output was
+identical on both backends. The comparisons against the official binaries were
+skipped because Vclust 1.3.1 was not installed. The proof-kernel checks could
+not run because Lean was not installed; `--check-only` passes.
+
 ```sh
 python3 Clustering/tests/test_lz_ani_numeric.py
 python3 Clustering/tests/test_kmer_db.py

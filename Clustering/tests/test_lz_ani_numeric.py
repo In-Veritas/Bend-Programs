@@ -11,7 +11,12 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-COMPILER = ROOT.parents[1] / "bend"
+import importlib.util
+spec = importlib.util.spec_from_file_location("launcher", ROOT / "run.py")
+launcher = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(launcher)
+COMPILER = launcher.default_compiler()
+BEND = launcher.compiler_command(COMPILER)
 SOURCE = ROOT / "tests" / "lz_ani_numeric.bend"
 INDEXED_SOURCE = ROOT / "tests" / "lz_ani_indexed.bend"
 ALL_TO_ALL_SOURCE = ROOT / "lz_ani.bend"
@@ -65,8 +70,8 @@ class LzAniNumericTests(unittest.TestCase):
                 (ALL_TO_ALL_SOURCE, cls.all_c_source),
                 (ALL_TO_ALL_SOURCE, cls.all_js_source)):
             subprocess.run(
-                ["bun", "bend2/main.ts", str(source), "-o", str(output)],
-                cwd=COMPILER, check=True, capture_output=True, text=True)
+                [*BEND, str(source), "-o", str(output)],
+                check=True, capture_output=True, text=True)
         for source, executable in ((cls.c_source, cls.executable),
                                    (cls.indexed_c_source,
                                     cls.indexed_executable),
@@ -179,8 +184,8 @@ class LzAniNumericTests(unittest.TestCase):
 
     def test_proven_kernel(self):
         process = subprocess.run(
-            ["bun", "bend2/main.ts", str(SOURCE), "--verdict"],
-            cwd=COMPILER, capture_output=True, text=True, timeout=20)
+            [*BEND, str(SOURCE), "--verdict"],
+            capture_output=True, text=True, timeout=20)
         self.assertEqual(process.returncode, 0, process.stderr)
         self.assertIn("ALL PROOFS CHECK", process.stdout)
 

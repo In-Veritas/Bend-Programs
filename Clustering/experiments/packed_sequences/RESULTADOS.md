@@ -99,3 +99,49 @@ ambiguidades foi validada quanto à correção, mas não tem uma série de tempo
 As observações individuais, tempos de CPU, picos RSS, hashes de entradas/saídas
 e hashes das fontes estão nos JSONs. Os CSVs incluem mínimos e máximos dos
 tempos. Os pilotos de uma medição ficam separados das séries finais.
+
+## Reexecução em Linux x86_64 com Bend 2.0.40 (2026-11-23)
+
+Compilador Bend `6b806192284fc9c64404d9b0b59c937f568d87ec` (2.0.40), Linux
+x86_64 com 12 threads, Ubuntu clang 21.1.8 e Bun 1.3.14. A carga média ficou
+entre 1,2 e 2,8 porque outros processos rodavam na máquina. Os comandos do
+README foram usados com `--result linux_bend_2.0.40/<série>`. Os JSON/CSV
+novos e os logs de `validate.py` estão em `results/linux_bend_2.0.40/`; os
+arquivos originais acima não foram alterados.
+
+- `validate.py`: os 22 testes passaram em cada variante, assim como
+  roundtrips e escores exatos em C e JS.
+- Todos os hashes de TSV e de representantes das 19 combinações medidas
+  coincidem byte a byte com os registrados na execução macOS/014ccd03.
+- Os tempos absolutos são cerca de 2,4× maiores nesta máquina. Ao contrário
+  do macOS arm64, a variante compactada foi 0,7–17,5% **mais rápida** em todos os
+  casos de clustering; o teste `load-only` continua mais lento (+22%).
+- Um A/B com single-linkage em `vclust_prefix1000`, na mesma máquina e com o
+  Bend 2.0.38 (`de26a917`), deu os mesmos tempos com os dois compiladores
+  (baseline 3,38–3,42 s; compactado 2,97–3,39 s). A diferença de sinal se
+  deve, portanto, à arquitetura/máquina, não à versão do Bend.
+- O RSS de cerca de 23 MiB registrado nesses JSON não é comparável: no Linux,
+  `ru_maxrss` conserva através do `exec` o pico do processo Python que fez
+  o fork.
+
+| Entrada | Algoritmo | Original (s) | Compactado (s) | Tempo compactado | macOS original / compactado (s) |
+| --- | --- | ---: | ---: | ---: | ---: |
+| synthetic64_128 | single-linkage | 1.7659 | 1.5964 | -9.6% | 0.7162 / 0.7353 |
+| synthetic64_128 | complete-linkage | 1.7795 | 1.5665 | -12.0% | 0.7165 / 0.7210 |
+| synthetic64_128 | uclust | 0.4157 | 0.3853 | -7.3% | 0.1825 / 0.1894 |
+| synthetic64_128 | set-cover | 1.7913 | 1.5623 | -12.8% | 0.7142 / 0.7224 |
+| synthetic64_128 | cd-hit | 0.0856 | 0.0850 | -0.7% | 0.0370 / 0.0419 |
+| synthetic64_128 | leiden | 1.8201 | 1.6548 | -9.1% | 0.8331 / 0.8162 |
+| vclust_prefix1000 | single-linkage | 3.4993 | 3.1225 | -10.8% | 1.4156 / 1.4186 |
+| vclust_prefix1000 | complete-linkage | 3.4811 | 3.0180 | -13.3% | 1.4150 / 1.3937 |
+| vclust_prefix1000 | uclust | 3.5033 | 3.2002 | -8.7% | 1.5007 / 1.5704 |
+| vclust_prefix1000 | set-cover | 3.3396 | 2.9972 | -10.3% | 1.4118 / 1.3904 |
+| vclust_prefix1000 | cd-hit | 1.1747 | 1.0784 | -8.2% | 0.5132 / 0.5638 |
+| vclust_prefix1000 | leiden | 3.4183 | 3.0688 | -10.2% | 1.7644 / 1.6136 |
+| canu_short8 | single-linkage | 12.8430 | 10.6014 | -17.5% | 4.9153 / 4.8972 |
+| canu_short8 | uclust | 12.7272 | 11.3253 | -11.0% | 5.2458 / 5.5388 |
+| canu_short8 | cd-hit | 10.7885 | 10.1763 | -5.7% | 4.7382 / 5.0576 |
+| wtdbg2_short8 | single-linkage | 41.5289 | 35.8895 | -13.6% | 16.6624 / 16.5649 |
+| vclust_prefix1000 (reverso) | single-linkage | 6.7050 | 5.8673 | -12.5% | 2.785 / 2.793 |
+| vclust_prefix1000 (reverso) | cd-hit | 2.6124 | 2.3815 | -8.8% | 1.124 / 1.239 |
+| storage1024_2048 | load-only | 0.4060 | 0.4958 | +22.1% | 0.264 / 0.346 |

@@ -20,6 +20,7 @@ spec = importlib.util.spec_from_file_location("launcher", ROOT / "run.py")
 launcher = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(launcher)
 COMPILER = launcher.default_compiler()
+BEND = launcher.compiler_command(COMPILER)
 ALGORITHMS = tuple(launcher.ALGORITHMS)
 
 
@@ -140,7 +141,7 @@ class ClusteringTests(unittest.TestCase):
         cls.graph_commands = {}
         for backend in ("c", "js"):
             emitted = cls.folder / f"graph.{backend}"
-            subprocess.run(["bun", str(COMPILER / "bend2/main.ts"),
+            subprocess.run([*BEND,
                             str(ROOT / "tests/leiden_graph.bend"), "-o", str(emitted)],
                            check=True)
             if backend == "c":
@@ -394,7 +395,7 @@ class ClusteringTests(unittest.TestCase):
         path.write_text(">a\nACGT\n>b\nACGT\n")
         env = dict(os.environ, CLUSTER_INPUT=str(path), CLUSTER_DNA="1",
                    CLUSTER_REPRESENTATIVES="", CLUSTER_IDENTITY="9000")
-        direct = subprocess.run(["bun", str(COMPILER / "bend2/main.ts"), str(source)],
+        direct = subprocess.run([*BEND, str(source)],
                                 env=env, capture_output=True, text=True, timeout=30)
         self.assertEqual(self.assert_success(direct), [0, 0])
         missing = self.run_program("single-linkage", "", CLUSTER_INPUT="/missing/file.fasta")
@@ -583,7 +584,7 @@ class ClusteringTests(unittest.TestCase):
 
     def test_fast_score_laws_pass_proven_kernel(self):
         process = subprocess.run(
-            ["bun", str(COMPILER / "bend2/main.ts"),
+            [*BEND,
              str(ROOT / "lib/fast_score.bend"), "--verdict"],
             capture_output=True, text=True, timeout=20,
         )

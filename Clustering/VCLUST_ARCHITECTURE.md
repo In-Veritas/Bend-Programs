@@ -163,6 +163,18 @@ restoring `n²` pair storage. The separate LZ-ANI differential suite also passed
 all 344 directed comparisons in native C and JavaScript. The Kmer-db suite
 passed both backends against Kmer-db 2.3.1 and its pure proof kernel.
 
+On 2026-11-23 the package was re-verified on Bend 2.0.40 at
+`6b806192284fc9c64404d9b0b59c937f568d87ec` (Linux x86_64) without source
+changes. All 50 `.bend` files pass `--check-only`, and 27 of 28 end-to-end
+tests pass. The exception is the BendTT `--verdict` test: Lean v4.34.0 is not
+installed on that machine, so the kernel cannot build. The official
+LZ-ANI/Kmer-db differential tests were skipped because Vclust 1.3.1 is not
+installed there. The native C and JavaScript LZ-ANI fixture test passed. The
+Kmer-db test program matched an independent Python canonical-25-mer count on
+both backends. All six full-EarlyVir `--fast` outputs, the common-graph
+memberships and the smoke-test TSVs were byte-identical to the recorded
+results.
+
 A single native-C feasibility sample used the 16 shortest EarlyVir references,
 95% identity and both strands. Outputs from the old dense snapshot and the new
 sparse implementation were byte-identical. These are individual runs, not a

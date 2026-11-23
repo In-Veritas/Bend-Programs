@@ -11,7 +11,12 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-COMPILER = ROOT.parents[1] / "bend"
+import importlib.util
+spec = importlib.util.spec_from_file_location("launcher", ROOT / "run.py")
+launcher = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(launcher)
+COMPILER = launcher.default_compiler()
+BEND = launcher.compiler_command(COMPILER)
 SOURCE = ROOT / "tests" / "kmer_db.bend"
 KERNEL = ROOT / "lib" / "kmer_score.bend"
 OFFICIAL = (ROOT / ".tools" / "vclust-1.3.1" / "lib" / "python3.14" /
@@ -28,8 +33,8 @@ class KmerDbTests(unittest.TestCase):
         cls.executable = cls.folder / "kmer_db"
         for output in (cls.c_source, cls.js_source):
             subprocess.run(
-                ["bun", "bend2/main.ts", str(SOURCE), "-o", str(output)],
-                cwd=COMPILER, check=True, capture_output=True, text=True)
+                [*BEND, str(SOURCE), "-o", str(output)],
+                check=True, capture_output=True, text=True)
         subprocess.run(
             ["clang", "-O2", "-std=c11", "-lpthread", "-lm",
              str(cls.c_source), "-o", str(cls.executable)],
@@ -104,8 +109,8 @@ class KmerDbTests(unittest.TestCase):
 
     def test_sparse_omission_law_is_proven(self):
         process = subprocess.run(
-            ["bun", "bend2/main.ts", str(KERNEL), "--verdict"],
-            cwd=COMPILER, capture_output=True, text=True, timeout=30)
+            [*BEND, str(KERNEL), "--verdict"],
+            capture_output=True, text=True, timeout=30)
         self.assertEqual(process.returncode, 0, process.stderr)
         self.assertIn("ALL PROOFS CHECK", process.stdout)
 

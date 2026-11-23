@@ -22,7 +22,7 @@ DEFAULT_CLUSTY = (
 )
 ALGORITHMS = ("single", "complete", "uclust", "cd-hit", "set-cover")
 ALGORITHM_CODES = {name: index for index, name in enumerate(ALGORITHMS)}
-DEFAULT_BEND_REPO = ROOT.parent.parent / "bend"
+DEFAULT_BEND_REPO = Path(os.environ.get("BEND_REPO") or ROOT.parent.parent / "bend")
 DEFAULT_BEND_SOURCE = Path(__file__).with_name("bend_common_graph") / "main.bend"
 
 
@@ -157,6 +157,8 @@ def main():
     parser.add_argument("--bend-repo", type=Path, default=DEFAULT_BEND_REPO)
     parser.add_argument("--bend-source", type=Path, default=DEFAULT_BEND_SOURCE)
     parser.add_argument("--without-bend", action="store_true")
+    parser.add_argument("--without-clusty", action="store_true",
+                        help="compare only Bend-to-C and C11 (no Vclust install)")
     args = parser.parse_args()
 
     if args.repeats < 1 or any(value < 1 for value in args.threads):
@@ -167,12 +169,13 @@ def main():
         subprocess.run(["make", "-B"], cwd=ROOT / "c_baseline", check=True)
     elif not args.c_binary.is_file():
         parser.error(f"C binary does not exist: {args.c_binary}")
-    if not args.clusty.is_file():
+    if not args.without_clusty and not args.clusty.is_file():
         parser.error(f"Clusty is not installed at {args.clusty}")
 
     c_compiler = os.environ.get("CC", "cc")
     c_version = checked_output([c_compiler, "--version"]).splitlines()[0]
-    clusty_version = checked_output([str(args.clusty), "--version"])
+    clusty_version = (None if args.without_clusty
+                      else checked_output([str(args.clusty), "--version"]))
     ordered_ids = object_ids(args.ids)
     runs = []
     comparisons = []
@@ -192,6 +195,8 @@ def main():
             ("bend-c", "c11", "vclust-clusty")
             if bend_binary is not None else ("c11", "vclust-clusty")
         )
+        if args.without_clusty:
+            implementations = implementations[:-1]
         for repeat in range(1, args.repeats + 1):
             for threads in args.threads:
                 for algorithm in args.algorithms:

@@ -7,9 +7,13 @@ discovers input files, builds the selected program, and launches it once per
 input file.
 
 Tested with the public [bendlang/bend](https://github.com/bendlang/bend)
-repository at **de26a917085a249786f185d20233f107462285f1** (Bend 2.0.38),
-updated from `main` and verified on 2026-10-22. All six Bend programs run
-without source changes. The entry point is `bend2/main.ts`.
+repository at **6b806192284fc9c64404d9b0b59c937f568d87ec** (Bend 2.0.40),
+verified on 2026-11-23 on Linux x86_64 (Ubuntu clang 21.1.8, Bun 1.3.14).
+All 50 `.bend` files print `ALL PROOFS CHECK` and every program runs without
+source changes; outputs are byte-identical to the results recorded with
+**de26a917085a249786f185d20233f107462285f1** (Bend 2.0.38, macOS arm64,
+verified 2026-10-22). The checkout entry point is `bend2/main.ts`; an
+installed `bend` executable also works (see below).
 The older `Bend2 Core/GUIDE.md` in the parent repository
 describes an earlier language revision; use the compiler's `guide/GUIDE.md`
 for this package.
@@ -17,16 +21,25 @@ for this package.
 ## Run
 
 Requires Python 3.10+, Bun, and Clang for the default native C backend.
-The sibling `../../bend` checkout is detected automatically, with
-`../../bend2-core` as a fallback when the public checkout is absent. To obtain
-the public compiler from this package directory:
+The launcher looks for the Bend compiler in this order:
+
+1. `--compiler PATH` (a source checkout or a `bend` executable);
+2. `BEND_REPO=PATH` (legacy `BEND_CORE=PATH`): a source checkout containing
+   `bend2/main.ts`, run with Bun;
+3. `BEND=PATH`: a source checkout or a `bend` executable (a bare command name
+   is looked up on `PATH`);
+4. the sibling `../../bend` checkout, then the legacy `../../bend2-core`;
+5. the `bend` command on `PATH` (for example an installed release).
+
+To obtain the public compiler as a sibling checkout from this package
+directory:
 
 ```sh
 git clone https://github.com/bendlang/bend.git ../../bend
 ```
 
 ```sh
-cd "/Users/macolas/Software/Gabriel/Bend-Programs/Clustering"
+cd path/to/Bend-Programs/Clustering
 
 python3 run.py single-linkage reads.fasta --identity 0.97 \
   --strand both --output clusters.tsv --representatives representatives.fasta
@@ -84,10 +97,14 @@ across the entire batch. Limits apply independently to each input file.
 Use `--backend js` to run generated JavaScript with Bun. Use `--threads N` to
 set the native Bend runtime's CPU thread count; this controls runtime capacity
 but only explicitly parallel Bend calls can use additional workers. JavaScript
-requires `--threads 1`. Use `--compiler PATH`
-or `BEND_REPO=PATH` to select another checkout. The legacy `BEND_CORE=PATH`
-setting is also accepted; `BEND_REPO` takes precedence when both are set.
-The test suite uses the same environment settings and checkout discovery.
+requires `--threads 1`. Use `--compiler PATH`, `BEND_REPO=PATH`, or
+`BEND=PATH` to select another checkout or executable (see the discovery order
+above); `BEND_REPO` takes precedence over the legacy `BEND_CORE` and over
+`BEND`. The test suites use the same environment settings and discovery.
+When the compiler is an executable rather than a checkout, the build cache
+key hashes that executable file only, so delete the cache (`bend-fasta-cache/` in the
+system temporary directory) after replacing a wrapper script's underlying
+compiler.
 Build products are cached under
 the system temporary directory and rebuilt when the sources, compiler, or
 toolchain change. Runs default to one CPU thread and do not request GPU
@@ -378,11 +395,14 @@ export BEND_NO_TELEMETRY=1
 export CLUSTER_INPUT=/absolute/path/reads.fasta
 export CLUSTER_IDENTITY=9700
 export CLUSTER_REVERSE=1
-bun ../../bend/bend2/main.ts single_linkage.bend
+bend single_linkage.bend
 
-bun ../../bend/bend2/main.ts single_linkage.bend -o /tmp/fasta-cluster
+bend single_linkage.bend -o /tmp/fasta-cluster
 /tmp/fasta-cluster --threads 1 --gpu off
 ```
+
+`bend` here is an installed Bend CLI; from a source checkout use
+`bun path/to/bend/bend2/main.ts` in its place.
 
 The same environment settings work with native binaries and emitted `.js`:
 
@@ -412,8 +432,21 @@ checkout. The suite also previously passed against the legacy `bend2-core`
 2.0.16 snapshot at `87355989791e12e0f29026ea1f65dc344290c24c`; that repository's
 unchanged `main` did not reflect the newer public repository's releases.
 
+On 2026-11-23 the suite was re-run against Bend 2.0.40 at
+`6b806192284fc9c64404d9b0b59c937f568d87ec` on Linux x86_64: 27 of 28 tests
+passed. The exception, `test_fast_score_laws_pass_proven_kernel`, needs
+`--verdict`, which cannot build its BendTT kernel without Lean v4.34.0; the
+same applies to the proof tests in `test_kmer_db.py` and
+`test_lz_ani_numeric.py`. `bend lib/fast_score.bend --check-only` and every
+other `.bend` file print `ALL PROOFS CHECK`. The tests that compare with the
+official Kmer-db/LZ-ANI binaries skip when `.tools/vclust-1.3.1` is absent.
+Recorded dataset outputs were reproduced byte-for-byte; see
+`datasets/infant_gut_virome/README.md` and `benchmark/README.md`.
+
 ```sh
 python3 tests/test_clustering.py
+python3 tests/test_lz_ani_numeric.py
+python3 tests/test_kmer_db.py
 ```
 
 The standard-library-only test suite builds all six entry points for native C
