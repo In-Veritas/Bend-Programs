@@ -1,0 +1,2 @@
+dataset,algorithm,clusters,baseline_seconds,baseline_rss_mib,baseline_min_seconds,baseline_max_seconds,packed_seconds,packed_rss_mib,packed_min_seconds,packed_max_seconds,speedup
+storage1024_2048,load-only,1024,0.26444233302026987,51.25,0.26380216679535806,0.27058479096740484,0.3463253329973668,52.3125,0.345983583945781,0.36903275013901293,0.7635662419828829

@@ -1,0 +1,13 @@
+{
+  "complete_linkage.bend": "233fabcc98f182a3f42f7cc3484de2267bdc0d36e6c4aca585650383d630d218",
+  "uclust.bend": "32c3e46c19271f78f15d128d088385e4fae952787746fcbf78ec2f7bd8afd959",
+  "set_cover.bend": "efaff6c2baef4045087b6ac6148f95d9ab4ad54092d258c351d8c199fb2fffb9",
+  "cd_hit.bend": "965e2ac798ff400d4bb0262b98de738a48ecd50424a480e87ebfd1fd6f99aa7a",
+  "single_linkage.bend": "59b0813d8f5bc38b3d30c1b3aa542bbc649f1a7a5f6c09c06cc5ac79f8653e18",
+  "leiden.bend": "de81a763a0a5c8d860db7d9dc9296b4d71534c3d648cf0366b182665ab80b74d",
+  "lib/common.bend": "7a02b06ed0c87c9359401fe8023fca329a13eea42b3e50a82adbc91b1a83d0e5",
+  "run.py": "c0cfdb57c20d864ddac42091b841e2f0d36fe0803ddead5c1c298af9781f23c4",
+  "tests/leiden_graph.bend": "d2eb47407c30de64857ae2dd673541711cf3a1cf394d0e3f1c5a01aaccb0094e",
+  "tests/test_clustering.py": "caaeb9db8c04476a7881f8c120ab9b3fe27bad24728b2b07a35b8c70ccdaa9d9",
+  "tests/fixtures/chain.fasta": "1be5887a039e942eec37b3af62a8bf1a9ec2a8e063563da874cfc8f1c341f769"
+}

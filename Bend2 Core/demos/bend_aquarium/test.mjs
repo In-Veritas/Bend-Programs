@@ -1,0 +1,20 @@
+#!/usr/bin/env bun
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import vm from "node:vm";
+import { packageContext, list, verifyCoreEntries } from "../Bend Engine/test_helpers.mjs";
+const ctx = packageContext(import.meta.url), source = readFileSync(join(ctx.here, "bend_aquarium_data.js"), "utf8"), context = { globalThis: {} };
+vm.runInNewContext(source, context, { filename: "bend_aquarium_data.js" });
+const raw = context.globalThis.BEND_AQUARIUM_DATA, Core = context.globalThis.BEND_AQUARIUM_DATA_CORE;
+const fish = list(raw.$2), coral = list(raw.$3), frames = list(raw.$5), viewer = readFileSync(join(ctx.here, "bend_aquarium_viewer.js"), "utf8"), html = readFileSync(join(ctx.here, "index.html"), "utf8");
+if (raw.$ !== "AquariumReport" || fish.length !== 12 || coral.length !== 12 || frames.length !== 360 || Number(raw.$6) !== 360) throw new Error("Bend Aquarium report shape mismatch");
+if (new Set(fish.map(value => value.$1.$)).size !== 12 || new Set(coral.map(value => value.$1.$)).size !== 8 || Number(raw.$4.$0) !== 2 || Number(raw.$4.$4) !== 2) throw new Error("Aquarium biodiversity/equipment mismatch");
+for (const name of ["EuphylliaParancora", "EuphylliaGlabrescens", "EuphylliaAncora", "CoralliumRubrum"]) if (!coral.some(value => value.$1.$ === name)) throw new Error(`missing coral ${name}`);
+const beyond = Core.frame(10001, 91), muchBeyond = Core.frame(250000, 91);
+if (Number(beyond.$0) !== 10001 || Number(muchBeyond.$0) !== 250000) throw new Error("unbounded Core frame seam repeats fixture indices");
+for (const token of ["Core.frame(tick, 91)", "EuphylliaParancora", "EuphylliaGlabrescens", "EuphylliaAncora", "CoralliumRubrum", "fishPalettes", "fixtureFrames"]) if (!viewer.includes(token)) throw new Error(`missing aquarium feature ${token}`);
+for (const token of ["E.coral(", "aquariumDetails", "E.part(\"arch\"", "E.part(\"leaf\"", "E.part(\"star\"", "E.part(\"island\""]) if (!viewer.includes(token)) throw new Error(`missing aquarium complex visual ${token}`);
+for (const token of ["Species-specific coral flow", "Light and shadow", "8 universal proofs"]) if (!html.includes(token)) throw new Error(`missing aquarium contract ${token}`);
+if (!source.includes("globalThis.BEND_AQUARIUM_DATA_CORE")) throw new Error("generated unbounded frame function is not exported");
+new Function(viewer); verifyCoreEntries(ctx, ["bend_aquarium_test.bend"]);
+console.log("Bend Aquarium verified: 12 unique fish palettes, 8 coral species/12 colonies, unbounded Core frames, species motion/light/shadow, 8 universal proofs, 5 certificates, JS+C");

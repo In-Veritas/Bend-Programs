@@ -47,16 +47,25 @@
     .summary article { padding:12px; border:1px solid #38564e; border-radius:10px; background:#0b2924; }
     .summary h2 { margin:0 0 5px; color:var(--gold); font-size:15px; }
     .summary strong { font-size:22px; }
+    .proof-audit { margin-top:16px; padding:16px; border:1px solid #a4874c; border-radius:12px; background:#0b2924; }
+    .proof-head { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .proof-head h2 { margin:0; color:var(--gold); font:700 18px Georgia,serif; }
+    .proof-count { padding:4px 8px; border-radius:999px; color:var(--gold); background:#153d35; font-size:12px; }
+    .proof-scope,.proof-limit { color:var(--muted); }
+    .proof-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin:12px 0; }
+    .proof-item { padding:10px; border-left:3px solid #60b98a; border-radius:6px; background:#071d19; }
+    .proof-item b { display:block; margin-bottom:3px; color:#8ee0af; }
+    .proof-limit { margin:0; font-size:12px; }
     footer { margin:15px 0 3px; color:var(--muted); text-align:center; font-size:12px; }
     .runtime-link { position:fixed; right:14px; bottom:14px; z-index:10; padding:9px 12px; border:1px solid #a4874c; border-radius:10px; color:var(--gold); background:#0b2924ee; box-shadow:0 8px 28px #0008; text-decoration:none; font-size:12px; font-weight:800; }
-    @media(max-width:850px){.players{grid-template-columns:repeat(2,1fr)}.summary{grid-template-columns:1fr}.score{font-size:12px}.card{width:49px;height:69px}}
+    @media(max-width:850px){.players{grid-template-columns:repeat(2,1fr)}.summary,.proof-grid{grid-template-columns:1fr}.score{font-size:12px}.card{width:49px;height:69px}}
     @media(max-width:500px){header{flex-wrap:wrap}.score{margin-left:0}.players{grid-template-columns:1fr}.table{padding:11px;border-radius:25px}}
   </style>
 </head>
 <body>
   <a class="runtime-link" href="/belote" aria-label="Switch to interactive Bend3 Belote">Bend3 interactive Belote →</a>
   <header><h1>Core Belote Observatory</h1><span class="badge">Bend2 Core · four AIs</span><div class="score"><span id="ns"></span><span id="ew"></span></div></header>
-  <div class="notice">Bend2 Core has no implemented IO, clock, or host randomness. Seed 1 and the full legal hand are embedded in Bend; browser JavaScript only advances and draws its immutable report.</div>
+  <div class="notice">Bend2 Core now has standard IO, but no browser clock, DOM input, or host randomness API. Seed 1 and the full legal hand are embedded in Bend; browser JavaScript only advances and draws its immutable report.</div>
   <main>
     <section class="table">
       <div class="table-head"><div><div class="phase" id="phase"></div><div class="meta" id="meta"></div></div><div class="trump">Trump ♥</div></div>
@@ -66,6 +75,16 @@
     </section>
     <div class="controls"><button id="first">↺</button><button id="prev">← Previous</button><button id="play">▶ Play</button><button id="next">Next →</button><span id="counter"></span><label>Speed <input id="speed" type="range" min="350" max="3000" value="1300" step="50"></label></div>
     <section class="summary"><article><h2>Contract</h2><strong>Mireille · Hearts</strong><div>East-West are takers.</div></article><article><h2>Card points</h2><strong>NS 47 · EW 115</strong><div>The final trick includes dix de der.</div></article><article><h2>Rule showcase</h2><strong>Trick 3</strong><div>Mandatory cut followed by a mandatory overtrump.</div></article></section>
+    <section class="proof-audit">
+      <div class="proof-head"><h2 id="proof-title"></h2><span class="proof-count" id="proof-count"></span></div>
+      <p class="proof-scope" id="proof-scope"></p>
+      <div class="proof-grid">
+        <article class="proof-item"><b>Deal</b><span id="proof-deck"></span></article>
+        <article class="proof-item"><b>Legal play</b><span id="proof-legality"></span></article>
+        <article class="proof-item"><b>Scoring</b><span id="proof-scoring"></span></article>
+      </div>
+      <p class="proof-limit" id="proof-limit"></p>
+    </section>
     <footer>Deal, bidding, hands, legal plays, trick tables, points and contract result are returned by <code>belote.bend</code>. All 32 cards remain visible; faded cards have already been played.</footer>
   </main>
   <script src="belote_data.js"></script>
@@ -77,9 +96,11 @@
       const player=p=>({seat:p.$0,name:p.$1,personality:p.$2,hand:list(p.$3)});
       const played=p=>({seat:p.$0,card:p.$1});
       const step=s=>({phase:s.$0,note:s.$1,actor:s.$2,action:s.$3,card:s.$4,trick:s.$5,ns:s.$6,ew:s.$7,players:list(s.$8).map(player),table:list(s.$9).map(played)});
+      const verificationAudit=p=>({title:p.$0,scope:p.$1,deck:p.$2,legality:p.$3,scoring:p.$4,limitation:p.$5,certifiedCases:p.$6,generalTheorems:p.$7});
       if(!globalThis.BEND2_BELOTE_DATA||BEND2_BELOTE_DATA.$!=="BeloteReport")throw new Error("Bend2 Core Belote artifact missing");
-      const report={seed:BEND2_BELOTE_DATA.$0,dealer:BEND2_BELOTE_DATA.$1,taker:BEND2_BELOTE_DATA.$2,trump:BEND2_BELOTE_DATA.$3,valid:BEND2_BELOTE_DATA.$4,outcome:BEND2_BELOTE_DATA.$9,steps:list(BEND2_BELOTE_DATA.$10).map(step)};
+      const report={seed:BEND2_BELOTE_DATA.$0,dealer:BEND2_BELOTE_DATA.$1,taker:BEND2_BELOTE_DATA.$2,trump:BEND2_BELOTE_DATA.$3,valid:BEND2_BELOTE_DATA.$4,outcome:BEND2_BELOTE_DATA.$9,steps:list(BEND2_BELOTE_DATA.$10).map(step),verification:verificationAudit(BEND2_BELOTE_DATA.$11)};
       if(!report.valid)throw new Error("Bend Belote self-check failed");
+      $("proof-title").textContent=report.verification.title;$("proof-count").textContent=`${report.verification.generalTheorems} general theorem · ${report.verification.certifiedCases} closed certificates`;$("proof-scope").textContent=report.verification.scope;$("proof-deck").textContent=report.verification.deck;$("proof-legality").textContent=report.verification.legality;$("proof-scoring").textContent=report.verification.scoring;$("proof-limit").textContent=report.verification.limitation;
       const full=report.steps[0].players.map(p=>p.hand), ranks=["7","8","9","J","Q","K","10","A"], suits=["♣","♦","♥","♠"], names=report.steps[0].players.map(p=>p.name);
       let at=0,timer=0;
       const card=(id,classes="")=>{const suit=suits[Math.floor(id/8)],red=suit==="♦"||suit==="♥",trump=Math.floor(id/8)===report.trump;return `<div class="card ${red?"red":""} ${trump?"trump-card":""} ${classes}"><span class="corner">${ranks[id%8]}<br>${suit}</span><span class="pip">${suit}</span></div>`;};

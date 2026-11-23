@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Benchmark EarlyVir · BendJogos</title>
+<style>
+:root{--ink:#15201d;--muted:#63706b;--paper:#fffefa;--wash:#eef2ed;--line:#d7ded8;--green:#087f68;--green-soft:#d9f3e9;--navy:#14263a;--amber-soft:#fff0cf;--blue:#3478b8;--violet:#7558be;--shadow:0 16px 48px #18302912}*{box-sizing:border-box}body{margin:0;background:var(--wash);color:var(--ink);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.page{width:min(1180px,calc(100% - 30px));margin:auto;padding:26px 0 60px}a{color:inherit}.top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:20px}.back{color:var(--green);font-weight:850;text-decoration:none}.tag,.pill{padding:6px 10px;border-radius:999px;font:800 10px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.05em;text-transform:uppercase}.tag{border:1px solid var(--line);background:var(--paper);color:var(--muted)}.pill{background:var(--green-soft);color:#075f4e}.hero{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(290px,.65fr);gap:16px;margin-bottom:16px}.hero-main,.dataset,.panel{border:1px solid var(--line);border-radius:18px;background:var(--paper);box-shadow:var(--shadow)}.hero-main{position:relative;overflow:hidden;padding:34px}.hero-main:after{content:"";position:absolute;right:-80px;bottom:-130px;width:280px;height:280px;border:38px solid var(--green-soft);border-radius:50%}.eyebrow{margin:0 0 8px;color:var(--green);font-size:11px;font-weight:900;letter-spacing:.14em;text-transform:uppercase}.hero h1{position:relative;z-index:1;max-width:720px;margin:0;font-size:clamp(34px,5vw,56px);line-height:1.02;letter-spacing:-.055em}.lead{position:relative;z-index:1;max-width:760px;margin:16px 0 0;color:var(--muted);font-size:16px}.dataset{padding:24px;background:var(--navy);color:#fff}.dataset h2{margin:0;font-size:14px}.dataset strong{display:block;margin:12px 0 4px;font-size:36px;line-height:1}.dataset p{margin:0;color:#c7d5df}.dataset dl{display:grid;grid-template-columns:1fr auto;gap:7px 14px;margin:20px 0 0;padding-top:16px;border-top:1px solid #ffffff25;font-size:13px}.dataset dt{color:#aebdc8}.dataset dd{margin:0;font-weight:850}.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px}.fact{padding:16px 18px;border:1px solid var(--line);border-radius:14px;background:var(--paper)}.fact b{display:block;font-size:23px;letter-spacing:-.03em}.fact span{color:var(--muted);font-size:11px;text-transform:uppercase}.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin:28px 0 13px}.section-head h2{margin:0;font-size:27px;letter-spacing:-.035em}.section-head p{margin:4px 0 0;color:var(--muted)}.pipeline{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.pipeline-card{padding:20px;border:1px solid var(--line);border-radius:16px;background:var(--paper)}.pipeline-card h3{margin:0;font-size:17px}.pipeline-card .big{margin:13px 0 0;font-size:30px;font-weight:900;letter-spacing:-.04em}.pipeline-card .big small{font-size:12px;color:var(--muted);letter-spacing:0}.pipeline-card dl{display:grid;grid-template-columns:1fr auto;gap:6px 12px;margin:14px 0 0;padding-top:12px;border-top:1px solid var(--line);font-size:12px}.pipeline-card dt{color:var(--muted)}.pipeline-card dd{margin:0;font-weight:800}.benchmark{padding:0;overflow:hidden}.bench-controls{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 22px;border-bottom:1px solid var(--line)}.bench-controls p{margin:0;color:var(--muted);font-size:12px}.thread-buttons{display:flex;gap:6px}.thread-buttons button{min-width:44px;padding:8px 11px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);font:inherit;font-size:12px;font-weight:800;cursor:pointer}.thread-buttons button.active{border-color:var(--green);background:var(--green);color:#fff}.thread-note{padding:11px 22px;border-bottom:1px solid var(--line);background:#f7f9f6;color:var(--muted);font-size:12px}.bench-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px}.bench-card{padding:17px;border:1px solid var(--line);border-radius:14px;background:#fff}.bench-title{display:flex;justify-content:space-between;gap:14px;align-items:baseline}.bench-title h3{margin:0;font-size:18px}.bench-title span{color:var(--green);font-size:12px;font-weight:850}.impl{display:grid;grid-template-columns:104px 72px 70px 1fr;gap:9px;align-items:center;margin-top:12px;font-size:12px}.impl-name{font-weight:850}.impl-time,.impl-memory{text-align:right;font-variant-numeric:tabular-nums}.impl-memory{color:var(--muted)}.track{height:7px;overflow:hidden;border-radius:99px;background:#e9ede9}.track i{display:block;height:100%;min-width:3px;border-radius:inherit}.bend i{background:var(--green)}.c11 i{background:var(--blue)}.vclust i{background:var(--violet)}.legend{display:flex;gap:16px;flex-wrap:wrap;padding:0 22px 19px;color:var(--muted);font-size:11px}.legend i{display:inline-block;width:9px;height:9px;margin-right:5px;border-radius:50%}.legend .bend-dot{background:var(--green)}.legend .c-dot{background:var(--blue)}.legend .v-dot{background:var(--violet)}.validation{display:grid;grid-template-columns:1.15fr .85fr;gap:14px;margin-top:16px}.panel{padding:22px}.validation h2,.panel h2{margin:0;font-size:22px;letter-spacing:-.025em}.validation p{margin:8px 0 0;color:var(--muted)}.check-list{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:16px}.check{padding:11px;border-radius:10px;background:#f3f7f3}.check b{display:block}.check span{color:var(--muted);font-size:11px}.notice{border-color:#efc26f;background:var(--amber-soft);box-shadow:none}.notice h2{color:#6d4208}.tools{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}.tool{padding:13px;border-radius:10px;background:#f4f6f3}.tool b{display:block}.tool span{color:var(--muted);font-size:11px}.details{margin-top:16px}.details summary{cursor:pointer;font-weight:850}.details p{margin:9px 0 0;color:var(--muted)}code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.9em;overflow-wrap:anywhere}.foot{margin-top:20px;padding:18px 22px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}.foot a{color:var(--green);font-weight:800}@media(max-width:900px){.hero,.validation{grid-template-columns:1fr}.facts,.pipeline{grid-template-columns:repeat(2,1fr)}.bench-grid{grid-template-columns:1fr}}@media(max-width:620px){.page{width:calc(100% - 18px);padding-top:16px}.tag{display:none}.hero-main{padding:26px}.facts,.pipeline,.tools,.check-list{grid-template-columns:1fr}.bench-controls,.section-head{align-items:flex-start;flex-direction:column}.impl{grid-template-columns:85px 62px 62px 1fr;gap:6px}.bench-grid{padding:10px}.thread-buttons{width:100%}.thread-buttons button{flex:1}}
+</style>
+</head>
+<body>
+<main class="page">
+  <nav class="top"><a class="back" href="/">← BendJogos</a><span class="tag">BENCHMARK DE 25 OUT 2026 · STATUS VÁLIDO</span></nav>
+
+  <section class="hero">
+    <div class="hero-main">
+      <p class="eyebrow">EarlyVir completo · grafo ANI ≥ 95%</p>
+      <h1>Três implementações. O mesmo agrupamento.</h1>
+      <p class="lead">Bend compilado em C, uma implementação C11 independente e VClust/Clusty foram medidos sobre o mesmo grafo do viroma intestinal infantil. Os cinco algoritmos comparáveis concordaram em todas as 180 execuções.</p>
+    </div>
+    <aside class="dataset">
+      <h2>Dataset medido</h2><strong>EarlyVir</strong><p><code>all.curated.vOTUs.EarlyVir.fna</code></p>
+      <dl><dt>Sequências</dt><dd>10.021</dd><dt>Bases</dt><dd>250.720.859</dd><dt>FASTA</dt><dd>255,0 MB</dd><dt>Limiar</dt><dd>ANI ≥ 95%</dd><dt>Grafo</dt><dd>10.700 arestas</dd></dl>
+    </aside>
+  </section>
+
+  <section class="facts" aria-label="Resumo do benchmark">
+    <div class="fact"><b>180</b><span>execuções medidas</span></div>
+    <div class="fact"><b>60/60</b><span>comparações idênticas</span></div>
+    <div class="fact"><b>1 · 2 · 4 · 8</b><span>threads solicitadas</span></div>
+    <div class="fact"><b>3×</b><span>repetições por célula</span></div>
+  </section>
+
+  <section class="panel" aria-label="Referência do dataset">
+    <p class="eyebrow">Fonte comum</p>
+    <h2>Atlas of infant gut DNA virus diversity with taxonomy and curated sequences</h2>
+    <p style="margin:6px 0 0;color:var(--muted)">Shah et al., <em>Nature Microbiology</em> 8, 986–998 (2023) · <a style="color:var(--green);font-weight:800" href="https://doi.org/10.6084/m9.figshare.21102805.v2">Figshare DOI 10.6084/m9.figshare.21102805.v2</a></p>
+  </section>
+
+  <div class="section-head"><div><p class="eyebrow">Preparação VClust</p><h2>Do FASTA ao grafo comum</h2><p>O custo abaixo é separado do kernel de clustering.</p></div><span class="pill">dataset inteiro</span></div>
+  <section class="pipeline">
+    <article class="pipeline-card"><h3>1. Pré-filtro VClust</h3><div class="big">7,81 <small>s · 8 threads</small></div><dl><dt>Pico RSS</dt><dd>2,37 GiB</dd><dt>Identidade mínima</dt><dd>70%</dd><dt>Entrada</dt><dd>10.021 seq.</dd></dl></article>
+    <article class="pipeline-card"><h3>2. Alinhamento VClust</h3><div class="big">27,01 <small>s · 8 threads</small></div><dl><dt>Pico RSS</dt><dd>586 MiB</dd><dt>Pares alinhados</dt><dd>570.306</dd><dt>ANI ≥ 95%</dt><dd>17.112 linhas</dd></dl></article>
+    <article class="pipeline-card"><h3>3. Grafo normalizado</h3><div class="big">10.700 <small>arestas únicas</small></div><dl><dt>Vértices</dt><dd>10.021</dd><dt>Duplicatas reversas</dt><dd>6.412</dd><dt>Regra</dt><dd>maior ANI</dd></dl></article>
+  </section>
+
+  <div class="section-head"><div><p class="eyebrow">Novo caminho Bend · preliminar</p><h2>FASTA inteiro com índice invertido em Bend</h2><p>Execução direta do parser, índice MinHash, grafo esparso e clustering; não é o grafo ANI do painel principal.</p></div><span class="pill">sem varrer n² pares</span></div>
+  <section class="pipeline">
+    <article class="pipeline-card"><h3>Single linkage</h3><div class="big">55,81 <small>s · 1 thread</small></div><dl><dt>Entrada</dt><dd>255,0 MB</dd><dt>Saída</dt><dd>10.021 linhas</dd><dt>Hash anterior</dt><dd>idêntico</dd></dl></article>
+    <article class="pipeline-card"><h3>UCLUST / CD-HIT</h3><div class="big">58,54 / 57,81 <small>s</small></div><dl><dt>Execução</dt><dd>concorrente</dd><dt>Seleção</dt><dd>melhor / primeiro</dd><dt>Hashes anteriores</dt><dd>idênticos</dd></dl></article>
+    <article class="pipeline-card"><h3>Complete / Set cover</h3><div class="big">74,95 / 75,85 <small>s</small></div><dl><dt>Execução</dt><dd>concorrente</dd><dt>Resultados</dt><dd>10.021 linhas</dd><dt>Hashes anteriores</dt><dd>idênticos</dd></dl></article>
+    <article class="pipeline-card"><h3>Leiden</h3><div class="big">198,62 <small>s · 1 thread</small></div><dl><dt>Mesmo grupo</dt><dd>3 processos</dd><dt>Resultado</dt><dd>10.021 linhas</dd><dt>Hash anterior</dt><dd>idêntico</dd></dl></article>
+    <article class="pipeline-card"><h3>Provas Bend</h3><div class="big">2 <small>leis universais</small></div><dl><dt>Score indexado</dt><dd>equivalente</dd><dt>Zero entradas</dt><dd>score zero</dd><dt>Kernel <code>--verdict</code></dt><dd>aprovado</dd></dl></article>
+    <article class="pipeline-card"><h3>Memória observada</h3><div class="big">430,6 <small>MiB RSS</small></div><dl><dt>Medição</dt><dd>snapshot</dd><dt>Limite de 1 GiB</dt><dd>não atingido</dd><dt>Pico certificado</dt><dd>indisponível</dd></dl></article>
+  </section>
+
+  <div class="section-head"><div><p class="eyebrow">Kmer-db + LZ-ANI · validação</p><h2>Prefiltro canônico, candidatos esparsos e tANI rodam em Bend</h2><p>O modo explícito <code>--lz-ani</code> alimenta os seis clusterizadores; ainda não foi executado no EarlyVir inteiro.</p></div><span class="pill">C · JS · --verdict</span></div>
+  <section class="pipeline">
+    <article class="pipeline-card"><h3>Diferencial oficial</h3><div class="big">344/344 <small>pares direcionados</small></div><dl><dt>Campos exatos</dt><dd>match · mismatch · regiões</dd><dt>Backends</dt><dd>C e JavaScript</dd><dt>Referência</dt><dd>LZ-ANI 1.2.3</dd></dl></article>
+    <article class="pipeline-card"><h3>Semântica portada</h3><div class="big">11 · 7 · 40 · 35</div><dl><dt>Índices</dt><dd>65.536 · 16.384 buckets</dd><dt>Gap</dt><dd>split sobreposto</dd><dt>Extensão</dt><dd>frente e trás</dd></dl></article>
+    <article class="pipeline-card"><h3>Prefiltro Kmer-db</h3><div class="big">25 <small>mer canônico</small></div><dl><dt>Padrão</dt><dd>≥20 comuns · ani-shorter ≥0,70</dd><dt>Chave</dt><dd>50 bits verificados</dd><dt>Diferencial</dt><dd>C e JS = Kmer-db 2.3.1</dd></dl></article>
+    <article class="pipeline-card"><h3>Integração</h3><div class="big">6/6 <small>clusterizadores</small></div><dl><dt>Métrica</dt><dd>tANI simétrico</dd><dt>Grafo final</dt><dd>O(n + E)</dd><dt>Testes principais</dt><dd>28/28</dd><dt>Índices LZ residentes</dt><dd>2 no máximo</dd></dl></article>
+  </section>
+  <section class="panel notice" style="margin-top:12px"><h2>Ainda não é o pipeline Vclust completo</h2><p>A descoberta de pares já usa k-mers canônicos únicos e não percorre todos os pares; o scorer LZ mantém apenas o índice da linha e um parceiro temporário. Porém, todos os postings do prefiltro ainda ficam na memória. Faltam banco multipart em disco, amostragem de k-mers, limite de candidatos e filtros separados de ANI/gANI/cobertura. No EarlyVir shortest-1000 (2,9 MB), o prefiltro levou 6,71 s e reteve 103.754 pares; no stratified-1000 (25,5 MB), não terminou em 120 s. Portanto, ainda não há resultado honesto para o EarlyVir inteiro.</p></section>
+
+  <div class="section-head"><div><p class="eyebrow">Resultado principal</p><h2>Tempo e memória por algoritmo</h2><p>Mediana de três repetições; somente o kernel sobre o grafo comum.</p></div><span class="pill">agrupamentos equivalentes</span></div>
+  <section class="panel benchmark" aria-label="Comparação interativa do benchmark">
+    <div class="bench-controls"><div><strong>Threads solicitadas</strong><p id="threadSummary">Selecione uma configuração.</p></div><div class="thread-buttons" role="group" aria-label="Threads solicitadas"><button type="button" data-thread="1" class="active">1</button><button type="button" data-thread="2">2</button><button type="button" data-thread="4">4</button><button type="button" data-thread="8">8</button></div></div>
+    <div class="thread-note" id="threadNote"></div>
+    <div class="bench-grid" id="benchGrid"></div>
+    <div class="legend"><span><i class="bend-dot"></i>Bend → C</span><span><i class="c-dot"></i>C11 independente</span><span><i class="v-dot"></i>VClust/Clusty 1.2.2</span><span>tempo · pico RSS</span></div>
+  </section>
+
+  <section class="validation">
+    <article class="panel">
+      <p class="eyebrow">Correção observacional</p><h2>As três implementações concordaram</h2>
+      <p>Para cada algoritmo, configuração de threads e repetição, os 10.021 identificadores produziram o mesmo hash de associação a clusters.</p>
+      <div class="check-list"><div class="check"><b>Single linkage</b><span>6.373 clusters</span></div><div class="check"><b>Complete linkage</b><span>7.181 clusters</span></div><div class="check"><b>UCLUST</b><span>6.890 clusters</span></div><div class="check"><b>CD-HIT</b><span>6.890 clusters</span></div><div class="check"><b>Set cover</b><span>6.618 clusters</span></div><div class="check"><b>Testes</b><span>28/28 Bend · 4/4 C</span></div></div>
+    </article>
+    <article class="panel notice">
+      <p class="eyebrow">Limites da medição</p><h2>Energia ainda indisponível</h2>
+      <p>O macOS exige acesso administrativo ao <code>powermetrics</code>. O relatório marca energia como indisponível; nenhum valor foi estimado ou inventado.</p>
+      <p><strong>Threads:</strong> estes kernels Bend não contêm forma paralela explícita, o C11 é sequencial e o Clusty limita 1–2 threads solicitadas a pelo menos 4 workers. Por isso 1→8 threads não trouxe ganho relevante.</p>
+    </article>
+  </section>
+
+  <div class="section-head"><div><p class="eyebrow">Reprodutibilidade</p><h2>Ferramentas realmente executadas</h2></div></div>
+  <section class="panel">
+    <div class="tools"><div class="tool"><b>Bend 2.0.38 → C</b><span>revisão <code>de26a917</code><br><code>clang -O2 -std=c11 -lpthread -lm</code></span></div><div class="tool"><b>C11 independente</b><span>Apple clang 17<br><code>-O3 -Wall -Wextra -Wpedantic -lm</code></span></div><div class="tool"><b>VClust/Clusty</b><span>VClust 1.3.1<br>Clusty 1.2.2</span></div></div>
+    <details class="details"><summary>Problemas encontrados pelo grafo maior</summary><p>O Set Cover C recalculava graus residuais, enquanto o Clusty ordena uma vez pelo grau inicial. Também havia pares direcionais repetidos no ANI. O C foi corrigido para a semântica do Clusty e o preparador agora consolida cada par não direcionado pela maior similaridade.</p></details>
+    <details class="details"><summary>Caminho aproximado Bend</summary><p>O MinHash Bend agora usa um índice invertido de 65.536 buckets e armazena no máximo 64 postings por sequência. Os resultados preliminares acima incluem leitura do FASTA e construção do grafo, mas não são misturados à comparação principal: o score aproximado Bend não é LZ-ANI. Leiden foi excluído da equivalência estrita do grafo comum porque as duas implementações não têm a mesma semântica.</p></details>
+    <details class="details"><summary>Prefiltro Kmer-db e port LZ-ANI</summary><p><code>lib/kmer_db.bend</code> indexa 25-mers canônicos únicos e verifica a chave completa de 50 bits após o hash; C e JS coincidiram com Kmer-db 2.3.1 nos pares e contagens do diferencial. <code>lib/lz_ani_indexed.bend</code> implementa as âncoras e sementes; <code>lib/lz_ani_graph.bend</code> só recebe candidatos e mantém no máximo dois índices LZ residentes. O LZ coincidiu com o oficial em 344 pares direcionados. As provas cobrem costuras numéricas e a rejeição universal de zero-overlap pelo mínimo positivo, não a equivalência integral dos parsers.</p></details>
+  </section>
+
+  <footer class="foot">FASTA SHA-256: <code>e3a458156d7a2ed6be0ae8feefec9ceaa2af1640f28bb87c116f7fa045811dab</code><br>Grafo SHA-256: <code>2b6d6140593cc7970fcafc2d8d4d757143c932ab58d12bf4852726fc23b8ab72</code></footer>
+</main>
+<script>
+const benchmark={
+  single:{label:"Single linkage",clusters:6373,values:{1:[[.014151541,3.78125],[.004587542,2.40625],[.016063209,133.390625]],2:[[.013888833,3.78125],[.004371458,2.40625],[.015873708,133.40625]],4:[[.013985417,3.78125],[.004364458,2.40625],[.015907583,133.40625]],8:[[.014116542,3.78125],[.004276958,2.453125],[.016399459,133.875]]}},
+  complete:{label:"Complete linkage",clusters:7181,values:{1:[[3.712312584,3.828125],[.341861667,3.046875],[.0179955,134.03125]],2:[[3.726496666,3.828125],[.344385875,3.03125],[.017801833,134.03125]],4:[[3.725499333,3.828125],[.34904975,3.03125],[.018062958,134.03125]],8:[[3.738725958,3.828125],[.342327875,3.09375],[.018420125,134.484375]]}},
+  uclust:{label:"UCLUST",clusters:6890,values:{1:[[2.202162042,3.84375],[.031453083,2.4375],[.015882916,134.015625]],2:[[2.202156375,3.84375],[.031496709,2.484375],[.016116541,134.03125]],4:[[2.207683459,3.84375],[.031568042,2.4375],[.016001541,134.03125]],8:[[2.204588667,3.84375],[.031856292,2.4375],[.016320625,134.484375]]}},
+  "cd-hit":{label:"CD-HIT",clusters:6890,values:{1:[[1.679519375,3.84375],[.0233085,2.4375],[.015965375,133.40625]],2:[[1.680236458,3.84375],[.023055459,2.4375],[.016473541,133.390625]],4:[[1.680255125,3.84375],[.023146541,2.4375],[.01606675,133.40625]],8:[[1.683583292,3.84375],[.023423417,2.4375],[.016459042,133.875]]}},
+  "set-cover":{label:"Set cover",clusters:6618,values:{1:[[.033578125,5.21875],[.004711042,2.484375],[.0159475,133.40625]],2:[[.033940875,5.234375],[.004766875,2.484375],[.016668334,133.40625]],4:[[.033557459,5.234375],[.004737625,2.484375],[.01563975,133.40625]],8:[[.033779208,5.234375],[.004712792,2.484375],[.016349125,133.875]]}}
+};
+const names=["Bend → C","C11","VClust"],classes=["bend","c11","vclust"],grid=document.getElementById("benchGrid"),summary=document.getElementById("threadSummary"),note=document.getElementById("threadNote");
+const seconds=value=>value<.1?value.toFixed(4).replace(".",","):value.toFixed(3).replace(".",","),memory=value=>(value>=100?value.toFixed(1):value.toFixed(2)).replace(".",",");
+function render(thread){
+  document.querySelectorAll("[data-thread]").forEach(button=>button.classList.toggle("active",Number(button.dataset.thread)===thread));
+  summary.textContent=`${thread} thread${thread===1?"":"s"} solicitada${thread===1?"":"s"} · mediana de 3 execuções por implementação`;
+  note.textContent=`Workers efetivos — Bend: ${thread} disponíveis, kernel sequencial · C11: 1 · VClust/Clusty: ${thread<4?4:thread}`;
+  grid.innerHTML=Object.values(benchmark).map(item=>{
+    const values=item.values[thread],max=Math.max(...values.map(value=>value[0]));
+    const implementations=values.map((value,index)=>`<div class="impl ${classes[index]}"><span class="impl-name">${names[index]}</span><span class="impl-time">${seconds(value[0])} s</span><span class="impl-memory">${memory(value[1])} MiB</span><span class="track"><i style="width:${Math.max(1,value[0]/max*100)}%"></i></span></div>`).join("");
+    return `<article class="bench-card"><div class="bench-title"><h3>${item.label}</h3><span>${item.clusters.toLocaleString("pt-BR")} clusters</span></div>${implementations}</article>`;
+  }).join("");
+}
+document.querySelectorAll("[data-thread]").forEach(button=>button.addEventListener("click",()=>render(Number(button.dataset.thread))));
+render(1);
+</script>
+</body>
+</html>

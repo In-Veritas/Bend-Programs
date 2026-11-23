@@ -1,0 +1,27 @@
+test_centroid_modes_and_fragments (__main__.ClusteringTests.test_centroid_modes_and_fragments) ... ok
+test_chain_distinguishes_algorithms (__main__.ClusteringTests.test_chain_distinguishes_algorithms) ... ok
+test_chunk_boundary (__main__.ClusteringTests.test_chunk_boundary) ... ok
+test_empty_singleton_duplicates (__main__.ClusteringTests.test_empty_singleton_duplicates) ... ok
+test_folder_failure_preserves_all_outputs (__main__.ClusteringTests.test_folder_failure_preserves_all_outputs) ... ok
+test_folder_independent_files_all_algorithms_and_backends (__main__.ClusteringTests.test_folder_independent_files_all_algorithms_and_backends) ... ok
+test_folder_limits_apply_per_file (__main__.ClusteringTests.test_folder_limits_apply_per_file) ... ok
+test_folder_recursion_and_repeat_runs (__main__.ClusteringTests.test_folder_recursion_and_repeat_runs) ... ok
+test_folder_validation_and_output_aliases (__main__.ClusteringTests.test_folder_validation_and_output_aliases) ... ok
+test_interpreter_entry_and_missing_file (__main__.ClusteringTests.test_interpreter_entry_and_missing_file) ... ok
+test_invalid_inputs_and_settings (__main__.ClusteringTests.test_invalid_inputs_and_settings) ... ok
+test_leiden_aggregation_preserves_weights_and_partition (__main__.ClusteringTests.test_leiden_aggregation_preserves_weights_and_partition) ... ok
+test_leiden_graph_invariants (__main__.ClusteringTests.test_leiden_graph_invariants) ... ok
+test_leiden_seed_resolution_and_pass_failure (__main__.ClusteringTests.test_leiden_seed_resolution_and_pass_failure) ... ok
+test_randomized_reference_comparison (__main__.ClusteringTests.test_randomized_reference_comparison) ... ok
+test_record_limit (__main__.ClusteringTests.test_record_limit) ... ok
+test_representative_payload_matches_algorithm_labels (__main__.ClusteringTests.test_representative_payload_matches_algorithm_labels) ... ok
+test_representatives_and_launcher_atomicity (__main__.ClusteringTests.test_representatives_and_launcher_atomicity) ... ok
+test_reverse_complement_and_iupac (__main__.ClusteringTests.test_reverse_complement_and_iupac) ... ok
+test_rna_case_crlf_comments_and_duplicate_headers (__main__.ClusteringTests.test_rna_case_crlf_comments_and_duplicate_headers) ... ok
+test_short_word_filter_repetitions_and_indels (__main__.ClusteringTests.test_short_word_filter_repetitions_and_indels) ... ok
+test_supported_input_boundaries (__main__.ClusteringTests.test_supported_input_boundaries) ... ok
+
+----------------------------------------------------------------------
+Ran 22 tests in 14.336s
+
+OK

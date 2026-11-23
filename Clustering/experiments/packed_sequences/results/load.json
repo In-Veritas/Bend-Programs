@@ -1,0 +1,185 @@
+{
+  "compiler_revision": "014ccd03c43270c151f46679075f7f04593077ea",
+  "platform": "macOS-26.3.1-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "clang": "Apple clang version 17.0.0 (clang-1700.6.4.2)",
+  "bun": "1.3.14",
+  "source_hashes": {
+    "complete_linkage.bend": "233fabcc98f182a3f42f7cc3484de2267bdc0d36e6c4aca585650383d630d218",
+    "uclust.bend": "32c3e46c19271f78f15d128d088385e4fae952787746fcbf78ec2f7bd8afd959",
+    "set_cover.bend": "efaff6c2baef4045087b6ac6148f95d9ab4ad54092d258c351d8c199fb2fffb9",
+    "cd_hit.bend": "965e2ac798ff400d4bb0262b98de738a48ecd50424a480e87ebfd1fd6f99aa7a",
+    "single_linkage.bend": "59b0813d8f5bc38b3d30c1b3aa542bbc649f1a7a5f6c09c06cc5ac79f8653e18",
+    "leiden.bend": "de81a763a0a5c8d860db7d9dc9296b4d71534c3d648cf0366b182665ab80b74d",
+    "lib/common.bend": "7a02b06ed0c87c9359401fe8023fca329a13eea42b3e50a82adbc91b1a83d0e5",
+    "run.py": "c0cfdb57c20d864ddac42091b841e2f0d36fe0803ddead5c1c298af9781f23c4",
+    "tests/leiden_graph.bend": "d2eb47407c30de64857ae2dd673541711cf3a1cf394d0e3f1c5a01aaccb0094e",
+    "tests/test_clustering.py": "caaeb9db8c04476a7881f8c120ab9b3fe27bad24728b2b07a35b8c70ccdaa9d9",
+    "tests/fixtures/chain.fasta": "1be5887a039e942eec37b3af62a8bf1a9ec2a8e063563da874cfc8f1c341f769"
+  },
+  "experimental_hashes": {
+    "packing.bend": "c7db8bf0d00eb39424df049b9cb4abf710e4ae5def4f7654892542fcb85fdc54",
+    "alignment.bend": "5246fa7f36b2f1ccf5b170616cbf942a18cf7e1bc35c100905c05f6480ad5865"
+  },
+  "warmups": 1,
+  "repeats": 5,
+  "identity": 0.95,
+  "reverse": false,
+  "seed": 42,
+  "threads": 1,
+  "measurement": "Native child wall time and per-child peak RSS; includes FASTA parsing, packing, clustering, TSV and representative output; excludes compilation and Python launcher.",
+  "datasets": {
+    "storage1024_2048": {
+      "path": "experiments/packed_sequences/inputs/storage1024_2048.fasta",
+      "sha256": "52d37efd8b06bbf0dea9ab15d5dfa1b53fc1002b9f899bdddd2277b238ae933b"
+    }
+  },
+  "runs": [
+    {
+      "dataset": "storage1024_2048",
+      "algorithm": "load-only",
+      "variant": "packed",
+      "repeat": 0,
+      "seconds": 0.345983583945781,
+      "cpu_seconds": 0.344999,
+      "peak_rss_bytes": 54853632,
+      "records": 1024,
+      "clusters": 1024,
+      "table_sha256": "a6c783e82852c47c8920e732f6298d62ed85096bc654894e01d9848c7c479717",
+      "representatives_sha256": "b611a09c8deaf376ada1581e15801fb06accbb4b1b8361ace9fdc440efe650de"
+    },
+    {
+      "dataset": "storage1024_2048",
+      "algorithm": "load-only",
+      "variant": "baseline",
+      "repeat": 0,
+      "seconds": 0.26416150014847517,
+      "cpu_seconds": 0.263111,
+      "peak_rss_bytes": 53739520,
+      "records": 1024,
+      "clusters": 1024,
+      "table_sha256": "a6c783e82852c47c8920e732f6298d62ed85096bc654894e01d9848c7c479717",
+      "representatives_sha256": "b611a09c8deaf376ada1581e15801fb06accbb4b1b8361ace9fdc440efe650de"
+    },
+    {
+      "dataset": "storage1024_2048",
+      "algorithm": "load-only",
+      "variant": "baseline",
+      "repeat": 1,
+      "seconds": 0.26444233302026987,
+      "cpu_seconds": 0.263333,
+      "peak_rss_bytes": 53739520,
+      "records": 1024,
+      "clusters": 1024,
+      "table_sha256": "a6c783e82852c47c8920e732f6298d62ed85096bc654894e01d9848c7c479717",
+      "representatives_sha256": "b611a09c8deaf376ada1581e15801fb06accbb4b1b8361ace9fdc440efe650de"
+    },
+    {
+      "dataset": "storage1024_2048",
+      "algorithm": "load-only",
+      "variant": "packed",
+      "repeat": 1,
+      "seconds": 0.3463253329973668,
+      "cpu_seconds": 0.345156,
+      "peak_rss_bytes": 54837248,
+      "records": 1024,
+      "clusters": 1024,
+      "table_sha256": "a6c783e82852c47c8920e732f6298d62ed85096bc654894e01d9848c7c479717",
+      "representatives_sha256": "b611a09c8deaf376ada1581e15801fb06accbb4b1b8361ace9fdc440efe650de"
+    },
+    {
+      "dataset": "storage1024_2048",
+      "algorithm": "load-only",
+      "variant": "baseline",
+      "repeat": 2,
+      "seconds": 0.26380216679535806,
+      "cpu_seconds": 0.262752,
+      "peak_rss_bytes": 53739520,
+      "records": 1024,
+      "clusters": 1024,
+      "table_sha256": "a6c783e82852c47c8920e732f6298d62ed85096bc654894e01d9848c7c479717",
+      "representatives_sha256": "b611a09c8deaf376ada1581e15801fb06accbb4b1b8361ace9fdc440efe650de"
+    },
+    {
+      "dataset": "storage1024_2048",
+      "algorithm": "load-only",
+      "variant": "packed",
+      "repeat": 2,
+      "seconds": 0.36903275013901293,
+      "cpu_seconds": 0.34567499999999995,
+      "peak_rss_bytes": 54853632,
+      "records": 1024,
+      "clusters": 1024,
+      "table_sha256": "a6c783e82852c47c8920e732f6298d62ed85096bc654894e01d9848c7c479717",
+      "representatives_sha256": "b611a09c8deaf376ada1581e15801fb06accbb4b1b8361ace9fdc440efe650de"
+    },
+    {
+      "dataset": "storage1024_2048",
+      "algorithm": "load-only",
+      "variant": "packed",
+      "repeat": 3,
+      "seconds": 0.346000500023365,
+      "cpu_seconds": 0.344989,
+      "peak_rss_bytes": 54853632,
+      "records": 1024,
+      "clusters": 1024,
+      "table_sha256": "a6c783e82852c47c8920e732f6298d62ed85096bc654894e01d9848c7c479717",
+      "representatives_sha256": "b611a09c8deaf376ada1581e15801fb06accbb4b1b8361ace9fdc440efe650de"
+    },
+    {
+      "dataset": "storage1024_2048",
+      "algorithm": "load-only",
+      "variant": "baseline",
+      "repeat": 3,
+      "seconds": 0.2675096660386771,
+      "cpu_seconds": 0.262046,
+      "peak_rss_bytes": 53723136,
+      "records": 1024,
+      "clusters": 1024,
+      "table_sha256": "a6c783e82852c47c8920e732f6298d62ed85096bc654894e01d9848c7c479717",
+      "representatives_sha256": "b611a09c8deaf376ada1581e15801fb06accbb4b1b8361ace9fdc440efe650de"
+    },
+    {
+      "dataset": "storage1024_2048",
+      "algorithm": "load-only",
+      "variant": "packed",
+      "repeat": 4,
+      "seconds": 0.3504334578756243,
+      "cpu_seconds": 0.349346,
+      "peak_rss_bytes": 54853632,
+      "records": 1024,
+      "clusters": 1024,
+      "table_sha256": "a6c783e82852c47c8920e732f6298d62ed85096bc654894e01d9848c7c479717",
+      "representatives_sha256": "b611a09c8deaf376ada1581e15801fb06accbb4b1b8361ace9fdc440efe650de"
+    },
+    {
+      "dataset": "storage1024_2048",
+      "algorithm": "load-only",
+      "variant": "baseline",
+      "repeat": 4,
+      "seconds": 0.27058479096740484,
+      "cpu_seconds": 0.26946499999999995,
+      "peak_rss_bytes": 53739520,
+      "records": 1024,
+      "clusters": 1024,
+      "table_sha256": "a6c783e82852c47c8920e732f6298d62ed85096bc654894e01d9848c7c479717",
+      "representatives_sha256": "b611a09c8deaf376ada1581e15801fb06accbb4b1b8361ace9fdc440efe650de"
+    }
+  ],
+  "summary": [
+    {
+      "dataset": "storage1024_2048",
+      "algorithm": "load-only",
+      "clusters": 1024,
+      "baseline_seconds": 0.26444233302026987,
+      "baseline_rss_mib": 51.25,
+      "baseline_min_seconds": 0.26380216679535806,
+      "baseline_max_seconds": 0.27058479096740484,
+      "packed_seconds": 0.3463253329973668,
+      "packed_rss_mib": 52.3125,
+      "packed_min_seconds": 0.345983583945781,
+      "packed_max_seconds": 0.36903275013901293,
+      "speedup": 0.7635662419828829
+    }
+  ]
+}

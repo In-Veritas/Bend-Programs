@@ -223,6 +223,76 @@ def core_belote_data(platform: Platform) -> IO(Outcome):
     response <- script_file("gabriel_demos/bendjogos_web/core/belote_data.js")
     return Outcome.Outcome{platform, response}
 
+def core_bend_a_beet(platform: Platform) -> IO(Outcome):
+  do IO(Outcome):
+    response <- page("gabriel_demos/bendjogos_web/core/bend-a-beet.html")
+    return Outcome.Outcome{platform, response}
+
+def core_bend_a_beet_data(platform: Platform) -> IO(Outcome):
+  do IO(Outcome):
+    response <- script_file("gabriel_demos/bendjogos_web/core/bend_a_beet_data.js")
+    return Outcome.Outcome{platform, response}
+
+def core_bend_a_beet_camera(platform: Platform) -> IO(Outcome):
+  do IO(Outcome):
+    response <- script_file("gabriel_demos/bendjogos_web/core/bend_a_beet_camera.js")
+    return Outcome.Outcome{platform, response}
+
+def core_bendio(platform: Platform) -> IO(Outcome):
+  do IO(Outcome):
+    response <- page("gabriel_demos/bendjogos_web/core/bendio-3d-land.html")
+    return Outcome.Outcome{platform, response}
+
+def core_bendio_data(platform: Platform) -> IO(Outcome):
+  do IO(Outcome):
+    response <- script_file("gabriel_demos/bendjogos_web/core/bendio_data.js")
+    return Outcome.Outcome{platform, response}
+
+def core_bendy_birds(platform: Platform) -> IO(Outcome):
+  do IO(Outcome):
+    response <- page("gabriel_demos/bendjogos_web/core/bendy-birds.html")
+    return Outcome.Outcome{platform, response}
+
+def core_bendy_birds_data(platform: Platform) -> IO(Outcome):
+  do IO(Outcome):
+    response <- script_file("gabriel_demos/bendjogos_web/core/bendy_birds_data.js")
+    return Outcome.Outcome{platform, response}
+
+def core_bendy_birds_result(platform: Platform) -> IO(Outcome):
+  do IO(Outcome):
+    response <- script_file("gabriel_demos/bendjogos_web/core/bendy_birds_result.js")
+    return Outcome.Outcome{platform, response}
+
+def core_bend_fishing(platform: Platform) -> IO(Outcome):
+  do IO(Outcome):
+    response <- page("gabriel_demos/bendjogos_web/core/bend-fishing.html")
+    return Outcome.Outcome{platform, response}
+
+def core_bend_fishing_data(platform: Platform) -> IO(Outcome):
+  do IO(Outcome):
+    response <- script_file("gabriel_demos/bendjogos_web/core/bend_fishing_data.js")
+    return Outcome.Outcome{platform, response}
+
+def core_bend_aquarium(platform: Platform) -> IO(Outcome):
+  do IO(Outcome):
+    response <- page("gabriel_demos/bendjogos_web/core/bend-aquarium.html")
+    return Outcome.Outcome{platform, response}
+
+def core_bend_aquarium_data(platform: Platform) -> IO(Outcome):
+  do IO(Outcome):
+    response <- script_file("gabriel_demos/bendjogos_web/core/bend_aquarium_data.js")
+    return Outcome.Outcome{platform, response}
+
+def core_bend_landscape(platform: Platform) -> IO(Outcome):
+  do IO(Outcome):
+    response <- page("gabriel_demos/bendjogos_web/core/bend-landscape.html")
+    return Outcome.Outcome{platform, response}
+
+def core_bend_landscape_data(platform: Platform) -> IO(Outcome):
+  do IO(Outcome):
+    response <- script_file("gabriel_demos/bendjogos_web/core/landscape_data.js")
+    return Outcome.Outcome{platform, response}
+
 def core_route(args: List(String), platform: Platform) -> IO(Outcome):
   match args:
     case List.Nil{}: core_index(platform)
@@ -233,7 +303,32 @@ def core_route(args: List(String), platform: Platform) -> IO(Outcome):
     case List.Cons{"belote", List.Nil{}}: core_belote(platform)
     case List.Cons{"belote", List.Cons{"", List.Nil{}}}: core_belote(platform)
     case List.Cons{"belote_data.js", List.Nil{}}: core_belote_data(platform)
+    case List.Cons{"bend-a-beet", List.Nil{}}: core_bend_a_beet(platform)
+    case List.Cons{"bend-a-beet", List.Cons{"", List.Nil{}}}: core_bend_a_beet(platform)
+    case List.Cons{"bend_a_beet_data.js", List.Nil{}}: core_bend_a_beet_data(platform)
+    case List.Cons{"bend_a_beet_camera.js", List.Nil{}}: core_bend_a_beet_camera(platform)
+    case List.Cons{"bendio-3d-land", List.Nil{}}: core_bendio(platform)
+    case List.Cons{"bendio-3d-land", List.Cons{"", List.Nil{}}}: core_bendio(platform)
+    case List.Cons{"bendio_data.js", List.Nil{}}: core_bendio_data(platform)
+    case List.Cons{"bendy-birds", List.Nil{}}: core_bendy_birds(platform)
+    case List.Cons{"bendy-birds", List.Cons{"", List.Nil{}}}: core_bendy_birds(platform)
+    case List.Cons{"bendy_birds_data.js", List.Nil{}}: core_bendy_birds_data(platform)
+    case List.Cons{"bendy_birds_result.js", List.Nil{}}: core_bendy_birds_result(platform)
+    case List.Cons{"bend-fishing", List.Nil{}}: core_bend_fishing(platform)
+    case List.Cons{"bend-fishing", List.Cons{"", List.Nil{}}}: core_bend_fishing(platform)
+    case List.Cons{"bend_fishing_data.js", List.Nil{}}: core_bend_fishing_data(platform)
+    case List.Cons{"bend-aquarium", List.Nil{}}: core_bend_aquarium(platform)
+    case List.Cons{"bend-aquarium", List.Cons{"", List.Nil{}}}: core_bend_aquarium(platform)
+    case List.Cons{"bend_aquarium_data.js", List.Nil{}}: core_bend_aquarium_data(platform)
+    case List.Cons{"bend-landscape", List.Nil{}}: core_bend_landscape(platform)
+    case List.Cons{"bend-landscape", List.Cons{"", List.Nil{}}}: core_bend_landscape(platform)
+    case List.Cons{"landscape_data.js", List.Nil{}}: core_bend_landscape_data(platform)
     case other: IO.pure(Outcome, Outcome.Outcome{platform, HTTP.not_found()})
+
+def clustering_page(platform: Platform) -> IO(Outcome):
+  do IO(Outcome):
+    response <- page("gabriel_demos/bendjogos_web/clustering.html")
+    return Outcome.Outcome{platform, response}
 
 def static_route(name: String, args: List(String), request: HTTP.Request, platform: Platform, now: U32) -> IO(Outcome):
   match String.eq_u32(name, "duck-hunt"):
@@ -302,7 +397,13 @@ def route_parts(parts: List(String), request: HTTP.Request, platform: Platform, 
     case List.Cons{root, List.Cons{"api", args}}:
       game_social(request, platform, now)
     case List.Cons{root, List.Cons{name, args}}:
-      static_route(name, args, request, platform, now)
+      match String.eq_u32(name, "clustering"):
+        case 0: static_route(name, args, request, platform, now)
+        case found:
+          match args:
+            case List.Nil{}: clustering_page(platform)
+            case List.Cons{"", List.Nil{}}: clustering_page(platform)
+            case other: IO.pure(Outcome, Outcome.Outcome{platform, HTTP.not_found()})
     case other:
       IO.pure(Outcome, Outcome.Outcome{platform, HTTP.not_found()})
 

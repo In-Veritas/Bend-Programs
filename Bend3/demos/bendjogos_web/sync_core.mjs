@@ -11,24 +11,77 @@ const demoRoots = [
 const packages = [
   { name: "Poker", slug: "poker", data: "poker_data.js" },
   { name: "Belote", slug: "belote", data: "belote_data.js" },
+  {
+    name: "Bend-a-Beet",
+    slug: "bend-a-beet",
+    source: "bend_a_beet",
+    data: "bend_a_beet_data.js",
+    extras: ["bend_a_beet_camera.js"],
+    inline: ["bend_a_beet_webgl.js", "bend_a_beet_viewer.js"],
+  },
+  {
+    name: "Bendio 3D Land",
+    slug: "bendio-3d-land",
+    source: "bendio_3d_land",
+    data: "bendio_data.js",
+    inline: ["bend_engine_webgl.js", "bendio_viewer.js"],
+  },
+  {
+    name: "Bendy Birds",
+    slug: "bendy-birds",
+    source: "bendy_birds",
+    data: "bendy_birds_data.js",
+    extras: ["bendy_birds_result.js"],
+    inline: ["bend_engine_webgl.js", "bendy_birds_viewer.js"],
+  },
+  {
+    name: "Bend Fishing",
+    slug: "bend-fishing",
+    source: "bend_fishing",
+    data: "bend_fishing_data.js",
+    inline: ["bend_engine_webgl.js", "bend_fishing_viewer.js"],
+  },
+  {
+    name: "Bend Aquarium",
+    slug: "bend-aquarium",
+    source: "bend_aquarium",
+    data: "bend_aquarium_data.js",
+    inline: ["bend_engine_webgl.js", "bend_aquarium_viewer.js"],
+  },
+  {
+    name: "Bend Landscape",
+    slug: "bend-landscape",
+    source: "bend_landscape",
+    data: "landscape_data.js",
+    inline: ["bend_engine_webgl.js", "landscape_viewer.js"],
+  },
 ];
 
 fs.mkdirSync(core, { recursive: true });
 for (const pkg of packages) {
+  const files = [
+    { source: "index.html", target: `${pkg.slug}.html` },
+    { source: pkg.data, target: pkg.data },
+    ...(pkg.extras ?? []).map(file => ({ source: file, target: file })),
+  ];
   const source = demoRoots
-    .map(root => path.join(root, pkg.slug))
-    .find(candidate =>
-      fs.existsSync(path.join(candidate, "index.html")) &&
-      fs.existsSync(path.join(candidate, pkg.data))
-    );
-  const targets = [path.join(core, `${pkg.slug}.html`), path.join(core, pkg.data)];
+    .map(root => path.join(root, pkg.source ?? pkg.slug))
+    .find(candidate => files.every(file => fs.existsSync(path.join(candidate, file.source))) && (pkg.inline ?? []).every(file => fs.existsSync(path.join(candidate, file))));
+  const targets = files.map(file => path.join(core, file.target));
   if (source) {
-    fs.copyFileSync(path.join(source, "index.html"), targets[0]);
-    fs.copyFileSync(path.join(source, pkg.data), targets[1]);
+    files.forEach((file, index) => fs.copyFileSync(path.join(source, file.source), targets[index]));
+    if ((pkg.inline ?? []).length) {
+      const page = targets[0];
+      let html = fs.readFileSync(page, "utf8");
+      for (const file of pkg.inline) {
+        html = html.replace(`<script src="${file}"></script>`, `<script>\n${fs.readFileSync(path.join(source, file), "utf8")}\n</script>`);
+      }
+      fs.writeFileSync(page, html);
+    }
     console.log(`Core ${pkg.name} assets synchronized from ${source}`);
   } else if (targets.every(target => fs.existsSync(target))) {
     console.log(`Core ${pkg.name} source not found; using checked-in synchronized assets.`);
   } else {
-    throw new Error(`Core ${pkg.name} assets are missing; build Bend2 Core/demos/${pkg.slug} first.`);
+    throw new Error(`Core ${pkg.name} assets are missing; build Bend2 Core/demos/${pkg.source ?? pkg.slug} first.`);
   }
 }

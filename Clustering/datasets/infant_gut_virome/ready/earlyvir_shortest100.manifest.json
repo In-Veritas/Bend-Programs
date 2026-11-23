@@ -1,0 +1,513 @@
+{
+  "source": "raw/all.curated.vOTUs.EarlyVir.fna",
+  "taxonomy": "raw/taxtable.tsv",
+  "selection": "shortest declared length, then OTU identifier",
+  "maximum_length": 30000,
+  "requested_records": 100,
+  "eligible_source_records": 6465,
+  "source_records": 10021,
+  "output": "ready/earlyvir_shortest100.fasta",
+  "output_sha256": "2ebde41db38f4c3212f1819fd17d7ccc96a3525dec20f6331308dd313f1d11eb",
+  "records": [
+    {
+      "id": "OTU_16710",
+      "length": 1022,
+      "header": "OTU_16710"
+    },
+    {
+      "id": "OTU_16632",
+      "length": 1061,
+      "header": "OTU_16632"
+    },
+    {
+      "id": "OTU_16177",
+      "length": 1498,
+      "header": "OTU_16177"
+    },
+    {
+      "id": "OTU_16113",
+      "length": 1552,
+      "header": "OTU_16113"
+    },
+    {
+      "id": "OTU_16070",
+      "length": 1583,
+      "header": "OTU_16070"
+    },
+    {
+      "id": "OTU_16067",
+      "length": 1585,
+      "header": "OTU_16067"
+    },
+    {
+      "id": "OTU_15979",
+      "length": 1660,
+      "header": "OTU_15979"
+    },
+    {
+      "id": "OTU_15980",
+      "length": 1660,
+      "header": "OTU_15980"
+    },
+    {
+      "id": "OTU_15959",
+      "length": 1678,
+      "header": "OTU_15959"
+    },
+    {
+      "id": "OTU_15936",
+      "length": 1699,
+      "header": "OTU_15936"
+    },
+    {
+      "id": "OTU_15903",
+      "length": 1725,
+      "header": "OTU_15903"
+    },
+    {
+      "id": "OTU_15899",
+      "length": 1728,
+      "header": "OTU_15899"
+    },
+    {
+      "id": "OTU_15835",
+      "length": 1787,
+      "header": "OTU_15835"
+    },
+    {
+      "id": "OTU_15823",
+      "length": 1804,
+      "header": "OTU_15823"
+    },
+    {
+      "id": "OTU_15821",
+      "length": 1805,
+      "header": "OTU_15821"
+    },
+    {
+      "id": "OTU_15820",
+      "length": 1806,
+      "header": "OTU_15820"
+    },
+    {
+      "id": "OTU_15813",
+      "length": 1817,
+      "header": "OTU_15813"
+    },
+    {
+      "id": "OTU_15805",
+      "length": 1821,
+      "header": "OTU_15805"
+    },
+    {
+      "id": "OTU_15795",
+      "length": 1834,
+      "header": "OTU_15795"
+    },
+    {
+      "id": "OTU_15792",
+      "length": 1837,
+      "header": "OTU_15792"
+    },
+    {
+      "id": "OTU_15788",
+      "length": 1839,
+      "header": "OTU_15788"
+    },
+    {
+      "id": "OTU_15780",
+      "length": 1847,
+      "header": "OTU_15780"
+    },
+    {
+      "id": "OTU_15774",
+      "length": 1853,
+      "header": "OTU_15774"
+    },
+    {
+      "id": "OTU_15766",
+      "length": 1858,
+      "header": "OTU_15766"
+    },
+    {
+      "id": "OTU_15762",
+      "length": 1862,
+      "header": "OTU_15762"
+    },
+    {
+      "id": "OTU_15747",
+      "length": 1879,
+      "header": "OTU_15747"
+    },
+    {
+      "id": "OTU_15744",
+      "length": 1886,
+      "header": "OTU_15744"
+    },
+    {
+      "id": "OTU_15735",
+      "length": 1892,
+      "header": "OTU_15735"
+    },
+    {
+      "id": "OTU_15733",
+      "length": 1893,
+      "header": "OTU_15733"
+    },
+    {
+      "id": "OTU_15731",
+      "length": 1894,
+      "header": "OTU_15731"
+    },
+    {
+      "id": "OTU_15726",
+      "length": 1901,
+      "header": "OTU_15726"
+    },
+    {
+      "id": "OTU_15722",
+      "length": 1904,
+      "header": "OTU_15722"
+    },
+    {
+      "id": "OTU_15710",
+      "length": 1915,
+      "header": "OTU_15710"
+    },
+    {
+      "id": "OTU_15698",
+      "length": 1927,
+      "header": "OTU_15698"
+    },
+    {
+      "id": "OTU_15689",
+      "length": 1935,
+      "header": "OTU_15689"
+    },
+    {
+      "id": "OTU_15691",
+      "length": 1935,
+      "header": "OTU_15691"
+    },
+    {
+      "id": "OTU_15688",
+      "length": 1937,
+      "header": "OTU_15688"
+    },
+    {
+      "id": "OTU_15657",
+      "length": 1966,
+      "header": "OTU_15657"
+    },
+    {
+      "id": "OTU_15651",
+      "length": 1974,
+      "header": "OTU_15651"
+    },
+    {
+      "id": "OTU_15641",
+      "length": 1988,
+      "header": "OTU_15641"
+    },
+    {
+      "id": "OTU_15640",
+      "length": 1989,
+      "header": "OTU_15640"
+    },
+    {
+      "id": "OTU_15620",
+      "length": 2008,
+      "header": "OTU_15620"
+    },
+    {
+      "id": "OTU_15609",
+      "length": 2024,
+      "header": "OTU_15609"
+    },
+    {
+      "id": "OTU_15596",
+      "length": 2036,
+      "header": "OTU_15596"
+    },
+    {
+      "id": "OTU_15587",
+      "length": 2044,
+      "header": "OTU_15587"
+    },
+    {
+      "id": "OTU_15585",
+      "length": 2046,
+      "header": "OTU_15585"
+    },
+    {
+      "id": "OTU_15554",
+      "length": 2077,
+      "header": "OTU_15554"
+    },
+    {
+      "id": "OTU_15547",
+      "length": 2087,
+      "header": "OTU_15547"
+    },
+    {
+      "id": "OTU_15544",
+      "length": 2088,
+      "header": "OTU_15544"
+    },
+    {
+      "id": "OTU_15545",
+      "length": 2088,
+      "header": "OTU_15545"
+    },
+    {
+      "id": "OTU_15533",
+      "length": 2098,
+      "header": "OTU_15533"
+    },
+    {
+      "id": "OTU_15534",
+      "length": 2098,
+      "header": "OTU_15534"
+    },
+    {
+      "id": "OTU_15515",
+      "length": 2120,
+      "header": "OTU_15515"
+    },
+    {
+      "id": "OTU_15512",
+      "length": 2126,
+      "header": "OTU_15512"
+    },
+    {
+      "id": "OTU_15509",
+      "length": 2129,
+      "header": "OTU_15509"
+    },
+    {
+      "id": "OTU_15507",
+      "length": 2130,
+      "header": "OTU_15507"
+    },
+    {
+      "id": "OTU_15505",
+      "length": 2131,
+      "header": "OTU_15505"
+    },
+    {
+      "id": "OTU_15497",
+      "length": 2139,
+      "header": "OTU_15497"
+    },
+    {
+      "id": "OTU_15496",
+      "length": 2140,
+      "header": "OTU_15496"
+    },
+    {
+      "id": "OTU_15492",
+      "length": 2142,
+      "header": "OTU_15492"
+    },
+    {
+      "id": "OTU_15488",
+      "length": 2148,
+      "header": "OTU_15488"
+    },
+    {
+      "id": "OTU_15480",
+      "length": 2158,
+      "header": "OTU_15480"
+    },
+    {
+      "id": "OTU_15479",
+      "length": 2159,
+      "header": "OTU_15479"
+    },
+    {
+      "id": "OTU_15477",
+      "length": 2161,
+      "header": "OTU_15477"
+    },
+    {
+      "id": "OTU_15468",
+      "length": 2176,
+      "header": "OTU_15468"
+    },
+    {
+      "id": "OTU_15446",
+      "length": 2201,
+      "header": "OTU_15446"
+    },
+    {
+      "id": "OTU_15444",
+      "length": 2202,
+      "header": "OTU_15444"
+    },
+    {
+      "id": "OTU_15437",
+      "length": 2215,
+      "header": "OTU_15437"
+    },
+    {
+      "id": "OTU_15434",
+      "length": 2218,
+      "header": "OTU_15434"
+    },
+    {
+      "id": "OTU_15428",
+      "length": 2225,
+      "header": "OTU_15428"
+    },
+    {
+      "id": "OTU_15423",
+      "length": 2235,
+      "header": "OTU_15423"
+    },
+    {
+      "id": "OTU_15424",
+      "length": 2235,
+      "header": "OTU_15424"
+    },
+    {
+      "id": "OTU_15416",
+      "length": 2242,
+      "header": "OTU_15416"
+    },
+    {
+      "id": "OTU_15410",
+      "length": 2259,
+      "header": "OTU_15410"
+    },
+    {
+      "id": "OTU_15398",
+      "length": 2278,
+      "header": "OTU_15398"
+    },
+    {
+      "id": "OTU_15396",
+      "length": 2283,
+      "header": "OTU_15396"
+    },
+    {
+      "id": "OTU_15383",
+      "length": 2303,
+      "header": "OTU_15383"
+    },
+    {
+      "id": "OTU_15376",
+      "length": 2318,
+      "header": "OTU_15376"
+    },
+    {
+      "id": "OTU_15365",
+      "length": 2333,
+      "header": "OTU_15365"
+    },
+    {
+      "id": "OTU_15362",
+      "length": 2335,
+      "header": "OTU_15362"
+    },
+    {
+      "id": "OTU_15360",
+      "length": 2336,
+      "header": "OTU_15360"
+    },
+    {
+      "id": "OTU_15358",
+      "length": 2341,
+      "header": "OTU_15358"
+    },
+    {
+      "id": "OTU_15353",
+      "length": 2347,
+      "header": "OTU_15353"
+    },
+    {
+      "id": "OTU_15345",
+      "length": 2362,
+      "header": "OTU_15345"
+    },
+    {
+      "id": "OTU_15336",
+      "length": 2373,
+      "header": "OTU_15336"
+    },
+    {
+      "id": "OTU_15322",
+      "length": 2391,
+      "header": "OTU_15322"
+    },
+    {
+      "id": "OTU_15319",
+      "length": 2397,
+      "header": "OTU_15319"
+    },
+    {
+      "id": "OTU_15318",
+      "length": 2399,
+      "header": "OTU_15318"
+    },
+    {
+      "id": "OTU_15314",
+      "length": 2405,
+      "header": "OTU_15314"
+    },
+    {
+      "id": "OTU_15312",
+      "length": 2406,
+      "header": "OTU_15312"
+    },
+    {
+      "id": "OTU_15313",
+      "length": 2406,
+      "header": "OTU_15313"
+    },
+    {
+      "id": "OTU_15309",
+      "length": 2411,
+      "header": "OTU_15309"
+    },
+    {
+      "id": "OTU_15307",
+      "length": 2418,
+      "header": "OTU_15307"
+    },
+    {
+      "id": "OTU_15308",
+      "length": 2418,
+      "header": "OTU_15308"
+    },
+    {
+      "id": "OTU_15302",
+      "length": 2426,
+      "header": "OTU_15302"
+    },
+    {
+      "id": "OTU_15301",
+      "length": 2427,
+      "header": "OTU_15301"
+    },
+    {
+      "id": "OTU_15296",
+      "length": 2434,
+      "header": "OTU_15296"
+    },
+    {
+      "id": "OTU_15291",
+      "length": 2440,
+      "header": "OTU_15291"
+    },
+    {
+      "id": "OTU_15287",
+      "length": 2443,
+      "header": "OTU_15287"
+    },
+    {
+      "id": "OTU_15283",
+      "length": 2446,
+      "header": "OTU_15283"
+    }
+  ]
+}

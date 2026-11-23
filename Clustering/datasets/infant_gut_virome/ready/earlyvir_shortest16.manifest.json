@@ -1,0 +1,93 @@
+{
+  "source": "raw/all.curated.vOTUs.EarlyVir.fna",
+  "taxonomy": "raw/taxtable.tsv",
+  "selection": "shortest declared length, then OTU identifier",
+  "maximum_length": 30000,
+  "requested_records": 16,
+  "eligible_source_records": 6465,
+  "source_records": 10021,
+  "output": "ready/earlyvir_shortest16.fasta",
+  "output_sha256": "36a62a786aaa409e1127524057f93fecef31d31ef1c75bd2298211514df6a29f",
+  "records": [
+    {
+      "id": "OTU_16710",
+      "length": 1022,
+      "header": "OTU_16710"
+    },
+    {
+      "id": "OTU_16632",
+      "length": 1061,
+      "header": "OTU_16632"
+    },
+    {
+      "id": "OTU_16177",
+      "length": 1498,
+      "header": "OTU_16177"
+    },
+    {
+      "id": "OTU_16113",
+      "length": 1552,
+      "header": "OTU_16113"
+    },
+    {
+      "id": "OTU_16070",
+      "length": 1583,
+      "header": "OTU_16070"
+    },
+    {
+      "id": "OTU_16067",
+      "length": 1585,
+      "header": "OTU_16067"
+    },
+    {
+      "id": "OTU_15979",
+      "length": 1660,
+      "header": "OTU_15979"
+    },
+    {
+      "id": "OTU_15980",
+      "length": 1660,
+      "header": "OTU_15980"
+    },
+    {
+      "id": "OTU_15959",
+      "length": 1678,
+      "header": "OTU_15959"
+    },
+    {
+      "id": "OTU_15936",
+      "length": 1699,
+      "header": "OTU_15936"
+    },
+    {
+      "id": "OTU_15903",
+      "length": 1725,
+      "header": "OTU_15903"
+    },
+    {
+      "id": "OTU_15899",
+      "length": 1728,
+      "header": "OTU_15899"
+    },
+    {
+      "id": "OTU_15835",
+      "length": 1787,
+      "header": "OTU_15835"
+    },
+    {
+      "id": "OTU_15823",
+      "length": 1804,
+      "header": "OTU_15823"
+    },
+    {
+      "id": "OTU_15821",
+      "length": 1805,
+      "header": "OTU_15821"
+    },
+    {
+      "id": "OTU_15820",
+      "length": 1806,
+      "header": "OTU_15820"
+    }
+  ]
+}

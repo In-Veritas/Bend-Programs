@@ -1,0 +1,8 @@
+__pycache__/
+*.py[cod]
+.bend-cluster-*
+.tools/
+c_baseline/cluster_graph
+
+# Published datasets larger than GitHub's ordinary 100 MiB file limit.
+datasets/infant_gut_virome/raw/

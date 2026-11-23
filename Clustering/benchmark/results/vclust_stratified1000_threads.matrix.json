@@ -1,0 +1,1403 @@
+{
+  "schema": 1,
+  "status": "valid",
+  "benchmark": "Vclust prefilter and complete-format alignment thread matrix",
+  "input": {
+    "path": "Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+    "bytes": 25458118,
+    "sha256": "418677c70cff7c38200f8e2f0acc53e7c1d392b18b7ce351b75f1fa85043fead"
+  },
+  "toolchain": {
+    "vclust_info": "Vclust version 1.3.1 (Python 3.14.6)\n\nCitation:\nZielezinski A, Gudys A et al. (2025) \nUltrafast and accurate sequence alignment and clustering of viral genomes. \nNat Methods. doi: https://doi.org/10.1038/s41592-025-02701-7\n\nInstalled at:\n   /Users/macolas/Software/Gabriel/Bend-Programs/Clustering/.tools/vclust-1.3.1/lib/python3.14/site-packages/vclust.py (49.3 KB)\n   /Users/macolas/Software/Gabriel/Bend-Programs/Clustering/.tools/vclust-1.3.1/lib/python3.14/site-packages/bin\n\nBinary dependencies:\n   Kmer-db              v2.3.1   (3.6 MB)\n   LZ-ANI               v1.2.3   (3.0 MB)\n   Clusty               v1.2.2   (3.6 MB)\n   mfasta               v1.0.4   (2.4 MB)\n\n\u001b[32;1mStatus: ready\u001b[0m",
+    "platform": {
+      "system": "Darwin",
+      "release": "25.3.0",
+      "machine": "arm64"
+    }
+  },
+  "configuration": {
+    "threads": [
+      1,
+      2,
+      4,
+      8
+    ],
+    "repeats": 3,
+    "min_identity": 0.7,
+    "alignment_filter_threshold": 0.7,
+    "alignment_output_format": "complete",
+    "energy_mode": "off",
+    "thread_order": "forward on odd repeats; reversed on even repeats"
+  },
+  "determinism": {
+    "canonical_filter_hashes": [
+      "7027f4467f650dcc960da247e598936e60f1763f4b7fde8afb80a6c64f543705"
+    ],
+    "canonical_ani_hashes": [
+      "dbe326171f9050f24ab68bab46e37a1b1861e56647069a7df3c020b1049b7d7c"
+    ],
+    "ids_hashes": [
+      "3c89a35c12d1730016575c6d6443d6dfa5c64ea4ce750a3eb14d59511cc0937a"
+    ]
+  },
+  "runs": [
+    {
+      "threads": 1,
+      "repeat": 1,
+      "prefilter": {
+        "schema": 1,
+        "command": [
+          "/Users/macolas/Software/Gabriel/Bend-Programs/Clustering/.tools/vclust-1.3.1/bin/vclust",
+          "prefilter",
+          "-i",
+          "Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+          "-o",
+          "/var/folders/rg/h0_4_ww91836bk315x2n0qfm0000gn/T/vclust-frontend-matrix-l2ablhng/t1-r1.filter.tsv",
+          "--min-ident",
+          "0.7",
+          "--threads",
+          "1",
+          "-v",
+          "0"
+        ],
+        "started_unix_seconds": 1792878111.734719,
+        "elapsed_monotonic_seconds": 2.0754162091761827,
+        "exit_code": 0,
+        "platform": {
+          "system": "Darwin",
+          "release": "25.3.0",
+          "machine": "arm64",
+          "python": "3.14.6"
+        },
+        "metrics": {
+          "time_real_seconds": 2.0754162091761827,
+          "time_user_seconds": 1.71925,
+          "time_system_seconds": 0.48997799999999997,
+          "maximum_resident_bytes": 556122112,
+          "maximum_resident_note": "maximum RSS reported for the measured command"
+        },
+        "energy": {
+          "available": false,
+          "source": "macOS powermetrics cpu_power",
+          "reason": "disabled"
+        },
+        "stdout_tail": "",
+        "stderr_tail": ""
+      },
+      "align": {
+        "schema": 1,
+        "command": [
+          "/Users/macolas/Software/Gabriel/Bend-Programs/Clustering/.tools/vclust-1.3.1/bin/vclust",
+          "align",
+          "-i",
+          "Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+          "-o",
+          "/var/folders/rg/h0_4_ww91836bk315x2n0qfm0000gn/T/vclust-frontend-matrix-l2ablhng/t1-r1.ani.tsv",
+          "--filter",
+          "/var/folders/rg/h0_4_ww91836bk315x2n0qfm0000gn/T/vclust-frontend-matrix-l2ablhng/t1-r1.filter.tsv",
+          "--filter-threshold",
+          "0.7",
+          "--outfmt",
+          "complete",
+          "--threads",
+          "1",
+          "-v",
+          "0"
+        ],
+        "started_unix_seconds": 1792878113.843387,
+        "elapsed_monotonic_seconds": 1.6786352922208607,
+        "exit_code": 0,
+        "platform": {
+          "system": "Darwin",
+          "release": "25.3.0",
+          "machine": "arm64",
+          "python": "3.14.6"
+        },
+        "metrics": {
+          "time_real_seconds": 1.6786352922208607,
+          "time_user_seconds": 1.655382,
+          "time_system_seconds": 0.021594,
+          "maximum_resident_bytes": 134168576,
+          "maximum_resident_note": "maximum RSS reported for the measured command"
+        },
+        "energy": {
+          "available": false,
+          "source": "macOS powermetrics cpu_power",
+          "reason": "disabled"
+        },
+        "stdout_tail": "",
+        "stderr_tail": ""
+      },
+      "outputs": {
+        "filter": {
+          "bytes": 53624,
+          "lines": 1001,
+          "sha256": "7f3db0d677fab7f87e283f01e1857d3112e3a1d9cfde8ada91e5021f154bc0c2",
+          "canonical_sha256": "7027f4467f650dcc960da247e598936e60f1763f4b7fde8afb80a6c64f543705"
+        },
+        "ani": {
+          "bytes": 554695,
+          "lines": 5427,
+          "sha256": "8cf191c1e0b6da780391ea454dea9dc2f6fb9aa58bd1ebf51570ce8905199382",
+          "canonical_sha256": "dbe326171f9050f24ab68bab46e37a1b1861e56647069a7df3c020b1049b7d7c"
+        },
+        "ids": {
+          "bytes": 16923,
+          "lines": 1001,
+          "sha256": "3c89a35c12d1730016575c6d6443d6dfa5c64ea4ce750a3eb14d59511cc0937a"
+        }
+      }
+    },
+    {
+      "threads": 2,
+      "repeat": 1,
+      "prefilter": {
+        "schema": 1,
+        "command": [
+          "/Users/macolas/Software/Gabriel/Bend-Programs/Clustering/.tools/vclust-1.3.1/bin/vclust",
+          "prefilter",
+          "-i",
+          "Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+          "-o",
+          "/var/folders/rg/h0_4_ww91836bk315x2n0qfm0000gn/T/vclust-frontend-matrix-l2ablhng/t2-r1.filter.tsv",
+          "--min-ident",
+          "0.7",
+          "--threads",
+          "2",
+          "-v",
+          "0"
+        ],
+        "started_unix_seconds": 1792878115.557041,
+        "elapsed_monotonic_seconds": 1.5761254173703492,
+        "exit_code": 0,
+        "platform": {
+          "system": "Darwin",
+          "release": "25.3.0",
+          "machine": "arm64",
+          "python": "3.14.6"
+        },
+        "metrics": {
+          "time_real_seconds": 1.5761254173703492,
+          "time_user_seconds": 1.883159,
+          "time_system_seconds": 0.506583,
+          "maximum_resident_bytes": 556580864,
+          "maximum_resident_note": "maximum RSS reported for the measured command"
+        },
+        "energy": {
+          "available": false,
+          "source": "macOS powermetrics cpu_power",
+          "reason": "disabled"
+        },
+        "stdout_tail": "",
+        "stderr_tail": ""
+      },
+      "align": {
+        "schema": 1,
+        "command": [
+          "/Users/macolas/Software/Gabriel/Bend-Programs/Clustering/.tools/vclust-1.3.1/bin/vclust",
+          "align",
+          "-i",
+          "Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+          "-o",
+          "/var/folders/rg/h0_4_ww91836bk315x2n0qfm0000gn/T/vclust-frontend-matrix-l2ablhng/t2-r1.ani.tsv",
+          "--filter",
+          "/var/folders/rg/h0_4_ww91836bk315x2n0qfm0000gn/T/vclust-frontend-matrix-l2ablhng/t2-r1.filter.tsv",
+          "--filter-threshold",
+          "0.7",
+          "--outfmt",
+          "complete",
+          "--threads",
+          "2",
+          "-v",
+          "0"
+        ],
+        "started_unix_seconds": 1792878117.165635,
+        "elapsed_monotonic_seconds": 0.9060511668212712,
+        "exit_code": 0,
+        "platform": {
+          "system": "Darwin",
+          "release": "25.3.0",
+          "machine": "arm64",
+          "python": "3.14.6"
+        },
+        "metrics": {
+          "time_real_seconds": 0.9060511668212712,
+          "time_user_seconds": 1.716497,
+          "time_system_seconds": 0.023294,
+          "maximum_resident_bytes": 171343872,
+          "maximum_resident_note": "maximum RSS reported for the measured command"
+        },
+        "energy": {
+          "available": false,
+          "source": "macOS powermetrics cpu_power",
+          "reason": "disabled"
+        },
+        "stdout_tail": "",
+        "stderr_tail": ""
+      },
+      "outputs": {
+        "filter": {
+          "bytes": 53624,
+          "lines": 1001,
+          "sha256": "7f3db0d677fab7f87e283f01e1857d3112e3a1d9cfde8ada91e5021f154bc0c2",
+          "canonical_sha256": "7027f4467f650dcc960da247e598936e60f1763f4b7fde8afb80a6c64f543705"
+        },
+        "ani": {
+          "bytes": 554695,
+          "lines": 5427,
+          "sha256": "8cf191c1e0b6da780391ea454dea9dc2f6fb9aa58bd1ebf51570ce8905199382",
+          "canonical_sha256": "dbe326171f9050f24ab68bab46e37a1b1861e56647069a7df3c020b1049b7d7c"
+        },
+        "ids": {
+          "bytes": 16923,
+          "lines": 1001,
+          "sha256": "3c89a35c12d1730016575c6d6443d6dfa5c64ea4ce750a3eb14d59511cc0937a"
+        }
+      }
+    },
+    {
+      "threads": 4,
+      "repeat": 1,
+      "prefilter": {
+        "schema": 1,
+        "command": [
+          "/Users/macolas/Software/Gabriel/Bend-Programs/Clustering/.tools/vclust-1.3.1/bin/vclust",
+          "prefilter",
+          "-i",
+          "Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+          "-o",
+          "/var/folders/rg/h0_4_ww91836bk315x2n0qfm0000gn/T/vclust-frontend-matrix-l2ablhng/t4-r1.filter.tsv",
+          "--min-ident",
+          "0.7",
+          "--threads",
+          "4",
+          "-v",
+          "0"
+        ],
+        "started_unix_seconds": 1792878118.1064,
+        "elapsed_monotonic_seconds": 1.3432156252674758,
+        "exit_code": 0,
+        "platform": {
+          "system": "Darwin",
+          "release": "25.3.0",
+          "machine": "arm64",
+          "python": "3.14.6"
+        },
+        "metrics": {
+          "time_real_seconds": 1.3432156252674758,
+          "time_user_seconds": 2.270976,
+          "time_system_seconds": 0.605889,
+          "maximum_resident_bytes": 558350336,
+          "maximum_resident_note": "maximum RSS reported for the measured command"
+        },
+        "energy": {
+          "available": false,
+          "source": "macOS powermetrics cpu_power",
+          "reason": "disabled"
+        },
+        "stdout_tail": "",
+        "stderr_tail": ""
+      },
+      "align": {
+        "schema": 1,
+        "command": [
+          "/Users/macolas/Software/Gabriel/Bend-Programs/Clustering/.tools/vclust-1.3.1/bin/vclust",
+          "align",
+          "-i",
+          "Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+          "-o",
+          "/var/folders/rg/h0_4_ww91836bk315x2n0qfm0000gn/T/vclust-frontend-matrix-l2ablhng/t4-r1.ani.tsv",
+          "--filter",
+          "/var/folders/rg/h0_4_ww91836bk315x2n0qfm0000gn/T/vclust-frontend-matrix-l2ablhng/t4-r1.filter.tsv",
+          "--filter-threshold",
+          "0.7",
+          "--outfmt",
+          "complete",
+          "--threads",
+          "4",
+          "-v",
+          "0"
+        ],
+        "started_unix_seconds": 1792878119.482482,
+        "elapsed_monotonic_seconds": 0.5631388747133315,
+        "exit_code": 0,
+        "platform": {
+          "system": "Darwin",
+          "release": "25.3.0",
+          "machine": "arm64",
+          "python": "3.14.6"
+        },
+        "metrics": {
+          "time_real_seconds": 0.5631388747133315,
+          "time_user_seconds": 2.00265,
+          "time_system_seconds": 0.033625999999999996,
+          "maximum_resident_bytes": 256098304,
+          "maximum_resident_note": "maximum RSS reported for the measured command"
+        },
+        "energy": {
+          "available": false,
+          "source": "macOS powermetrics cpu_power",
+          "reason": "disabled"
+        },
+        "stdout_tail": "",
+        "stderr_tail": ""
+      },
+      "outputs": {
+        "filter": {
+          "bytes": 53624,
+          "lines": 1001,
+          "sha256": "7f3db0d677fab7f87e283f01e1857d3112e3a1d9cfde8ada91e5021f154bc0c2",
+          "canonical_sha256": "7027f4467f650dcc960da247e598936e60f1763f4b7fde8afb80a6c64f543705"
+        },
+        "ani": {
+          "bytes": 554695,
+          "lines": 5427,
+          "sha256": "8cf191c1e0b6da780391ea454dea9dc2f6fb9aa58bd1ebf51570ce8905199382",
+          "canonical_sha256": "dbe326171f9050f24ab68bab46e37a1b1861e56647069a7df3c020b1049b7d7c"
+        },
+        "ids": {
+          "bytes": 16923,
+          "lines": 1001,
+          "sha256": "3c89a35c12d1730016575c6d6443d6dfa5c64ea4ce750a3eb14d59511cc0937a"
+        }
+      }
+    },
+    {
+      "threads": 8,
+      "repeat": 1,
+      "prefilter": {
+        "schema": 1,
+        "command": [
+          "/Users/macolas/Software/Gabriel/Bend-Programs/Clustering/.tools/vclust-1.3.1/bin/vclust",
+          "prefilter",
+          "-i",
+          "Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+          "-o",
+          "/var/folders/rg/h0_4_ww91836bk315x2n0qfm0000gn/T/vclust-frontend-matrix-l2ablhng/t8-r1.filter.tsv",
+          "--min-ident",
+          "0.7",
+          "--threads",
+          "8",
+          "-v",
+          "0"
+        ],
+        "started_unix_seconds": 1792878120.080776,
+        "elapsed_monotonic_seconds": 1.3061993750743568,
+        "exit_code": 0,
+        "platform": {
+          "system": "Darwin",
+          "release": "25.3.0",
+          "machine": "arm64",
+          "python": "3.14.6"
+        },
+        "metrics": {
+          "time_real_seconds": 1.3061993750743568,
+          "time_user_seconds": 2.912245,
+          "time_system_seconds": 1.389456,
+          "maximum_resident_bytes": 567558144,
+          "maximum_resident_note": "maximum RSS reported for the measured command"
+        },
+        "energy": {
+          "available": false,
+          "source": "macOS powermetrics cpu_power",
+          "reason": "disabled"
+        },
+        "stdout_tail": "",
+        "stderr_tail": ""
+      },
+      "align": {
+        "schema": 1,
+        "command": [
+          "/Users/macolas/Software/Gabriel/Bend-Programs/Clustering/.tools/vclust-1.3.1/bin/vclust",
+          "align",
+          "-i",
+          "Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+          "-o",
+          "/var/folders/rg/h0_4_ww91836bk315x2n0qfm0000gn/T/vclust-frontend-matrix-l2ablhng/t8-r1.ani.tsv",
+          "--filter",
+          "/var/folders/rg/h0_4_ww91836bk315x2n0qfm0000gn/T/vclust-frontend-matrix-l2ablhng/t8-r1.filter.tsv",
+          "--filter-threshold",
+          "0.7",
+          "--outfmt",
+          "complete",
+          "--threads",
+          "8",
+          "-v",
+          "0"
+        ],
+        "started_unix_seconds": 1792878121.4200692,
+        "elapsed_monotonic_seconds": 0.4704815000295639,
+        "exit_code": 0,
+        "platform": {
+          "system": "Darwin",
+          "release": "25.3.0",
+          "machine": "arm64",
+          "python": "3.14.6"
+        },
+        "metrics": {
+          "time_real_seconds": 0.4704815000295639,
+          "time_user_seconds": 3.116835,
+          "time_system_seconds": 0.092182,
+          "maximum_resident_bytes": 396296192,
+          "maximum_resident_note": "maximum RSS reported for the measured command"
+        },
+        "energy": {
+          "available": false,
+          "source": "macOS powermetrics cpu_power",
+          "reason": "disabled"
+        },
+        "stdout_tail": "",
+        "stderr_tail": ""
+      },
+      "outputs": {
+        "filter": {
+          "bytes": 53624,
+          "lines": 1001,
+          "sha256": "7f3db0d677fab7f87e283f01e1857d3112e3a1d9cfde8ada91e5021f154bc0c2",
+          "canonical_sha256": "7027f4467f650dcc960da247e598936e60f1763f4b7fde8afb80a6c64f543705"
+        },
+        "ani": {
+          "bytes": 554695,
+          "lines": 5427,
+          "sha256": "8cf191c1e0b6da780391ea454dea9dc2f6fb9aa58bd1ebf51570ce8905199382",
+          "canonical_sha256": "dbe326171f9050f24ab68bab46e37a1b1861e56647069a7df3c020b1049b7d7c"
+        },
+        "ids": {
+          "bytes": 16923,
+          "lines": 1001,
+          "sha256": "3c89a35c12d1730016575c6d6443d6dfa5c64ea4ce750a3eb14d59511cc0937a"
+        }
+      }
+    },
+    {
+      "threads": 8,
+      "repeat": 2,
+      "prefilter": {
+        "schema": 1,
+        "command": [
+          "/Users/macolas/Software/Gabriel/Bend-Programs/Clustering/.tools/vclust-1.3.1/bin/vclust",
+          "prefilter",
+          "-i",
+          "Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+          "-o",
+          "/var/folders/rg/h0_4_ww91836bk315x2n0qfm0000gn/T/vclust-frontend-matrix-l2ablhng/t8-r2.filter.tsv",
+          "--min-ident",
+          "0.7",
+          "--threads",
+          "8",
+          "-v",
+          "0"
+        ],
+        "started_unix_seconds": 1792878121.926235,
+        "elapsed_monotonic_seconds": 1.2904505832120776,
+        "exit_code": 0,
+        "platform": {
+          "system": "Darwin",
+          "release": "25.3.0",
+          "machine": "arm64",
+          "python": "3.14.6"
+        },
+        "metrics": {
+          "time_real_seconds": 1.2904505832120776,
+          "time_user_seconds": 2.904667,
+          "time_system_seconds": 1.343232,
+          "maximum_resident_bytes": 566427648,
+          "maximum_resident_note": "maximum RSS reported for the measured command"
+        },
+        "energy": {
+          "available": false,
+          "source": "macOS powermetrics cpu_power",
+          "reason": "disabled"
+        },
+        "stdout_tail": "",
+        "stderr_tail": ""
+      },
+      "align": {
+        "schema": 1,
+        "command": [
+          "/Users/macolas/Software/Gabriel/Bend-Programs/Clustering/.tools/vclust-1.3.1/bin/vclust",
+          "align",
+          "-i",
+          "Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+          "-o",
+          "/var/folders/rg/h0_4_ww91836bk315x2n0qfm0000gn/T/vclust-frontend-matrix-l2ablhng/t8-r2.ani.tsv",
+          "--filter",
+          "/var/folders/rg/h0_4_ww91836bk315x2n0qfm0000gn/T/vclust-frontend-matrix-l2ablhng/t8-r2.filter.tsv",
+          "--filter-threshold",
+          "0.7",
+          "--outfmt",
+          "complete",
+          "--threads",
+          "8",
+          "-v",
+          "0"
+        ],
+        "started_unix_seconds": 1792878123.249799,
+        "elapsed_monotonic_seconds": 0.4651374579407275,
+        "exit_code": 0,
+        "platform": {
+          "system": "Darwin",
+          "release": "25.3.0",
+          "machine": "arm64",
+          "python": "3.14.6"
+        },
+        "metrics": {
+          "time_real_seconds": 0.4651374579407275,
+          "time_user_seconds": 3.095944,
+          "time_system_seconds": 0.092291,
+          "maximum_resident_bytes": 404422656,
+          "maximum_resident_note": "maximum RSS reported for the measured command"
+        },
+        "energy": {
+          "available": false,
+          "source": "macOS powermetrics cpu_power",
+          "reason": "disabled"
+        },
+        "stdout_tail": "",
+        "stderr_tail": ""
+      },
+      "outputs": {
+        "filter": {
+          "bytes": 53624,
+          "lines": 1001,
+          "sha256": "7f3db0d677fab7f87e283f01e1857d3112e3a1d9cfde8ada91e5021f154bc0c2",
+          "canonical_sha256": "7027f4467f650dcc960da247e598936e60f1763f4b7fde8afb80a6c64f543705"
+        },
+        "ani": {
+          "bytes": 554695,
+          "lines": 5427,
+          "sha256": "8cf191c1e0b6da780391ea454dea9dc2f6fb9aa58bd1ebf51570ce8905199382",
+          "canonical_sha256": "dbe326171f9050f24ab68bab46e37a1b1861e56647069a7df3c020b1049b7d7c"
+        },
+        "ids": {
+          "bytes": 16923,
+          "lines": 1001,
+          "sha256": "3c89a35c12d1730016575c6d6443d6dfa5c64ea4ce750a3eb14d59511cc0937a"
+        }
+      }
+    },
+    {
+      "threads": 4,
+      "repeat": 2,
+      "prefilter": {
+        "schema": 1,
+        "command": [
+          "/Users/macolas/Software/Gabriel/Bend-Programs/Clustering/.tools/vclust-1.3.1/bin/vclust",
+          "prefilter",
+          "-i",
+          "Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+          "-o",
+          "/var/folders/rg/h0_4_ww91836bk315x2n0qfm0000gn/T/vclust-frontend-matrix-l2ablhng/t4-r2.filter.tsv",
+          "--min-ident",
+          "0.7",
+          "--threads",
+          "4",
+          "-v",
+          "0"
+        ],
+        "started_unix_seconds": 1792878123.750823,
+        "elapsed_monotonic_seconds": 1.364920999854803,
+        "exit_code": 0,
+        "platform": {
+          "system": "Darwin",
+          "release": "25.3.0",
+          "machine": "arm64",
+          "python": "3.14.6"
+        },
+        "metrics": {
+          "time_real_seconds": 1.364920999854803,
+          "time_user_seconds": 2.268372,
+          "time_system_seconds": 0.614852,
+          "maximum_resident_bytes": 557957120,
+          "maximum_resident_note": "maximum RSS reported for the measured command"
+        },
+        "energy": {
+          "available": false,
+          "source": "macOS powermetrics cpu_power",
+          "reason": "disabled"
+        },
+        "stdout_tail": "",
+        "stderr_tail": ""
+      },
+      "align": {
+        "schema": 1,
+        "command": [
+          "/Users/macolas/Software/Gabriel/Bend-Programs/Clustering/.tools/vclust-1.3.1/bin/vclust",
+          "align",
+          "-i",
+          "Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+          "-o",
+          "/var/folders/rg/h0_4_ww91836bk315x2n0qfm0000gn/T/vclust-frontend-matrix-l2ablhng/t4-r2.ani.tsv",
+          "--filter",
+          "/var/folders/rg/h0_4_ww91836bk315x2n0qfm0000gn/T/vclust-frontend-matrix-l2ablhng/t4-r2.filter.tsv",
+          "--filter-threshold",
+          "0.7",
+          "--outfmt",
+          "complete",
+          "--threads",
+          "4",
+          "-v",
+          "0"
+        ],
+        "started_unix_seconds": 1792878125.148476,
+        "elapsed_monotonic_seconds": 0.5688896249048412,
+        "exit_code": 0,
+        "platform": {
+          "system": "Darwin",
+          "release": "25.3.0",
+          "machine": "arm64",
+          "python": "3.14.6"
+        },
+        "metrics": {
+          "time_real_seconds": 0.5688896249048412,
+          "time_user_seconds": 2.023652,
+          "time_system_seconds": 0.034054999999999995,
+          "maximum_resident_bytes": 257540096,
+          "maximum_resident_note": "maximum RSS reported for the measured command"
+        },
+        "energy": {
+          "available": false,
+          "source": "macOS powermetrics cpu_power",
+          "reason": "disabled"
+        },
+        "stdout_tail": "",
+        "stderr_tail": ""
+      },
+      "outputs": {
+        "filter": {
+          "bytes": 53624,
+          "lines": 1001,
+          "sha256": "7f3db0d677fab7f87e283f01e1857d3112e3a1d9cfde8ada91e5021f154bc0c2",
+          "canonical_sha256": "7027f4467f650dcc960da247e598936e60f1763f4b7fde8afb80a6c64f543705"
+        },
+        "ani": {
+          "bytes": 554695,
+          "lines": 5427,
+          "sha256": "8cf191c1e0b6da780391ea454dea9dc2f6fb9aa58bd1ebf51570ce8905199382",
+          "canonical_sha256": "dbe326171f9050f24ab68bab46e37a1b1861e56647069a7df3c020b1049b7d7c"
+        },
+        "ids": {
+          "bytes": 16923,
+          "lines": 1001,
+          "sha256": "3c89a35c12d1730016575c6d6443d6dfa5c64ea4ce750a3eb14d59511cc0937a"
+        }
+      }
+    },
+    {
+      "threads": 2,
+      "repeat": 2,
+      "prefilter": {
+        "schema": 1,
+        "command": [
+          "/Users/macolas/Software/Gabriel/Bend-Programs/Clustering/.tools/vclust-1.3.1/bin/vclust",
+          "prefilter",
+          "-i",
+          "Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+          "-o",
+          "/var/folders/rg/h0_4_ww91836bk315x2n0qfm0000gn/T/vclust-frontend-matrix-l2ablhng/t2-r2.filter.tsv",
+          "--min-ident",
+          "0.7",
+          "--threads",
+          "2",
+          "-v",
+          "0"
+        ],
+        "started_unix_seconds": 1792878125.7528288,
+        "elapsed_monotonic_seconds": 1.5907870000228286,
+        "exit_code": 0,
+        "platform": {
+          "system": "Darwin",
+          "release": "25.3.0",
+          "machine": "arm64",
+          "python": "3.14.6"
+        },
+        "metrics": {
+          "time_real_seconds": 1.5907870000228286,
+          "time_user_seconds": 1.895849,
+          "time_system_seconds": 0.509297,
+          "maximum_resident_bytes": 554008576,
+          "maximum_resident_note": "maximum RSS reported for the measured command"
+        },
+        "energy": {
+          "available": false,
+          "source": "macOS powermetrics cpu_power",
+          "reason": "disabled"
+        },
+        "stdout_tail": "",
+        "stderr_tail": ""
+      },
+      "align": {
+        "schema": 1,
+        "command": [
+          "/Users/macolas/Software/Gabriel/Bend-Programs/Clustering/.tools/vclust-1.3.1/bin/vclust",
+          "align",
+          "-i",
+          "Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+          "-o",
+          "/var/folders/rg/h0_4_ww91836bk315x2n0qfm0000gn/T/vclust-frontend-matrix-l2ablhng/t2-r2.ani.tsv",
+          "--filter",
+          "/var/folders/rg/h0_4_ww91836bk315x2n0qfm0000gn/T/vclust-frontend-matrix-l2ablhng/t2-r2.filter.tsv",
+          "--filter-threshold",
+          "0.7",
+          "--outfmt",
+          "complete",
+          "--threads",
+          "2",
+          "-v",
+          "0"
+        ],
+        "started_unix_seconds": 1792878127.377216,
+        "elapsed_monotonic_seconds": 0.9252015422098339,
+        "exit_code": 0,
+        "platform": {
+          "system": "Darwin",
+          "release": "25.3.0",
+          "machine": "arm64",
+          "python": "3.14.6"
+        },
+        "metrics": {
+          "time_real_seconds": 0.9252015422098339,
+          "time_user_seconds": 1.7473429999999999,
+          "time_system_seconds": 0.024763999999999998,
+          "maximum_resident_bytes": 171245568,
+          "maximum_resident_note": "maximum RSS reported for the measured command"
+        },
+        "energy": {
+          "available": false,
+          "source": "macOS powermetrics cpu_power",
+          "reason": "disabled"
+        },
+        "stdout_tail": "",
+        "stderr_tail": ""
+      },
+      "outputs": {
+        "filter": {
+          "bytes": 53624,
+          "lines": 1001,
+          "sha256": "7f3db0d677fab7f87e283f01e1857d3112e3a1d9cfde8ada91e5021f154bc0c2",
+          "canonical_sha256": "7027f4467f650dcc960da247e598936e60f1763f4b7fde8afb80a6c64f543705"
+        },
+        "ani": {
+          "bytes": 554695,
+          "lines": 5427,
+          "sha256": "8cf191c1e0b6da780391ea454dea9dc2f6fb9aa58bd1ebf51570ce8905199382",
+          "canonical_sha256": "dbe326171f9050f24ab68bab46e37a1b1861e56647069a7df3c020b1049b7d7c"
+        },
+        "ids": {
+          "bytes": 16923,
+          "lines": 1001,
+          "sha256": "3c89a35c12d1730016575c6d6443d6dfa5c64ea4ce750a3eb14d59511cc0937a"
+        }
+      }
+    },
+    {
+      "threads": 1,
+      "repeat": 2,
+      "prefilter": {
+        "schema": 1,
+        "command": [
+          "/Users/macolas/Software/Gabriel/Bend-Programs/Clustering/.tools/vclust-1.3.1/bin/vclust",
+          "prefilter",
+          "-i",
+          "Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+          "-o",
+          "/var/folders/rg/h0_4_ww91836bk315x2n0qfm0000gn/T/vclust-frontend-matrix-l2ablhng/t1-r2.filter.tsv",
+          "--min-ident",
+          "0.7",
+          "--threads",
+          "1",
+          "-v",
+          "0"
+        ],
+        "started_unix_seconds": 1792878128.338252,
+        "elapsed_monotonic_seconds": 2.0846070419065654,
+        "exit_code": 0,
+        "platform": {
+          "system": "Darwin",
+          "release": "25.3.0",
+          "machine": "arm64",
+          "python": "3.14.6"
+        },
+        "metrics": {
+          "time_real_seconds": 2.0846070419065654,
+          "time_user_seconds": 1.7196909999999999,
+          "time_system_seconds": 0.47658999999999996,
+          "maximum_resident_bytes": 556204032,
+          "maximum_resident_note": "maximum RSS reported for the measured command"
+        },
+        "energy": {
+          "available": false,
+          "source": "macOS powermetrics cpu_power",
+          "reason": "disabled"
+        },
+        "stdout_tail": "",
+        "stderr_tail": ""
+      },
+      "align": {
+        "schema": 1,
+        "command": [
+          "/Users/macolas/Software/Gabriel/Bend-Programs/Clustering/.tools/vclust-1.3.1/bin/vclust",
+          "align",
+          "-i",
+          "Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+          "-o",
+          "/var/folders/rg/h0_4_ww91836bk315x2n0qfm0000gn/T/vclust-frontend-matrix-l2ablhng/t1-r2.ani.tsv",
+          "--filter",
+          "/var/folders/rg/h0_4_ww91836bk315x2n0qfm0000gn/T/vclust-frontend-matrix-l2ablhng/t1-r2.filter.tsv",
+          "--filter-threshold",
+          "0.7",
+          "--outfmt",
+          "complete",
+          "--threads",
+          "1",
+          "-v",
+          "0"
+        ],
+        "started_unix_seconds": 1792878130.455652,
+        "elapsed_monotonic_seconds": 1.7083219578489661,
+        "exit_code": 0,
+        "platform": {
+          "system": "Darwin",
+          "release": "25.3.0",
+          "machine": "arm64",
+          "python": "3.14.6"
+        },
+        "metrics": {
+          "time_real_seconds": 1.7083219578489661,
+          "time_user_seconds": 1.684747,
+          "time_system_seconds": 0.021906,
+          "maximum_resident_bytes": 134168576,
+          "maximum_resident_note": "maximum RSS reported for the measured command"
+        },
+        "energy": {
+          "available": false,
+          "source": "macOS powermetrics cpu_power",
+          "reason": "disabled"
+        },
+        "stdout_tail": "",
+        "stderr_tail": ""
+      },
+      "outputs": {
+        "filter": {
+          "bytes": 53624,
+          "lines": 1001,
+          "sha256": "7f3db0d677fab7f87e283f01e1857d3112e3a1d9cfde8ada91e5021f154bc0c2",
+          "canonical_sha256": "7027f4467f650dcc960da247e598936e60f1763f4b7fde8afb80a6c64f543705"
+        },
+        "ani": {
+          "bytes": 554695,
+          "lines": 5427,
+          "sha256": "8cf191c1e0b6da780391ea454dea9dc2f6fb9aa58bd1ebf51570ce8905199382",
+          "canonical_sha256": "dbe326171f9050f24ab68bab46e37a1b1861e56647069a7df3c020b1049b7d7c"
+        },
+        "ids": {
+          "bytes": 16923,
+          "lines": 1001,
+          "sha256": "3c89a35c12d1730016575c6d6443d6dfa5c64ea4ce750a3eb14d59511cc0937a"
+        }
+      }
+    },
+    {
+      "threads": 1,
+      "repeat": 3,
+      "prefilter": {
+        "schema": 1,
+        "command": [
+          "/Users/macolas/Software/Gabriel/Bend-Programs/Clustering/.tools/vclust-1.3.1/bin/vclust",
+          "prefilter",
+          "-i",
+          "Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+          "-o",
+          "/var/folders/rg/h0_4_ww91836bk315x2n0qfm0000gn/T/vclust-frontend-matrix-l2ablhng/t1-r3.filter.tsv",
+          "--min-ident",
+          "0.7",
+          "--threads",
+          "1",
+          "-v",
+          "0"
+        ],
+        "started_unix_seconds": 1792878132.1989179,
+        "elapsed_monotonic_seconds": 2.107203083578497,
+        "exit_code": 0,
+        "platform": {
+          "system": "Darwin",
+          "release": "25.3.0",
+          "machine": "arm64",
+          "python": "3.14.6"
+        },
+        "metrics": {
+          "time_real_seconds": 2.107203083578497,
+          "time_user_seconds": 1.733039,
+          "time_system_seconds": 0.489272,
+          "maximum_resident_bytes": 556171264,
+          "maximum_resident_note": "maximum RSS reported for the measured command"
+        },
+        "energy": {
+          "available": false,
+          "source": "macOS powermetrics cpu_power",
+          "reason": "disabled"
+        },
+        "stdout_tail": "",
+        "stderr_tail": ""
+      },
+      "align": {
+        "schema": 1,
+        "command": [
+          "/Users/macolas/Software/Gabriel/Bend-Programs/Clustering/.tools/vclust-1.3.1/bin/vclust",
+          "align",
+          "-i",
+          "Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+          "-o",
+          "/var/folders/rg/h0_4_ww91836bk315x2n0qfm0000gn/T/vclust-frontend-matrix-l2ablhng/t1-r3.ani.tsv",
+          "--filter",
+          "/var/folders/rg/h0_4_ww91836bk315x2n0qfm0000gn/T/vclust-frontend-matrix-l2ablhng/t1-r3.filter.tsv",
+          "--filter-threshold",
+          "0.7",
+          "--outfmt",
+          "complete",
+          "--threads",
+          "1",
+          "-v",
+          "0"
+        ],
+        "started_unix_seconds": 1792878134.339457,
+        "elapsed_monotonic_seconds": 1.7134709586389363,
+        "exit_code": 0,
+        "platform": {
+          "system": "Darwin",
+          "release": "25.3.0",
+          "machine": "arm64",
+          "python": "3.14.6"
+        },
+        "metrics": {
+          "time_real_seconds": 1.7134709586389363,
+          "time_user_seconds": 1.6900819999999999,
+          "time_system_seconds": 0.021918999999999998,
+          "maximum_resident_bytes": 134168576,
+          "maximum_resident_note": "maximum RSS reported for the measured command"
+        },
+        "energy": {
+          "available": false,
+          "source": "macOS powermetrics cpu_power",
+          "reason": "disabled"
+        },
+        "stdout_tail": "",
+        "stderr_tail": ""
+      },
+      "outputs": {
+        "filter": {
+          "bytes": 53624,
+          "lines": 1001,
+          "sha256": "7f3db0d677fab7f87e283f01e1857d3112e3a1d9cfde8ada91e5021f154bc0c2",
+          "canonical_sha256": "7027f4467f650dcc960da247e598936e60f1763f4b7fde8afb80a6c64f543705"
+        },
+        "ani": {
+          "bytes": 554695,
+          "lines": 5427,
+          "sha256": "8cf191c1e0b6da780391ea454dea9dc2f6fb9aa58bd1ebf51570ce8905199382",
+          "canonical_sha256": "dbe326171f9050f24ab68bab46e37a1b1861e56647069a7df3c020b1049b7d7c"
+        },
+        "ids": {
+          "bytes": 16923,
+          "lines": 1001,
+          "sha256": "3c89a35c12d1730016575c6d6443d6dfa5c64ea4ce750a3eb14d59511cc0937a"
+        }
+      }
+    },
+    {
+      "threads": 2,
+      "repeat": 3,
+      "prefilter": {
+        "schema": 1,
+        "command": [
+          "/Users/macolas/Software/Gabriel/Bend-Programs/Clustering/.tools/vclust-1.3.1/bin/vclust",
+          "prefilter",
+          "-i",
+          "Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+          "-o",
+          "/var/folders/rg/h0_4_ww91836bk315x2n0qfm0000gn/T/vclust-frontend-matrix-l2ablhng/t2-r3.filter.tsv",
+          "--min-ident",
+          "0.7",
+          "--threads",
+          "2",
+          "-v",
+          "0"
+        ],
+        "started_unix_seconds": 1792878136.08756,
+        "elapsed_monotonic_seconds": 1.5970950839109719,
+        "exit_code": 0,
+        "platform": {
+          "system": "Darwin",
+          "release": "25.3.0",
+          "machine": "arm64",
+          "python": "3.14.6"
+        },
+        "metrics": {
+          "time_real_seconds": 1.5970950839109719,
+          "time_user_seconds": 1.90849,
+          "time_system_seconds": 0.519002,
+          "maximum_resident_bytes": 552894464,
+          "maximum_resident_note": "maximum RSS reported for the measured command"
+        },
+        "energy": {
+          "available": false,
+          "source": "macOS powermetrics cpu_power",
+          "reason": "disabled"
+        },
+        "stdout_tail": "",
+        "stderr_tail": ""
+      },
+      "align": {
+        "schema": 1,
+        "command": [
+          "/Users/macolas/Software/Gabriel/Bend-Programs/Clustering/.tools/vclust-1.3.1/bin/vclust",
+          "align",
+          "-i",
+          "Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+          "-o",
+          "/var/folders/rg/h0_4_ww91836bk315x2n0qfm0000gn/T/vclust-frontend-matrix-l2ablhng/t2-r3.ani.tsv",
+          "--filter",
+          "/var/folders/rg/h0_4_ww91836bk315x2n0qfm0000gn/T/vclust-frontend-matrix-l2ablhng/t2-r3.filter.tsv",
+          "--filter-threshold",
+          "0.7",
+          "--outfmt",
+          "complete",
+          "--threads",
+          "2",
+          "-v",
+          "0"
+        ],
+        "started_unix_seconds": 1792878137.718082,
+        "elapsed_monotonic_seconds": 0.9227251252159476,
+        "exit_code": 0,
+        "platform": {
+          "system": "Darwin",
+          "release": "25.3.0",
+          "machine": "arm64",
+          "python": "3.14.6"
+        },
+        "metrics": {
+          "time_real_seconds": 0.9227251252159476,
+          "time_user_seconds": 1.748519,
+          "time_system_seconds": 0.023894,
+          "maximum_resident_bytes": 178552832,
+          "maximum_resident_note": "maximum RSS reported for the measured command"
+        },
+        "energy": {
+          "available": false,
+          "source": "macOS powermetrics cpu_power",
+          "reason": "disabled"
+        },
+        "stdout_tail": "",
+        "stderr_tail": ""
+      },
+      "outputs": {
+        "filter": {
+          "bytes": 53624,
+          "lines": 1001,
+          "sha256": "7f3db0d677fab7f87e283f01e1857d3112e3a1d9cfde8ada91e5021f154bc0c2",
+          "canonical_sha256": "7027f4467f650dcc960da247e598936e60f1763f4b7fde8afb80a6c64f543705"
+        },
+        "ani": {
+          "bytes": 554695,
+          "lines": 5427,
+          "sha256": "8cf191c1e0b6da780391ea454dea9dc2f6fb9aa58bd1ebf51570ce8905199382",
+          "canonical_sha256": "dbe326171f9050f24ab68bab46e37a1b1861e56647069a7df3c020b1049b7d7c"
+        },
+        "ids": {
+          "bytes": 16923,
+          "lines": 1001,
+          "sha256": "3c89a35c12d1730016575c6d6443d6dfa5c64ea4ce750a3eb14d59511cc0937a"
+        }
+      }
+    },
+    {
+      "threads": 4,
+      "repeat": 3,
+      "prefilter": {
+        "schema": 1,
+        "command": [
+          "/Users/macolas/Software/Gabriel/Bend-Programs/Clustering/.tools/vclust-1.3.1/bin/vclust",
+          "prefilter",
+          "-i",
+          "Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+          "-o",
+          "/var/folders/rg/h0_4_ww91836bk315x2n0qfm0000gn/T/vclust-frontend-matrix-l2ablhng/t4-r3.filter.tsv",
+          "--min-ident",
+          "0.7",
+          "--threads",
+          "4",
+          "-v",
+          "0"
+        ],
+        "started_unix_seconds": 1792878138.6756952,
+        "elapsed_monotonic_seconds": 1.3494698330760002,
+        "exit_code": 0,
+        "platform": {
+          "system": "Darwin",
+          "release": "25.3.0",
+          "machine": "arm64",
+          "python": "3.14.6"
+        },
+        "metrics": {
+          "time_real_seconds": 1.3494698330760002,
+          "time_user_seconds": 2.260539,
+          "time_system_seconds": 0.61405,
+          "maximum_resident_bytes": 558055424,
+          "maximum_resident_note": "maximum RSS reported for the measured command"
+        },
+        "energy": {
+          "available": false,
+          "source": "macOS powermetrics cpu_power",
+          "reason": "disabled"
+        },
+        "stdout_tail": "",
+        "stderr_tail": ""
+      },
+      "align": {
+        "schema": 1,
+        "command": [
+          "/Users/macolas/Software/Gabriel/Bend-Programs/Clustering/.tools/vclust-1.3.1/bin/vclust",
+          "align",
+          "-i",
+          "Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+          "-o",
+          "/var/folders/rg/h0_4_ww91836bk315x2n0qfm0000gn/T/vclust-frontend-matrix-l2ablhng/t4-r3.ani.tsv",
+          "--filter",
+          "/var/folders/rg/h0_4_ww91836bk315x2n0qfm0000gn/T/vclust-frontend-matrix-l2ablhng/t4-r3.filter.tsv",
+          "--filter-threshold",
+          "0.7",
+          "--outfmt",
+          "complete",
+          "--threads",
+          "4",
+          "-v",
+          "0"
+        ],
+        "started_unix_seconds": 1792878140.0588238,
+        "elapsed_monotonic_seconds": 0.5721097500063479,
+        "exit_code": 0,
+        "platform": {
+          "system": "Darwin",
+          "release": "25.3.0",
+          "machine": "arm64",
+          "python": "3.14.6"
+        },
+        "metrics": {
+          "time_real_seconds": 0.5721097500063479,
+          "time_user_seconds": 2.032814,
+          "time_system_seconds": 0.034002,
+          "maximum_resident_bytes": 254754816,
+          "maximum_resident_note": "maximum RSS reported for the measured command"
+        },
+        "energy": {
+          "available": false,
+          "source": "macOS powermetrics cpu_power",
+          "reason": "disabled"
+        },
+        "stdout_tail": "",
+        "stderr_tail": ""
+      },
+      "outputs": {
+        "filter": {
+          "bytes": 53624,
+          "lines": 1001,
+          "sha256": "7f3db0d677fab7f87e283f01e1857d3112e3a1d9cfde8ada91e5021f154bc0c2",
+          "canonical_sha256": "7027f4467f650dcc960da247e598936e60f1763f4b7fde8afb80a6c64f543705"
+        },
+        "ani": {
+          "bytes": 554695,
+          "lines": 5427,
+          "sha256": "8cf191c1e0b6da780391ea454dea9dc2f6fb9aa58bd1ebf51570ce8905199382",
+          "canonical_sha256": "dbe326171f9050f24ab68bab46e37a1b1861e56647069a7df3c020b1049b7d7c"
+        },
+        "ids": {
+          "bytes": 16923,
+          "lines": 1001,
+          "sha256": "3c89a35c12d1730016575c6d6443d6dfa5c64ea4ce750a3eb14d59511cc0937a"
+        }
+      }
+    },
+    {
+      "threads": 8,
+      "repeat": 3,
+      "prefilter": {
+        "schema": 1,
+        "command": [
+          "/Users/macolas/Software/Gabriel/Bend-Programs/Clustering/.tools/vclust-1.3.1/bin/vclust",
+          "prefilter",
+          "-i",
+          "Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+          "-o",
+          "/var/folders/rg/h0_4_ww91836bk315x2n0qfm0000gn/T/vclust-frontend-matrix-l2ablhng/t8-r3.filter.tsv",
+          "--min-ident",
+          "0.7",
+          "--threads",
+          "8",
+          "-v",
+          "0"
+        ],
+        "started_unix_seconds": 1792878140.66689,
+        "elapsed_monotonic_seconds": 1.3046726249158382,
+        "exit_code": 0,
+        "platform": {
+          "system": "Darwin",
+          "release": "25.3.0",
+          "machine": "arm64",
+          "python": "3.14.6"
+        },
+        "metrics": {
+          "time_real_seconds": 1.3046726249158382,
+          "time_user_seconds": 2.904093,
+          "time_system_seconds": 1.375902,
+          "maximum_resident_bytes": 567853056,
+          "maximum_resident_note": "maximum RSS reported for the measured command"
+        },
+        "energy": {
+          "available": false,
+          "source": "macOS powermetrics cpu_power",
+          "reason": "disabled"
+        },
+        "stdout_tail": "",
+        "stderr_tail": ""
+      },
+      "align": {
+        "schema": 1,
+        "command": [
+          "/Users/macolas/Software/Gabriel/Bend-Programs/Clustering/.tools/vclust-1.3.1/bin/vclust",
+          "align",
+          "-i",
+          "Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+          "-o",
+          "/var/folders/rg/h0_4_ww91836bk315x2n0qfm0000gn/T/vclust-frontend-matrix-l2ablhng/t8-r3.ani.tsv",
+          "--filter",
+          "/var/folders/rg/h0_4_ww91836bk315x2n0qfm0000gn/T/vclust-frontend-matrix-l2ablhng/t8-r3.filter.tsv",
+          "--filter-threshold",
+          "0.7",
+          "--outfmt",
+          "complete",
+          "--threads",
+          "8",
+          "-v",
+          "0"
+        ],
+        "started_unix_seconds": 1792878142.005124,
+        "elapsed_monotonic_seconds": 0.4619477912783623,
+        "exit_code": 0,
+        "platform": {
+          "system": "Darwin",
+          "release": "25.3.0",
+          "machine": "arm64",
+          "python": "3.14.6"
+        },
+        "metrics": {
+          "time_real_seconds": 0.4619477912783623,
+          "time_user_seconds": 3.064844,
+          "time_system_seconds": 0.090711,
+          "maximum_resident_bytes": 394821632,
+          "maximum_resident_note": "maximum RSS reported for the measured command"
+        },
+        "energy": {
+          "available": false,
+          "source": "macOS powermetrics cpu_power",
+          "reason": "disabled"
+        },
+        "stdout_tail": "",
+        "stderr_tail": ""
+      },
+      "outputs": {
+        "filter": {
+          "bytes": 53624,
+          "lines": 1001,
+          "sha256": "7f3db0d677fab7f87e283f01e1857d3112e3a1d9cfde8ada91e5021f154bc0c2",
+          "canonical_sha256": "7027f4467f650dcc960da247e598936e60f1763f4b7fde8afb80a6c64f543705"
+        },
+        "ani": {
+          "bytes": 554695,
+          "lines": 5427,
+          "sha256": "8cf191c1e0b6da780391ea454dea9dc2f6fb9aa58bd1ebf51570ce8905199382",
+          "canonical_sha256": "dbe326171f9050f24ab68bab46e37a1b1861e56647069a7df3c020b1049b7d7c"
+        },
+        "ids": {
+          "bytes": 16923,
+          "lines": 1001,
+          "sha256": "3c89a35c12d1730016575c6d6443d6dfa5c64ea4ce750a3eb14d59511cc0937a"
+        }
+      }
+    }
+  ],
+  "summary": [
+    {
+      "threads": 1,
+      "repeats": 3,
+      "prefilter": {
+        "median_wall_seconds": 2.0846070419065654,
+        "median_user_seconds": 1.7196909999999999,
+        "median_system_seconds": 0.489272,
+        "median_maximum_resident_bytes": 556171264
+      },
+      "align": {
+        "median_wall_seconds": 1.7083219578489661,
+        "median_user_seconds": 1.684747,
+        "median_system_seconds": 0.021906,
+        "median_maximum_resident_bytes": 134168576
+      },
+      "median_pipeline_wall_seconds": 3.7929289997555315,
+      "pipeline_speedup_vs_one_thread": 1.0
+    },
+    {
+      "threads": 2,
+      "repeats": 3,
+      "prefilter": {
+        "median_wall_seconds": 1.5907870000228286,
+        "median_user_seconds": 1.895849,
+        "median_system_seconds": 0.509297,
+        "median_maximum_resident_bytes": 554008576
+      },
+      "align": {
+        "median_wall_seconds": 0.9227251252159476,
+        "median_user_seconds": 1.7473429999999999,
+        "median_system_seconds": 0.023894,
+        "median_maximum_resident_bytes": 171343872
+      },
+      "median_pipeline_wall_seconds": 2.5159885422326624,
+      "pipeline_speedup_vs_one_thread": 1.50753031505848
+    },
+    {
+      "threads": 4,
+      "repeats": 3,
+      "prefilter": {
+        "median_wall_seconds": 1.3494698330760002,
+        "median_user_seconds": 2.268372,
+        "median_system_seconds": 0.61405,
+        "median_maximum_resident_bytes": 558055424
+      },
+      "align": {
+        "median_wall_seconds": 0.5688896249048412,
+        "median_user_seconds": 2.023652,
+        "median_system_seconds": 0.034002,
+        "median_maximum_resident_bytes": 256098304
+      },
+      "median_pipeline_wall_seconds": 1.921579583082348,
+      "pipeline_speedup_vs_one_thread": 1.9738599603933178
+    },
+    {
+      "threads": 8,
+      "repeats": 3,
+      "prefilter": {
+        "median_wall_seconds": 1.3046726249158382,
+        "median_user_seconds": 2.904667,
+        "median_system_seconds": 1.375902,
+        "median_maximum_resident_bytes": 567558144
+      },
+      "align": {
+        "median_wall_seconds": 0.4651374579407275,
+        "median_user_seconds": 3.095944,
+        "median_system_seconds": 0.092182,
+        "median_maximum_resident_bytes": 396296192
+      },
+      "median_pipeline_wall_seconds": 1.7666204161942005,
+      "pipeline_speedup_vs_one_thread": 2.1469971505970546
+    }
+  ]
+}

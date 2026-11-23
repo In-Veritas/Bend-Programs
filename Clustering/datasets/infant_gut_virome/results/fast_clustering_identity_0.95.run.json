@@ -1,0 +1,109 @@
+{
+  "date": "2026-10-24",
+  "input": {
+    "path": "../raw/all.curated.vOTUs.EarlyVir.fna",
+    "sha256": "e3a458156d7a2ed6be0ae8feefec9ceaa2af1640f28bb87c116f7fa045811dab",
+    "bytes": 255006683,
+    "records": 10021,
+    "bases": 250720859
+  },
+  "compiler": {
+    "repository": "../../../../../bend",
+    "revision": "de26a917085a249786f185d20233f107462285f1",
+    "version": "2.0.38"
+  },
+  "settings": {
+    "identity_basis_points": 9500,
+    "strand": "plus",
+    "backend": "native C",
+    "threads_per_process": 1,
+    "gpu": false,
+    "fast": true,
+    "fast_semantics": "conservative length and hashed 3-mer gates followed by an approximate 64-bin 15-mer MinHash score; no exact alignment for sequences of at least 15 bases"
+  },
+  "execution": {
+    "concurrent_processes": 6,
+    "observed_rss_mib_per_bend_process": "88.39..89.48",
+    "rss_note": "This is a concurrent-run snapshot, not a certified peak. The macOS peak-RSS timer could not query sandboxed sysctl kern.clockrate.",
+    "note": "Wall times overlap and are not isolated benchmark measurements. All launchers exited 0 and atomically published their TSVs."
+  },
+  "algorithms": {
+    "single-linkage": {
+      "elapsed_seconds": 219.68,
+      "clusters": 7354,
+      "singleton_clusters": 6394,
+      "largest_cluster": 39,
+      "mean_cluster_size": 1.363,
+      "assigned_to_other": 2667,
+      "output": "fast_single-linkage_identity_0.95.tsv",
+      "sha256": "7a0a0a0805709340f25288fee63f6aadf842151f167836b545281a03d00a30cb"
+    },
+    "complete-linkage": {
+      "elapsed_seconds": 223.42,
+      "clusters": 7906,
+      "singleton_clusters": 6659,
+      "largest_cluster": 13,
+      "mean_cluster_size": 1.268,
+      "assigned_to_other": 2115,
+      "output": "fast_complete-linkage_identity_0.95.tsv",
+      "sha256": "1934d59b166ba9ee09bf0c0c5b2ad07d3dbaa17b889d360607c67b4fdba298e3"
+    },
+    "uclust": {
+      "elapsed_seconds": 286.88,
+      "clusters": 7771,
+      "singleton_clusters": 6598,
+      "largest_cluster": 21,
+      "mean_cluster_size": 1.290,
+      "assigned_to_other": 2250,
+      "output": "fast_uclust_identity_0.95.tsv",
+      "sha256": "d0d69e8a126697b1570c6af19e37b2b3fa6576aed4efe6e3844f47d98272b7c0"
+    },
+    "set-cover": {
+      "elapsed_seconds": 224.15,
+      "clusters": 7549,
+      "singleton_clusters": 6526,
+      "largest_cluster": 32,
+      "mean_cluster_size": 1.327,
+      "assigned_to_other": 2472,
+      "output": "fast_set-cover_identity_0.95.tsv",
+      "sha256": "a369ae99eb0eeab068e3b2e0173d2d77429bc9bc1f3d8176a2b9c7d216a3b8d2"
+    },
+    "cd-hit": {
+      "elapsed_seconds": 315.35,
+      "clusters": 5517,
+      "singleton_clusters": 3751,
+      "largest_cluster": 22,
+      "mean_cluster_size": 1.816,
+      "assigned_to_other": 4504,
+      "output": "fast_cd-hit_identity_0.95.tsv",
+      "sha256": "1a8f85243f6a1473a161594c037d36ada84281ace82bcb1361fad6950fa31a7d"
+    },
+    "leiden": {
+      "elapsed_seconds": 350.63,
+      "clusters": 7768,
+      "singleton_clusters": 6639,
+      "largest_cluster": 28,
+      "mean_cluster_size": 1.290,
+      "assigned_to_other": 2253,
+      "output": "fast_leiden_identity_0.95.tsv",
+      "sha256": "64073b053b9bc4d0c87eba5697c7071a2995728ecba1c6980d652defa573549a"
+    }
+  },
+  "validation": {
+    "rows_per_output": 10021,
+    "input_order_preserved": true,
+    "representative_indices_in_range": true,
+    "native_and_javascript_tests": 25
+  },
+  "sources": {
+    "common_sha256": "8b663ec08334ba9ef9c5ce753ad41a2eb078685f9c3ebda5de8882d5c04dc904",
+    "packing_sha256": "9b69f6f70589fcd4b9b3a7f495bcb53a5f09fe0f49ec72ca73154ca0041baff1",
+    "launcher_sha256": "6e0da9b8864c8007f3f9c5b62600c5c049f6e95f78be78e2b39e467f67e15f6c"
+  },
+  "interpretation": [
+    "All six algorithms completed the full dataset in approximately 3.6 to 5.9 minutes of overlapping wall time per process, not hours.",
+    "These are complete approximate clustering outputs over every input record, not exact-alignment results.",
+    "MinHash can create false positives and false negatives, so --fast labels must not be presented as proven 95 percent global-identity clusters.",
+    "The default mode remains exact and now uses threshold-banded alignment, but it is still impractical for this full dataset."
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-22",
+  "compiler": {
+    "repository": "../../../../../bend",
+    "revision": "de26a917085a249786f185d20233f107462285f1",
+    "version": "2.0.38"
+  },
+  "program": {
+    "path": "../../../tests/prefilter_benchmark.bend",
+    "sha256": "d300579ca6e7ce6c68cb59c3bd249ab23b4f0853d14598431f8edd3e0f604ee3",
+    "backend": "native C",
+    "threads": 1,
+    "gpu": false
+  },
+  "settings": {
+    "identity_basis_points": 9500,
+    "strand": "plus",
+    "alignment_enabled": false
+  },
+  "runs": [
+    {
+      "input": "../ready/earlyvir_shortest1000.fasta",
+      "input_sha256": "c2a0668281f9f004ec94c3ad2d70a938ea11928a2855e9c7c59e5c9b70100f2d",
+      "records": 1000,
+      "bases": 2857286,
+      "pairs": 499500,
+      "length_rejected": 344887,
+      "word_rejected": 82817,
+      "candidates": 71796,
+      "elapsed_seconds": 17.388200,
+      "peak_rss_bytes": 72630272
+    },
+    {
+      "input": "../ready/earlyvir_stratified1000.fasta",
+      "input_sha256": "418677c70cff7c38200f8e2f0acc53e7c1d392b18b7ce351b75f1fa85043fead",
+      "records": 1000,
+      "bases": 25133250,
+      "pairs": 499500,
+      "length_rejected": 480532,
+      "word_rejected": 10327,
+      "candidates": 8641,
+      "elapsed_seconds": 13.080911,
+      "peak_rss_bytes": 617922560
+    }
+  ],
+  "validation": {
+    "oracle": "../../../tests/prefilter_reference.py",
+    "result": "all counters matched for both inputs"
+  },
+  "notes": [
+    "Each measurement is one feasibility run, not a controlled benchmark.",
+    "Peak RSS is resource.RUSAGE_CHILDREN.ru_maxrss on macOS, reported in bytes.",
+    "The program performs candidate filtering only; surviving pairs are not aligned."
+  ]
+}

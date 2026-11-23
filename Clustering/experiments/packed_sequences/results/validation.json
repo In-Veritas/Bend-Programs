@@ -1,0 +1,26 @@
+{
+  "compiler": "/Users/macolas/Software/Gabriel/bend",
+  "checks": [
+    {
+      "variant": "baseline",
+      "tests": 22,
+      "seconds": 13.260170415975153
+    },
+    {
+      "variant": "packed",
+      "tests": 22,
+      "seconds": 14.382431082893163
+    }
+  ],
+  "roundtrip_records": 47,
+  "score_pairs_per_backend_and_strand": 1681,
+  "backends": [
+    "c",
+    "js"
+  ],
+  "strands": [
+    "plus",
+    "both"
+  ],
+  "status": "passed"
+}

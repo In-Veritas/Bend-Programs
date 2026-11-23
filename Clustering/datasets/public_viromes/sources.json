@@ -1,0 +1,264 @@
+{
+  "downloaded_on": "2026-10-15",
+  "originals": [
+    {
+      "path": "original/canu_viral.fasta",
+      "bytes": 15167392,
+      "records": 767,
+      "total_bases": 15081911,
+      "minimum_length": 1909,
+      "maximum_length": 180278,
+      "records_over_30000": 133,
+      "exact_duplicate_records": 0,
+      "sha256": "e2aec1de2a828bbc9746aa0ed0c96f3c8a520320d276e7ef7099bcb79a0e5af5",
+      "source_url": "https://ndownloader.figshare.com/files/48768646",
+      "source_filename": "canu_viral.fa",
+      "doi": "10.6084/m9.figshare.25060193.v1",
+      "license": {
+        "value": 1,
+        "name": "CC BY 4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/"
+      },
+      "publisher_md5": "edc2b10a4eea33e11d386352b668dbda",
+      "attribution": "Wei-Hua Chen, Viral contigs of Virome Benchmark, Figshare v1 (2024)",
+      "already_dereplicated": "Source reports CD-HIT v4.6.8 -c 0.99 before viral-contig identification."
+    },
+    {
+      "path": "original/wtdbg2_viral.fasta",
+      "bytes": 6539512,
+      "records": 209,
+      "total_bases": 6534087,
+      "minimum_length": 4913,
+      "maximum_length": 131960,
+      "records_over_30000": 83,
+      "exact_duplicate_records": 0,
+      "sha256": "73ef37a6719013ba36eee962fef776f62022797e4b53d9368b9dedc73aaaf948",
+      "source_url": "https://ndownloader.figshare.com/files/48768643",
+      "source_filename": "wtdbg2_viral.fa",
+      "doi": "10.6084/m9.figshare.25060193.v1",
+      "license": {
+        "value": 1,
+        "name": "CC BY 4.0",
+        "url": "https://creativecommons.org/licenses/by/4.0/"
+      },
+      "publisher_md5": "308783e412f4bcda3d865e91b6e393fc",
+      "attribution": "Wei-Hua Chen, Viral contigs of Virome Benchmark, Figshare v1 (2024)",
+      "already_dereplicated": "Source reports CD-HIT v4.6.8 -c 0.99 before viral-contig identification."
+    },
+    {
+      "path": "original/vclust_example.fasta",
+      "bytes": 586070,
+      "records": 12,
+      "total_bases": 575838,
+      "minimum_length": 38815,
+      "maximum_length": 64164,
+      "records_over_30000": 12,
+      "exact_duplicate_records": 0,
+      "sha256": "4bd5fa63bd4289d54e9f4dd69ef6ec4bea32827602b0159cfeb0a5148785c36a",
+      "source_url": "https://raw.githubusercontent.com/refresh-bio/vclust/59b350c87428540ed9290701ae376c98dd1cfb2e/example/multifasta.fna",
+      "repository_commit": "59b350c87428540ed9290701ae376c98dd1cfb2e",
+      "source_description": "https://github.com/refresh-bio/vclust/blob/59b350c87428540ed9290701ae376c98dd1cfb2e/example/README.txt",
+      "kind": "Bacteriophage references plus simulated mutations; not a natural virome",
+      "license_note": "Repository declares GPL-3.0; no separate example-data license was identified."
+    }
+  ],
+  "derived": [
+    {
+      "path": "ready/canu_viral_short8.fasta",
+      "bytes": 24254,
+      "records": 8,
+      "total_bases": 23090,
+      "minimum_length": 1909,
+      "maximum_length": 3162,
+      "records_over_30000": 0,
+      "exact_duplicate_records": 0,
+      "sha256": "c5760230f49f2d0c4ec97cedbbb52637ac880c61e44ee5330ea118d8a2ff3f32",
+      "source": "original/canu_viral.fasta",
+      "selection": "Eight shortest whole records; ties by original zero-based index; written in original input order. Bases and headers unchanged; wrapping changed.",
+      "records_selected": [
+        {
+          "original_index": 88,
+          "header": "B13_canu_4 len=2857 reads=4 class=contig suggestRepeat=no suggestBubble=no suggestCircular=no trim=0-2857",
+          "length": 2857
+        },
+        {
+          "original_index": 314,
+          "header": "H47_canu_12 len=1909 reads=4 class=contig suggestRepeat=no suggestBubble=no suggestCircular=no trim=0-1909",
+          "length": 1909
+        },
+        {
+          "original_index": 356,
+          "header": "H63_canu_4 len=3135 reads=5 class=contig suggestRepeat=no suggestBubble=no suggestCircular=no trim=0-3135",
+          "length": 3135
+        },
+        {
+          "original_index": 454,
+          "header": "NC183_canu_16 len=2990 reads=4 class=contig suggestRepeat=no suggestBubble=no suggestCircular=no trim=0-2990",
+          "length": 2990
+        },
+        {
+          "original_index": 457,
+          "header": "NC183_canu_19 len=2949 reads=4 class=contig suggestRepeat=no suggestBubble=no suggestCircular=no trim=0-2949",
+          "length": 2949
+        },
+        {
+          "original_index": 538,
+          "header": "NCF009_canu_6 len=3137 reads=8 class=contig suggestRepeat=no suggestBubble=no suggestCircular=no trim=0-3137",
+          "length": 3137
+        },
+        {
+          "original_index": 575,
+          "header": "NCF051_canu_10 len=2951 reads=3 class=contig suggestRepeat=no suggestBubble=no suggestCircular=no trim=0-2951",
+          "length": 2951
+        },
+        {
+          "original_index": 765,
+          "header": "SK54_canu_13 len=3162 reads=4 class=contig suggestRepeat=no suggestBubble=no suggestCircular=no trim=0-3162",
+          "length": 3162
+        }
+      ]
+    },
+    {
+      "path": "ready/wtdbg2_viral_short8.fasta",
+      "bytes": 43379,
+      "records": 8,
+      "total_bases": 42647,
+      "minimum_length": 4913,
+      "maximum_length": 5966,
+      "records_over_30000": 0,
+      "exact_duplicate_records": 0,
+      "sha256": "206dce0c27ee669438a5e555b14b65a75c8416f769cbe097fb0ed23278dd97d1",
+      "source": "original/wtdbg2_viral.fasta",
+      "selection": "Eight shortest whole records; ties by original zero-based index; written in original input order. Bases and headers unchanged; wrapping changed.",
+      "records_selected": [
+        {
+          "original_index": 17,
+          "header": "DC13_wtdbg2_2 len=4951",
+          "length": 4951
+        },
+        {
+          "original_index": 106,
+          "header": "NC183_wtdbg2_7 len=5870",
+          "length": 5870
+        },
+        {
+          "original_index": 123,
+          "header": "NC308_wtdbg2_8 len=4948",
+          "length": 4948
+        },
+        {
+          "original_index": 133,
+          "header": "NC326_wtdbg2_2 len=5935",
+          "length": 5935
+        },
+        {
+          "original_index": 159,
+          "header": "NN0897_wtdbg2_5 len=5032",
+          "length": 5032
+        },
+        {
+          "original_index": 180,
+          "header": "S08_wtdbg2_6 len=5032",
+          "length": 5032
+        },
+        {
+          "original_index": 195,
+          "header": "SK22_wtdbg2_3 len=5966",
+          "length": 5966
+        },
+        {
+          "original_index": 208,
+          "header": "SK56_wtdbg2_1 len=4913",
+          "length": 4913
+        }
+      ]
+    },
+    {
+      "path": "ready/vclust_example_prefix1000.fasta",
+      "bytes": 12783,
+      "records": 12,
+      "total_bases": 12000,
+      "minimum_length": 1000,
+      "maximum_length": 1000,
+      "records_over_30000": 0,
+      "exact_duplicate_records": 0,
+      "sha256": "a2125809c3796bb03905fd299c17cee5bcbe3c2cc5bc0613ea14d8837b89a16a",
+      "source": "original/vclust_example.fasta",
+      "selection": "First 1000 bases of each of 12 records, in original order; headers replaced with original identifier and fragment coordinates. Whole-genome tANI annotations removed because they do not apply to fragments.",
+      "records_selected": [
+        {
+          "original_index": 0,
+          "original_header": "NC_010807 length=38815",
+          "start_1based": 1,
+          "end_1based": 1000
+        },
+        {
+          "original_index": 1,
+          "original_header": "NC_010807.alt1 length=38815 tani=99.753 alt=sn;inv;tl",
+          "start_1based": 1,
+          "end_1based": 1000
+        },
+        {
+          "original_index": 2,
+          "original_header": "NC_010807.alt2 length=40555 tani=98.985 alt=sn;du",
+          "start_1based": 1,
+          "end_1based": 1000
+        },
+        {
+          "original_index": 3,
+          "original_header": "NC_010807.alt3 length=39891 tani=98.414 alt=sn;ins;tl",
+          "start_1based": 1,
+          "end_1based": 1000
+        },
+        {
+          "original_index": 4,
+          "original_header": "NC_005091 length=57455",
+          "start_1based": 1,
+          "end_1based": 1000
+        },
+        {
+          "original_index": 5,
+          "original_header": "NC_005091.alt1 length=57455 tani=97.161 alt=sn;inv;tl",
+          "start_1based": 1,
+          "end_1based": 1000
+        },
+        {
+          "original_index": 6,
+          "original_header": "NC_005091.alt2 length=63696 tani=96.707 alt=sn;du;tl",
+          "start_1based": 1,
+          "end_1based": 1000
+        },
+        {
+          "original_index": 7,
+          "original_header": "NC_025457 length=42654",
+          "start_1based": 1,
+          "end_1based": 1000
+        },
+        {
+          "original_index": 8,
+          "original_header": "NC_025457.alt1 length=41066 tani=80.607 alt=sn;de;ins;du;inv",
+          "start_1based": 1,
+          "end_1based": 1000
+        },
+        {
+          "original_index": 9,
+          "original_header": "NC_025457.alt2 length=64164 tani=75.921 alt=sn;de;ins;du;inv;tl",
+          "start_1based": 1,
+          "end_1based": 1000
+        },
+        {
+          "original_index": 10,
+          "original_header": "NC_002486 length=45636",
+          "start_1based": 1,
+          "end_1based": 1000
+        },
+        {
+          "original_index": 11,
+          "original_header": "NC_002486.alt length=45636 tani=100.000 alt=splitted in three equal-sized fragments, shuffled fragments, one fragment reverse complement",
+          "start_1based": 1,
+          "end_1based": 1000
+        }
+      ]
+    }
+  ]
+}

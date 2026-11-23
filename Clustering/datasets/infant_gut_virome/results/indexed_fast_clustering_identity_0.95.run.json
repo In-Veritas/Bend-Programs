@@ -1,0 +1,112 @@
+{
+  "date": "2026-10-25",
+  "input": {
+    "path": "../raw/all.curated.vOTUs.EarlyVir.fna",
+    "sha256": "e3a458156d7a2ed6be0ae8feefec9ceaa2af1640f28bb87c116f7fa045811dab",
+    "bytes": 255006683,
+    "records": 10021,
+    "bases": 250720859
+  },
+  "compiler": {
+    "repository": "../../../../../bend",
+    "revision": "de26a917085a249786f185d20233f107462285f1",
+    "version": "2.0.38",
+    "backend": "native C",
+    "clang_flags": "-O2 -std=c11 -lpthread -lm",
+    "runtime_threads": 1,
+    "gpu": false
+  },
+  "settings": {
+    "identity_basis_points": 9500,
+    "strand": "plus",
+    "fast": true,
+    "candidate_index": "65536 hash buckets keyed by checked (MinHash bin,value), at most 64 populated postings per record",
+    "edge_score": "threshold-calibrated approximate 64-bin 15-mer MinHash score after length and hashed 3-mer gates"
+  },
+  "execution": {
+    "groups": [
+      {
+        "name": "isolated_warm",
+        "algorithms": ["single-linkage"]
+      },
+      {
+        "name": "concurrent_centroid_pair",
+        "algorithms": ["uclust", "cd-hit"]
+      },
+      {
+        "name": "concurrent_graph_triple",
+        "algorithms": ["complete-linkage", "set-cover", "leiden"]
+      }
+    ],
+    "rss_observation_mib": 430.6,
+    "rss_note": "One late process snapshot, not a certified peak; macOS /usr/bin/time -lp could not query sandboxed sysctl kern.clockrate.",
+    "timing_note": "Times from different groups are not a statistically controlled comparison. Concurrent wall times include CPU contention."
+  },
+  "algorithms": {
+    "single-linkage": {
+      "elapsed_seconds": 55.81,
+      "run_group": "isolated_warm",
+      "clusters": 7354,
+      "bytes": 245775,
+      "sha256": "7a0a0a0805709340f25288fee63f6aadf842151f167836b545281a03d00a30cb"
+    },
+    "complete-linkage": {
+      "elapsed_seconds": 74.95,
+      "run_group": "concurrent_graph_triple",
+      "clusters": 7906,
+      "bytes": 246665,
+      "sha256": "1934d59b166ba9ee09bf0c0c5b2ad07d3dbaa17b889d360607c67b4fdba298e3"
+    },
+    "uclust": {
+      "elapsed_seconds": 58.54,
+      "run_group": "concurrent_centroid_pair",
+      "clusters": 7771,
+      "bytes": 247482,
+      "sha256": "d0d69e8a126697b1570c6af19e37b2b3fa6576aed4efe6e3844f47d98272b7c0"
+    },
+    "cd-hit": {
+      "elapsed_seconds": 57.81,
+      "run_group": "concurrent_centroid_pair",
+      "clusters": 5517,
+      "bytes": 247479,
+      "sha256": "1a8f85243f6a1473a161594c037d36ada84281ace82bcb1361fad6950fa31a7d"
+    },
+    "set-cover": {
+      "elapsed_seconds": 75.85,
+      "run_group": "concurrent_graph_triple",
+      "clusters": 7549,
+      "bytes": 246892,
+      "sha256": "a369ae99eb0eeab068e3b2e0173d2d77429bc9bc1f3d8176a2b9c7d216a3b8d2"
+    },
+    "leiden": {
+      "elapsed_seconds": 198.62,
+      "run_group": "concurrent_graph_triple",
+      "clusters": 7768,
+      "bytes": 246394,
+      "sha256": "64073b053b9bc4d0c87eba5697c7071a2995728ecba1c6980d652defa573549a"
+    }
+  },
+  "validation": {
+    "rows_per_output": 10021,
+    "input_order_preserved": true,
+    "representative_indices_in_range": true,
+    "all_outputs_byte_identical_to_pre_index_fast_outputs": true,
+    "test_suite": "27/27",
+    "backends": ["native C", "JavaScript"],
+    "proof_command": "bun ../bend/bend2/main.ts Clustering/lib/fast_score.bend --verdict",
+    "proof_result": "ALL PROOFS CHECK"
+  },
+  "sources": {
+    "fast_score_sha256": "8a000088e1c5155fa6bb3bc0ca15e0d0f11a7682842c4121849ba3e79249d8b1",
+    "vclust_index_sha256": "1fc5de45760b014db064c3861989f375c0cc3fc6bd5d8da39cb6a54da31c197d",
+    "common_sha256": "3a4c079e254ebb893a723975b6e8b0edd6bcc4849eb06e4d8fca354510b50daa",
+    "packing_sha256": "9b69f6f70589fcd4b9b3a7f495bcb53a5f09fe0f49ec72ca73154ca0041baff1",
+    "launcher_sha256": "64e79ec78c59754968fa92da07c7cb5b8e029c532a2508806dd3d469bdf24ad9"
+  },
+  "interpretation": [
+    "The inverted index removes the unconditional all-pairs walk for plus-strand fast mode without changing any of the six previous approximate outputs.",
+    "The pure Bend laws prove the score seam and zero-common rejection for every U32 input, not that MinHash equals biological ANI.",
+    "This is a Vclust-style sparse organization in Bend; it does not implement LZ-ANI local alignment or Kmer-db's complete on-disk batching surface.",
+    "The default mode remains threshold-banded exact global edit alignment."
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "run_on": "2026-10-19",
+  "status": "stopped_after_feasibility_check",
+  "backend": "native C",
+  "compiler_revision": "87355989791e12e0f29026ea1f65dc344290c24c",
+  "parameters": {
+    "identity": 0.9,
+    "strand": "both",
+    "threads": 1
+  },
+  "input": {
+    "path": "raw/all.curated.vOTUs.EarlyVir.fna",
+    "records": 10021,
+    "bases": 250720859,
+    "bytes": 255006683,
+    "sha256": "e3a458156d7a2ed6be0ae8feefec9ceaa2af1640f28bb87c116f7fa045811dab"
+  },
+  "observed_peak_rss_bytes_approximate": 6194085888,
+  "attempts": [
+    {
+      "algorithm": "cd-hit",
+      "complete": false,
+      "partial_output_published": false,
+      "observation": "Loaded successfully and saturated one CPU core, but produced no partial result after several minutes.",
+      "scale_check": {
+        "input": "ready/earlyvir_shortest16.fasta",
+        "records": 16,
+        "candidate_pairs": 120,
+        "wall_seconds": 16.77,
+        "full_worst_case_candidate_pairs": 50205210,
+        "short_input_worst_case_extrapolation_days": 81.206
+      }
+    },
+    {
+      "algorithm": "uclust",
+      "complete": false,
+      "partial_output_published": false,
+      "observation": "Loaded successfully and entered exhaustive global alignment, but produced no partial result before the feasibility stop.",
+      "first_two_sorted_lengths": [266223, 213791],
+      "first_pair_dp_cells_both_strands": 113832162786
+    }
+  ],
+  "reason": "The non-matrix implementations avoid quadratic storage but retain worst-case quadratic centroid search; UCLUST also performs quadratic-length global alignment for every candidate."
+}

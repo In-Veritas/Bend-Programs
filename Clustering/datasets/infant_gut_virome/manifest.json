@@ -1,0 +1,58 @@
+{
+  "downloaded_on": "2026-10-19",
+  "article": {
+    "title": "Expanding known viral diversity in the healthy infant gut",
+    "doi": "10.1038/s41564-023-01345-7",
+    "pubmed": "37037943"
+  },
+  "dataset": {
+    "title": "Atlas of infant gut DNA virus diversity with taxonomy and curated sequences",
+    "figshare_article_id": 21102805,
+    "version": 2,
+    "doi": "10.6084/m9.figshare.21102805.v2",
+    "license": "CC BY 4.0"
+  },
+  "files": [
+    {
+      "name": "fig1.svg",
+      "figshare_file_id": 37467115,
+      "bytes": 1178204,
+      "md5": "db9d0f4f958cc9744b2b9a81caae8f3d",
+      "sha256": "e5d9e2dba0b87c6b41c31715bf8399193f941a734ed5ba61b6cceadae9000b32"
+    },
+    {
+      "name": "taxtable.tsv",
+      "figshare_file_id": 37467121,
+      "bytes": 1638731,
+      "md5": "9ea2c77f8576116a90700a6b2cf1d5c3",
+      "sha256": "92a308b9b59e1c401fa3c6b2747d9c74ab558775b1fedf154b4ba6c2fb9bad0e"
+    },
+    {
+      "name": "all.curated.vOTUs.EarlyVir.fna",
+      "figshare_file_id": 37467124,
+      "bytes": 255006683,
+      "md5": "c981d0450bead795491dc3db8c06ce49",
+      "sha256": "e3a458156d7a2ed6be0ae8feefec9ceaa2af1640f28bb87c116f7fa045811dab"
+    }
+  ],
+  "validation": {
+    "fasta_records": 10021,
+    "unique_fasta_ids": 10021,
+    "total_bases": 250720859,
+    "minimum_length": 1022,
+    "maximum_length": 266223,
+    "records_over_30000_bases": 3556,
+    "invalid_iupac_sequence_lines": 0,
+    "taxonomy_rows": 10021,
+    "taxonomy_fields_per_row": 23,
+    "taxonomy_has_header": false,
+    "fasta_ids_without_taxonomy": 0,
+    "taxonomy_ids_without_fasta": 0
+  },
+  "benchmark_context": {
+    "paper_reported_otu_count": 362668,
+    "curated_viral_otu_count": 10021,
+    "legacy_benchmark_url": "http://copsac.com/earlyvir/f1y/benchmark.tsv",
+    "legacy_url_status_on_download_date": "HTTP 455"
+  }
+}

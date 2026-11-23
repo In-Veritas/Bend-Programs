@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "ani": {
+    "path": "/Users/macolas/Software/Gabriel/Bend-Programs/Clustering/datasets/infant_gut_virome/results/vclust_full.identity_0.70.ani.tsv",
+    "sha256": "8e4876c139380e7b10d37d2c94fe58b6ef635195a30c83e96dbcfeaa6bc2d7a4",
+    "bytes": 59275787
+  },
+  "ids": {
+    "path": "/Users/macolas/Software/Gabriel/Bend-Programs/Clustering/datasets/infant_gut_virome/results/vclust_full.identity_0.70.ani.ids.tsv",
+    "sha256": "f3e99322941d104dfd6ca07146e5a6d588dec6d90cc5cda2c0d49c4cab7b28e2",
+    "bytes": 169415
+  },
+  "metric": "ani",
+  "threshold": 0.95,
+  "algorithms": {
+    "single": {
+      "equal": true,
+      "c_clusters": 6373,
+      "vclust_clusters": 6373,
+      "c_membership_sha256": "bc02e4ffe7f607068c16162124e082058edc8dbb2c4951ca0eef1fd54abbcf0e",
+      "vclust_membership_sha256": "bc02e4ffe7f607068c16162124e082058edc8dbb2c4951ca0eef1fd54abbcf0e",
+      "strict": true
+    },
+    "complete": {
+      "equal": true,
+      "c_clusters": 7181,
+      "vclust_clusters": 7181,
+      "c_membership_sha256": "63d26ee64ea176c9d28e24adca23156e39c444e679e2d1b69f973db58600385e",
+      "vclust_membership_sha256": "63d26ee64ea176c9d28e24adca23156e39c444e679e2d1b69f973db58600385e",
+      "strict": true
+    },
+    "uclust": {
+      "equal": true,
+      "c_clusters": 6890,
+      "vclust_clusters": 6890,
+      "c_membership_sha256": "c553682c4d6af6c131ebaf2283685ba41d0115f384dbef319c0a9b997f57e540",
+      "vclust_membership_sha256": "c553682c4d6af6c131ebaf2283685ba41d0115f384dbef319c0a9b997f57e540",
+      "strict": true
+    },
+    "cd-hit": {
+      "equal": true,
+      "c_clusters": 6890,
+      "vclust_clusters": 6890,
+      "c_membership_sha256": "ee46e90471f5fba6c304332aaa0dc7221ce1c64ed3818f4ed5f12a4cb42b70ea",
+      "vclust_membership_sha256": "ee46e90471f5fba6c304332aaa0dc7221ce1c64ed3818f4ed5f12a4cb42b70ea",
+      "strict": true
+    },
+    "set-cover": {
+      "equal": true,
+      "c_clusters": 6618,
+      "vclust_clusters": 6618,
+      "c_membership_sha256": "3c7e37a7abe50ff05668e642043778278e7b33aed86d6ae0a94a818814137bd6",
+      "vclust_membership_sha256": "3c7e37a7abe50ff05668e642043778278e7b33aed86d6ae0a94a818814137bd6",
+      "strict": true
+    },
+    "leiden": {
+      "equal": false,
+      "c_clusters": 7092,
+      "vclust_clusters": 6766,
+      "c_membership_sha256": "ebe07f91fc53b25073f814f8cf16473d3e827772c70c7f63d585d80784887ada",
+      "vclust_membership_sha256": "c26af70270de0d45862efb9f39616ef543009d35d70e4905b26b17ae49164c4e",
+      "strict": false
+    }
+  },
+  "all_strict_matches": true,
+  "source_fasta": {
+    "path": "Clustering/datasets/infant_gut_virome/raw/all.curated.vOTUs.EarlyVir.fna",
+    "sha256": "e3a458156d7a2ed6be0ae8feefec9ceaa2af1640f28bb87c116f7fa045811dab",
+    "bytes": 255006683
+  }
+}

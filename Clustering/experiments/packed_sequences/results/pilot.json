@@ -1,0 +1,152 @@
+{
+  "compiler_revision": "014ccd03c43270c151f46679075f7f04593077ea",
+  "platform": "macOS-26.3.1-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "clang": "Apple clang version 17.0.0 (clang-1700.6.4.2)",
+  "bun": "1.3.14",
+  "warmups": 0,
+  "repeats": 1,
+  "identity": 0.95,
+  "reverse": false,
+  "seed": 42,
+  "threads": 1,
+  "measurement": "Native child wall time and per-child peak RSS; includes FASTA parsing, packing, clustering, TSV and representative output; excludes compilation and Python launcher.",
+  "datasets": {
+    "vclust_prefix1000": {
+      "path": "datasets/public_viromes/ready/vclust_example_prefix1000.fasta",
+      "sha256": "a2125809c3796bb03905fd299c17cee5bcbe3c2cc5bc0613ea14d8837b89a16a"
+    },
+    "canu_short8": {
+      "path": "datasets/public_viromes/ready/canu_viral_short8.fasta",
+      "sha256": "c5760230f49f2d0c4ec97cedbbb52637ac880c61e44ee5330ea118d8a2ff3f32"
+    },
+    "wtdbg2_short8": {
+      "path": "datasets/public_viromes/ready/wtdbg2_viral_short8.fasta",
+      "sha256": "206dce0c27ee669438a5e555b14b65a75c8416f769cbe097fb0ed23278dd97d1"
+    }
+  },
+  "runs": [
+    {
+      "dataset": "vclust_prefix1000",
+      "algorithm": "single-linkage",
+      "variant": "packed",
+      "repeat": 0,
+      "seconds": 3.0321724170353264,
+      "cpu_seconds": 3.026799,
+      "peak_rss_bytes": 2457600,
+      "records": 12,
+      "clusters": 12,
+      "table_sha256": "2122243ef29fef486196d75908a604fad5102dfc2c6a015413d1f1fd1a4b77a0",
+      "representatives_sha256": "a2125809c3796bb03905fd299c17cee5bcbe3c2cc5bc0613ea14d8837b89a16a"
+    },
+    {
+      "dataset": "vclust_prefix1000",
+      "algorithm": "single-linkage",
+      "variant": "baseline",
+      "repeat": 0,
+      "seconds": 1.422438208013773,
+      "cpu_seconds": 1.418572,
+      "peak_rss_bytes": 2408448,
+      "records": 12,
+      "clusters": 12,
+      "table_sha256": "2122243ef29fef486196d75908a604fad5102dfc2c6a015413d1f1fd1a4b77a0",
+      "representatives_sha256": "a2125809c3796bb03905fd299c17cee5bcbe3c2cc5bc0613ea14d8837b89a16a"
+    },
+    {
+      "dataset": "canu_short8",
+      "algorithm": "single-linkage",
+      "variant": "packed",
+      "repeat": 0,
+      "seconds": 10.860515415901318,
+      "cpu_seconds": 10.84821,
+      "peak_rss_bytes": 2899968,
+      "records": 8,
+      "clusters": 8,
+      "table_sha256": "a23c98d32c2eebf83585635d7d81b9cd95a82c90422a56cf22c8cad05777c1b1",
+      "representatives_sha256": "c5760230f49f2d0c4ec97cedbbb52637ac880c61e44ee5330ea118d8a2ff3f32"
+    },
+    {
+      "dataset": "canu_short8",
+      "algorithm": "single-linkage",
+      "variant": "baseline",
+      "repeat": 0,
+      "seconds": 5.099500499898568,
+      "cpu_seconds": 5.095935000000001,
+      "peak_rss_bytes": 2916352,
+      "records": 8,
+      "clusters": 8,
+      "table_sha256": "a23c98d32c2eebf83585635d7d81b9cd95a82c90422a56cf22c8cad05777c1b1",
+      "representatives_sha256": "c5760230f49f2d0c4ec97cedbbb52637ac880c61e44ee5330ea118d8a2ff3f32"
+    },
+    {
+      "dataset": "wtdbg2_short8",
+      "algorithm": "single-linkage",
+      "variant": "baseline",
+      "repeat": 0,
+      "seconds": 17.342683541122824,
+      "cpu_seconds": 17.32544,
+      "peak_rss_bytes": 3768320,
+      "records": 8,
+      "clusters": 8,
+      "table_sha256": "edbbba09937401fca62e626d2be8f422ad969cedd2bb74dbdf275a62a2437b1f",
+      "representatives_sha256": "206dce0c27ee669438a5e555b14b65a75c8416f769cbe097fb0ed23278dd97d1"
+    },
+    {
+      "dataset": "wtdbg2_short8",
+      "algorithm": "single-linkage",
+      "variant": "packed",
+      "repeat": 0,
+      "seconds": 37.54667670815252,
+      "cpu_seconds": 37.459008,
+      "peak_rss_bytes": 3719168,
+      "records": 8,
+      "clusters": 8,
+      "table_sha256": "edbbba09937401fca62e626d2be8f422ad969cedd2bb74dbdf275a62a2437b1f",
+      "representatives_sha256": "206dce0c27ee669438a5e555b14b65a75c8416f769cbe097fb0ed23278dd97d1"
+    }
+  ],
+  "summary": [
+    {
+      "dataset": "vclust_prefix1000",
+      "algorithm": "single-linkage",
+      "clusters": 12,
+      "baseline_seconds": 1.422438208013773,
+      "baseline_rss_mib": 2.296875,
+      "baseline_min_seconds": 1.422438208013773,
+      "baseline_max_seconds": 1.422438208013773,
+      "packed_seconds": 3.0321724170353264,
+      "packed_rss_mib": 2.34375,
+      "packed_min_seconds": 3.0321724170353264,
+      "packed_max_seconds": 3.0321724170353264,
+      "speedup": 0.46911521258561756
+    },
+    {
+      "dataset": "canu_short8",
+      "algorithm": "single-linkage",
+      "clusters": 8,
+      "baseline_seconds": 5.099500499898568,
+      "baseline_rss_mib": 2.78125,
+      "baseline_min_seconds": 5.099500499898568,
+      "baseline_max_seconds": 5.099500499898568,
+      "packed_seconds": 10.860515415901318,
+      "packed_rss_mib": 2.765625,
+      "packed_min_seconds": 10.860515415901318,
+      "packed_max_seconds": 10.860515415901318,
+      "speedup": 0.4695449805662247
+    },
+    {
+      "dataset": "wtdbg2_short8",
+      "algorithm": "single-linkage",
+      "clusters": 8,
+      "baseline_seconds": 17.342683541122824,
+      "baseline_rss_mib": 3.59375,
+      "baseline_min_seconds": 17.342683541122824,
+      "baseline_max_seconds": 17.342683541122824,
+      "packed_seconds": 37.54667670815252,
+      "packed_rss_mib": 3.546875,
+      "packed_min_seconds": 37.54667670815252,
+      "packed_max_seconds": 37.54667670815252,
+      "speedup": 0.4618966327146925
+    }
+  ]
+}

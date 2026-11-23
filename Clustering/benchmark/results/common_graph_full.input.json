@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "source": {
+    "path": "Clustering/datasets/infant_gut_virome/results/vclust_full.identity_0.70.ani.tsv",
+    "bytes": 59275787,
+    "sha256": "8e4876c139380e7b10d37d2c94fe58b6ef635195a30c83e96dbcfeaa6bc2d7a4",
+    "rows": 570306
+  },
+  "graph": {
+    "path": "Clustering/datasets/infant_gut_virome/results/vclust_full.ani_0.95.graph.tsv",
+    "bytes": 196855,
+    "sha256": "2b6d6140593cc7970fcafc2d8d4d757143c932ab58d12bf4852726fc23b8ab72",
+    "qualifying_source_rows": 17112,
+    "edges": 10700,
+    "duplicates_collapsed": 6412
+  },
+  "metric": "ani",
+  "threshold": "0.95"
+}
