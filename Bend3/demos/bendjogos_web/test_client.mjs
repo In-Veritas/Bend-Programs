@@ -25,11 +25,100 @@ for (const [index, script] of scripts.entries()) {
 assert.match(html, /href="\/belote"/);
 assert.match(html, /href="\/poker"/);
 assert.match(html, /href="\/core"/);
+assert.match(html, /href="\/clustering"/);
 assert.match(html, /option value="belote"/);
 assert.match(html, /option value="poker"/);
 assert.equal((html.match(/belote-card c[123]/g) || []).length, 3);
 assert.match(html, /four musical locations/);
 assert.match(html, /arithmetic constants/);
+
+const clustering = read("./clustering.html");
+assert.match(clustering, /Dataset medido/);
+assert.match(clustering, /all\.curated\.vOTUs\.EarlyVir\.fna/);
+assert.match(clustering, /Atlas of infant gut DNA virus diversity/);
+assert.match(clustering, /10\.6084\/m9\.figshare\.21102805\.v2/);
+assert.match(clustering, /Três implementações\. O mesmo agrupamento/);
+assert.match(clustering, /180 execuções/);
+assert.match(clustering, /60\/60/);
+assert.match(clustering, /10\.700 arestas/);
+assert.match(clustering, /570\.306/);
+assert.match(clustering, /6\.412/);
+assert.match(clustering, /7,81/);
+assert.match(clustering, /2,37 GiB/);
+assert.match(clustering, /27,01/);
+assert.match(clustering, /586 MiB/);
+assert.match(clustering, /FASTA inteiro com índice invertido em Bend/);
+assert.match(clustering, /55,81/);
+assert.match(clustering, /58,54 \/ 57,81/);
+assert.match(clustering, /74,95 \/ 75,85/);
+assert.match(clustering, /198,62/);
+assert.match(clustering, /2 <small>leis universais/);
+assert.match(clustering, /Kernel <code>--verdict<\/code>/);
+assert.match(clustering, /430,6 <small>MiB RSS/);
+assert.match(clustering, /28\/28 Bend/);
+assert.match(clustering, /Kmer-db \+ LZ-ANI/);
+assert.match(clustering, /344\/344 <small>pares direcionados/);
+assert.match(clustering, /11 · 7 · 40 · 35/);
+assert.match(clustering, /split sobreposto/);
+assert.match(clustering, /frente e trás/);
+assert.match(clustering, /25 <small>mer canônico/);
+assert.match(clustering, /Kmer-db 2\.3\.1/);
+assert.match(clustering, /6,71 s/);
+assert.match(clustering, /2 no máximo/);
+assert.match(clustering, /Ainda não é o pipeline Vclust completo/);
+assert.match(clustering, /lib\/lz_ani_indexed\.bend/);
+assert.match(clustering, /--lz-ani/);
+assert.match(clustering, /Tempo e memória por algoritmo/);
+assert.match(clustering, /data-thread="1"/);
+assert.match(clustering, /data-thread="2"/);
+assert.match(clustering, /data-thread="4"/);
+assert.match(clustering, /data-thread="8"/);
+assert.match(clustering, /Bend → C/);
+assert.match(clustering, /C11 independente/);
+assert.match(clustering, /VClust\/Clusty 1\.2\.2/);
+assert.match(clustering, /6\.373 clusters/);
+assert.match(clustering, /7\.181 clusters/);
+assert.match(clustering, /6\.618 clusters/);
+assert.match(clustering, /Energia ainda indisponível/);
+assert.match(clustering, /powermetrics/);
+assert.match(clustering, /Bend 2\.0\.38 → C/);
+assert.match(clustering, /revisão <code>de26a917/);
+assert.match(clustering, /clang -O2 -std=c11 -lpthread -lm/);
+assert.match(clustering, /Apple clang 17/);
+assert.match(clustering, /VClust 1\.3\.1/);
+assert.match(clustering, /Set Cover C recalculava graus residuais/);
+assert.match(clustering, /Leiden foi excluído/);
+assert.match(clustering, /e3a458156d7a2ed6be0ae8feefec9ceaa2af1640f28bb87c116f7fa045811dab/);
+assert.match(clustering, /2b6d6140593cc7970fcafc2d8d4d757143c932ab58d12bf4852726fc23b8ab72/);
+checkInlineScripts(clustering, "clustering");
+const clusteringElements = new Map([
+  ["benchGrid", { innerHTML: "" }],
+  ["threadSummary", { textContent: "" }],
+  ["threadNote", { textContent: "" }],
+]);
+const clusteringButtons = [1, 2, 4, 8].map(thread => ({
+  dataset: { thread: String(thread) },
+  classList: { toggle() {} },
+  addEventListener(event, listener) { this[event] = listener; },
+}));
+const clusteringContext = {
+  document: {
+    getElementById: id => clusteringElements.get(id),
+    querySelectorAll: selector => selector === "[data-thread]" ? clusteringButtons : [],
+  },
+};
+const clusteringScript = [...clustering.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].at(-1)[1];
+vm.runInNewContext(clusteringScript, clusteringContext, { filename: "clustering-interactive.js" });
+assert.equal((clusteringElements.get("benchGrid").innerHTML.match(/class="bench-card"/g) || []).length, 5);
+assert.match(clusteringElements.get("benchGrid").innerHTML, /3,712 s/);
+assert.match(clusteringElements.get("benchGrid").innerHTML, /134,0 MiB/);
+clusteringButtons.at(-1).click();
+assert.match(clusteringElements.get("threadSummary").textContent, /8 threads solicitadas/);
+assert.match(clusteringElements.get("threadNote").textContent, /VClust\/Clusty: 8/);
+const serverSource = read("./web_bendjogos.bend");
+assert.match(serverSource, /String\.eq_u32\(name, "clustering"\)/);
+assert.match(serverSource, /bendjogos_web\/clustering\.html/);
+assert.match(serverSource, /case List\.Cons\{"", List\.Nil\{\}\}: clustering_page/);
 
 const coreHome = fs.readFileSync(new URL("./core/index.html", import.meta.url), "utf8");
 const corePoker = fs.readFileSync(new URL("./core/poker.html", import.meta.url), "utf8");

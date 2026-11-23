@@ -325,6 +325,11 @@ def core_route(args: List(String), platform: Platform) -> IO(Outcome):
     case List.Cons{"landscape_data.js", List.Nil{}}: core_bend_landscape_data(platform)
     case other: IO.pure(Outcome, Outcome.Outcome{platform, HTTP.not_found()})
 
+def clustering_page(platform: Platform) -> IO(Outcome):
+  do IO(Outcome):
+    response <- page("gabriel_demos/bendjogos_web/clustering.html")
+    return Outcome.Outcome{platform, response}
+
 def static_route(name: String, args: List(String), request: HTTP.Request, platform: Platform, now: U32) -> IO(Outcome):
   match String.eq_u32(name, "duck-hunt"):
     case 0:
@@ -392,7 +397,13 @@ def route_parts(parts: List(String), request: HTTP.Request, platform: Platform, 
     case List.Cons{root, List.Cons{"api", args}}:
       game_social(request, platform, now)
     case List.Cons{root, List.Cons{name, args}}:
-      static_route(name, args, request, platform, now)
+      match String.eq_u32(name, "clustering"):
+        case 0: static_route(name, args, request, platform, now)
+        case found:
+          match args:
+            case List.Nil{}: clustering_page(platform)
+            case List.Cons{"", List.Nil{}}: clustering_page(platform)
+            case other: IO.pure(Outcome, Outcome.Outcome{platform, HTTP.not_found()})
     case other:
       IO.pure(Outcome, Outcome.Outcome{platform, HTTP.not_found()})
 

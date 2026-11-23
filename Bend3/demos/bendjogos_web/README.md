@@ -24,6 +24,11 @@ The hub provides:
 - Tic-tac-toe — two-player LAN game under `/tic`
 - Bar Bench — server-computed Bend demo under `/bar`
 - Elements — server-computed Bend demo under `/elements`
+- Virome Clustering — full EarlyVir VClust preparation and an interactive
+  180-run comparison of Bend-to-C, independent C11, and VClust/Clusty across
+  five equivalent algorithms and 1/2/4/8 requested threads, plus preliminary
+  full-FASTA timings for Bend's proven inverted MinHash path and the validated
+  indexed Bend LZ-ANI/tANI port status, under `/clustering`
 - Bend3 Source Obfuscator — private in-browser structural source transform with
   arithmetic constants, long misleading symbols, function splitting, and
   chaotic spacing under `/obfuscator`
