@@ -1,0 +1,34 @@
+{
+  "run_on": "2026-10-19",
+  "status": "passed",
+  "algorithm": "uclust",
+  "implementation": "Clustering/uclust.bend",
+  "backend": "native C",
+  "compiler_revision": "87355989791e12e0f29026ea1f65dc344290c24c",
+  "parameters": {
+    "identity": 0.9,
+    "strand": "both"
+  },
+  "input": {
+    "path": "ready/earlyvir_shortest16.fasta",
+    "records": 16,
+    "bases": 25653,
+    "bytes": 26156,
+    "sha256": "36a62a786aaa409e1127524057f93fecef31d31ef1c75bd2298211514df6a29f"
+  },
+  "membership_output": {
+    "path": "results/uclust_identity_0.90.tsv",
+    "records": 16,
+    "clusters": 16,
+    "singleton_clusters": 16,
+    "bytes": 366,
+    "sha256": "5a0e857e26302747dc467ef86b00abed19c3b01a99e9f22ab8082322c7d4e5f4"
+  },
+  "representatives_output": {
+    "path": "results/uclust_identity_0.90.representatives.fasta",
+    "records": 16,
+    "bytes": 26156,
+    "sha256": "36a62a786aaa409e1127524057f93fecef31d31ef1c75bd2298211514df6a29f",
+    "byte_identical_to_input": true
+  }
+}

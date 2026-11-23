@@ -1,0 +1,75 @@
+{
+  "date": "2026-10-22",
+  "input": {
+    "path": "../raw/all.curated.vOTUs.EarlyVir.fna",
+    "sha256": "e3a458156d7a2ed6be0ae8feefec9ceaa2af1640f28bb87c116f7fa045811dab",
+    "bytes": 255006683,
+    "records": 10021,
+    "bases": 250720859
+  },
+  "compiler": {
+    "repository": "../../../../../bend",
+    "revision": "de26a917085a249786f185d20233f107462285f1",
+    "version": "2.0.38"
+  },
+  "sources": {
+    "prefilter_benchmark_sha256": "16228bf4f2cce59a1435f70ea700b9865719782fed6118651fd97a683bceb3c1",
+    "common_sha256": "bbbe028c2b80e7a3d0e63a121a00f8c5520053ee75e2b48b234a9e2dcf75641e",
+    "packing_sha256": "ff505c5a132a50469d89680ec69cd6b53a836f5f91d4e5b3928497b4187b8ac6",
+    "reference_sha256": "6dcd2f88cc96d61ac2445b688eb4247cdc6a936c79902d50514919e7d4f69a29"
+  },
+  "settings": {
+    "identity_basis_points": 9500,
+    "strand": "plus",
+    "backend": "native C",
+    "threads": 1,
+    "gpu": false
+  },
+  "full_prefilter": {
+    "pairs": 50205210,
+    "length_rejected": 48251356,
+    "length_compatible": 1953854,
+    "three_mer_rejected": 324485,
+    "three_mer_candidates": 1629369,
+    "sketch_candidates": {
+      "at_least_1": 53589,
+      "at_least_2": 24029,
+      "at_least_4": 11571,
+      "at_least_8": 6758,
+      "at_least_12": 4277,
+      "at_least_16": 3029,
+      "at_least_24": 1667,
+      "at_least_32": 786
+    },
+    "q15_after_sketch8": 6526,
+    "elapsed_seconds": 229.371401,
+    "peak_rss_bytes": 239042560,
+    "completed": true
+  },
+  "conservative_only_run": {
+    "elapsed_seconds": 171.365611,
+    "peak_rss_bytes": 233324544,
+    "completed": true
+  },
+  "exact_single_linkage_attempt": {
+    "timeout_seconds": 120,
+    "elapsed_seconds": 120.006180,
+    "peak_rss_bytes": 359284736,
+    "exit_signal": "SIGTERM",
+    "stdout_bytes": 0,
+    "completed": false,
+    "cluster_output_published": false
+  },
+  "validation": {
+    "bend_checker": "passed",
+    "native_and_javascript_tests": 24,
+    "stratified_1000_reference": "all conservative and sketch counters matched the independent Python oracle"
+  },
+  "interpretation": [
+    "The full input and all-pairs prefilter completed without a dense pair matrix.",
+    "The retained source hashes include a post-run removal of an unreachable whole-file reader and length-pruning changes to sparse_build; neither definition is reachable from the benchmark entry.",
+    "The sketch stage is approximate and can have false negatives.",
+    "Passing the conservative q15 bound does not prove threshold identity.",
+    "No full-dataset exact clusters are claimed because exact alignment did not complete."
+  ]
+}
