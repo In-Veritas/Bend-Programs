@@ -1,0 +1,20 @@
+<section id="funil">
+<div class="head">
+<p class="eyebrow">Tipos e provas no pipeline</p>
+<h2>Filtros conservadores e aproximados</h2>
+</div>
+<p class="lead" style="width:1500px">EarlyVir completo, 10.021 registros, identidade 0,95, fita direta; escala logarítmica.</p>
+<div class="col" style="gap:18px">
+<div class="row" style="gap:24px; align-items:center"><p class="txt" style="width:440px">Todos os pares não ordenados</p><div style="width:900px; height:48px; background:#8b8578; border-radius:6px"></div><p class="txt mono">50.205.210</p></div>
+<div class="row" style="gap:24px; align-items:center"><p class="txt" style="width:440px">Comprimento compatível</p><div style="width:735px; height:48px; background:var(--teal); border-radius:6px"></div><p class="txt mono">1.953.854</p></div>
+<div class="row" style="gap:24px; align-items:center"><p class="txt" style="width:440px">3-mers conservadores</p><div style="width:726px; height:48px; background:var(--teal); border-radius:6px"></div><p class="txt mono">1.629.369</p></div>
+<div class="row" style="gap:24px; align-items:center"><p class="txt" style="width:440px">MinHash ≥ 8 bins</p><div style="width:448px; height:48px; background:var(--orange); border-radius:6px"></div><p class="txt mono">6.758</p></div>
+<div class="row" style="gap:24px; align-items:center"><p class="txt" style="width:440px">15-mers conservadores após MinHash</p><div style="width:446px; height:48px; background:var(--orange); border-radius:6px"></div><p class="txt mono">6.526</p></div>
+</div>
+<div style="flex:1"></div>
+<div class="row" style="gap:48px">
+<p class="txt grow"><span class="lbl-k">Verde-azulado: sem falso negativo.</span> Um par qualificado precisa de ceil(limiar × maior comprimento) matches, o que impõe um mínimo de 3-mers comuns. Colisões de hash só aumentam a contagem.</p>
+<p class="txt grow"><span style="color:var(--orange); font-weight:600">Laranja: aproximado.</span> O MinHash pode perder pares. O limite conservador é argumentado e testado contra um oráculo Python, mas não é uma lei Bend.</p>
+</div>
+<p class="foot">Execução de viabilidade, não benchmark controlado · VCLUST_ARCHITECTURE.md, README.md (Alignment and identity)</p>
+</section>

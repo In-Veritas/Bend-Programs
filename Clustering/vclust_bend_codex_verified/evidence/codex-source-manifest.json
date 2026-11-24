@@ -1,0 +1,287 @@
+{
+  "updated_at": "2026-11-23T17:22:57.497988+01:00",
+  "files": [
+    {
+      "file": ".gitignore",
+      "status": "new",
+      "before_sha256": null,
+      "after_sha256": "3cba886152bff7a7f8618aaa079dbb9aeee4b0214d890efa7154838f2cf42ebb"
+    },
+    {
+      "file": "CLAUDE_HANDOFF.md",
+      "status": "new",
+      "before_sha256": null,
+      "after_sha256": "c26e7fe51e9ec782a9d3cd297334c390dcca8f955032c2f75214105664ee8aab"
+    },
+    {
+      "file": "README.md",
+      "status": "new",
+      "before_sha256": null,
+      "after_sha256": "9d3108d83f98c843359a8894f13d45f3ba3ae9029ed03a86baae478ab71f66ae"
+    },
+    {
+      "file": "align.bend",
+      "status": "modified",
+      "before_sha256": "9c227a331d3ecb25c1e3a2eb11d8ac5910fd40ee4496637b89c7bf774566d65b",
+      "after_sha256": "24ec6791bdb19f5cf9e9e0db77d135bd24dd019402d763ad0dc805afcf0bc15a"
+    },
+    {
+      "file": "align_io.bend",
+      "status": "unchanged",
+      "before_sha256": "7d09ffe4e9bcf8d72f84491314b1fb83b93a5859ae512c55cf730ed149cdcf41",
+      "after_sha256": "7d09ffe4e9bcf8d72f84491314b1fb83b93a5859ae512c55cf730ed149cdcf41"
+    },
+    {
+      "file": "align_lz.bend",
+      "status": "unchanged",
+      "before_sha256": "c635358cb7fefe9bb32ce473d867226eaa1956eb86f8ffd3d9f2a0c606b62bcf",
+      "after_sha256": "c635358cb7fefe9bb32ce473d867226eaa1956eb86f8ffd3d9f2a0c606b62bcf"
+    },
+    {
+      "file": "align_num.bend",
+      "status": "unchanged",
+      "before_sha256": "6e1c82f052fd47ef2788c4b2292ec84636046f92dd125939b89795a8a4a36bbf",
+      "after_sha256": "6e1c82f052fd47ef2788c4b2292ec84636046f92dd125939b89795a8a4a36bbf"
+    },
+    {
+      "file": "benchmark.py",
+      "status": "new",
+      "before_sha256": null,
+      "after_sha256": "46a7e2e01e5e8862e8f972ef03db2fb4b4f4eb28cbe5ee3122fad3b3522bb597"
+    },
+    {
+      "file": "cl_complete.bend",
+      "status": "unchanged",
+      "before_sha256": "4532dbf82b80a7b0e1fe866f31cceb89d83e9548308c3cc1d2146b187a1edc47",
+      "after_sha256": "4532dbf82b80a7b0e1fe866f31cceb89d83e9548308c3cc1d2146b187a1edc47"
+    },
+    {
+      "file": "cl_graph.bend",
+      "status": "unchanged",
+      "before_sha256": "b6498aa9d9accd9c1628c3f53f7d8cbb344c223ea7a8faa5ad9982f596f61bf8",
+      "after_sha256": "b6498aa9d9accd9c1628c3f53f7d8cbb344c223ea7a8faa5ad9982f596f61bf8"
+    },
+    {
+      "file": "cl_leiden.bend",
+      "status": "modified",
+      "before_sha256": "4924e70195636d90d4784765c7b8b1b923fc4965944269d46bab952acfc7439d",
+      "after_sha256": "36d3626a7f6ba2b6105ce5368706acc001697c1f7ad9a6de8b17338e9df112c8"
+    },
+    {
+      "file": "cl_leiden_aggregate.bend",
+      "status": "new",
+      "before_sha256": null,
+      "after_sha256": "be61f907d2ad697209d9cfda6e12b4d44a530d2b9b1965196833182ff932f80e"
+    },
+    {
+      "file": "cl_leiden_common.bend",
+      "status": "new",
+      "before_sha256": null,
+      "after_sha256": "19baaff3007319aa223e4af8c565a6cfce80c1919f9237b6fbbbe81e2423bb4c"
+    },
+    {
+      "file": "cl_leiden_move.bend",
+      "status": "new",
+      "before_sha256": null,
+      "after_sha256": "8ae2cfcbb784afc13d531957dbd4641967b5a8abb4dcbf10fcbb77f9ff1d54cc"
+    },
+    {
+      "file": "cl_leiden_refine.bend",
+      "status": "new",
+      "before_sha256": null,
+      "after_sha256": "70a0bea2dce3cbed6008eeb58d0ce5cc7b9481ccb6f00efcea207147dbf04670"
+    },
+    {
+      "file": "cl_leiden_rng.bend",
+      "status": "new",
+      "before_sha256": null,
+      "after_sha256": "dd55a4b65706aac7eba371e57be1eb85eee19e742618e8311ee6e1da95d676b0"
+    },
+    {
+      "file": "cl_leiden_state.bend",
+      "status": "new",
+      "before_sha256": null,
+      "after_sha256": "4e4e3fa18ce4eb00a34a9ed9c5cc755328413879cea36c2f3f1df2a9d0e88b69"
+    },
+    {
+      "file": "cl_load.bend",
+      "status": "unchanged",
+      "before_sha256": "76a000d63a20bb15e950ffd7cf28710e56629bc51394a65d05c5320095df6c33",
+      "after_sha256": "76a000d63a20bb15e950ffd7cf28710e56629bc51394a65d05c5320095df6c33"
+    },
+    {
+      "file": "clique_certificate.bend",
+      "status": "new",
+      "before_sha256": null,
+      "after_sha256": "b7e183429d523413579575a32080e8b4e64bd13f2276d159456baec82ed34c93"
+    },
+    {
+      "file": "cluster.bend",
+      "status": "modified",
+      "before_sha256": "a24626b556ef96a97eb39554d96be2d58051b690360a0ca4591a6699452ba216",
+      "after_sha256": "5d9381422e9cbdd8db15d32b9466f540a620d23540bedc1bd92abba16e19db90"
+    },
+    {
+      "file": "f64.bend",
+      "status": "unchanged",
+      "before_sha256": "9236f61a43d474e74f4c7b9fefcdaa43b1f4bf43157afbb26e4a508b43bdb145",
+      "after_sha256": "9236f61a43d474e74f4c7b9fefcdaa43b1f4bf43157afbb26e4a508b43bdb145"
+    },
+    {
+      "file": "partition_certificate.bend",
+      "status": "new",
+      "before_sha256": null,
+      "after_sha256": "0b92a3ea3b55d722091033e854cbc8e6f52fca135b82c6a48b3e559a2195f325"
+    },
+    {
+      "file": "pf_core.bend",
+      "status": "unchanged",
+      "before_sha256": "187984abe12498fa8d3d16ea6e51ccfa6de05af2994a972ba2440632e4258112",
+      "after_sha256": "187984abe12498fa8d3d16ea6e51ccfa6de05af2994a972ba2440632e4258112"
+    },
+    {
+      "file": "pf_fasta.bend",
+      "status": "unchanged",
+      "before_sha256": "f1c9792e963dceb832477817d46037025dd13350c8c78517243fdac34804ea9d",
+      "after_sha256": "f1c9792e963dceb832477817d46037025dd13350c8c78517243fdac34804ea9d"
+    },
+    {
+      "file": "pf_num.bend",
+      "status": "unchanged",
+      "before_sha256": "755cd3bd11755c2b8b346d045e3dc1e9036305836c7c37b85c8485b15ccd18a4",
+      "after_sha256": "755cd3bd11755c2b8b346d045e3dc1e9036305836c7c37b85c8485b15ccd18a4"
+    },
+    {
+      "file": "pf_sel.bend",
+      "status": "unchanged",
+      "before_sha256": "5cb35cd016ea54922da26f05d6aa9b188fb37384a3ad757c9a3f3aba8eaf71e7",
+      "after_sha256": "5cb35cd016ea54922da26f05d6aa9b188fb37384a3ad757c9a3f3aba8eaf71e7"
+    },
+    {
+      "file": "prefilter.bend",
+      "status": "unchanged",
+      "before_sha256": "92a92385b8a0814320fc38732a311672881eef362742e90e4bfb0b5eaf306527",
+      "after_sha256": "92a92385b8a0814320fc38732a311672881eef362742e90e4bfb0b5eaf306527"
+    },
+    {
+      "file": "proofs/Forest.lean",
+      "status": "new",
+      "before_sha256": null,
+      "after_sha256": "26585d977fc22c842c69b9f5bcf2ad5ea9a4c106221da1fa9d56395423b2f5e7"
+    },
+    {
+      "file": "run.py",
+      "status": "new",
+      "before_sha256": null,
+      "after_sha256": "b0382e7b59b440dec32526f3ddbff41f0bebb2e3d490a1a41f01fd5fabc2b90b"
+    },
+    {
+      "file": "tests/bend/num_probe.bend",
+      "status": "unchanged",
+      "before_sha256": "b0ea0014942bcbae89a0e07cd5423c4a090fc13efbc6c91025021206e123b28a",
+      "after_sha256": "b0ea0014942bcbae89a0e07cd5423c4a090fc13efbc6c91025021206e123b28a"
+    },
+    {
+      "file": "tests/certificate_runtime.bend",
+      "status": "new",
+      "before_sha256": null,
+      "after_sha256": "87a42b345592892a02237eddb47e8549e743b179afe682e463e12f32880ee3eb"
+    },
+    {
+      "file": "tests/clusty_model.py",
+      "status": "unchanged",
+      "before_sha256": "0c3425732fc9f0ea56660f2f415144b1fc87c092ea5de8d5e42aeab11d7c4419",
+      "after_sha256": "0c3425732fc9f0ea56660f2f415144b1fc87c092ea5de8d5e42aeab11d7c4419"
+    },
+    {
+      "file": "tests/f64/check_f64.py",
+      "status": "unchanged",
+      "before_sha256": "73afac16c3585c822106fbb5b04a569c2d308c3b45d90913c3d1f23f0d8cda15",
+      "after_sha256": "73afac16c3585c822106fbb5b04a569c2d308c3b45d90913c3d1f23f0d8cda15"
+    },
+    {
+      "file": "tests/f64/f64_test.bend",
+      "status": "unchanged",
+      "before_sha256": "82051d64a5cc3052592e2d93f55e27c46d14bd67774c07976a7b464e28a44a5e",
+      "after_sha256": "82051d64a5cc3052592e2d93f55e27c46d14bd67774c07976a7b464e28a44a5e"
+    },
+    {
+      "file": "tests/reference_data.py",
+      "status": "new",
+      "before_sha256": null,
+      "after_sha256": "4ab240aa2b5b9c2bdb1b96b22756dd4961209ef4b843c2e4cdb516c92b2d3bf7"
+    },
+    {
+      "file": "tests/test_align.py",
+      "status": "new",
+      "before_sha256": null,
+      "after_sha256": "d0d71e00abeb58807ae037f4dca90a85ef96ff306ef0fb8f4809d887f701a430"
+    },
+    {
+      "file": "tests/test_certificates.py",
+      "status": "new",
+      "before_sha256": null,
+      "after_sha256": "336fc7b9dc9d579b2e54b4bce17e10d8862698627dde583388a42f14f24e1f67"
+    },
+    {
+      "file": "tests/test_cli.py",
+      "status": "new",
+      "before_sha256": null,
+      "after_sha256": "b584c6c376a3c6c972a76e3d4750249d97f059e3b734d5fe3891659b77105de3"
+    },
+    {
+      "file": "tests/test_cluster.py",
+      "status": "new",
+      "before_sha256": null,
+      "after_sha256": "d1e9c8666bff66f7df9576e2e9eecd699b8417e9fa8e40e29222a13385abab37"
+    },
+    {
+      "file": "tests/test_prefilter.py",
+      "status": "modified",
+      "before_sha256": "d6cd1e7b1bb8238184285d1fcd6d32da3f0938d573a78b82198dfdfb2ab52b65",
+      "after_sha256": "308e657f7e9fac3db5b0a2febb2f87a385a25b8c9de12104308f50b8305b136b"
+    },
+    {
+      "file": "tests/verify_clusters.py",
+      "status": "new",
+      "before_sha256": null,
+      "after_sha256": "6b3dc4220b49098fed8cd789f394706286c4be41386479ab80ecc9d63bcb7324"
+    },
+    {
+      "file": "tools/capped.sh",
+      "status": "new",
+      "before_sha256": null,
+      "after_sha256": "500130068591b35ab573ec2fdbb323147574c101d63ef759469bc83cdda59332"
+    },
+    {
+      "file": "tools/certify_existing.py",
+      "status": "new",
+      "before_sha256": null,
+      "after_sha256": "4a1aadf59360886d507b07244187783b85f8b702a4c02a580c23fe1f804a5d7e"
+    },
+    {
+      "file": "tools/generate_leiden_state.py",
+      "status": "new",
+      "before_sha256": null,
+      "after_sha256": "6569c2a44c880b00423744e6caeae3897e37831e169ff8387336ef3700268b03"
+    },
+    {
+      "file": "tools/handoff_manifest.py",
+      "status": "new",
+      "before_sha256": null,
+      "after_sha256": "232f64c09bace6e1a0e42462ae3154a749c28403fee8178fce78cb98497215ce"
+    },
+    {
+      "file": "tools/measure_certified_cluster.py",
+      "status": "new",
+      "before_sha256": null,
+      "after_sha256": "668a46d4ed4cd9a2f815158abed75ec6d7560397e4dc9cd01c0a97e046d03c8f"
+    },
+    {
+      "file": "tools/validate.py",
+      "status": "new",
+      "before_sha256": null,
+      "after_sha256": "35f9bef60951b22ad69fa287bee2019211e237776b88810cbd713fdea7a0a5b8"
+    }
+  ]
+}

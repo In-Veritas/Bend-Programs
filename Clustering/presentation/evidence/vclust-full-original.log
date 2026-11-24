@@ -1,0 +1,11 @@
+prefilter t=12 31.21 s 2458324 KB
+align t=12 178.45 s 696032 KB
+prefilter t=1 41.16 s 2429344 KB
+align t=1 361.47 s 178868 KB
+cluster single 0.21 s 182200 KB
+cluster complete 0.23 s 182840 KB
+cluster uclust 0.22 s 182712 KB
+cluster cd-hit 0.21 s 182200 KB
+cluster set-cover 0.21 s 182200 KB
+cluster leiden 0.22 s 182840 KB
+DONE

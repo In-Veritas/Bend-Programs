@@ -1,0 +1,63 @@
+{
+  "algorithm": "cd-hit",
+  "objects": 12,
+  "clusters": 6,
+  "edges": 10,
+  "partition": true,
+  "connected": true,
+  "clique": false,
+  "edge_closed": false,
+  "star_seeds": {
+    "0": 8,
+    "1": 1,
+    "2": 4,
+    "3": 6,
+    "4": 3,
+    "5": 0
+  },
+  "root": [
+    0,
+    1,
+    1,
+    3,
+    4,
+    4,
+    6,
+    6,
+    8,
+    8,
+    8,
+    8
+  ],
+  "parent": [
+    0,
+    1,
+    1,
+    3,
+    4,
+    4,
+    6,
+    6,
+    8,
+    8,
+    8,
+    8
+  ],
+  "rank": [
+    0,
+    0,
+    1,
+    0,
+    0,
+    1,
+    0,
+    1,
+    0,
+    1,
+    1,
+    1
+  ],
+  "input_sha256": "cb13eeca2af4f2cbe8ac7d730bb777fcb13c83239268a9afbe42bfb31ac6757c",
+  "output_sha256": "9e13b91c3adf482cb6e938472c894754c92246b5ec09c7addd67e124bb3ff830",
+  "trust_boundary": "Python I/O and finite certificate checks; Forest.lean proves the abstract implication."
+}

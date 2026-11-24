@@ -1,0 +1,349 @@
+[
+  {
+    "command": [
+      "/usr/bin/python3",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/run.py",
+      "prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/original/vclust_example.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/filter.txt",
+      "-t",
+      "2"
+    ],
+    "exit_code": 0,
+    "expected_success": true
+  },
+  {
+    "command": [
+      "/usr/bin/python3",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/run.py",
+      "align",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/original/vclust_example.fasta",
+      "--filter",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/filter.txt",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/ani.tsv",
+      "-t",
+      "2"
+    ],
+    "exit_code": 0,
+    "expected_success": true
+  },
+  {
+    "command": [
+      "/usr/bin/python3",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/run.py",
+      "cluster",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/ani.tsv",
+      "--ids",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/ani.ids.tsv",
+      "--algorithm",
+      "single",
+      "--metric",
+      "ani",
+      "--ani",
+      ".95",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/clusters.tsv"
+    ],
+    "exit_code": 0,
+    "expected_success": true
+  },
+  {
+    "command": [
+      "/usr/bin/python3",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/run.py",
+      "cluster",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/ani.tsv",
+      "--ids",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/ani.ids.tsv",
+      "--algorithm",
+      "single",
+      "--metric",
+      "ani",
+      "--ani",
+      ".95",
+      "-r",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/clusters.tsv"
+    ],
+    "exit_code": 0,
+    "expected_success": true
+  },
+  {
+    "command": [
+      "/usr/bin/python3",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/run.py",
+      "cluster",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/ani.tsv",
+      "--ids",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/ani.ids.tsv",
+      "--algorithm",
+      "complete",
+      "--metric",
+      "ani",
+      "--ani",
+      ".95",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/clusters.tsv"
+    ],
+    "exit_code": 0,
+    "expected_success": true
+  },
+  {
+    "command": [
+      "/usr/bin/python3",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/run.py",
+      "cluster",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/ani.tsv",
+      "--ids",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/ani.ids.tsv",
+      "--algorithm",
+      "complete",
+      "--metric",
+      "ani",
+      "--ani",
+      ".95",
+      "-r",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/clusters.tsv"
+    ],
+    "exit_code": 0,
+    "expected_success": true
+  },
+  {
+    "command": [
+      "/usr/bin/python3",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/run.py",
+      "cluster",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/ani.tsv",
+      "--ids",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/ani.ids.tsv",
+      "--algorithm",
+      "uclust",
+      "--metric",
+      "ani",
+      "--ani",
+      ".95",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/clusters.tsv"
+    ],
+    "exit_code": 0,
+    "expected_success": true
+  },
+  {
+    "command": [
+      "/usr/bin/python3",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/run.py",
+      "cluster",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/ani.tsv",
+      "--ids",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/ani.ids.tsv",
+      "--algorithm",
+      "uclust",
+      "--metric",
+      "ani",
+      "--ani",
+      ".95",
+      "-r",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/clusters.tsv"
+    ],
+    "exit_code": 0,
+    "expected_success": true
+  },
+  {
+    "command": [
+      "/usr/bin/python3",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/run.py",
+      "cluster",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/ani.tsv",
+      "--ids",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/ani.ids.tsv",
+      "--algorithm",
+      "cd-hit",
+      "--metric",
+      "ani",
+      "--ani",
+      ".95",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/clusters.tsv"
+    ],
+    "exit_code": 0,
+    "expected_success": true
+  },
+  {
+    "command": [
+      "/usr/bin/python3",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/run.py",
+      "cluster",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/ani.tsv",
+      "--ids",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/ani.ids.tsv",
+      "--algorithm",
+      "cd-hit",
+      "--metric",
+      "ani",
+      "--ani",
+      ".95",
+      "-r",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/clusters.tsv"
+    ],
+    "exit_code": 0,
+    "expected_success": true
+  },
+  {
+    "command": [
+      "/usr/bin/python3",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/run.py",
+      "cluster",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/ani.tsv",
+      "--ids",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/ani.ids.tsv",
+      "--algorithm",
+      "set-cover",
+      "--metric",
+      "ani",
+      "--ani",
+      ".95",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/clusters.tsv"
+    ],
+    "exit_code": 0,
+    "expected_success": true
+  },
+  {
+    "command": [
+      "/usr/bin/python3",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/run.py",
+      "cluster",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/ani.tsv",
+      "--ids",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/ani.ids.tsv",
+      "--algorithm",
+      "set-cover",
+      "--metric",
+      "ani",
+      "--ani",
+      ".95",
+      "-r",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/clusters.tsv"
+    ],
+    "exit_code": 0,
+    "expected_success": true
+  },
+  {
+    "command": [
+      "/usr/bin/python3",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/run.py",
+      "cluster",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/ani.tsv",
+      "--ids",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/ani.ids.tsv",
+      "--algorithm",
+      "leiden",
+      "--metric",
+      "ani",
+      "--ani",
+      ".95",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/clusters.tsv"
+    ],
+    "exit_code": 0,
+    "expected_success": true
+  },
+  {
+    "command": [
+      "/usr/bin/python3",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/run.py",
+      "cluster",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/ani.tsv",
+      "--ids",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/ani.ids.tsv",
+      "--algorithm",
+      "leiden",
+      "--metric",
+      "ani",
+      "--ani",
+      ".95",
+      "-r",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/clusters.tsv"
+    ],
+    "exit_code": 0,
+    "expected_success": true
+  },
+  {
+    "command": [
+      "/usr/bin/python3",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/run.py",
+      "cluster",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/ani.tsv",
+      "--ids",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/references/example/ani.ids.tsv",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/clusters.tsv",
+      "--metric",
+      "nonsense"
+    ],
+    "exit_code": 1,
+    "expected_success": false
+  },
+  {
+    "command": [
+      "/usr/bin/python3",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/run.py",
+      "cluster",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/ani.tsv",
+      "--ids",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/references/example/ani.ids.tsv",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/ani.tsv",
+      "--ani",
+      ".95",
+      "--metric",
+      "ani"
+    ],
+    "exit_code": 2,
+    "expected_success": false
+  },
+  {
+    "command": [
+      "/usr/bin/python3",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/run.py",
+      "cluster",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/ani.tsv",
+      "--ids",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/references/example/ani.ids.tsv",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/clusters.tsv",
+      "--out",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/cli-tests/ani.tsv",
+      "--ani",
+      ".95",
+      "--metric",
+      "ani"
+    ],
+    "exit_code": 2,
+    "expected_success": false
+  }
+]

@@ -1,0 +1,19 @@
+Title:           Agrupando genomas virais em Bend
+Creator:         Chromium
+Producer:        Skia/PDF m151
+CreationDate:    Mon Nov 23 15:47:19 2026 CET
+ModDate:         Mon Nov 23 15:47:19 2026 CET
+Custom Metadata: no
+Metadata Stream: no
+Tagged:          no
+UserProperties:  no
+Suspects:        no
+Form:            none
+JavaScript:      no
+Pages:           37
+Encrypted:       no
+Page size:       1440 x 810 pts
+Page rot:        0
+File size:       302725 bytes
+Optimized:       no
+PDF version:     1.4

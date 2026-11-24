@@ -1,0 +1,12 @@
+{
+  "record_type": "Observed successful production-guard run, recorded after tools/validate.py guards returned exit 0",
+  "command": "BEND_REPO=\"/home/veritas/Bioinformatique/Higher Order Company/Bend\" python3 tools/validate.py guards",
+  "expected_native_stdout": "True{}",
+  "assertion_passed": true,
+  "sources": {
+    "cluster.bend": "5d9381422e9cbdd8db15d32b9466f540a620d23540bedc1bd92abba16e19db90",
+    "partition_certificate.bend": "0b92a3ea3b55d722091033e854cbc8e6f52fca135b82c6a48b3e559a2195f325",
+    "clique_certificate.bend": "b7e183429d523413579575a32080e8b4e64bd13f2276d159456baec82ed34c93",
+    "tests/certificate_runtime.bend": "87a42b345592892a02237eddb47e8549e743b179afe682e463e12f32880ee3eb"
+  }
+}

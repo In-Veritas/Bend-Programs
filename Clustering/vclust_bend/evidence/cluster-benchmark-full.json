@@ -1,0 +1,380 @@
+[
+  {
+    "dataset": "full",
+    "algorithm": "single",
+    "options": [
+      "--algorithm",
+      "single",
+      "--metric",
+      "ani",
+      "--ani",
+      "0.95"
+    ],
+    "vclust": {
+      "wall_s": 0.55,
+      "user_s": 0.36,
+      "sys_s": 0.15,
+      "rss_kb": 182200,
+      "loadavg_1m_before": 23.57,
+      "stderr": "TIME 0.55 0.36 0.15 182200\n"
+    },
+    "clusty": {
+      "wall_s": 0.27,
+      "user_s": 0.11,
+      "sys_s": 0.13,
+      "rss_kb": 182200,
+      "loadavg_1m_before": 23.57,
+      "stderr": "Clusty\n  version 1.2.2-b687638 (2025-05-22)\n\nLoading pairwise distances from /home/veritas/Bend-Programs/Clustering/vclust_bend/.work/references/full/ani.tsv... \n  input graph: 4819 nodes, 570306 edges\n  filtered graph: 4819 nodes, 21400 edges\n  time [s]: 0.244138\nLoading objects from /home/veritas/Bend-Programs/Clustering/vclust_bend/.work/references/full/ani.ids.tsv... \n  total objects: 10021\n  time [s]: 0.000898436\nClustering (algorithm: single)... \n  objects: 4819, clusters: 1171\n  time [s]: 0.000378074\nSaving clusters (representatives = false)... \n  total clusters (including singletons): 6373\n  time [s]: 0.00120982\nTIME 0.27 0.11 0.13 182200\n",
+      "kernel_s": 0.000378074,
+      "load_s": 0.244138,
+      "identical": true
+    },
+    "bend-t1": {
+      "wall_s": 2.48,
+      "user_s": 2.37,
+      "sys_s": 0.06,
+      "rss_kb": 32508,
+      "loadavg_1m_before": 23.57,
+      "stderr": "cluster timing ms: parse 2259 build 36 kernel 9 certify+render 111 write 11\nTIME 2.48 2.37 0.06 32508\n",
+      "phases_ms": {
+        "parse": 2259,
+        "build": 36,
+        "kernel": 9,
+        "certify_render": 111,
+        "write": 11
+      },
+      "identical": true
+    },
+    "bend-t12": {
+      "wall_s": 2.41,
+      "user_s": 2.3,
+      "sys_s": 0.04,
+      "rss_kb": 32592,
+      "loadavg_1m_before": 23.61,
+      "stderr": "cluster timing ms: parse 2217 build 33 kernel 13 certify+render 95 write 7\nTIME 2.41 2.30 0.04 32592\n",
+      "phases_ms": {
+        "parse": 2217,
+        "build": 33,
+        "kernel": 13,
+        "certify_render": 95,
+        "write": 7
+      },
+      "identical": true
+    }
+  },
+  {
+    "dataset": "full",
+    "algorithm": "complete",
+    "options": [
+      "--algorithm",
+      "complete",
+      "--metric",
+      "ani",
+      "--ani",
+      "0.95"
+    ],
+    "vclust": {
+      "wall_s": 0.51,
+      "user_s": 0.34,
+      "sys_s": 0.15,
+      "rss_kb": 182840,
+      "loadavg_1m_before": 23.61,
+      "stderr": "TIME 0.51 0.34 0.15 182840\n"
+    },
+    "clusty": {
+      "wall_s": 0.28,
+      "user_s": 0.11,
+      "sys_s": 0.14,
+      "rss_kb": 182840,
+      "loadavg_1m_before": 23.61,
+      "stderr": "Clusty\n  version 1.2.2-b687638 (2025-05-22)\n\nLoading pairwise distances from /home/veritas/Bend-Programs/Clustering/vclust_bend/.work/references/full/ani.tsv... \n  input graph: 4819 nodes, 570306 edges\n  filtered graph: 4819 nodes, 21400 edges\n  time [s]: 0.246487\nLoading objects from /home/veritas/Bend-Programs/Clustering/vclust_bend/.work/references/full/ani.ids.tsv... \n  total objects: 10021\n  time [s]: 0.000757049\nClustering (algorithm: complete)... \n  objects: 4819, clusters: 1979\n  time [s]: 0.0128039\nSaving clusters (representatives = false)... \n  total clusters (including singletons): 7181\n  time [s]: 0.00206939\nTIME 0.28 0.11 0.14 182840\n",
+      "kernel_s": 0.0128039,
+      "load_s": 0.246487,
+      "identical": true
+    },
+    "bend-t1": {
+      "wall_s": 2.69,
+      "user_s": 2.52,
+      "sys_s": 0.04,
+      "rss_kb": 33756,
+      "loadavg_1m_before": 23.8,
+      "stderr": "cluster timing ms: parse 2380 build 40 kernel 62 certify+render 137 write 24\nTIME 2.69 2.52 0.04 33756\n",
+      "phases_ms": {
+        "parse": 2380,
+        "build": 40,
+        "kernel": 62,
+        "certify_render": 137,
+        "write": 24
+      },
+      "identical": true
+    },
+    "bend-t12": {
+      "wall_s": 2.68,
+      "user_s": 2.55,
+      "sys_s": 0.04,
+      "rss_kb": 33520,
+      "loadavg_1m_before": 23.8,
+      "stderr": "cluster timing ms: parse 2428 build 48 kernel 44 certify+render 92 write 11\nTIME 2.68 2.55 0.04 33520\n",
+      "phases_ms": {
+        "parse": 2428,
+        "build": 48,
+        "kernel": 44,
+        "certify_render": 92,
+        "write": 11
+      },
+      "identical": true
+    }
+  },
+  {
+    "dataset": "full",
+    "algorithm": "uclust",
+    "options": [
+      "--algorithm",
+      "uclust",
+      "--metric",
+      "ani",
+      "--ani",
+      "0.95"
+    ],
+    "vclust": {
+      "wall_s": 0.52,
+      "user_s": 0.3,
+      "sys_s": 0.16,
+      "rss_kb": 182840,
+      "loadavg_1m_before": 23.98,
+      "stderr": "TIME 0.52 0.30 0.16 182840\n"
+    },
+    "clusty": {
+      "wall_s": 0.33,
+      "user_s": 0.13,
+      "sys_s": 0.13,
+      "rss_kb": 182712,
+      "loadavg_1m_before": 23.98,
+      "stderr": "Clusty\n  version 1.2.2-b687638 (2025-05-22)\n\nLoading pairwise distances from /home/veritas/Bend-Programs/Clustering/vclust_bend/.work/references/full/ani.tsv... \n  input graph: 4819 nodes, 570306 edges\n  filtered graph: 4819 nodes, 21400 edges\n  time [s]: 0.296873\nLoading objects from /home/veritas/Bend-Programs/Clustering/vclust_bend/.work/references/full/ani.ids.tsv... \n  total objects: 10021\n  time [s]: 0.0025039\nClustering (algorithm: uclust)... \n  objects: 4819, clusters: 1688\n  time [s]: 0.00304118\nSaving clusters (representatives = false)... \n  total clusters (including singletons): 6890\n  time [s]: 0.00135484\nTIME 0.33 0.13 0.13 182712\n",
+      "kernel_s": 0.00304118,
+      "load_s": 0.296873,
+      "identical": true
+    },
+    "bend-t1": {
+      "wall_s": 2.74,
+      "user_s": 2.61,
+      "sys_s": 0.04,
+      "rss_kb": 32444,
+      "loadavg_1m_before": 23.98,
+      "stderr": "cluster timing ms: parse 2466 build 41 kernel 18 certify+render 135 write 20\nTIME 2.74 2.61 0.04 32444\n",
+      "phases_ms": {
+        "parse": 2466,
+        "build": 41,
+        "kernel": 18,
+        "certify_render": 135,
+        "write": 20
+      },
+      "identical": true
+    },
+    "bend-t12": {
+      "wall_s": 2.77,
+      "user_s": 2.55,
+      "sys_s": 0.03,
+      "rss_kb": 32208,
+      "loadavg_1m_before": 23.98,
+      "stderr": "cluster timing ms: parse 2518 build 37 kernel 10 certify+render 122 write 19\nTIME 2.77 2.55 0.03 32208\n",
+      "phases_ms": {
+        "parse": 2518,
+        "build": 37,
+        "kernel": 10,
+        "certify_render": 122,
+        "write": 19
+      },
+      "identical": true
+    }
+  },
+  {
+    "dataset": "full",
+    "algorithm": "cd-hit",
+    "options": [
+      "--algorithm",
+      "cd-hit",
+      "--metric",
+      "ani",
+      "--ani",
+      "0.95"
+    ],
+    "vclust": {
+      "wall_s": 0.64,
+      "user_s": 0.33,
+      "sys_s": 0.18,
+      "rss_kb": 182200,
+      "loadavg_1m_before": 24.06,
+      "stderr": "TIME 0.64 0.33 0.18 182200\n"
+    },
+    "clusty": {
+      "wall_s": 0.27,
+      "user_s": 0.1,
+      "sys_s": 0.13,
+      "rss_kb": 182072,
+      "loadavg_1m_before": 24.06,
+      "stderr": "Clusty\n  version 1.2.2-b687638 (2025-05-22)\n\nLoading pairwise distances from /home/veritas/Bend-Programs/Clustering/vclust_bend/.work/references/full/ani.tsv... \n  input graph: 4819 nodes, 570306 edges\n  filtered graph: 4819 nodes, 21400 edges\n  time [s]: 0.242714\nLoading objects from /home/veritas/Bend-Programs/Clustering/vclust_bend/.work/references/full/ani.ids.tsv... \n  total objects: 10021\n  time [s]: 0.0013983\nClustering (algorithm: cd-hit)... \n  objects: 4819, clusters: 1688\n  time [s]: 0.000328123\nSaving clusters (representatives = false)... \n  total clusters (including singletons): 6890\n  time [s]: 0.00214783\nTIME 0.27 0.10 0.13 182072\n",
+      "kernel_s": 0.000328123,
+      "load_s": 0.242714,
+      "identical": true
+    },
+    "bend-t1": {
+      "wall_s": 2.72,
+      "user_s": 2.55,
+      "sys_s": 0.05,
+      "rss_kb": 32504,
+      "loadavg_1m_before": 24.06,
+      "stderr": "cluster timing ms: parse 2513 build 31 kernel 3 certify+render 116 write 12\nTIME 2.72 2.55 0.05 32504\n",
+      "phases_ms": {
+        "parse": 2513,
+        "build": 31,
+        "kernel": 3,
+        "certify_render": 116,
+        "write": 12
+      },
+      "identical": true
+    },
+    "bend-t12": {
+      "wall_s": 2.63,
+      "user_s": 2.5,
+      "sys_s": 0.06,
+      "rss_kb": 32476,
+      "loadavg_1m_before": 24.93,
+      "stderr": "cluster timing ms: parse 2398 build 36 kernel 3 certify+render 123 write 12\nTIME 2.63 2.50 0.06 32476\n",
+      "phases_ms": {
+        "parse": 2398,
+        "build": 36,
+        "kernel": 3,
+        "certify_render": 123,
+        "write": 12
+      },
+      "identical": true
+    }
+  },
+  {
+    "dataset": "full",
+    "algorithm": "set-cover",
+    "options": [
+      "--algorithm",
+      "set-cover",
+      "--metric",
+      "ani",
+      "--ani",
+      "0.95"
+    ],
+    "vclust": {
+      "wall_s": 0.54,
+      "user_s": 0.32,
+      "sys_s": 0.18,
+      "rss_kb": 182200,
+      "loadavg_1m_before": 24.93,
+      "stderr": "TIME 0.54 0.32 0.18 182200\n"
+    },
+    "clusty": {
+      "wall_s": 0.3,
+      "user_s": 0.11,
+      "sys_s": 0.15,
+      "rss_kb": 182072,
+      "loadavg_1m_before": 24.93,
+      "stderr": "Clusty\n  version 1.2.2-b687638 (2025-05-22)\n\nLoading pairwise distances from /home/veritas/Bend-Programs/Clustering/vclust_bend/.work/references/full/ani.tsv... \n  input graph: 4819 nodes, 570306 edges\n  filtered graph: 4819 nodes, 21400 edges\n  time [s]: 0.253076\nLoading objects from /home/veritas/Bend-Programs/Clustering/vclust_bend/.work/references/full/ani.ids.tsv... \n  total objects: 10021\n  time [s]: 0.00149928\nClustering (algorithm: set-cover)... \n  objects: 4819, clusters: 1416\n  time [s]: 0.000589638\nSaving clusters (representatives = false)... \n  total clusters (including singletons): 6618\n  time [s]: 0.0021629\nTIME 0.30 0.11 0.15 182072\n",
+      "kernel_s": 0.000589638,
+      "load_s": 0.253076,
+      "identical": true
+    },
+    "bend-t1": {
+      "wall_s": 2.67,
+      "user_s": 2.55,
+      "sys_s": 0.04,
+      "rss_kb": 32504,
+      "loadavg_1m_before": 24.93,
+      "stderr": "cluster timing ms: parse 2415 build 33 kernel 63 certify+render 86 write 24\nTIME 2.67 2.55 0.04 32504\n",
+      "phases_ms": {
+        "parse": 2415,
+        "build": 33,
+        "kernel": 63,
+        "certify_render": 86,
+        "write": 24
+      },
+      "identical": true
+    },
+    "bend-t12": {
+      "wall_s": 2.85,
+      "user_s": 2.7,
+      "sys_s": 0.06,
+      "rss_kb": 32612,
+      "loadavg_1m_before": 25.26,
+      "stderr": "cluster timing ms: parse 2548 build 35 kernel 68 certify+render 126 write 20\nTIME 2.85 2.70 0.06 32612\n",
+      "phases_ms": {
+        "parse": 2548,
+        "build": 35,
+        "kernel": 68,
+        "certify_render": 126,
+        "write": 20
+      },
+      "identical": true
+    }
+  },
+  {
+    "dataset": "full",
+    "algorithm": "leiden",
+    "options": [
+      "--algorithm",
+      "leiden",
+      "--metric",
+      "ani",
+      "--ani",
+      "0.95"
+    ],
+    "vclust": {
+      "wall_s": 0.57,
+      "user_s": 0.37,
+      "sys_s": 0.18,
+      "rss_kb": 182840,
+      "loadavg_1m_before": 25.4,
+      "stderr": "TIME 0.57 0.37 0.18 182840\n"
+    },
+    "clusty": {
+      "wall_s": 0.31,
+      "user_s": 0.15,
+      "sys_s": 0.13,
+      "rss_kb": 182840,
+      "loadavg_1m_before": 25.4,
+      "stderr": "Clusty\n  version 1.2.2-b687638 (2025-05-22)\n\nLoading pairwise distances from /home/veritas/Bend-Programs/Clustering/vclust_bend/.work/references/full/ani.tsv... \n  input graph: 4819 nodes, 570306 edges\n  filtered graph: 4819 nodes, 21400 edges\n  time [s]: 0.251234\nLoading objects from /home/veritas/Bend-Programs/Clustering/vclust_bend/.work/references/full/ani.ids.tsv... \n  total objects: 10021\n  time [s]: 0.000862894\nClustering (algorithm: leiden)... \n  objects: 4819, clusters: 1564\n  time [s]: 0.0355668\nSaving clusters (representatives = false)... \n  total clusters (including singletons): 6766\n  time [s]: 0.00183236\nTIME 0.31 0.15 0.13 182840\n",
+      "kernel_s": 0.0355668,
+      "load_s": 0.251234,
+      "identical": true
+    },
+    "bend-t1": {
+      "wall_s": 2.86,
+      "user_s": 2.72,
+      "sys_s": 0.04,
+      "rss_kb": 33492,
+      "loadavg_1m_before": 25.4,
+      "stderr": "cluster timing ms: parse 2451 build 43 kernel 201 certify+render 96 write 28\nTIME 2.86 2.72 0.04 33492\n",
+      "phases_ms": {
+        "parse": 2451,
+        "build": 43,
+        "kernel": 201,
+        "certify_render": 96,
+        "write": 28
+      },
+      "identical": true
+    },
+    "bend-t12": {
+      "wall_s": 2.94,
+      "user_s": 2.72,
+      "sys_s": 0.05,
+      "rss_kb": 33424,
+      "loadavg_1m_before": 25.4,
+      "stderr": "cluster timing ms: parse 2446 build 40 kernel 226 certify+render 140 write 27\nTIME 2.94 2.72 0.05 33424\n",
+      "phases_ms": {
+        "parse": 2446,
+        "build": 40,
+        "kernel": 226,
+        "certify_render": 140,
+        "write": 27
+      },
+      "identical": true
+    }
+  }
+]

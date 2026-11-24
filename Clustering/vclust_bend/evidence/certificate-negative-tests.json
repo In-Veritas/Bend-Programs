@@ -1,0 +1,74 @@
+[
+  {
+    "case": "valid single chain",
+    "expected_accept": true,
+    "actual_accept": true,
+    "reason": "accepted"
+  },
+  {
+    "case": "unknown algorithm contract",
+    "expected_accept": false,
+    "actual_accept": false,
+    "reason": "unknown algorithm contract: unknown"
+  },
+  {
+    "case": "complete must reject chain",
+    "expected_accept": false,
+    "actual_accept": false,
+    "reason": "non-clique complete cluster: 0"
+  },
+  {
+    "case": "single must reject split component",
+    "expected_accept": false,
+    "actual_accept": false,
+    "reason": "single linkage split an accepted connected component"
+  },
+  {
+    "case": "leiden must reject disconnected group",
+    "expected_accept": false,
+    "actual_accept": false,
+    "reason": "disconnected cluster: 0"
+  },
+  {
+    "case": "uclust must reject no-star chain",
+    "expected_accept": false,
+    "actual_accept": false,
+    "reason": "no adjacent seed for cluster: 0"
+  },
+  {
+    "case": "cd-hit must reject no-star chain",
+    "expected_accept": false,
+    "actual_accept": false,
+    "reason": "no adjacent seed for cluster: 0"
+  },
+  {
+    "case": "set-cover must reject no-star chain",
+    "expected_accept": false,
+    "actual_accept": false,
+    "reason": "no adjacent seed for cluster: 0"
+  },
+  {
+    "case": "missing object",
+    "expected_accept": false,
+    "actual_accept": false,
+    "reason": "missing output objects"
+  },
+  {
+    "case": "duplicate object",
+    "expected_accept": false,
+    "actual_accept": false,
+    "reason": "duplicate output object: a"
+  },
+  {
+    "case": "unknown object",
+    "expected_accept": false,
+    "actual_accept": false,
+    "reason": "unknown output object: z"
+  },
+  {
+    "case": "valid complete split",
+    "expected_accept": true,
+    "actual_accept": true,
+    "reason": "accepted"
+  }
+]

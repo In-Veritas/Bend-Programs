@@ -1,0 +1,510 @@
+--- original/slides/alvos.html
++++ presentation/slides/alvos.html
+@@ -4,7 +4,7 @@
+ <h2>Um código-fonte, três alvos</h2>
+ </div>
+ <div class="row" style="align-items:center; gap:24px">
+-<div class="box-t" style="width:340px"><p style="font-size:30px; font-weight:600">single_linkage.bend</p><p>um arquivo C emitido</p></div>
++<div class="box-t" style="width:340px"><p style="font-size:30px; font-weight:600">single_linkage.bend</p><p>uma fonte Bend</p></div>
+ <x-connector class="arrow"></x-connector>
+ <div class="col grow" style="gap:16px">
+ <div class="box" style="text-align:left"><p><b>C nativo</b> · clang compila para a CPU; chamadas paralelas usam threads</p></div>
+@@ -14,7 +14,7 @@
+ </div>
+ <div style="flex:1"></div>
+ <div class="row" style="gap:48px; align-items:center">
+-<p class="code" style="width:900px; box-sizing:border-box">bend file.bend -o file&#160;&#160;&#160;&#160;<span class="cm"># binário nativo</span><br>bend file.bend -o file.c&#160;&#160;<span class="cm"># fonte C</span><br>bend file.bend -o file.js <span class="cm"># fonte JS</span><br>./file +RTS --threads 8</p>
++<p class="code" style="width:900px; box-sizing:border-box">bend file.bend -o file&#160;&#160;&#160;&#160;<span class="cm"># binário nativo</span><br>bend file.bend -o file.c&#160;&#160;<span class="cm"># fonte C</span><br>bend file.bend -o file.js <span class="cm"># fonte JS</span><br>./file +RTS --threads 8 -RTS</p>
+ <p class="txt grow">A suíte de testes compila as seis entradas para C e JavaScript e exige saídas idênticas byte a byte. No run.py, <b>--backend js</b> pede <b>--threads 1</b>.</p>
+ </div>
+ <p class="foot">Fontes: bend guide (Tooling, Under the Hood), README.md (Validation)</p>
+--- original/slides/cdhit.html
++++ presentation/slides/cdhit.html
+@@ -6,10 +6,10 @@
+ <div class="row" style="gap:64px">
+ <div class="algo-left">
+ <p class="txt"><span class="lbl-k">O que é.</span> Sequências em ordem decrescente de comprimento; cada uma entra no primeiro representante, na ordem de criação, que passa no limiar.</p>
+-<p class="txt"><span class="lbl-k">Identidade.</span> Normalizada pela sequência menor: floor(10000 · M / min(comprimentos)), em pontos-base.</p>
++<p class="txt"><span class="lbl-k">Identidade.</span> No modo exato, normalizada pela sequência menor: floor(10000 · M / min(comprimentos)), em pontos-base.</p>
+ <p class="txt"><span class="lbl-k">Quando usar.</span> Redução rápida de redundância em grandes coleções.</p>
+ <p class="txt"><span class="lbl-k">Compromisso.</span> Primeiro acerto, não o melhor: S vai para R1 mesmo com R2 mais parecido.</p>
+-<p class="code">python3 run.py cd-hit genomas.fna \<br>&#160;&#160;--identity 0.95 --lz-ani</p>
++<p class="code">python3 run.py cd-hit genomas.fna \<br>&#160;&#160;--identity 0.95</p>
+ </div>
+ <div class="algo-right">
+ <div class="graph">
+--- original/slides/cluster.html
++++ presentation/slides/cluster.html
+@@ -16,8 +16,8 @@
+ <tr><td>--algorithm</td><td>escolhe o algoritmo</td></tr>
+ <tr><td>--metric tani | gani | ani</td><td>métrica das arestas (padrão tani)</td></tr>
+ <tr><td>--ani, --tani, --gani</td><td>limiar mínimo da métrica</td></tr>
+-<tr><td>--qcov, --rcov, --len_ratio, --num_alns</td><td>filtros adicionais de aresta</td></tr>
+-<tr><td>-r, --out-repr</td><td>representante em vez de número: o genoma mais longo</td></tr>
++<tr><td>--qcov, --rcov,<br>--len_ratio, --num_alns</td><td>filtros adicionais de aresta</td></tr>
++<tr><td>-r, --out-repr</td><td>identificador do representante em vez de número</td></tr>
+ <tr><td>--leiden-resolution</td><td>0.7 por padrão</td></tr>
+ <tr><td>--leiden-beta, --leiden-iterations</td><td>0.01 e 2 por padrão</td></tr>
+ </table>
+@@ -25,5 +25,5 @@
+ </div>
+ <div style="flex:1"></div>
+ <p class="code">vclust cluster -i ani.tsv -o clusters.tsv --ids ani.ids.tsv \<br>&#160;&#160;--algorithm leiden --metric ani --ani 0.95 --qcov 0.85</p>
+-<p class="foot">Fontes: vclust cluster -h (Vclust 1.3.1), VCLUST_ARCHITECTURE.md, benchmark/README.md</p>
++<p class="foot">Vclust 1.3.1 / Clusty 1.2.2 · --num_alns é um máximo · demais limiares são mínimos</p>
+ </section>
+--- original/slides/comparacao.html
++++ presentation/slides/comparacao.html
+@@ -6,11 +6,11 @@
+ <table class="tbl">
+ <tr class="tbl-h"><th style="width:17%">Algoritmo</th><th style="width:30%">Garantia dentro do cluster</th><th style="width:23%">Depende da ordem?</th><th>Use quando</th></tr>
+ <tr><td>Ligação simples</td><td>só conectividade; encadeia</td><td>não</td><td>dereplicação ampla, permissiva</td></tr>
+-<tr><td>Ligação completa</td><td>todo par atinge o limiar</td><td>não; desempate fixo</td><td>grupos compactos e conservadores</td></tr>
++<tr><td>Ligação completa</td><td>todo par atinge o limiar</td><td>índices resolvem empates</td><td>grupos compactos e conservadores</td></tr>
+ <tr><td>UCLUST</td><td>membro atinge o limiar com o centroide de maior identidade</td><td>sim: comprimento decrescente</td><td>representantes explícitos, melhor acerto</td></tr>
+ <tr><td>CD-HIT</td><td>membro atinge o limiar com o primeiro representante; identidade pela menor sequência</td><td>sim: comprimento e ordem de criação</td><td>redução rápida de redundância</td></tr>
+ <tr><td>Set cover</td><td>membro é vizinho do centro</td><td>desempate pelo índice</td><td>poucos clusters com centro explícito</td></tr>
+ <tr><td>Leiden</td><td>nenhuma por par; comunidade densa (CPM)</td><td>semente (--seed)</td><td>grupos densos ligados por pontes; vOTUs MIUViG</td></tr>
+ </table>
+-<p class="foot">Fonte: README.md (Algorithms) e wiki do Vclust; os seis existem tanto no Vclust quanto neste repositório</p>
++<p class="foot">Frontend Clustering/run.py · a cópia vclust_bend_codex_verified/ segue desempates e representantes do Clusty</p>
+ </section>
+--- original/slides/complete.html
++++ presentation/slides/complete.html
+@@ -7,7 +7,7 @@
+ <div class="algo-left">
+ <p class="txt"><span class="lbl-k">O que é.</span> Aglomerativo: funde o par de clusters cuja menor identidade cruzada é a maior. Aresta ausente conta como abaixo do limiar.</p>
+ <p class="txt"><span class="lbl-k">Quando usar.</span> Quando todo par dentro do cluster precisa atender ao limiar: grupos compactos e conservadores.</p>
+-<p class="txt"><span class="lbl-k">Compromisso.</span> Gera mais clusters, menores, e é o mais caro: no grafo comum do EarlyVir, 3,7 s em Bend contra 18 ms no Clusty.</p>
++<p class="txt"><span class="lbl-k">Compromisso.</span> Produz grupos mais compactos. Cada fusão precisa conferir a vizinhança comum dos dois grupos, elevando o custo.</p>
+ <p class="code">python3 run.py complete-linkage genomas.fna \<br>&#160;&#160;--identity 0.95 --lz-ani</p>
+ </div>
+ <div class="algo-right">
+--- original/slides/entrada-saida.html
++++ presentation/slides/entrada-saida.html
+@@ -1,7 +1,7 @@
+ <section id="entrada-saida">
+ <div class="head">
+ <p class="eyebrow">O problema</p>
+-<h2>Da FASTA aos clusters</h2>
++<h2>Frontend integrado: FASTA aos clusters</h2>
+ </div>
+ <div class="row" style="align-items:center; gap:20px">
+ <div class="box" style="width:380px">
+@@ -36,5 +36,5 @@
+ <p class="txt">O representante é um registro real da entrada, não uma sequência consenso.</p>
+ </div>
+ </div>
+-<p class="foot">Saída de single-linkage para tests/fixtures/chain.fasta com --identity 0.75 (README.md)</p>
++<p class="foot">Frontend Clustering/run.py · chain.fasta com --identity 0.75 · pipeline compatível com Vclust a partir do slide 32</p>
+ </section>
+--- original/slides/fronteira.html
++++ presentation/slides/fronteira.html
+@@ -1,7 +1,7 @@
+ <section id="fronteira" style="gap:32px">
+ <div class="head">
+ <p class="eyebrow">Tipos e provas no pipeline</p>
+-<h2>O que é provado e o que é testado</h2>
++<h2>Frontend anterior: provas e testes</h2>
+ </div>
+ <table class="tbl-s">
+ <tr class="tbl-h"><th style="width:58%">Afirmação</th><th style="width:15%">Estado</th><th>Onde</th></tr>
+@@ -9,12 +9,12 @@
+ <tr><td>Par sem entrada comum no índice tem escore 0</td><td style="color:var(--teal)">Provado</td><td>lib/fast_score.bend</td></tr>
+ <tr><td>Par com zero k-mers comuns não passa o prefiltro</td><td style="color:var(--teal)">Provado</td><td>lib/kmer_score.bend</td></tr>
+ <tr><td>Costuras numéricas do LZ-ANI: ANI inteiro = matches/total, lacuna vazia soma 0, alinhamento vazio dá 0</td><td style="color:var(--teal)">Provado</td><td>lib/lz_ani_numeric.bend</td></tr>
+-<tr><td>Os 50 arquivos .bend passam tipos, afinidade e terminação</td><td>Checado</td><td>--check-only, Bend 2.0.40</td></tr>
++<tr><td>50 arquivos do frontend integrado passam tipos, afinidade e terminação</td><td>Checado</td><td>--check-only, Bend 2.0.40</td></tr>
+ <tr><td>Pares e contagens de 25-mers iguais ao Kmer-db 2.3.1</td><td style="color:var(--orange)">Testado</td><td>tests/test_kmer_db.py</td></tr>
+ <tr><td>nt_match, nt_mismatch e num_alns iguais ao LZ-ANI 1.2.3 em 344 comparações</td><td style="color:var(--orange)">Testado</td><td>tests/test_lz_ani_numeric.py</td></tr>
+ <tr><td>Partições iguais ao Clusty em cinco algoritmos</td><td style="color:var(--orange)">Testado</td><td>benchmark/</td></tr>
+ <tr><td>MinHash ≈ ANI biológico; parser LZ-ANI inteiro equivalente; verdict do livro completo</td><td>Não afirmado</td><td>bloqueio documentado</td></tr>
+ </table>
+-<p class="sm" style="width:1600px">As leis puras passam o kernel BendTT. O verdict do livro inteiro está bloqueado por uma divergência checker/kernel já minimizada; no reteste em Linux com Bend 2.0.40, --verdict não rodou por falta do Lean v4.34.0.</p>
++<p class="sm" style="width:1600px">Leis puras do frontend tinham verdict no BendTT; o livro completo tinha divergência checker/kernel documentada. Novas provas de partição e clique passaram no Linux com Lean 4.34.0; ver slide 37.</p>
+ <p class="foot">Fontes: README.md (Validation), VCLUST_ARCHITECTURE.md (Proof boundary), LZ_ANI_PORT_NOTES.md</p>
+ </section>
+--- original/slides/funil.html
++++ presentation/slides/funil.html
+@@ -1,7 +1,7 @@
+ <section id="funil">
+ <div class="head">
+ <p class="eyebrow">Tipos e provas no pipeline</p>
+-<h2>Filtros sem falsos negativos</h2>
++<h2>Filtros conservadores e aproximados</h2>
+ </div>
+ <p class="lead" style="width:1500px">EarlyVir completo, 10.021 registros, identidade 0,95, fita direta; escala logarítmica.</p>
+ <div class="col" style="gap:18px">
+--- original/slides/kernel.html
++++ presentation/slides/kernel.html
+@@ -1,12 +1,12 @@
+ <section id="kernel">
+ <div class="head">
+-<p class="eyebrow">Vclust em Bend · benchmarks</p>
+-<h2>Kernel de agrupamento no grafo comum</h2>
++<p class="eyebrow">Benchmark histórico · macOS / Bend 2.0.38</p>
++<h2>Kernel histórico no grafo comum</h2>
+ </div>
+ <div class="row" style="gap:56px">
+ <div style="width:1040px">
+ <table class="tbl">
+-<tr class="tbl-h"><th style="width:28%">Algoritmo</th><th style="width:26%">Bend→C</th><th style="width:26%">Clusty</th><th>Razão</th></tr>
++<tr class="tbl-h"><th style="width:28%">Algoritmo</th><th style="width:26%">Bend→C</th><th style="width:26%">Clusty</th><th>Bend/Clusty</th></tr>
+ <tr><td>Single</td><td>14,15 ms</td><td>16,06 ms</td><td>≈ 0,9×</td></tr>
+ <tr><td>Set cover</td><td>33,58 ms</td><td>15,95 ms</td><td>≈ 2,1×</td></tr>
+ <tr><td>CD-HIT</td><td>1,680 s</td><td>15,97 ms</td><td>≈ 105×</td></tr>
+@@ -26,6 +26,6 @@
+ </div>
+ </div>
+ <div style="flex:1"></div>
+-<p class="txt" style="width:1600px">Mesmas 10.700 arestas (ANI ≥ 0,95) para todos; partições idênticas nas 60 células. Bend roda um único worker; o Clusty usa pelo menos quatro threads. Saídas --fast do EarlyVir completo seguem byte a byte idênticas no Bend 2.0.40.</p>
++<p class="txt" style="width:1600px">Mesmas 10.700 arestas (ANI ≥ 0,95) para todos; partições idênticas nas 60 células. Bend roda um único worker; o Clusty usa pelo menos quatro threads. Este experimento usa as entradas antigas, não o novo cluster.bend.</p>
+ <p class="foot">Medianas, 1 thread pedida, macOS arm64, Bend 2.0.38 · benchmark/README.md, results/common_graph_full.three_way.matrix.json</p>
+ </section>
+--- original/slides/kmerscore.html
++++ presentation/slides/kmerscore.html
+@@ -1,7 +1,7 @@
+ <section id="kmerscore">
+ <div class="head">
+ <p class="eyebrow">Tipos e provas no pipeline</p>
+-<h2>Pares sem k-mer comum nunca passam</h2>
++<h2>Rejeição de pares sem k-mer comum</h2>
+ </div>
+ <div class="row" style="gap:48px">
+ <div class="col" style="width:1000px; gap:12px">
+--- original/slides/leiden.html
++++ presentation/slides/leiden.html
+@@ -30,7 +30,7 @@
+ <p class="node" style="left:606px; top:76px">E</p>
+ <p class="node" style="left:606px; top:376px">F</p>
+ </div>
+-<p class="sm" style="width:760px">Ligação simples daria um só cluster. Com γ = 0,5: 2 × (3 − 0,5 · 3) = 3 contra 7 − 0,5 · 15 = −0,5, então Leiden separa {A, B, C} e {D, E, F}.</p>
++<p class="sm" style="width:760px">Ligação simples daria um só cluster. Com γ = 0,5, dois grupos têm escore 3 e um só grupo tem −0,5. O objetivo CPM favorece a separação neste exemplo.</p>
+ </div>
+ </div>
+ <p class="foot">Fonte: leiden.bend, README.md (Leiden details); padrões: --resolution 0.5, --seed 1, --passes 100</p>
+--- original/slides/limitacoes.html
++++ presentation/slides/limitacoes.html
+@@ -1,29 +1,26 @@
+ <section id="limitacoes" class="dark">
+ <div class="head">
+-<p class="eyebrow">Encerramento</p>
+-<h2>Limitações e próximos passos</h2>
++<p class="eyebrow">Encerramento · estado em 23/11/2026</p>
++<h2>Garantias verificadas e sua fronteira</h2>
+ </div>
+ <div class="row" style="gap:64px">
+ <div class="col grow" style="gap:16px">
+-<p class="label">Limitações</p>
++<p class="label">Teoremas no BendTT e no Lean</p>
+ <ul class="lst">
+-<li>Todas as entradas de 25-mers ficam em memória: sem lotes em disco, amostragem ou limite de candidatos.</li>
+-<li>Não há execução --lz-ani completa no EarlyVir; os números do conjunto inteiro são do modo --fast.</li>
+-<li>O porte atual usa F32 onde o upstream usa binary64; um valor rente ao limiar pode cair do outro lado.</li>
+-<li>Filtros de ANI, gANI e cobertura ainda não estão expostos em --lz-ani.</li>
+-<li>Kernels seriais: ligação completa, UCLUST e CD-HIT ficam de 100 a 200 vezes atrás do Clusty.</li>
++<li>Partição: aceitar o certificado implica exatamente n rótulos, todos abaixo do limite declarado.</li>
++<li>Ligação completa: aceitar o certificado de clique implica aresta entre os pares do mesmo grupo no grafo fornecido.</li>
++<li>Floresta: cada vértice alcança sua raiz. Com simetria e fechamento das arestas, as classes são exatamente os componentes conexos de single linkage.</li>
+ </ul>
+ </div>
+ <div class="col grow" style="gap:16px">
+-<p class="label">Próximos passos</p>
++<p class="label">Execução e limites da evidência</p>
+ <ul class="lst">
+-<li>Concluir prefilter.bend, align.bend e cluster.bend nos formatos do Vclust.</li>
+-<li>Decidir em binary64 exato com f64.bend e align_num.bend.</li>
+-<li>Comparar cada estágio com a saída do Vclust e preencher a tabela de resultados.</li>
+-<li>Lotes e amostragem no prefiltro; chamadas paralelas nos kernels de agrupamento.</li>
+-<li>Leiden igual ao do igraph e verdict sobre o livro inteiro.</li>
++<li>Certificados integrados: 98/98 arquivos idênticos ao Vclust. As guardas nativas rejeitam dados de partição e clique inválidos.</li>
++<li>18 saídas reais: partição e conectividade verificadas; complete também satisfaz clique e single satisfaz fechamento das arestas.</li>
++<li>O parser e o verificador Python das florestas não têm prova formal. Lean prova a implicação abstrata sob as hipóteses verificadas.</li>
++<li>As garantias não demonstram ANI biologicamente correto, equivalência universal com Vclust ou ótimo global do Leiden.</li>
+ </ul>
+ </div>
+ </div>
+-<p class="foot">Fontes: README.md, VCLUST_ARCHITECTURE.md, LZ_ANI_PORT_NOTES.md, benchmark/README.md</p>
++<p class="foot">Fontes na cópia verificada: *_certificate.bend, proofs/Forest.lean e evidence/semantic-contracts.json</p>
+ </section>
+--- original/slides/mapa.html
++++ presentation/slides/mapa.html
+@@ -1,7 +1,7 @@
+ <section id="mapa">
+ <div class="head">
+ <p class="eyebrow">Vclust em Bend</p>
+-<h2>Cada estágio do Vclust em Bend, hoje</h2>
++<h2>Base anterior: o frontend integrado</h2>
+ </div>
+ <table class="tbl-s">
+ <tr class="tbl-h"><th style="width:20%">Estágio Vclust</th><th style="width:44%">Peça em Bend</th><th>Validação</th></tr>
+@@ -11,6 +11,6 @@
+ <tr><td>ligação</td><td>lib/lz_ani_graph.bend e run.py --lz-ani: grafo tANI esparso, só candidatos pontuados nos dois sentidos</td><td>testes de agrupamento em modo tANI; sem execução completa no EarlyVir</td></tr>
+ </table>
+ <div style="flex:1"></div>
+-<p class="txt" style="width:1500px">Hoje é um porte em fase de validação, não um substituto direto: faltam lotes em disco, amostragem de k-mers, limite de candidatos e filtros de ANI, gANI e cobertura.</p>
++<p class="txt" style="width:1500px">Estas peças alimentam o frontend run.py --lz-ani. A versão vclust_bend_codex_verified/ tem executáveis separados, formatos compatíveis e opções adicionais, descritos a seguir.</p>
+ <p class="foot">Fontes: README.md (Relationship to Vclust), VCLUST_ARCHITECTURE.md, LZ_ANI_PORT_NOTES.md</p>
+ </section>
+--- original/slides/metricas.html
++++ presentation/slides/metricas.html
+@@ -7,14 +7,14 @@
+ <tr class="tbl-h"><th style="width:14%">Métrica</th><th style="width:66%">Definição</th><th>Filtro no cluster</th></tr>
+ <tr><td>ANI</td><td>nucleotídeos idênticos nos alinhamentos locais ÷ comprimento total desses alinhamentos</td><td>--ani</td></tr>
+ <tr><td>gANI</td><td>nucleotídeos idênticos ÷ comprimento do genoma de consulta (ou de referência)</td><td>--gani</td></tr>
+-<tr><td>tANI</td><td>(idênticos consulta→referência + referência→consulta) ÷ soma dos dois comprimentos; equivale à similaridade intergenômica do VIRIDIC</td><td>--tani (métrica padrão)</td></tr>
++<tr><td>tANI</td><td>(idênticos consulta→referência + referência→consulta) ÷ soma dos dois comprimentos; mesma definição de similaridade intergenômica usada pelo VIRIDIC</td><td>--tani (métrica padrão)</td></tr>
+ <tr><td>Cobertura</td><td>fração da consulta ou da referência coberta por alinhamentos</td><td>--qcov, --rcov</td></tr>
+-<tr><td>num_alns</td><td>número de alinhamentos locais entre os dois genomas</td><td>--num_alns</td></tr>
++<tr><td>num_alns</td><td>número de alinhamentos locais entre os dois genomas</td><td>--num_alns (máximo)</td></tr>
+ <tr><td>len_ratio</td><td>comprimento do menor ÷ comprimento do maior</td><td>--len_ratio</td></tr>
+ </table>
+ <div style="flex:1"></div>
+ <div class="col" style="gap:12px">
+-<p class="label">Cabeçalhos reais de ani.tsv e ani.ids.tsv</p>
++<p class="label">Cabeçalhos de ani.tsv (complete) e ani.ids.tsv</p>
+ <p class="code">qidx ridx query reference tani gani ani qcov rcov num_alns len_ratio qlen rlen nt_match nt_mismatch<br>id seq_len no_parts</p>
+ </div>
+ <p class="foot">Fontes: README do Vclust (Multiple similarity measures), vclust cluster -h, datasets/infant_gut_virome/results</p>
+--- original/slides/omissao.html
++++ presentation/slides/omissao.html
+@@ -22,6 +22,6 @@
+ </div>
+ </div>
+ <div style="flex:1"></div>
+-<p class="sm" style="width:1500px">Fora da prova: que o MinHash de 64 bins estime ANI biológico, ou que o --fast não perca arestas do LZ-ANI.</p>
++<p class="sm" style="width:1500px">As leis cobrem o escore, não a completude do índice. Também não provam que MinHash estime ANI biológico ou preserve as arestas do LZ-ANI.</p>
+ <p class="foot">Fontes: lib/vclust_index.bend, lib/fast_score.bend, VCLUST_ARCHITECTURE.md (Proof boundary)</p>
+ </section>
+--- original/slides/paralelo.html
++++ presentation/slides/paralelo.html
+@@ -18,6 +18,6 @@
+ </div>
+ </div>
+ <div style="flex:1"></div>
+-<p class="txt" style="width:1500px"><span class="lbl-k">Neste repositório.</span> Os kernels de agrupamento ainda não têm chamadas paralelas explícitas: pedir 1, 2, 4 ou 8 threads não mudou os tempos. O alvo JavaScript roda tudo em sequência.</p>
+-<p class="foot">Fontes: bend guide (Parallelism), benchmark/README.md</p>
++<p class="txt" style="width:1500px"><span class="lbl-k">No novo pipeline.</span> pf_core.bend divide o trabalho do prefiltro e align.bend divide os pares entre tarefas. Os kernels históricos de agrupamento são seriais. JavaScript executa em sequência.</p>
++<p class="foot">Fontes: bend guide; vclust_bend_codex_verified/{pf_core,align}.bend; benchmark/README.md</p>
+ </section>
+--- original/slides/pipeline-novo.html
++++ presentation/slides/pipeline-novo.html
+@@ -1,6 +1,6 @@
+ <section id="pipeline-novo">
+ <div class="head">
+-<p class="eyebrow">Vclust em Bend · em construção</p>
++<p class="eyebrow">Vclust em Bend · implementação por estágio</p>
+ <h2>Um pipeline Bend compatível por estágio</h2>
+ </div>
+ <p class="txt">Cada estágio lê e grava os formatos do próprio Vclust, então qualquer um pode ser trocado e comparado com diff.</p>
+@@ -11,7 +11,7 @@
+ <p class="label">prefilter</p>
+ <p class="txt">Vclust: Kmer-db 2.3.1</p>
+ <p class="mono" style="font-size:24px; color:var(--teal)">prefilter.bend</p>
+-<p class="sm">vclust_bend/ · em construção</p>
++<p class="sm">42 comparações idênticas ao Vclust*</p>
+ <p class="file">fltr.txt</p>
+ </div>
+ <x-connector class="arrow"></x-connector>
+@@ -19,7 +19,7 @@
+ <p class="label">align</p>
+ <p class="txt">Vclust: LZ-ANI 1.2.3</p>
+ <p class="mono" style="font-size:24px; color:var(--teal)">align.bend</p>
+-<p class="sm">vclust_bend/ · em construção</p>
++<p class="sm">15 casos: ANI e IDs idênticos ao Vclust</p>
+ <p class="file">ani.tsv + ani.ids.tsv</p>
+ </div>
+ <x-connector class="arrow"></x-connector>
+@@ -27,7 +27,7 @@
+ <p class="label">cluster</p>
+ <p class="txt">Vclust: Clusty 1.2.2</p>
+ <p class="mono" style="font-size:24px; color:var(--teal)">cluster.bend</p>
+-<p class="sm">vclust_bend/ · em construção</p>
++<p class="sm">98 arquivos idênticos, com certificados integrados</p>
+ <p class="file">clusters.tsv</p>
+ </div>
+ </div>
+@@ -35,7 +35,7 @@
+ <div class="row">
+ <div class="col grow" style="gap:6px">
+ <p class="mono" style="font-size:24px; font-weight:600">f64.bend</p>
+-<p class="sm">binary64 IEEE exato sobre pares de U32, incluindo o exp da glibc, para um Leiden idêntico ao do Clusty</p>
++<p class="sm">binary64 IEEE sobre pares de U32, incluindo o exp da glibc, para reproduzir as decisões numéricas do Clusty</p>
+ </div>
+ <div class="col grow" style="gap:6px">
+ <p class="mono" style="font-size:24px; font-weight:600">align_num.bend</p>
+@@ -46,5 +46,5 @@
+ <p class="sm">modelo executável de vclust cluster: desempates, renumeração e o Leiden do igraph</p>
+ </div>
+ </div>
+-<p class="foot">Já presentes em Clustering/vclust_bend/; prefilter.bend, align.bend e cluster.bend ainda não estão no repositório</p>
++<p class="foot">* k = 30 excluído: referência &gt; 30 s. Fontes da entrega: Clustering/vclust_bend_codex_verified/.</p>
+ </section>
+--- original/slides/plano.html
++++ presentation/slides/plano.html
+@@ -1,25 +1,25 @@
+ <section id="plano">
+ <div class="head">
+ <p class="eyebrow">Vclust em Bend · benchmarks</p>
+-<h2>Plano de benchmark</h2>
++<h2>Como a comparação foi medida</h2>
+ </div>
+ <div class="row" style="align-items:stretch">
+ <div class="card grow">
+-<p class="label">Trilha 1</p>
++<p class="label">Referência histórica</p>
+ <h3>Kernel no grafo comum</h3>
+ <p class="txt">Bend, C11 e Clusty recebem o mesmo ani.tsv e ani.ids.tsv, a mesma métrica e o mesmo limiar. As partições normalizadas são comparadas antes de aceitar qualquer tempo.</p>
+ </div>
+ <div class="card grow">
+-<p class="label">Trilha 2</p>
++<p class="label">Medição atual</p>
+ <h3>Pipeline estágio por estágio</h3>
+-<p class="txt">Cada estágio Bend substitui o do Vclust; sua saída (fltr.txt, ani.tsv, clusters.tsv) é comparada com a de referência, e só então entram tempo e memória.</p>
++<p class="txt">Quatro arquivos são comparados byte a byte: fltr.txt, ani.tsv, ani.ids.tsv e clusters.tsv. Vclust usa seu CLI Python oficial; Bend usa executáveis nativos.</p>
+ </div>
+ </div>
+ <div style="flex:1"></div>
+ <div class="row" style="gap:48px">
+ <div class="col grow" style="gap:12px">
+-<p class="label">Registrado em cada célula</p>
+-<p class="txt">tempo de parede, usuário e sistema · RSS máximo · threads pedidas e efetivas (1, 2, 4, 8) · hash da saída e da partição · revisão e comando · energia ou “unavailable”</p>
++<p class="label">Limites da medição atual</p>
++<p class="txt">Uma execução, sempre Vclust antes de Bend, sem limpar o cache. Build, run.py e checker Python ficam fora do tempo Bend; guardas nativas ficam dentro. No cluster, a diferença inclui a inicialização Python do Vclust.</p>
+ </div>
+ <div class="col" style="width:640px; gap:12px">
+ <p class="label">Conjuntos</p>
+@@ -27,5 +27,5 @@
+ <p class="txt"><b>EarlyVir completo</b>: 10.021 genomas, 255 MB</p>
+ </div>
+ </div>
+-<p class="foot">Fonte: benchmark/README.md (Validity boundary, Measurements); as duas trilhas não se fundem em um único ranking</p>
++<p class="foot">Tempo de parede e pico de RSS por estágio · cluster Leiden, ANI ≥ 0,95 · Clusty não expõe --threads · launcher fora desses tempos</p>
+ </section>
+--- original/slides/prefilter.html
++++ presentation/slides/prefilter.html
+@@ -9,10 +9,10 @@
+ <tr class="tbl-h"><th style="width:34%">Opção</th><th style="width:14%">Padrão</th><th>Efeito</th></tr>
+ <tr><td>-k</td><td>25</td><td>tamanho do k-mer</td></tr>
+ <tr><td>--min-kmers</td><td>20</td><td>mínimo de k-mers compartilhados</td></tr>
+-<tr><td>--min-ident</td><td>0.7</td><td>identidade mínima, calculada sobre a sequência menor</td></tr>
+-<tr><td>--batch-size</td><td>0</td><td>lotes de sequências: menos memória, mais tempo</td></tr>
+-<tr><td>--kmers-fraction</td><td>1.0</td><td>fração de k-mers amostrada por genoma</td></tr>
+-<tr><td>--max-seqs</td><td>0</td><td>candidatos por consulta, os mais parecidos; afeta a sensibilidade</td></tr>
++<tr><td>--min-ident</td><td>0.7</td><td>identidade mínima estimada (ani-shorter)</td></tr>
++<tr><td>--batch-size</td><td>0</td><td>tamanho dos lotes para limitar a memória</td></tr>
++<tr><td>--kmers-fraction</td><td>1.0</td><td>fração amostrada de k-mers</td></tr>
++<tr><td>--max-seqs</td><td>0</td><td>limite de candidatos por consulta (0 = sem limite)</td></tr>
+ </table>
+ </div>
+ <div class="col grow" style="gap:20px">
+--- original/slides/problema.html
++++ presentation/slides/problema.html
+@@ -6,7 +6,7 @@
+ <div class="row">
+ <div class="card grow">
+ <h3>vOTUs</h3>
+-<p class="txt">Contigs da mesma espécie viral formam uma unidade operacional, a base para contar e comparar vírus entre amostras.</p>
++<p class="txt">Contigs agrupados por similaridade formam unidades operacionais para contar e comparar vírus entre amostras.</p>
+ </div>
+ <div class="card grow">
+ <h3>Dereplicação</h3>
+@@ -14,7 +14,7 @@
+ </div>
+ <div class="card grow">
+ <h3>Taxonomia</h3>
+-<p class="txt">Genomas são classificados em espécies e gêneros pelos critérios de ANI recomendados pelo ICTV.</p>
++<p class="txt">A similaridade entre genomas apoia hipóteses de espécies e gêneros, conforme os critérios do grupo viral.</p>
+ </div>
+ </div>
+ <div style="flex:1"></div>
+--- original/slides/provas.html
++++ presentation/slides/provas.html
+@@ -19,5 +19,5 @@
+ <div class="box-t"><p class="mono" style="font-size:26px">--verdict</p><p style="font-size:24px">reconfere com o kernel BendTT, que tem prova em Lean; recusa @unsafe e código externo</p></div>
+ </div>
+ </div>
+-<p class="foot">Fonte: bend guide (Laws and Proofs, Under the Hood)</p>
++<p class="foot">Fonte: bend guide · --check-only verifica o fonte; --verdict reconfere provas no kernel. Equivalência com Vclust exige leis próprias.</p>
+ </section>
+--- original/slides/referencia.html
++++ presentation/slides/referencia.html
+@@ -1,24 +1,29 @@
+ <section id="referencia">
+ <div class="head">
+ <p class="eyebrow">Vclust em Bend · benchmarks</p>
+-<h2>Referência: o Vclust em cada estágio</h2>
++<h2>Amostra de 1.000 genomas: tempo e memória</h2>
+ </div>
+ <table class="tbl">
+-<tr class="tbl-h"><th style="width:18%">Estágio</th><th style="width:30%">EarlyVir completo, 12 threads</th><th style="width:22%">EarlyVir, 1 thread</th><th>stratified1000</th></tr>
+-<tr><td>prefilter</td><td>31,2 s · 2,46 GB</td><td>41,2 s</td><td>5,9 s</td></tr>
+-<tr><td>align</td><td>178,5 s · 0,70 GB</td><td>361,5 s</td><td>3,5 s</td></tr>
+-<tr><td>cluster</td><td>0,21–0,23 s</td><td>—</td><td>0,16 s</td></tr>
++<tr class="tbl-h"><th style="width:12%">Workers*</th><th style="width:20%">Estágio</th><th style="width:17%">Vclust CLI (s)</th><th style="width:17%">Bend nativo (s)</th><th style="width:17%">Vclust (MiB)</th><th>Bend (MiB)</th></tr>
++<tr><td rowspan="3" style="vertical-align:middle">1</td><td>prefilter</td><td>8,01</td><td style="color:var(--teal)">3,48</td><td>482,2</td><td>201,6</td></tr>
++<tr><td>align</td><td>10,76</td><td style="color:var(--orange)">22,68</td><td>92,5</td><td>86,8</td></tr>
++<tr><td>cluster</td><td>0,24</td><td style="color:var(--teal)">0,03</td><td>131,9</td><td>14,2</td></tr>
++<tr><td rowspan="3" style="vertical-align:middle">12</td><td>prefilter</td><td>8,04</td><td style="color:var(--teal)">1,40</td><td>496,9</td><td>307,4</td></tr>
++<tr><td>align</td><td>4,45</td><td style="color:var(--orange)">7,94</td><td>415,3</td><td>265,9</td></tr>
++<tr><td>cluster</td><td>0,20</td><td style="color:var(--teal)">0,03</td><td>131,9</td><td>14,4</td></tr>
+ </table>
+ <div style="flex:1"></div>
+ <div class="row" style="align-items:stretch">
+ <div class="card grow">
+-<p class="big">178,5 s</p>
+-<p class="txt">O alinhamento domina o tempo no EarlyVir completo; é onde um porte em Bend tem mais a provar.</p>
++<p class="label">1 worker · tempo Bend / Vclust</p>
++<p class="big-o">1,38×</p>
++<p class="txt">Soma dos estágios: 26,19 s / 19,01 s.</p>
+ </div>
+ <div class="card grow">
+-<p class="big-o">2,46 GB</p>
+-<p class="txt">O prefiltro é o estágio que mais usa memória: 10.021 genomas, 255 MB de FASTA.</p>
++<p class="label">12 workers · tempo Bend / Vclust</p>
++<p class="big">0,74×</p>
++<p class="txt">Soma dos estágios: 9,37 s / 12,69 s.</p>
+ </div>
+ </div>
+-<p class="foot">Vclust 1.3.1 (Kmer-db 2.3.1, LZ-ANI 1.2.3, Clusty 1.2.2); stratified1000 = 1.000 genomas, 25 MB; o cluster não usa --threads</p>
++<p class="foot">Uma execução por célula · quatro arquivos idênticos em cada configuração · * Clusty sem --threads · evidence/benchmark-*.json</p>
+ </section>
+--- original/slides/resultados.html
++++ presentation/slides/resultados.html
+@@ -1,18 +1,25 @@
+ <section id="resultados">
+ <div class="head">
+-<p class="eyebrow">Vclust em Bend · em andamento</p>
+-<h2>Resultados Bend vs Vclust</h2>
++<p class="eyebrow">Vclust em Bend · versão validada em 23/11/2026</p>
++<h2>Conjunto completo: saídas verificadas</h2>
+ </div>
+ <table class="tbl">
+-<tr class="tbl-h"><th style="width:14%">Estágio</th><th style="width:20%">Conjunto</th><th style="width:20%">Vclust</th><th style="width:23%">Bend</th><th>Saída idêntica?</th></tr>
+-<tr><td>prefilter</td><td>EarlyVir completo</td><td>31,2 s · 2,46 GB</td><td style="color:var(--orange)">[resultado pendente]</td><td style="color:var(--orange)">[resultado pendente]</td></tr>
+-<tr><td>align</td><td>EarlyVir completo</td><td>178,5 s · 0,70 GB</td><td style="color:var(--orange)">[resultado pendente]</td><td style="color:var(--orange)">[resultado pendente]</td></tr>
+-<tr><td>cluster</td><td>EarlyVir completo</td><td>0,21–0,23 s</td><td style="color:var(--orange)">[resultado pendente]</td><td style="color:var(--orange)">[resultado pendente]</td></tr>
+-<tr><td>prefilter</td><td>stratified1000</td><td>5,9 s</td><td style="color:var(--orange)">[resultado pendente]</td><td style="color:var(--orange)">[resultado pendente]</td></tr>
+-<tr><td>align</td><td>stratified1000</td><td>3,5 s</td><td style="color:var(--orange)">[resultado pendente]</td><td style="color:var(--orange)">[resultado pendente]</td></tr>
+-<tr><td>cluster</td><td>stratified1000</td><td>0,16 s</td><td style="color:var(--orange)">[resultado pendente]</td><td style="color:var(--orange)">[resultado pendente]</td></tr>
++<tr class="tbl-h"><th style="width:18%">Estágio</th><th style="width:20%">Suíte inteira</th><th style="width:34%">Inclui o conjunto completo</th><th>Igualdade byte a byte</th></tr>
++<tr><td>prefilter</td><td>42/42 casos</td><td>3 configurações no EarlyVir</td><td>fltr.txt idêntico</td></tr>
++<tr><td>align</td><td>15/15 casos</td><td>10.021 genomas, 12 workers</td><td>ANI e IDs idênticos</td></tr>
++<tr><td>cluster</td><td>98/98 casos</td><td>6 algoritmos no EarlyVir</td><td>clusters.tsv idêntico</td></tr>
+ </table>
+ <div style="flex:1"></div>
+-<p class="txt" style="width:1500px">Vclust com 12 threads no EarlyVir completo. Os números do Bend entram somente depois que a saída do estágio for comparada com a do Vclust.</p>
+-<p class="foot">Pipeline Clustering/vclust_bend/ em construção</p>
++<div class="row" style="align-items:stretch">
++<div class="card grow">
++<p class="label">Tempo completo interrompido</p>
++<p class="txt">Uma sessão concorrente alterou o código e executou tarefas durante a medição. O benchmark foi interrompido: não há total nem razão de desempenho do pipeline completo.</p>
++</div>
++<div class="card grow">
++<p class="label">Entrega reproduzível</p>
++<p class="mono" style="font-size:24px; color:var(--teal)">Clustering/vclust_bend_codex_verified/</p>
++<p class="txt">A versão validada foi isolada e conferida por hashes. Os testes desta apresentação se referem a essa cópia.</p>
++</div>
++</div>
++<p class="foot">Exclusões: k = 30, referência &gt; 30 s; align completo/1 worker, timeout de 600 s. Amostra de desempenho: slide 34.</p>
+ </section>

@@ -1,0 +1,16 @@
+<section id="comparacao">
+<div class="head">
+<p class="eyebrow">Algoritmos de agrupamento</p>
+<h2>Escolhendo um algoritmo</h2>
+</div>
+<table class="tbl">
+<tr class="tbl-h"><th style="width:17%">Algoritmo</th><th style="width:30%">Garantia dentro do cluster</th><th style="width:23%">Depende da ordem?</th><th>Use quando</th></tr>
+<tr><td>Ligação simples</td><td>só conectividade; encadeia</td><td>não</td><td>dereplicação ampla, permissiva</td></tr>
+<tr><td>Ligação completa</td><td>todo par atinge o limiar</td><td>índices resolvem empates</td><td>grupos compactos e conservadores</td></tr>
+<tr><td>UCLUST</td><td>membro atinge o limiar com o centroide de maior identidade</td><td>sim: comprimento decrescente</td><td>representantes explícitos, melhor acerto</td></tr>
+<tr><td>CD-HIT</td><td>membro atinge o limiar com o primeiro representante; identidade pela menor sequência</td><td>sim: comprimento e ordem de criação</td><td>redução rápida de redundância</td></tr>
+<tr><td>Set cover</td><td>membro é vizinho do centro</td><td>desempate pelo índice</td><td>poucos clusters com centro explícito</td></tr>
+<tr><td>Leiden</td><td>nenhuma por par; comunidade densa (CPM)</td><td>semente (--seed)</td><td>grupos densos ligados por pontes; vOTUs MIUViG</td></tr>
+</table>
+<p class="foot">Frontend Clustering/run.py · a cópia vclust_bend_codex_verified/ segue desempates e representantes do Clusty</p>
+</section>

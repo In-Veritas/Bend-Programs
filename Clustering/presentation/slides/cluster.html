@@ -1,0 +1,29 @@
+<section id="cluster">
+<div class="head">
+<p class="eyebrow">Vclust · estágio 3</p>
+<h2>Agrupamento com Clusty</h2>
+</div>
+<div class="row" style="gap:56px">
+<div class="col" style="width:720px; gap:24px">
+<p class="txt"><span class="lbl-k">Matriz esparsa.</span> Um vetor de vetores de adjacência: os algoritmos percorrem apenas vizinhos presentes.</p>
+<p class="txt"><span class="lbl-k">Ligação completa</span> usa linhas esparsas e um heap, removendo linhas antigas a cada fusão.</p>
+<p class="txt"><span class="lbl-k">Seis algoritmos:</span> single (padrão), complete, uclust, cd-hit, set-cover e leiden.</p>
+<p class="sm">O comando cluster não aceita --threads; o Clusty 1.2.2 empacotado usa pelo menos quatro.</p>
+</div>
+<div class="grow">
+<table class="tbl-s">
+<tr class="tbl-h"><th style="width:44%">Opção</th><th>Função</th></tr>
+<tr><td>--algorithm</td><td>escolhe o algoritmo</td></tr>
+<tr><td>--metric tani | gani | ani</td><td>métrica das arestas (padrão tani)</td></tr>
+<tr><td>--ani, --tani, --gani</td><td>limiar mínimo da métrica</td></tr>
+<tr><td>--qcov, --rcov,<br>--len_ratio, --num_alns</td><td>filtros adicionais de aresta</td></tr>
+<tr><td>-r, --out-repr</td><td>identificador do representante em vez de número</td></tr>
+<tr><td>--leiden-resolution</td><td>0.7 por padrão</td></tr>
+<tr><td>--leiden-beta, --leiden-iterations</td><td>0.01 e 2 por padrão</td></tr>
+</table>
+</div>
+</div>
+<div style="flex:1"></div>
+<p class="code">vclust cluster -i ani.tsv -o clusters.tsv --ids ani.ids.tsv \<br>&#160;&#160;--algorithm leiden --metric ani --ani 0.95 --qcov 0.85</p>
+<p class="foot">Vclust 1.3.1 / Clusty 1.2.2 · --num_alns é um máximo · demais limiares são mínimos</p>
+</section>

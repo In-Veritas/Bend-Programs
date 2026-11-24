@@ -1,0 +1,30 @@
+<section id="cdhit">
+<div class="head">
+<p class="eyebrow">Algoritmos de agrupamento · 4 de 6</p>
+<h2>CD-HIT: incremental guloso</h2>
+</div>
+<div class="row" style="gap:64px">
+<div class="algo-left">
+<p class="txt"><span class="lbl-k">O que é.</span> Sequências em ordem decrescente de comprimento; cada uma entra no primeiro representante, na ordem de criação, que passa no limiar.</p>
+<p class="txt"><span class="lbl-k">Identidade.</span> No modo exato, normalizada pela sequência menor: floor(10000 · M / min(comprimentos)), em pontos-base.</p>
+<p class="txt"><span class="lbl-k">Quando usar.</span> Redução rápida de redundância em grandes coleções.</p>
+<p class="txt"><span class="lbl-k">Compromisso.</span> Primeiro acerto, não o melhor: S vai para R1 mesmo com R2 mais parecido.</p>
+<p class="code">python3 run.py cd-hit genomas.fna \<br>&#160;&#160;--identity 0.95</p>
+</div>
+<div class="algo-right">
+<div class="graph">
+<svg aria-label="S compara com R1 a 0,95 e com R2 a 0,99; CD-HIT escolhe R1, UCLUST escolhe R2" style="position:absolute; left:0; top:0" width="760" height="540" viewBox="0 0 760 540">
+<line x1="600" y1="270" x2="150" y2="140" stroke="#a84c17" stroke-width="5"/>
+<line x1="600" y1="270" x2="150" y2="400" stroke="#0b6e69" stroke-width="5"/>
+</svg>
+<p class="node-c" style="left:106px; top:96px">R1</p>
+<p class="node-c" style="left:106px; top:356px">R2</p>
+<p class="node" style="left:556px; top:226px">S</p>
+<p class="elab" style="left:285px; top:121px; width:220px; color:var(--orange)">0,95 · CD-HIT</p>
+<p class="elab" style="left:285px; top:385px; width:220px; color:var(--teal)">0,99 · UCLUST</p>
+</div>
+<p class="sm" style="width:760px">R1 foi criado antes de R2. CD-HIT fica com o primeiro que passa (R1); UCLUST, com o de maior identidade (R2).</p>
+</div>
+</div>
+<p class="foot">Fonte: cd_hit.bend, README.md (Alignment and identity)</p>
+</section>

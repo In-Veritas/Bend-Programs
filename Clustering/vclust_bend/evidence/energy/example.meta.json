@@ -1,0 +1,28 @@
+{
+  "bend_binaries": {
+    "prefilter": {
+      "path": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/b0a8b06d06462f44b6ff/prefilter",
+      "sha256": "c2362d0a4c1315776d3f81a4870108447c160fb6c577e2dca78a816f4680c134"
+    },
+    "align": {
+      "path": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/b0a8b06d06462f44b6ff/align",
+      "sha256": "78bbf13617f10a3019dd85027d646ae4069f1a515c2c5b8ee7ab132fd76a76d5"
+    },
+    "cluster": {
+      "path": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/b0a8b06d06462f44b6ff/cluster",
+      "sha256": "8635f100b9732a7b87137cbffb80816346c611522e2a7c23b3a03767f237bc39"
+    }
+  },
+  "gpu_binaries": {},
+  "vclust": "/home/veritas/Bend-Programs/Clustering/.tools/vclust-1.3.1/bin/vclust",
+  "cluster_args": [
+    "--algorithm",
+    "leiden",
+    "--metric",
+    "ani",
+    "--ani",
+    "0.95"
+  ],
+  "gpu_mode": "off",
+  "work": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/energy/example/20261123T220422"
+}

@@ -1,0 +1,50 @@
+<section id="pipeline-novo">
+<div class="head">
+<p class="eyebrow">Vclust em Bend · implementação por estágio</p>
+<h2>Um pipeline Bend compatível por estágio</h2>
+</div>
+<p class="txt">Cada estágio lê e grava os formatos do próprio Vclust, então qualquer um pode ser trocado e comparado com diff.</p>
+<div class="row" style="align-items:stretch; gap:16px">
+<div class="col" style="width:180px; justify-content:center"><p class="file">FASTA</p></div>
+<x-connector class="arrow"></x-connector>
+<div class="card grow">
+<p class="label">prefilter</p>
+<p class="txt">Vclust: Kmer-db 2.3.1</p>
+<p class="mono" style="font-size:24px; color:var(--teal)">prefilter.bend</p>
+<p class="sm">42 comparações idênticas ao Vclust*</p>
+<p class="file">fltr.txt</p>
+</div>
+<x-connector class="arrow"></x-connector>
+<div class="card grow">
+<p class="label">align</p>
+<p class="txt">Vclust: LZ-ANI 1.2.3</p>
+<p class="mono" style="font-size:24px; color:var(--teal)">align.bend</p>
+<p class="sm">15 casos: ANI e IDs idênticos ao Vclust</p>
+<p class="file">ani.tsv + ani.ids.tsv</p>
+</div>
+<x-connector class="arrow"></x-connector>
+<div class="card grow">
+<p class="label">cluster</p>
+<p class="txt">Vclust: Clusty 1.2.2</p>
+<p class="mono" style="font-size:24px; color:var(--teal)">cluster.bend</p>
+<p class="sm">98 arquivos idênticos, com certificados integrados</p>
+<p class="file">clusters.tsv</p>
+</div>
+</div>
+<div style="flex:1"></div>
+<div class="row">
+<div class="col grow" style="gap:6px">
+<p class="mono" style="font-size:24px; font-weight:600">f64.bend</p>
+<p class="sm">binary64 IEEE sobre pares de U32, incluindo o exp da glibc, para reproduzir as decisões numéricas do Clusty</p>
+</div>
+<div class="col grow" style="gap:6px">
+<p class="mono" style="font-size:24px; font-weight:600">align_num.bend</p>
+<p class="sm">multiplicação binary64 exata para a escolha perto/longe e impressão de razões como o LZ-ANI</p>
+</div>
+<div class="col grow" style="gap:6px">
+<p class="mono" style="font-size:24px; font-weight:600">tests/clusty_model.py</p>
+<p class="sm">modelo executável de vclust cluster: desempates, renumeração e o Leiden do igraph</p>
+</div>
+</div>
+<p class="foot">* k = 30 excluído: referência &gt; 30 s. Fontes da entrega: Clustering/vclust_bend_codex_verified/.</p>
+</section>

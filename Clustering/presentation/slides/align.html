@@ -1,0 +1,34 @@
+<section id="align">
+<div class="head">
+<p class="eyebrow">Vclust · estágio 2</p>
+<h2>Alinhamento com LZ-ANI</h2>
+</div>
+<p class="lead" style="width:1500px">A consulta é decomposta, à maneira de Lempel-Ziv, em trechos copiados da referência ou de seu complemento reverso, achados por âncoras e sementes indexadas.</p>
+<div style="position:relative; width:1664px; height:360px">
+<svg aria-label="Barra da referência acima e da consulta abaixo, ligadas por três regiões alinhadas e uma região curta descartada" style="position:absolute; left:0; top:0" width="1664" height="360" viewBox="0 0 1664 360">
+<rect x="220" y="40" width="1444" height="36" rx="6" fill="#d5d0c5"/>
+<rect x="220" y="200" width="1444" height="36" rx="6" fill="#d5d0c5"/>
+<polygon points="260,76 640,76 660,200 280,200" fill="#0b6e69" fill-opacity="0.22"/>
+<polygon points="700,76 960,76 1000,200 740,200" fill="#0b6e69" fill-opacity="0.22"/>
+<polygon points="1340,76 1390,76 1140,200 1090,200" fill="#8b8578" fill-opacity="0.25"/>
+<polygon points="1420,76 1640,76 1620,200 1270,200" fill="#a84c17" fill-opacity="0.22"/>
+<rect x="260" y="40" width="380" height="36" rx="6" fill="#0b6e69"/>
+<rect x="700" y="40" width="260" height="36" rx="6" fill="#0b6e69"/>
+<rect x="1340" y="40" width="50" height="36" rx="6" fill="#8b8578"/>
+<rect x="1420" y="40" width="220" height="36" rx="6" fill="#a84c17"/>
+<rect x="280" y="200" width="380" height="36" rx="6" fill="#0b6e69"/>
+<rect x="740" y="200" width="260" height="36" rx="6" fill="#0b6e69"/>
+<rect x="1090" y="200" width="50" height="36" rx="6" fill="#8b8578"/>
+<rect x="1270" y="200" width="350" height="36" rx="6" fill="#a84c17"/>
+</svg>
+<p class="txt" style="position:absolute; left:0; top:38px; width:200px">referência</p>
+<p class="txt" style="position:absolute; left:0; top:198px; width:200px">consulta</p>
+<p class="sm" style="position:absolute; left:280px; top:252px; width:420px">âncora de 11 bases, estendida com janela de 15 e até 7 erros</p>
+<p class="sm" style="position:absolute; left:740px; top:252px; width:300px">semente de 7 bases perto da posição prevista (≤ 40)</p>
+<p class="sm" style="position:absolute; left:1070px; top:252px; width:180px">região &lt; 35 bases: descartada</p>
+<p class="sm" style="position:absolute; left:1280px; top:252px; width:380px">trecho em outra posição: nova região alinhada</p>
+</div>
+<div style="flex:1"></div>
+<p class="code">--mal 11 --msl 7 --mrd 40 --mqd 40 --reg 35 --aw 15 --am 7 --ar 3&#160;&#160;&#160;<span class="cm"># padrões do vclust align</span></p>
+<p class="foot">Fontes: vclust align -h, README.md (Indexed numeric LZ-ANI port), LZ_ANI_PORT_NOTES.md</p>
+</section>

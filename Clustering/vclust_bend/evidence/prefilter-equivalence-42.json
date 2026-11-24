@@ -1,0 +1,1145 @@
+[
+  {
+    "dataset": "vclust_example",
+    "options": [],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/original/vclust_example.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/vclust_example.default.bend.txt",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/vclust_example.default.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/vclust_example.default.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "852de04759c6567a3d6f7da05f9d9893c807244757ef2f0f13260c7df6bb9d12",
+    "output_sha256": "852de04759c6567a3d6f7da05f9d9893c807244757ef2f0f13260c7df6bb9d12"
+  },
+  {
+    "dataset": "vclust_example",
+    "options": [
+      "--max-seqs",
+      "50"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/original/vclust_example.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/vclust_example.max-seqs_50.bend.txt",
+      "--max-seqs",
+      "50",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/vclust_example.max-seqs_50.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/vclust_example.max-seqs_50.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "8756bae3b3b1a011e7ff697c1e3ed97fe735f199b049644d29119e828af13d93",
+    "output_sha256": "8756bae3b3b1a011e7ff697c1e3ed97fe735f199b049644d29119e828af13d93"
+  },
+  {
+    "dataset": "vclust_example",
+    "options": [
+      "--kmers-fraction",
+      "0.2"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/original/vclust_example.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/vclust_example.kmers-fraction_0.2.bend.txt",
+      "--kmers-fraction",
+      "0.2",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/vclust_example.kmers-fraction_0.2.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/vclust_example.kmers-fraction_0.2.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "801b4152236144f8da1fcc3c2125a539013e1fd81a393c05ec07f493bdedef89",
+    "output_sha256": "801b4152236144f8da1fcc3c2125a539013e1fd81a393c05ec07f493bdedef89"
+  },
+  {
+    "dataset": "vclust_example",
+    "options": [
+      "--max-seqs",
+      "1"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/original/vclust_example.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/vclust_example.max-seqs_1.bend.txt",
+      "--max-seqs",
+      "1",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/vclust_example.max-seqs_1.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/vclust_example.max-seqs_1.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "72df22345647c84048a06f73c15042db3cc248704006cf4755a55a14ff823cc0",
+    "output_sha256": "72df22345647c84048a06f73c15042db3cc248704006cf4755a55a14ff823cc0"
+  },
+  {
+    "dataset": "vclust_example",
+    "options": [
+      "--batch-size",
+      "300"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/original/vclust_example.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/vclust_example.batch-size_300.bend.txt",
+      "--batch-size",
+      "300",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/vclust_example.batch-size_300.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/vclust_example.batch-size_300.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "852de04759c6567a3d6f7da05f9d9893c807244757ef2f0f13260c7df6bb9d12",
+    "output_sha256": "852de04759c6567a3d6f7da05f9d9893c807244757ef2f0f13260c7df6bb9d12"
+  },
+  {
+    "dataset": "vclust_example",
+    "options": [
+      "--batch-size",
+      "300",
+      "--max-seqs",
+      "5"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/original/vclust_example.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/vclust_example.batch-size_300_max-seqs_5.bend.txt",
+      "--batch-size",
+      "300",
+      "--max-seqs",
+      "5",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/vclust_example.batch-size_300_max-seqs_5.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/vclust_example.batch-size_300_max-seqs_5.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "8756bae3b3b1a011e7ff697c1e3ed97fe735f199b049644d29119e828af13d93",
+    "output_sha256": "8756bae3b3b1a011e7ff697c1e3ed97fe735f199b049644d29119e828af13d93"
+  },
+  {
+    "dataset": "vclust_example",
+    "options": [
+      "-k",
+      "15",
+      "--kmers-fraction",
+      "0.5"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/original/vclust_example.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/vclust_example.k_15_kmers-fraction_0.5.bend.txt",
+      "-k",
+      "15",
+      "--kmers-fraction",
+      "0.5",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/vclust_example.k_15_kmers-fraction_0.5.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/vclust_example.k_15_kmers-fraction_0.5.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "024389f095c8c4440c1e33bca41b6f79003db6f1cc17052a98092d90a7c52b24",
+    "output_sha256": "024389f095c8c4440c1e33bca41b6f79003db6f1cc17052a98092d90a7c52b24"
+  },
+  {
+    "dataset": "vclust_example",
+    "options": [
+      "-k",
+      "16"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/original/vclust_example.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/vclust_example.k_16.bend.txt",
+      "-k",
+      "16",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/vclust_example.k_16.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/vclust_example.k_16.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "0fd7fd9a14677448319cc46e9714fa58b43d832ed5b4614ab797c00700e8f475",
+    "output_sha256": "0fd7fd9a14677448319cc46e9714fa58b43d832ed5b4614ab797c00700e8f475"
+  },
+  {
+    "dataset": "vclust_example",
+    "options": [
+      "-k",
+      "19",
+      "--kmers-fraction",
+      "0.3",
+      "--min-kmers",
+      "3"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/original/vclust_example.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/vclust_example.k_19_kmers-fraction_0.3_min-kmers_3.bend.txt",
+      "-k",
+      "19",
+      "--kmers-fraction",
+      "0.3",
+      "--min-kmers",
+      "3",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/vclust_example.k_19_kmers-fraction_0.3_min-kmers_3.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/vclust_example.k_19_kmers-fraction_0.3_min-kmers_3.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "69f8b1c89ae242c22372a67a3f7725cb5899671f0f2a95819bfbb98e58c4bcd0",
+    "output_sha256": "69f8b1c89ae242c22372a67a3f7725cb5899671f0f2a95819bfbb98e58c4bcd0"
+  },
+  {
+    "dataset": "vclust_example",
+    "options": [
+      "--min-kmers",
+      "1",
+      "--min-ident",
+      "0"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/original/vclust_example.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/vclust_example.min-kmers_1_min-ident_0.bend.txt",
+      "--min-kmers",
+      "1",
+      "--min-ident",
+      "0",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/vclust_example.min-kmers_1_min-ident_0.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/vclust_example.min-kmers_1_min-ident_0.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "852de04759c6567a3d6f7da05f9d9893c807244757ef2f0f13260c7df6bb9d12",
+    "output_sha256": "852de04759c6567a3d6f7da05f9d9893c807244757ef2f0f13260c7df6bb9d12"
+  },
+  {
+    "dataset": "vclust_example",
+    "options": [
+      "--min-ident",
+      "0.95",
+      "--max-seqs",
+      "3"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/original/vclust_example.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/vclust_example.min-ident_0.95_max-seqs_3.bend.txt",
+      "--min-ident",
+      "0.95",
+      "--max-seqs",
+      "3",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/vclust_example.min-ident_0.95_max-seqs_3.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/vclust_example.min-ident_0.95_max-seqs_3.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "d23a1777aaadc8633cc18ea582382eba52599fa632456d4078e79e8a430bd2a3",
+    "output_sha256": "d23a1777aaadc8633cc18ea582382eba52599fa632456d4078e79e8a430bd2a3"
+  },
+  {
+    "dataset": "prefix1000",
+    "options": [],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/ready/vclust_example_prefix1000.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/prefix1000.default.bend.txt",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/prefix1000.default.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/prefix1000.default.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "4ad698e654d8ece8222cdb0c73a5f0976af99867adda0fdf75f25966fe9d0df1",
+    "output_sha256": "4ad698e654d8ece8222cdb0c73a5f0976af99867adda0fdf75f25966fe9d0df1"
+  },
+  {
+    "dataset": "prefix1000",
+    "options": [
+      "--max-seqs",
+      "50"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/ready/vclust_example_prefix1000.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/prefix1000.max-seqs_50.bend.txt",
+      "--max-seqs",
+      "50",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/prefix1000.max-seqs_50.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/prefix1000.max-seqs_50.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "2176ede21dbaedcf0b1e4d869881983d1e82671a464957d2bb4415c8a56ec8ee",
+    "output_sha256": "2176ede21dbaedcf0b1e4d869881983d1e82671a464957d2bb4415c8a56ec8ee"
+  },
+  {
+    "dataset": "prefix1000",
+    "options": [
+      "--kmers-fraction",
+      "0.2"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/ready/vclust_example_prefix1000.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/prefix1000.kmers-fraction_0.2.bend.txt",
+      "--kmers-fraction",
+      "0.2",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/prefix1000.kmers-fraction_0.2.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/prefix1000.kmers-fraction_0.2.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "d878244cdf7eb3833785055d60eb6ef9667312684623374dde22ee26a1579547",
+    "output_sha256": "d878244cdf7eb3833785055d60eb6ef9667312684623374dde22ee26a1579547"
+  },
+  {
+    "dataset": "prefix1000",
+    "options": [
+      "--max-seqs",
+      "1"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/ready/vclust_example_prefix1000.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/prefix1000.max-seqs_1.bend.txt",
+      "--max-seqs",
+      "1",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/prefix1000.max-seqs_1.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/prefix1000.max-seqs_1.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "f42572e2ee8bc49263df48df1aaa7abc0104d3fe71823fc187c4b4b8d38e3c73",
+    "output_sha256": "f42572e2ee8bc49263df48df1aaa7abc0104d3fe71823fc187c4b4b8d38e3c73"
+  },
+  {
+    "dataset": "prefix1000",
+    "options": [
+      "--batch-size",
+      "300"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/ready/vclust_example_prefix1000.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/prefix1000.batch-size_300.bend.txt",
+      "--batch-size",
+      "300",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/prefix1000.batch-size_300.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/prefix1000.batch-size_300.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "4ad698e654d8ece8222cdb0c73a5f0976af99867adda0fdf75f25966fe9d0df1",
+    "output_sha256": "4ad698e654d8ece8222cdb0c73a5f0976af99867adda0fdf75f25966fe9d0df1"
+  },
+  {
+    "dataset": "prefix1000",
+    "options": [
+      "--batch-size",
+      "300",
+      "--max-seqs",
+      "5"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/ready/vclust_example_prefix1000.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/prefix1000.batch-size_300_max-seqs_5.bend.txt",
+      "--batch-size",
+      "300",
+      "--max-seqs",
+      "5",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/prefix1000.batch-size_300_max-seqs_5.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/prefix1000.batch-size_300_max-seqs_5.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "2176ede21dbaedcf0b1e4d869881983d1e82671a464957d2bb4415c8a56ec8ee",
+    "output_sha256": "2176ede21dbaedcf0b1e4d869881983d1e82671a464957d2bb4415c8a56ec8ee"
+  },
+  {
+    "dataset": "prefix1000",
+    "options": [
+      "-k",
+      "15",
+      "--kmers-fraction",
+      "0.5"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/ready/vclust_example_prefix1000.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/prefix1000.k_15_kmers-fraction_0.5.bend.txt",
+      "-k",
+      "15",
+      "--kmers-fraction",
+      "0.5",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/prefix1000.k_15_kmers-fraction_0.5.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/prefix1000.k_15_kmers-fraction_0.5.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "56245db9df333ca580311fb5da85f4453cba5926973baf7264ea39a1c118a85d",
+    "output_sha256": "56245db9df333ca580311fb5da85f4453cba5926973baf7264ea39a1c118a85d"
+  },
+  {
+    "dataset": "prefix1000",
+    "options": [
+      "-k",
+      "16"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/ready/vclust_example_prefix1000.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/prefix1000.k_16.bend.txt",
+      "-k",
+      "16",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/prefix1000.k_16.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/prefix1000.k_16.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "c83966743b2de43af4c04938bdce6c9dac25e8522ac52cd9ebf221e239dfd253",
+    "output_sha256": "c83966743b2de43af4c04938bdce6c9dac25e8522ac52cd9ebf221e239dfd253"
+  },
+  {
+    "dataset": "prefix1000",
+    "options": [
+      "-k",
+      "19",
+      "--kmers-fraction",
+      "0.3",
+      "--min-kmers",
+      "3"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/ready/vclust_example_prefix1000.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/prefix1000.k_19_kmers-fraction_0.3_min-kmers_3.bend.txt",
+      "-k",
+      "19",
+      "--kmers-fraction",
+      "0.3",
+      "--min-kmers",
+      "3",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/prefix1000.k_19_kmers-fraction_0.3_min-kmers_3.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/prefix1000.k_19_kmers-fraction_0.3_min-kmers_3.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "6bd84947e07db974da79e994c591cea525fd13e11cf440c2f36e131dcd463db3",
+    "output_sha256": "6bd84947e07db974da79e994c591cea525fd13e11cf440c2f36e131dcd463db3"
+  },
+  {
+    "dataset": "prefix1000",
+    "options": [
+      "--min-kmers",
+      "1",
+      "--min-ident",
+      "0"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/ready/vclust_example_prefix1000.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/prefix1000.min-kmers_1_min-ident_0.bend.txt",
+      "--min-kmers",
+      "1",
+      "--min-ident",
+      "0",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/prefix1000.min-kmers_1_min-ident_0.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/prefix1000.min-kmers_1_min-ident_0.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "003863e30ec70a927747c8dc7fad5d2aef877a8a32db81f2624ff29e259370ce",
+    "output_sha256": "003863e30ec70a927747c8dc7fad5d2aef877a8a32db81f2624ff29e259370ce"
+  },
+  {
+    "dataset": "prefix1000",
+    "options": [
+      "--min-ident",
+      "0.95",
+      "--max-seqs",
+      "3"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/ready/vclust_example_prefix1000.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/prefix1000.min-ident_0.95_max-seqs_3.bend.txt",
+      "--min-ident",
+      "0.95",
+      "--max-seqs",
+      "3",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/prefix1000.min-ident_0.95_max-seqs_3.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/prefix1000.min-ident_0.95_max-seqs_3.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "2c8b4c61c85ea1971fdd4ad1fe7b78af102c8d398e091f679f34f1745e36568a",
+    "output_sha256": "2c8b4c61c85ea1971fdd4ad1fe7b78af102c8d398e091f679f34f1745e36568a"
+  },
+  {
+    "dataset": "shortest1000",
+    "options": [],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/ready/earlyvir_shortest1000.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/shortest1000.default.bend.txt",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/shortest1000.default.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/shortest1000.default.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "c0fa69764e6d2cca8966154720f8a5fff8914cf0880a5a7d7e45fce1c81571e4",
+    "output_sha256": "c0fa69764e6d2cca8966154720f8a5fff8914cf0880a5a7d7e45fce1c81571e4"
+  },
+  {
+    "dataset": "shortest1000",
+    "options": [
+      "--max-seqs",
+      "50"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/ready/earlyvir_shortest1000.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/shortest1000.max-seqs_50.bend.txt",
+      "--max-seqs",
+      "50",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/shortest1000.max-seqs_50.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/shortest1000.max-seqs_50.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "6734f95fb4e2d2e3bb33a15b2fb0c86782cc4cf6f4ce3980da541e4607b0c151",
+    "output_sha256": "6734f95fb4e2d2e3bb33a15b2fb0c86782cc4cf6f4ce3980da541e4607b0c151"
+  },
+  {
+    "dataset": "shortest1000",
+    "options": [
+      "--kmers-fraction",
+      "0.2"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/ready/earlyvir_shortest1000.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/shortest1000.kmers-fraction_0.2.bend.txt",
+      "--kmers-fraction",
+      "0.2",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/shortest1000.kmers-fraction_0.2.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/shortest1000.kmers-fraction_0.2.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "dba4aa14e731b43acf12a371e4846338ae042dceac21784223aa38d3f19bfcd7",
+    "output_sha256": "dba4aa14e731b43acf12a371e4846338ae042dceac21784223aa38d3f19bfcd7"
+  },
+  {
+    "dataset": "shortest1000",
+    "options": [
+      "--max-seqs",
+      "1"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/ready/earlyvir_shortest1000.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/shortest1000.max-seqs_1.bend.txt",
+      "--max-seqs",
+      "1",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/shortest1000.max-seqs_1.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/shortest1000.max-seqs_1.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "d7270e494b4d6153a251847a1486f8a16b96c286cc1c1c5ab476f890bae011e6",
+    "output_sha256": "d7270e494b4d6153a251847a1486f8a16b96c286cc1c1c5ab476f890bae011e6"
+  },
+  {
+    "dataset": "shortest1000",
+    "options": [
+      "--batch-size",
+      "300"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/ready/earlyvir_shortest1000.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/shortest1000.batch-size_300.bend.txt",
+      "--batch-size",
+      "300",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/shortest1000.batch-size_300.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/shortest1000.batch-size_300.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "c0fa69764e6d2cca8966154720f8a5fff8914cf0880a5a7d7e45fce1c81571e4",
+    "output_sha256": "c0fa69764e6d2cca8966154720f8a5fff8914cf0880a5a7d7e45fce1c81571e4"
+  },
+  {
+    "dataset": "shortest1000",
+    "options": [
+      "--batch-size",
+      "300",
+      "--max-seqs",
+      "5"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/ready/earlyvir_shortest1000.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/shortest1000.batch-size_300_max-seqs_5.bend.txt",
+      "--batch-size",
+      "300",
+      "--max-seqs",
+      "5",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/shortest1000.batch-size_300_max-seqs_5.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/shortest1000.batch-size_300_max-seqs_5.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "80e5c6e696d0871e7882805c7aa88881e9447a65b0ba89f9f632754025e05205",
+    "output_sha256": "80e5c6e696d0871e7882805c7aa88881e9447a65b0ba89f9f632754025e05205"
+  },
+  {
+    "dataset": "shortest1000",
+    "options": [
+      "-k",
+      "15",
+      "--kmers-fraction",
+      "0.5"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/ready/earlyvir_shortest1000.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/shortest1000.k_15_kmers-fraction_0.5.bend.txt",
+      "-k",
+      "15",
+      "--kmers-fraction",
+      "0.5",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/shortest1000.k_15_kmers-fraction_0.5.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/shortest1000.k_15_kmers-fraction_0.5.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "300816d10fd66ab6e7309dba044fc5c47314258891610632f17e3cea392468cf",
+    "output_sha256": "300816d10fd66ab6e7309dba044fc5c47314258891610632f17e3cea392468cf"
+  },
+  {
+    "dataset": "shortest1000",
+    "options": [
+      "-k",
+      "16"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/ready/earlyvir_shortest1000.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/shortest1000.k_16.bend.txt",
+      "-k",
+      "16",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/shortest1000.k_16.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/shortest1000.k_16.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "46f54d37fb7e799a5ca617586c3fa7026f449b9deabe90bb2d521b5395b4e5ed",
+    "output_sha256": "46f54d37fb7e799a5ca617586c3fa7026f449b9deabe90bb2d521b5395b4e5ed"
+  },
+  {
+    "dataset": "shortest1000",
+    "options": [
+      "-k",
+      "19",
+      "--kmers-fraction",
+      "0.3",
+      "--min-kmers",
+      "3"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/ready/earlyvir_shortest1000.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/shortest1000.k_19_kmers-fraction_0.3_min-kmers_3.bend.txt",
+      "-k",
+      "19",
+      "--kmers-fraction",
+      "0.3",
+      "--min-kmers",
+      "3",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/shortest1000.k_19_kmers-fraction_0.3_min-kmers_3.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/shortest1000.k_19_kmers-fraction_0.3_min-kmers_3.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "7078d773aa61c90a55064a1332ac73cfc0bb14b314e4cbae1e0c1aa2102d7a69",
+    "output_sha256": "7078d773aa61c90a55064a1332ac73cfc0bb14b314e4cbae1e0c1aa2102d7a69"
+  },
+  {
+    "dataset": "shortest1000",
+    "options": [
+      "--min-kmers",
+      "1",
+      "--min-ident",
+      "0"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/ready/earlyvir_shortest1000.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/shortest1000.min-kmers_1_min-ident_0.bend.txt",
+      "--min-kmers",
+      "1",
+      "--min-ident",
+      "0",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/shortest1000.min-kmers_1_min-ident_0.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/shortest1000.min-kmers_1_min-ident_0.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "b8faedcff9cabaa6a855ae590637d841ab2717157d5d429f30076d5e5a8f6a3d",
+    "output_sha256": "b8faedcff9cabaa6a855ae590637d841ab2717157d5d429f30076d5e5a8f6a3d"
+  },
+  {
+    "dataset": "shortest1000",
+    "options": [
+      "--min-ident",
+      "0.95",
+      "--max-seqs",
+      "3"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/ready/earlyvir_shortest1000.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/shortest1000.min-ident_0.95_max-seqs_3.bend.txt",
+      "--min-ident",
+      "0.95",
+      "--max-seqs",
+      "3",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/shortest1000.min-ident_0.95_max-seqs_3.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/shortest1000.min-ident_0.95_max-seqs_3.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "fe5c2f230349320d1bff577e01d0167afcdf11ebf8f2f75349cb594a79f0db2a",
+    "output_sha256": "fe5c2f230349320d1bff577e01d0167afcdf11ebf8f2f75349cb594a79f0db2a"
+  },
+  {
+    "dataset": "stratified1000",
+    "options": [],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/stratified1000.default.bend.txt",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/stratified1000.default.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/stratified1000.default.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "7f3db0d677fab7f87e283f01e1857d3112e3a1d9cfde8ada91e5021f154bc0c2",
+    "output_sha256": "7f3db0d677fab7f87e283f01e1857d3112e3a1d9cfde8ada91e5021f154bc0c2"
+  },
+  {
+    "dataset": "stratified1000",
+    "options": [
+      "--max-seqs",
+      "50"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/stratified1000.max-seqs_50.bend.txt",
+      "--max-seqs",
+      "50",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/stratified1000.max-seqs_50.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/stratified1000.max-seqs_50.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "2a61e28f1383fa48eff6f10a552deffe53cf2d0fd31e2cdf1980d6a299692746",
+    "output_sha256": "2a61e28f1383fa48eff6f10a552deffe53cf2d0fd31e2cdf1980d6a299692746"
+  },
+  {
+    "dataset": "stratified1000",
+    "options": [
+      "--kmers-fraction",
+      "0.2"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/stratified1000.kmers-fraction_0.2.bend.txt",
+      "--kmers-fraction",
+      "0.2",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/stratified1000.kmers-fraction_0.2.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/stratified1000.kmers-fraction_0.2.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "6507be61f81fce1070929f7b49fb68fecefbd613cf4729edb9f52fbb78e61ee7",
+    "output_sha256": "6507be61f81fce1070929f7b49fb68fecefbd613cf4729edb9f52fbb78e61ee7"
+  },
+  {
+    "dataset": "stratified1000",
+    "options": [
+      "--max-seqs",
+      "1"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/stratified1000.max-seqs_1.bend.txt",
+      "--max-seqs",
+      "1",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/stratified1000.max-seqs_1.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/stratified1000.max-seqs_1.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "8f843300d53679c7df57c22ccdf0e1338706b73bafb8aa4ac2cef272a95f508d",
+    "output_sha256": "8f843300d53679c7df57c22ccdf0e1338706b73bafb8aa4ac2cef272a95f508d"
+  },
+  {
+    "dataset": "stratified1000",
+    "options": [
+      "--batch-size",
+      "300"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/stratified1000.batch-size_300.bend.txt",
+      "--batch-size",
+      "300",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/stratified1000.batch-size_300.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/stratified1000.batch-size_300.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "7f3db0d677fab7f87e283f01e1857d3112e3a1d9cfde8ada91e5021f154bc0c2",
+    "output_sha256": "7f3db0d677fab7f87e283f01e1857d3112e3a1d9cfde8ada91e5021f154bc0c2"
+  },
+  {
+    "dataset": "stratified1000",
+    "options": [
+      "--batch-size",
+      "300",
+      "--max-seqs",
+      "5"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/stratified1000.batch-size_300_max-seqs_5.bend.txt",
+      "--batch-size",
+      "300",
+      "--max-seqs",
+      "5",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/stratified1000.batch-size_300_max-seqs_5.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/stratified1000.batch-size_300_max-seqs_5.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "f6fb911771615bcc5ee8121e401c6295c5d4933f99d4f840ad203502ad2659d2",
+    "output_sha256": "f6fb911771615bcc5ee8121e401c6295c5d4933f99d4f840ad203502ad2659d2"
+  },
+  {
+    "dataset": "full",
+    "options": [],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/raw/all.curated.vOTUs.EarlyVir.fna",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/full.default.bend.txt",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/vc/full/fltr12.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/full.default.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "689b170c31e4e015bbd0152c1e82d73005c1d3acdcde595637385fa191b78d76",
+    "output_sha256": "689b170c31e4e015bbd0152c1e82d73005c1d3acdcde595637385fa191b78d76"
+  },
+  {
+    "dataset": "full",
+    "options": [
+      "--max-seqs",
+      "50"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/raw/all.curated.vOTUs.EarlyVir.fna",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/full.max-seqs_50.bend.txt",
+      "--max-seqs",
+      "50",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/full.max-seqs_50.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/full.max-seqs_50.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "033ab07f17a01bd60e9bce5289f2c634b1af05e2a14f3bb54b04be52410e2e7c",
+    "output_sha256": "033ab07f17a01bd60e9bce5289f2c634b1af05e2a14f3bb54b04be52410e2e7c"
+  },
+  {
+    "dataset": "full",
+    "options": [
+      "--kmers-fraction",
+      "0.2"
+    ],
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/prefilter",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/raw/all.curated.vOTUs.EarlyVir.fna",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/full.kmers-fraction_0.2.bend.txt",
+      "--kmers-fraction",
+      "0.2",
+      "+RTS",
+      "--threads",
+      "12",
+      "-RTS"
+    ],
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/pf/refs/full.kmers-fraction_0.2.txt",
+    "output": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/prefilter-tests/full.kmers-fraction_0.2.bend.txt",
+    "identical": true,
+    "detail": "identical",
+    "reference_sha256": "baa05942bf1b21047a91fee924c2bbcaebcea7dab92b3aa64ed0b1a1526aa821",
+    "output_sha256": "baa05942bf1b21047a91fee924c2bbcaebcea7dab92b3aa64ed0b1a1526aa821"
+  }
+]

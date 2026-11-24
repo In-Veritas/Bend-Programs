@@ -1,0 +1,6 @@
+{
+  "cpu_model": "Intel(R) Core(TM) i7-10850H CPU @ 2.70GHz",
+  "logical_processors": 12,
+  "limits": "bendwork.slice 10 GiB aggregate/9 GiB high/no swap; benchmark scope 4 GiB; build separate 8 GiB",
+  "measurement": "One sequential sample per configuration on the active desktop. No claim of statistical significance or isolated hardware."
+}

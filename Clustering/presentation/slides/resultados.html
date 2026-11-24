@@ -1,0 +1,25 @@
+<section id="resultados">
+<div class="head">
+<p class="eyebrow">Vclust em Bend · versão validada em 23/11/2026</p>
+<h2>Conjunto completo: saídas verificadas</h2>
+</div>
+<table class="tbl">
+<tr class="tbl-h"><th style="width:18%">Estágio</th><th style="width:20%">Suíte inteira</th><th style="width:34%">Inclui o conjunto completo</th><th>Igualdade byte a byte</th></tr>
+<tr><td>prefilter</td><td>42/42 casos</td><td>3 configurações no EarlyVir</td><td>fltr.txt idêntico</td></tr>
+<tr><td>align</td><td>15/15 casos</td><td>10.021 genomas, 12 workers</td><td>ANI e IDs idênticos</td></tr>
+<tr><td>cluster</td><td>98/98 casos</td><td>6 algoritmos no EarlyVir</td><td>clusters.tsv idêntico</td></tr>
+</table>
+<div style="flex:1"></div>
+<div class="row" style="align-items:stretch">
+<div class="card grow">
+<p class="label">Tempo completo interrompido</p>
+<p class="txt">Uma sessão concorrente alterou o código e executou tarefas durante a medição. O benchmark foi interrompido: não há total nem razão de desempenho do pipeline completo.</p>
+</div>
+<div class="card grow">
+<p class="label">Entrega reproduzível</p>
+<p class="mono" style="font-size:24px; color:var(--teal)">Clustering/vclust_bend_codex_verified/</p>
+<p class="txt">A versão validada foi isolada e conferida por hashes. Os testes desta apresentação se referem a essa cópia.</p>
+</div>
+</div>
+<p class="foot">Exclusões: k = 30, referência &gt; 30 s; align completo/1 worker, timeout de 600 s. Amostra de desempenho: slide 34.</p>
+</section>

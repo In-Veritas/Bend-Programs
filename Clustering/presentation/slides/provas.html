@@ -1,0 +1,23 @@
+<section id="provas">
+<div class="head">
+<p class="eyebrow">Bend · 5 de 5</p>
+<h2>Leis, provas e --verdict</h2>
+</div>
+<div class="row" style="gap:48px">
+<div class="col" style="width:850px; gap:16px">
+<p class="code"><span class="kw">law</span> add_zero:<br>&#160;&#160;<span class="kw">for</span> x: Nat<br>&#160;&#160;{Nat.add(x, 0n) == x : Nat}<br><br><span class="kw">def</span> add_zero(x):<br>&#160;&#160;<span class="kw">match</span> x:<br>&#160;&#160;&#160;&#160;<span class="kw">case</span> 0n:<br>&#160;&#160;&#160;&#160;&#160;&#160;{==}<br>&#160;&#160;&#160;&#160;<span class="kw">case</span> 1n+p:<br>&#160;&#160;&#160;&#160;&#160;&#160;%add_zero(p) : {1n+Nat.add(p, 0n) == 1n+_ : Nat}<br>&#160;&#160;&#160;&#160;&#160;&#160;{==}</p>
+<p class="txt">Tipos dependentes: uma proposição é um tipo e uma prova é um def desse tipo. Não há táticas.</p>
+</div>
+<div class="col grow" style="gap:16px">
+<div class="row" style="gap:16px">
+<div class="box grow"><p class="mono" style="font-size:26px; font-weight:600">LAWS.bend</p><p class="sm">o humano escreve as leis</p></div>
+<div class="box grow"><p class="mono" style="font-size:26px; font-weight:600">PROOF.bend</p><p class="sm">código e provas, com o mesmo nome</p></div>
+</div>
+<x-connector class="arrow-d"></x-connector>
+<div class="box"><p class="mono" style="font-size:26px">bend PROOF.bend</p><p class="sm">ALL PROOFS CHECK ou SOME PROOFS FAIL</p></div>
+<x-connector class="arrow-d"></x-connector>
+<div class="box-t"><p class="mono" style="font-size:26px">--verdict</p><p style="font-size:24px">reconfere com o kernel BendTT, que tem prova em Lean; recusa @unsafe e código externo</p></div>
+</div>
+</div>
+<p class="foot">Fonte: bend guide · --check-only verifica o fonte; --verdict reconfere provas no kernel. Equivalência com Vclust exige leis próprias.</p>
+</section>

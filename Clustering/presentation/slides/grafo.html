@@ -1,0 +1,37 @@
+<section id="grafo">
+<div class="head">
+<p class="eyebrow">Algoritmos de agrupamento</p>
+<h2>Do limiar ao grafo esparso</h2>
+</div>
+<div class="row" style="gap:40px">
+<div class="algo-left" style="width:864px">
+<p class="txt"><span class="lbl-k">Aresta.</span> Dois genomas se ligam quando a similaridade atinge o limiar, de forma inclusiva. Pares abaixo do limiar não ocupam memória.</p>
+<p class="code" style="padding:24px 20px">type Neighbors is Data:<br>&#160;&#160;NeighborsNil{}<br>&#160;&#160;NeighborsCon{target: U32, score: U32, tail: Neighbors}<br><br>type SparseGraph is Type:<br>&#160;&#160;SparseGraph{size: U32, rows: Array&lt;Neighbors&gt;}</p>
+<p class="txt"><span class="lbl-k">Memória O(n + E)</span> em vez de uma matriz n × n. Dados muito redundantes ainda podem ter E da ordem de n².</p>
+<p class="sm">Os seis algoritmos consomem estas linhas de vizinhança diretamente.</p>
+</div>
+<div class="algo-right">
+<div class="graph">
+<svg aria-label="Grafo de exemplo: arestas A–B 0,97, B–C 0,96 e D–E 0,98; pares A–C 0,91 e C–E 0,93 abaixo do limiar" style="position:absolute; left:0; top:0" width="760" height="540" viewBox="0 0 760 540">
+<line x1="130" y1="130" x2="630" y2="170" stroke="#9a958a" stroke-width="3" stroke-dasharray="10 8"/>
+<line x1="630" y1="170" x2="520" y2="450" stroke="#9a958a" stroke-width="3" stroke-dasharray="10 8"/>
+<line x1="130" y1="130" x2="380" y2="90" stroke="#13232f" stroke-width="4"/>
+<line x1="380" y1="90" x2="630" y2="170" stroke="#13232f" stroke-width="4"/>
+<line x1="200" y1="420" x2="520" y2="450" stroke="#13232f" stroke-width="4"/>
+</svg>
+<p class="node" style="left:86px; top:86px">A</p>
+<p class="node" style="left:336px; top:46px">B</p>
+<p class="node" style="left:586px; top:126px">C</p>
+<p class="node" style="left:156px; top:376px">D</p>
+<p class="node" style="left:476px; top:406px">E</p>
+<p class="elab" style="left:210px; top:50px">0,97</p>
+<p class="elab" style="left:485px; top:73px">0,96</p>
+<p class="elab-x" style="left:335px; top:185px">0,91</p>
+<p class="elab" style="left:315px; top:470px">0,98</p>
+<p class="elab-x" style="left:612px; top:293px">0,93</p>
+</div>
+<p class="sm" style="width:760px">Exemplo ilustrativo, limiar 0,95. Linhas cheias são arestas; tracejadas ficam abaixo do limiar e não entram no grafo.</p>
+</div>
+</div>
+<p class="foot">Fonte: lib/common.bend (Neighbors, SparseGraph), VCLUST_ARCHITECTURE.md</p>
+</section>

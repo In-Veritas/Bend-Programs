@@ -1,0 +1,27 @@
+<section id="omissao">
+<div class="head">
+<p class="eyebrow">Tipos e provas no pipeline</p>
+<h2>Leis que autorizam pular pares</h2>
+</div>
+<div class="row" style="gap:48px">
+<div class="col" style="width:850px; gap:12px">
+<p class="label">lib/vclust_index.bend</p>
+<p class="code"><span class="kw">law</span> indexed_score_agrees:<br>&#160;&#160;<span class="kw">for</span> +common: U32<br>&#160;&#160;<span class="kw">for</span> +populated: U32<br>&#160;&#160;<span class="kw">for</span> +threshold: U32<br>&#160;&#160;{indexed_score(common, populated, threshold)<br>&#160;&#160;&#160;&#160;== F.score(common, populated, threshold) : U32}<br><br><span class="kw">law</span> zero_common_is_rejected:<br>&#160;&#160;<span class="kw">for</span> +populated: U32<br>&#160;&#160;<span class="kw">for</span> +threshold: U32<br>&#160;&#160;{indexed_score(0, populated, threshold) == 0 : U32}</p>
+<p class="sm">Ambas valem para todo U32 e são provadas por {==}.</p>
+</div>
+<div class="col grow" style="gap:12px">
+<div class="box"><p>Todos os pares: n(n − 1)/2</p></div>
+<x-connector class="arrow-d"></x-connector>
+<div class="row" style="gap:16px; align-items:stretch">
+<div class="box-t grow"><p>Pares com ≥ 1 entrada (bin, valor) comum no índice</p></div>
+<div class="box-o" style="width:300px"><p>Sem entrada comum: escore 0, provado. Omitidos.</p></div>
+</div>
+<x-connector class="arrow-d"></x-connector>
+<div class="box"><p>Mesmo escore de antes do índice decide a aresta</p></div>
+<p class="txt" style="margin-top:16px">O índice não muda a decisão; ele só deixa de visitar pares que não poderiam passar.</p>
+</div>
+</div>
+<div style="flex:1"></div>
+<p class="sm" style="width:1500px">As leis cobrem o escore, não a completude do índice. Também não provam que MinHash estime ANI biológico ou preserve as arestas do LZ-ANI.</p>
+<p class="foot">Fontes: lib/vclust_index.bend, lib/fast_score.bend, VCLUST_ARCHITECTURE.md (Proof boundary)</p>
+</section>

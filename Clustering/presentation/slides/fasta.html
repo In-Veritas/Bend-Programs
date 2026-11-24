@@ -1,0 +1,27 @@
+<section id="fasta">
+<div class="head">
+<p class="eyebrow">Leitura das sequências</p>
+<h2>FASTA, multi-FASTA e normalização</h2>
+</div>
+<div class="row" style="gap:56px; flex:1">
+<div class="col" style="width:620px; gap:16px">
+<p class="label">Entrada</p>
+<p class="code">&gt;OTU_1 fago exemplo<br>ACGTTGCAAC<br>gtnacgu<br><br>; comentário<br>&gt;OTU_2<br>TTGACCA</p>
+<x-connector class="arrow-d"></x-connector>
+<p class="label">Depois da normalização</p>
+<p class="code">OTU_1: ACGTTGCAACGTNACGT<br>OTU_2: TTGACCA</p>
+</div>
+<div class="grow">
+<table class="tbl">
+<tr class="tbl-h"><th style="width:42%">Na entrada</th><th>Tratamento</th></tr>
+<tr><td>minúsculas</td><td>convertidas para maiúsculas</td></tr>
+<tr><td>U (RNA)</td><td>vira T</td></tr>
+<tr><td>LF ou CRLF, linhas quebradas, espaços, linhas vazias, comentários ;</td><td>aceitos; a sequência é concatenada</td></tr>
+<tr><td>códigos IUPAC (R, Y, …, N)</td><td>aceitos e comparados literalmente: N não é curinga</td></tr>
+<tr><td>dígitos, gaps, símbolos inválidos, texto antes do cabeçalho</td><td>erro, com o número da linha</td></tr>
+<tr><td>limites por arquivo</td><td>16.384 registros, 300.000 resíduos por registro, 256 MiB</td></tr>
+</table>
+</div>
+</div>
+<p class="foot">Fonte: README.md, seção FASTA handling and practical limits</p>
+</section>

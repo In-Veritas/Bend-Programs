@@ -1,0 +1,34 @@
+<section id="streaming">
+<div class="head">
+<p class="eyebrow">Leitura das sequências</p>
+<h2>Leitura em blocos de 64 KiB</h2>
+</div>
+<div class="row" style="align-items:stretch; gap:16px">
+<div class="box grow"><p class="label">1</p><p>Arquivo FASTA</p></div>
+<x-connector class="arrow"></x-connector>
+<div class="box grow"><p class="label">2</p><p class="mono" style="font-size:24px">File.read(file, 65536)</p></div>
+<x-connector class="arrow"></x-connector>
+<div class="box grow"><p class="label">3</p><p>Linhas do bloco atual</p></div>
+<x-connector class="arrow"></x-connector>
+<div class="box grow"><p class="label">4</p><p>Registro atual validado</p></div>
+<x-connector class="arrow"></x-connector>
+<div class="box-t grow"><p class="label" style="color:#f6e2d3">5</p><p>pack: 2 ou 4 bits por base</p></div>
+</div>
+<p class="txt">Só um bloco e o registro em curso ficam como texto; cada sequência completa é empacotada na hora.</p>
+<div style="flex:1"></div>
+<div class="row">
+<div class="card grow">
+<p class="label">Amostra de 1.000 registros · só candidatos</p>
+<p class="num-o">13,08 s · 589,30 MiB</p>
+<p class="num">4,82 s · 30,75 MiB</p>
+<p class="sm">texto ligado do arquivo inteiro → registros empacotados em fluxo</p>
+</div>
+<div class="card grow">
+<p class="label">EarlyVir completo · 10.021 registros</p>
+<p class="num-o">pico de 5,77 GiB</p>
+<p class="num">pico de 222,52 MiB</p>
+<p class="sm">tentativa antiga com o arquivo inteiro → descoberta conservadora de candidatos em 171,37 s</p>
+</div>
+</div>
+<p class="foot">Execuções individuais, não benchmark controlado · VCLUST_ARCHITECTURE.md, lib/common.bend (stream_chunk, file_parse)</p>
+</section>

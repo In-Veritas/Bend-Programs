@@ -1,0 +1,24 @@
+/* Local presentation layout corrections, kept separate from the recovered theme. */
+section::after { content: attr(data-page); }
+section.cover::after { content: none; }
+#problema .big { font-size: 76px; white-space: nowrap; }
+#sketches { gap: 28px; }
+#sketches .card { padding: 28px; }
+#kmerscore { gap: 28px; }
+#kmerscore .card { padding: 28px; }
+#fronteira th, #fronteira td { padding-top: 10px; padding-bottom: 10px; }
+#prefilter { gap: 28px; }
+#prefilter th, #prefilter td { padding-top: 10px; padding-bottom: 10px; }
+#prefilter .tbl th:first-child { width: 33%; }
+#prefilter .tbl td:last-child { font-size: 24px; }
+#metricas { gap: 28px; }
+#metricas th, #metricas td { padding-top: 12px; padding-bottom: 12px; }
+#cluster { gap: 28px; }
+#cluster th, #cluster td { padding-top: 9px; padding-bottom: 9px; }
+#mapa table { table-layout: fixed; }
+#mapa td { overflow-wrap: anywhere; }
+#referencia { gap: 24px; }
+#referencia th, #referencia td { padding-top: 8px; padding-bottom: 8px; }
+#referencia .card { padding: 24px; gap: 8px; }
+#referencia .big, #referencia .big-o { font-size: 64px; }
+#referencia .txt { font-size: 26px; }

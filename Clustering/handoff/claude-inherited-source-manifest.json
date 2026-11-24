@@ -1,0 +1,86 @@
+{
+  "recorded_at": "2026-11-23T15:30:57.550996+01:00",
+  "note": "Inherited vclust_bend source before Codex implementation edits. All source was already untracked in Git.",
+  "files": {
+    "Clustering/vclust_bend/align_num.bend": {
+      "sha256": "6e1c82f052fd47ef2788c4b2292ec84636046f92dd125939b89795a8a4a36bbf",
+      "size": 14934
+    },
+    "Clustering/vclust_bend/pf_fasta.bend": {
+      "sha256": "f1c9792e963dceb832477817d46037025dd13350c8c78517243fdac34804ea9d",
+      "size": 10931
+    },
+    "Clustering/vclust_bend/f64.bend": {
+      "sha256": "9236f61a43d474e74f4c7b9fefcdaa43b1f4bf43157afbb26e4a508b43bdb145",
+      "size": 33015
+    },
+    "Clustering/vclust_bend/pf_num.bend": {
+      "sha256": "755cd3bd11755c2b8b346d045e3dc1e9036305836c7c37b85c8485b15ccd18a4",
+      "size": 19953
+    },
+    "Clustering/vclust_bend/align_io.bend": {
+      "sha256": "7d09ffe4e9bcf8d72f84491314b1fb83b93a5859ae512c55cf730ed149cdcf41",
+      "size": 11558
+    },
+    "Clustering/vclust_bend/align.bend": {
+      "sha256": "9c227a331d3ecb25c1e3a2eb11d8ac5910fd40ee4496637b89c7bf774566d65b",
+      "size": 35937
+    },
+    "Clustering/vclust_bend/cl_load.bend": {
+      "sha256": "76a000d63a20bb15e950ffd7cf28710e56629bc51394a65d05c5320095df6c33",
+      "size": 20529
+    },
+    "Clustering/vclust_bend/pf_core.bend": {
+      "sha256": "187984abe12498fa8d3d16ea6e51ccfa6de05af2994a972ba2440632e4258112",
+      "size": 38567
+    },
+    "Clustering/vclust_bend/cl_graph.bend": {
+      "sha256": "b6498aa9d9accd9c1628c3f53f7d8cbb344c223ea7a8faa5ad9982f596f61bf8",
+      "size": 12634
+    },
+    "Clustering/vclust_bend/cl_complete.bend": {
+      "sha256": "4532dbf82b80a7b0e1fe866f31cceb89d83e9548308c3cc1d2146b187a1edc47",
+      "size": 15724
+    },
+    "Clustering/vclust_bend/cl_leiden.bend": {
+      "sha256": "4924e70195636d90d4784765c7b8b1b923fc4965944269d46bab952acfc7439d",
+      "size": 249
+    },
+    "Clustering/vclust_bend/prefilter.bend": {
+      "sha256": "92a92385b8a0814320fc38732a311672881eef362742e90e4bfb0b5eaf306527",
+      "size": 11018
+    },
+    "Clustering/vclust_bend/align_lz.bend": {
+      "sha256": "c635358cb7fefe9bb32ce473d867226eaa1956eb86f8ffd3d9f2a0c606b62bcf",
+      "size": 53426
+    },
+    "Clustering/vclust_bend/cluster.bend": {
+      "sha256": "a24626b556ef96a97eb39554d96be2d58051b690360a0ca4591a6699452ba216",
+      "size": 29067
+    },
+    "Clustering/vclust_bend/pf_sel.bend": {
+      "sha256": "5cb35cd016ea54922da26f05d6aa9b188fb37384a3ad757c9a3f3aba8eaf71e7",
+      "size": 8002
+    },
+    "Clustering/vclust_bend/tests/clusty_model.py": {
+      "sha256": "0c3425732fc9f0ea56660f2f415144b1fc87c092ea5de8d5e42aeab11d7c4419",
+      "size": 18992
+    },
+    "Clustering/vclust_bend/tests/test_prefilter.py": {
+      "sha256": "d6cd1e7b1bb8238184285d1fcd6d32da3f0938d573a78b82198dfdfb2ab52b65",
+      "size": 6448
+    },
+    "Clustering/vclust_bend/tests/bend/num_probe.bend": {
+      "sha256": "b0ea0014942bcbae89a0e07cd5423c4a090fc13efbc6c91025021206e123b28a",
+      "size": 1699
+    },
+    "Clustering/vclust_bend/tests/f64/f64_test.bend": {
+      "sha256": "82051d64a5cc3052592e2d93f55e27c46d14bd67774c07976a7b464e28a44a5e",
+      "size": 3747
+    },
+    "Clustering/vclust_bend/tests/f64/check_f64.py": {
+      "sha256": "73afac16c3585c822106fbb5b04a569c2d308c3b45d90913c3d1f23f0d8cda15",
+      "size": 2138
+    }
+  }
+}

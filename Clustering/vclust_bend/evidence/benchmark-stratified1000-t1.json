@@ -1,0 +1,193 @@
+{
+  "created_at": "2026-11-23T16:56:10.597408+01:00",
+  "repetitions": 1,
+  "work_directory": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/benchmark/20261123T165610.596963",
+  "platform": "Linux-7.0.0-43-generic-x86_64-with-glibc2.43",
+  "native_sha256": {
+    "prefilter": "5bbf14dc76f200f99007dbf0b54b3daa02172e9182729131d26412a812c56a9c",
+    "align": "78bbf13617f10a3019dd85027d646ae4069f1a515c2c5b8ee7ab132fd76a76d5",
+    "cluster": "68f1da1cfbcb99fe44de251f3b38bb813252c94569dac14457050c9963d40acb"
+  },
+  "note": "Single sequential samples in fixed Vclust-then-Bend order; page cache not flushed; build excluded. Native Bend includes partition and complete-clique guards. Python semantic checks excluded from stage timings. Clusty has no thread flag.",
+  "runs": [
+    {
+      "dataset": "stratified1000",
+      "threads": 1,
+      "tool": "vclust",
+      "stage": "prefilter",
+      "uptime": "16:56:10 up  6:25,  1 user,  load average: 2.39, 7.33, 6.88",
+      "wall_seconds": 8.01,
+      "max_rss_kib": 493784,
+      "command": [
+        "/home/veritas/Bend-Programs/Clustering/.tools/vclust-1.3.1/bin/vclust",
+        "prefilter",
+        "-i",
+        "/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+        "-o",
+        "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/benchmark/20261123T165610.596963/stratified1000-t1-vclust/fltr.txt",
+        "-t",
+        "1",
+        "-v",
+        "0"
+      ],
+      "status": "ok"
+    },
+    {
+      "dataset": "stratified1000",
+      "threads": 1,
+      "tool": "vclust",
+      "stage": "align",
+      "uptime": "16:56:18 up  6:25,  1 user,  load average: 2.41, 7.17, 6.83",
+      "wall_seconds": 10.76,
+      "max_rss_kib": 94760,
+      "command": [
+        "/home/veritas/Bend-Programs/Clustering/.tools/vclust-1.3.1/bin/vclust",
+        "align",
+        "-i",
+        "/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+        "-o",
+        "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/benchmark/20261123T165610.596963/stratified1000-t1-vclust/ani.tsv",
+        "--filter",
+        "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/benchmark/20261123T165610.596963/stratified1000-t1-vclust/fltr.txt",
+        "-t",
+        "1",
+        "-v",
+        "0"
+      ],
+      "status": "ok"
+    },
+    {
+      "dataset": "stratified1000",
+      "threads": 1,
+      "tool": "vclust",
+      "stage": "cluster",
+      "uptime": "16:56:29 up  6:25,  1 user,  load average: 2.74, 7.08, 6.81",
+      "wall_seconds": 0.24,
+      "max_rss_kib": 135096,
+      "command": [
+        "/home/veritas/Bend-Programs/Clustering/.tools/vclust-1.3.1/bin/vclust",
+        "cluster",
+        "-i",
+        "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/benchmark/20261123T165610.596963/stratified1000-t1-vclust/ani.tsv",
+        "--ids",
+        "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/benchmark/20261123T165610.596963/stratified1000-t1-vclust/ani.ids.tsv",
+        "-o",
+        "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/benchmark/20261123T165610.596963/stratified1000-t1-vclust/clusters.tsv",
+        "--algorithm",
+        "leiden",
+        "--metric",
+        "ani",
+        "--ani",
+        "0.95",
+        "-v",
+        "0"
+      ],
+      "status": "ok"
+    },
+    {
+      "dataset": "stratified1000",
+      "threads": 1,
+      "tool": "bend",
+      "stage": "prefilter",
+      "uptime": "16:56:29 up  6:25,  1 user,  load average: 2.74, 7.08, 6.81",
+      "wall_seconds": 3.48,
+      "max_rss_kib": 206428,
+      "command": [
+        "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/44b2ce82ed9139142844/prefilter",
+        "-i",
+        "/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+        "-o",
+        "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/benchmark/20261123T165610.596963/stratified1000-t1-bend/fltr.txt",
+        "+RTS",
+        "--threads",
+        "1",
+        "-RTS"
+      ],
+      "status": "ok"
+    },
+    {
+      "dataset": "stratified1000",
+      "threads": 1,
+      "tool": "bend",
+      "stage": "align",
+      "uptime": "16:56:33 up  6:25,  1 user,  load average: 2.92, 7.05, 6.80",
+      "wall_seconds": 22.68,
+      "max_rss_kib": 88932,
+      "command": [
+        "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/44b2ce82ed9139142844/align",
+        "-i",
+        "/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+        "-o",
+        "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/benchmark/20261123T165610.596963/stratified1000-t1-bend/ani.tsv",
+        "--filter",
+        "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/benchmark/20261123T165610.596963/stratified1000-t1-bend/fltr.txt",
+        "+RTS",
+        "--threads",
+        "1",
+        "-RTS"
+      ],
+      "status": "ok"
+    },
+    {
+      "dataset": "stratified1000",
+      "threads": 1,
+      "tool": "bend",
+      "stage": "cluster",
+      "uptime": "16:56:55 up  6:26,  1 user,  load average: 2.96, 6.79, 6.72",
+      "wall_seconds": 0.03,
+      "max_rss_kib": 14528,
+      "command": [
+        "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/44b2ce82ed9139142844/cluster",
+        "-i",
+        "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/benchmark/20261123T165610.596963/stratified1000-t1-bend/ani.tsv",
+        "--ids",
+        "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/benchmark/20261123T165610.596963/stratified1000-t1-bend/ani.ids.tsv",
+        "-o",
+        "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/benchmark/20261123T165610.596963/stratified1000-t1-bend/clusters.tsv",
+        "--algorithm",
+        "leiden",
+        "--metric",
+        "ani",
+        "--ani",
+        "0.95",
+        "+RTS",
+        "--threads",
+        "1",
+        "-RTS"
+      ],
+      "status": "ok"
+    }
+  ],
+  "comparisons": [
+    {
+      "dataset": "stratified1000",
+      "threads": 1,
+      "files": {
+        "fltr.txt": {
+          "identical": true,
+          "reference_sha256": "7f3db0d677fab7f87e283f01e1857d3112e3a1d9cfde8ada91e5021f154bc0c2",
+          "bend_sha256": "7f3db0d677fab7f87e283f01e1857d3112e3a1d9cfde8ada91e5021f154bc0c2"
+        },
+        "ani.tsv": {
+          "identical": true,
+          "reference_sha256": "17310b69c329a16f3208d78613f7587dd233d16fb6fa93a4c898997a1db73635",
+          "bend_sha256": "17310b69c329a16f3208d78613f7587dd233d16fb6fa93a4c898997a1db73635"
+        },
+        "ani.ids.tsv": {
+          "identical": true,
+          "reference_sha256": "3c89a35c12d1730016575c6d6443d6dfa5c64ea4ce750a3eb14d59511cc0937a",
+          "bend_sha256": "3c89a35c12d1730016575c6d6443d6dfa5c64ea4ce750a3eb14d59511cc0937a"
+        },
+        "clusters.tsv": {
+          "identical": true,
+          "reference_sha256": "8f4640a42edcc9d6a7b10f3c8cb65fd5f1ae77395763d9902686dafc52e43ae2",
+          "bend_sha256": "8f4640a42edcc9d6a7b10f3c8cb65fd5f1ae77395763d9902686dafc52e43ae2"
+        }
+      }
+    }
+  ],
+  "execution_boundary": {
+    "vclust": "Official Python CLI, including its native child",
+    "bend": "Native executables; excludes run.py and external Python semantic verifier; includes native partition/clique guards"
+  }
+}

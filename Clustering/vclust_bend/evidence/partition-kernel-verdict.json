@@ -1,0 +1,11 @@
+{
+  "recorded_at": "2026-11-23T16:10:24.855980+01:00",
+  "source": "partition_certificate.bend",
+  "sha256": "0b92a3ea3b55d722091033e854cbc8e6f52fca135b82c6a48b3e559a2195f325",
+  "compiler": "6b806192284fc9c64404d9b0b59c937f568d87ec",
+  "lean": "4.34.0",
+  "command": "PATH=/home/veritas/.local/opt/lean-4.34.0/bin:$PATH bend partition_certificate.bend --verdict",
+  "exit_code": 0,
+  "stdout": "ALL PROOFS CHECK\n",
+  "scope": "Certificate soundness and structural partition length; bounded labels in Partition. Does not prove biological identity or every algorithm semantic contract."
+}

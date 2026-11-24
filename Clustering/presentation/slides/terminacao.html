@@ -1,0 +1,17 @@
+<section id="terminacao">
+<div class="head">
+<p class="eyebrow">Bend · 4 de 5</p>
+<h2>Terminação verificada</h2>
+</div>
+<div class="row" style="gap:40px">
+<p class="code" style="width:1210px; box-sizing:border-box"><span class="kw">def</span> file_parse(fuel, file, stream, alphabet):<br>&#160;&#160;<span class="kw">match</span> fuel:<br>&#160;&#160;&#160;&#160;<span class="kw">case</span> Zero{}:<br>&#160;&#160;&#160;&#160;&#160;&#160;stream_close_error(file, <span class="st">"input exceeds 256 MiB"</span>)<br>&#160;&#160;&#160;&#160;<span class="kw">case</span> Succ{rest}:<br>&#160;&#160;&#160;&#160;&#160;&#160;<span class="kw">do</span> IO&lt;Result&lt;String, Dataset&gt;&gt;:<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;read: File &amp; Result&lt;(U32 &amp; String), String&gt; &lt;- File.read(file, 65536)<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;file_parse_read(read, stream, alphabet,<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;handle =&gt; next =&gt; file_parse(rest, handle, next, alphabet))</p>
+<div class="col grow" style="gap:24px">
+<p class="txt">Recursão só sobre partes menores, obtidas por match. Recursão mútua não existe.</p>
+<p class="txt">Laços ligados ao mundo externo contam um Nat de combustível. Aqui, ele também é o limite de 256 MiB.</p>
+<p class="txt">Um def @unsafe escapa da checagem, mas a verificação passa a imprimir SOME PROOFS FAIL.</p>
+</div>
+</div>
+<div style="flex:1"></div>
+<p class="txt" style="width:1500px"><span class="lbl-k">Por que importa.</span> Uma função que nunca retorna poderia provar qualquer coisa; exigir terminação mantém as provas sólidas.</p>
+<p class="foot">Fontes: lib/common.bend (file_parse), bend guide (Recursion and Termination)</p>
+</section>

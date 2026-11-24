@@ -1,0 +1,30 @@
+<section id="sketches">
+<div class="head">
+<p class="eyebrow">Leitura das sequências</p>
+<h2>Assinaturas, MinHash e índice invertido</h2>
+</div>
+<p class="lead" style="width:1400px">Calculados uma vez por registro, no momento do empacotamento, para descartar pares antes de qualquer alinhamento.</p>
+<div class="row" style="align-items:stretch">
+<div class="card grow">
+<p class="label">Conservador</p>
+<h3>Assinatura de 3-mers</h3>
+<p class="txt">256 contadores: o código exato de 12 bits é dobrado em 256. Colisões só aumentam a interseção, então o filtro não rejeita um par que passaria.</p>
+<p class="use">modo exato (padrão)</p>
+</div>
+<div class="card grow">
+<p class="label">Aproximado</p>
+<h3>MinHash de 15-mers</h3>
+<p class="txt">64 bins, um valor mínimo por bin, sobre 15-mers A/C/G/T. Estima semelhança: pode admitir ou perder pares.</p>
+<p class="use">apenas com --fast</p>
+</div>
+<div class="card grow">
+<p class="label">Descoberta</p>
+<h3>Índice invertido</h3>
+<p class="txt">65.536 buckets sobre (bin, valor), no máximo 64 entradas por registro. A chave completa é conferida; só pares com uma entrada comum viram candidatos.</p>
+<p class="use">lib/vclust_index.bend</p>
+</div>
+</div>
+<div style="flex:1"></div>
+<p class="txt" style="width:1500px">O escore do <b>--fast</b> não é ANI: seus clusters são exploratórios e não equivalem ao <b>--ani 0.95</b> do Vclust. O modo exato continua sendo o padrão.</p>
+<p class="foot">Fontes: lib/packing.bend (signature, sketch), lib/vclust_index.bend, README.md</p>
+</section>

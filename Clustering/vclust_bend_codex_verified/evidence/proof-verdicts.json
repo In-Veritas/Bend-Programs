@@ -1,0 +1,39 @@
+[
+  {
+    "file": "partition_certificate.bend",
+    "sha256": "0b92a3ea3b55d722091033e854cbc8e6f52fca135b82c6a48b3e559a2195f325",
+    "command": [
+      "/home/veritas/Bioinformatique/Higher Order Company/Bend/.bend/bin/bend",
+      "/home/veritas/Bioinformatique/Higher Order Company/Bend/bend2/main.ts",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend_codex_verified/partition_certificate.bend",
+      "--verdict"
+    ],
+    "exit_code": 0,
+    "stdout": "ALL PROOFS CHECK\n",
+    "stderr": ""
+  },
+  {
+    "file": "clique_certificate.bend",
+    "sha256": "b7e183429d523413579575a32080e8b4e64bd13f2276d159456baec82ed34c93",
+    "command": [
+      "/home/veritas/Bioinformatique/Higher Order Company/Bend/.bend/bin/bend",
+      "/home/veritas/Bioinformatique/Higher Order Company/Bend/bend2/main.ts",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend_codex_verified/clique_certificate.bend",
+      "--verdict"
+    ],
+    "exit_code": 0,
+    "stdout": "ALL PROOFS CHECK\n",
+    "stderr": ""
+  },
+  {
+    "file": "proofs/Forest.lean",
+    "sha256": "26585d977fc22c842c69b9f5bcf2ad5ea9a4c106221da1fa9d56395423b2f5e7",
+    "command": [
+      "lean",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend_codex_verified/proofs/Forest.lean"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]

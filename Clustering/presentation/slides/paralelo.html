@@ -1,0 +1,23 @@
+<section id="paralelo">
+<div class="head">
+<p class="eyebrow">Bend · 2 de 5</p>
+<h2>Paralelismo fork-join por chamadas paralelas</h2>
+</div>
+<div class="row" style="gap:56px">
+<p class="code" style="width:800px; box-sizing:border-box"><span class="kw">def</span> pow2(+n: Nat) -&gt; U32:<br>&#160;&#160;<span class="kw">match</span> n:<br>&#160;&#160;&#160;&#160;<span class="kw">case</span> 0n:<br>&#160;&#160;&#160;&#160;&#160;&#160;1<br>&#160;&#160;&#160;&#160;<span class="kw">case</span> 1n+p:<br>&#160;&#160;&#160;&#160;&#160;&#160;a b = pow2(p) pow2(p) <span class="cm"># parallel call</span><br>&#160;&#160;&#160;&#160;&#160;&#160;(a + b : U32)<br><br><span class="kw">def</span> main() -&gt; IO(Unit):<br>&#160;&#160;IO.print(U32.show(pow2!(20n))) <span class="cm"># `!` runs on GPU</span></p>
+<div class="col grow" style="gap:16px; align-items:stretch">
+<p class="box-t mono" style="font-size:26px">a b = f(x) g(y)</p>
+<x-connector class="arrow-d"></x-connector>
+<div class="row" style="gap:24px">
+<p class="box grow">f(x) em uma tarefa</p>
+<p class="box grow">g(y) em outra tarefa</p>
+</div>
+<x-connector class="arrow-d"></x-connector>
+<p class="box">junção: a e b prontos</p>
+<p class="sm">As chamadas são independentes por construção (puro e afim); equilibrar a carga fica com quem programa. O agendador não migra tarefas.</p>
+</div>
+</div>
+<div style="flex:1"></div>
+<p class="txt" style="width:1500px"><span class="lbl-k">No novo pipeline.</span> pf_core.bend divide o trabalho do prefiltro e align.bend divide os pares entre tarefas. Os kernels históricos de agrupamento são seriais. JavaScript executa em sequência.</p>
+<p class="foot">Fontes: bend guide; vclust_bend_codex_verified/{pf_core,align}.bend; benchmark/README.md</p>
+</section>

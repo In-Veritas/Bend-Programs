@@ -1,0 +1,136 @@
+{
+  "recorded_date": "2026-11-23",
+  "sources": {
+    "cluster-certified-equivalence-98.json": {
+      "source": "/home/veritas/Bend-Programs/Clustering/vclust_bend_codex_verified/evidence/cluster-certified-equivalence-98.json",
+      "sha256": "389fb7ae1187ca584d126f30d98da48ed29508b718d7663fd25942dc184cfa02",
+      "cases": 98,
+      "identical": 98,
+      "groups": {
+        "example": 6,
+        "stratified1000": 6,
+        "full": 6,
+        "random-leiden": 80
+      },
+      "certificates_integrated": true,
+      "historical_source": "/home/veritas/Bend-Programs/Clustering/vclust_bend/evidence/cluster-certified-equivalence-98.json"
+    },
+    "semantic-contracts.json": {
+      "source": "/home/veritas/Bend-Programs/Clustering/vclust_bend_codex_verified/evidence/semantic-contracts.json",
+      "sha256": "3f55eb139e5790544fe9cee70d2664f1436080a8082261cda9e55e74961d7f25",
+      "cases": 18,
+      "partitions": 18,
+      "connected": 18,
+      "complete_cliques": 3,
+      "single_edge_closed": 3,
+      "object_counts": {
+        "12": 6,
+        "1000": 6,
+        "10021": 6
+      },
+      "trust_boundary": "Python I/O and finite certificate checks are not formally verified; Lean proves abstract implications.",
+      "historical_source": "/home/veritas/Bend-Programs/Clustering/vclust_bend/evidence/semantic-contracts.json"
+    },
+    "prefilter-equivalence-42.json": {
+      "source": "/home/veritas/Bend-Programs/Clustering/vclust_bend_codex_verified/evidence/prefilter-equivalence-42.json",
+      "sha256": "1da18f1a6d5253502c3bfbdd724dd7c2b0dc9d89909eca2e5f3ffa3243ddeebb",
+      "cases": 42,
+      "identical": 42,
+      "groups": {
+        "vclust_example": 11,
+        "prefix1000": 11,
+        "shortest1000": 11,
+        "stratified1000": 6,
+        "full": 3
+      },
+      "excluded_case": {
+        "k": 30,
+        "reason": "Kmer-db reference timed out after 30 s, per parent validation record"
+      },
+      "historical_source": "/home/veritas/Bend-Programs/Clustering/vclust_bend/evidence/prefilter-equivalence-42.json"
+    },
+    "align-equivalence-15.json": {
+      "source": "/home/veritas/Bend-Programs/Clustering/vclust_bend_codex_verified/evidence/align-equivalence-15.json",
+      "sha256": "497cf81d3c7a692723ef0c78129244102080f3ddfe7cd620f360f885f351e61c",
+      "cases": 15,
+      "identical_ani": 15,
+      "identical_ids": 15,
+      "groups": {
+        "example": 6,
+        "prefix1000": 6,
+        "shortest1000": 1,
+        "stratified1000": 1,
+        "full": 1
+      },
+      "workers": 12,
+      "historical_source": "/home/veritas/Bend-Programs/Clustering/vclust_bend/evidence/align-equivalence-15.json"
+    },
+    "align-single-thread-attempt.json": {
+      "source": "/home/veritas/Bend-Programs/Clustering/vclust_bend_codex_verified/evidence/align-single-thread-attempt.json",
+      "sha256": "33932ddc8dd3a6a1a670888e20133828643601f56560f5e7297a2df442342045",
+      "cases": 15,
+      "identical": 14,
+      "timeout_dataset": "full",
+      "timeout_seconds": 600,
+      "workers": 1,
+      "scope": "Timeout, not a successful full-dataset equivalence result.",
+      "historical_source": "/home/veritas/Bend-Programs/Clustering/vclust_bend/evidence/align-single-thread-attempt.json"
+    },
+    "proof-verdicts.json": {
+      "source": "/home/veritas/Bend-Programs/Clustering/vclust_bend_codex_verified/evidence/proof-verdicts.json",
+      "sha256": "af824ad777924ab3822e9d4715d3dd8d1e980b56aaf0ad659509916287d9448d",
+      "accepted": 3,
+      "files": [
+        "partition_certificate.bend",
+        "clique_certificate.bend",
+        "proofs/Forest.lean"
+      ],
+      "historical_source": "/home/veritas/Bend-Programs/Clustering/vclust_bend/evidence/proof-verdicts.json"
+    },
+    "native-guards.json": {
+      "source": "/home/veritas/Bend-Programs/Clustering/vclust_bend_codex_verified/evidence/native-guards.json",
+      "sha256": "a6bb2fbd0fbfe42873ab3d55c0b6eb10bf213bc9b5e869d0e670c63d76ec9b31",
+      "assertion_passed": true,
+      "expected_native_stdout": "True{}",
+      "historical_source": "/home/veritas/Bend-Programs/Clustering/vclust_bend/evidence/native-guards.json"
+    },
+    "certificate-negative-tests.json": {
+      "source": "/home/veritas/Bend-Programs/Clustering/vclust_bend_codex_verified/evidence/certificate-negative-tests.json",
+      "sha256": "6dbf104527c62e0ad9b6e80791f91e0079454eff6cb407e9a79219803c4fbbc7",
+      "cases": 12,
+      "matched_expectations": 12,
+      "accepted": 2,
+      "rejected": 10,
+      "historical_source": "/home/veritas/Bend-Programs/Clustering/vclust_bend/evidence/certificate-negative-tests.json"
+    },
+    "cli-integration.json": {
+      "source": "/home/veritas/Bend-Programs/Clustering/vclust_bend_codex_verified/evidence/cli-integration.json",
+      "sha256": "37634937bac2d5cd13d96a09505a75b82167137d729be8eef5560f19574e8bff",
+      "cases": 17,
+      "matched_expectations": 17,
+      "historical_source": "/home/veritas/Bend-Programs/Clustering/vclust_bend/evidence/cli-integration.json"
+    },
+    "isolated-source-verification.json": {
+      "source": "/home/veritas/Bend-Programs/Clustering/vclust_bend_codex_verified/evidence/isolated-source-verification.json",
+      "sha256": "fcb173237fc7c9fa5fed0502a624b04445290857b7eaabed12c937f8a20c077d",
+      "bend_files": 26,
+      "all_hashes_verified": true
+    }
+  },
+  "forest_theorem": {
+    "source": "/home/veritas/Bend-Programs/Clustering/vclust_bend_codex_verified/proofs/Forest.lean",
+    "sha256": "26585d977fc22c842c69b9f5bcf2ad5ea9a4c106221da1fa9d56395423b2f5e7",
+    "lean": "4.34.0",
+    "verification": "Recorded exit 0 in evidence/proof-verdicts.json; source hash verified here.",
+    "scope": "Forest implies root reachability; symmetry plus edge closure characterize connected components."
+  },
+  "align": {
+    "passed_cases": 15,
+    "includes_full_dataset": true,
+    "workers": 12,
+    "earlier_full_one_worker_attempt": "timeout after 600 s"
+  },
+  "benchmark": "1000-genome 1/12 samples complete; full timing interrupted, no total; certified launcher not measured due to external concurrency.",
+  "delivery_source": "/home/veritas/Bend-Programs/Clustering/vclust_bend_codex_verified",
+  "source_isolation": "Validated source reconstructed from original backup and Codex patch after concurrent edits in vclust_bend; presentation uses verified copy."
+}

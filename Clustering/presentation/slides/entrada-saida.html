@@ -1,0 +1,40 @@
+<section id="entrada-saida">
+<div class="head">
+<p class="eyebrow">O problema</p>
+<h2>Frontend integrado: FASTA aos clusters</h2>
+</div>
+<div class="row" style="align-items:center; gap:20px">
+<div class="box" style="width:380px">
+<p class="label">Entrada</p>
+<p class="mono" style="font-size:26px">genomas.fna</p>
+<p class="sm">FASTA ou multi-FASTA; uma pasta vira um agrupamento por arquivo</p>
+</div>
+<x-connector class="arrow"></x-connector>
+<div class="box-t grow">
+<p style="font-size:30px; font-weight:600">python3 run.py &lt;algoritmo&gt;</p>
+<p style="font-size:26px">Bend lê, normaliza, compara pares candidatos e agrupa</p>
+</div>
+<x-connector class="arrow"></x-connector>
+<div class="col" style="width:420px; gap:16px">
+<p class="file">clusters.tsv</p>
+<p class="file">representatives.fasta</p>
+</div>
+</div>
+<div style="flex:1"></div>
+<div class="row" style="gap:56px; align-items:flex-start">
+<div style="width:1000px">
+<table class="tbl">
+<tr class="tbl-h"><th style="width:20%">record_index</th><th style="width:38%">cluster_representative</th><th style="width:14%">length</th><th>header</th></tr>
+<tr><td>0</td><td>0</td><td>4</td><td>a first</td></tr>
+<tr><td>1</td><td>0</td><td>4</td><td>b bridge</td></tr>
+<tr><td>2</td><td>0</td><td>4</td><td>c last</td></tr>
+<tr><td>3</td><td>3</td><td>4</td><td>d separate</td></tr>
+</table>
+</div>
+<div class="col grow" style="gap:20px">
+<p class="txt">Cada registro aparece uma vez, na ordem de entrada, com índice a partir de zero.</p>
+<p class="txt">O representante é um registro real da entrada, não uma sequência consenso.</p>
+</div>
+</div>
+<p class="foot">Frontend Clustering/run.py · chain.fasta com --identity 0.75 · pipeline compatível com Vclust a partir do slide 32</p>
+</section>

@@ -1,0 +1,138 @@
+{
+  "snapshot_at": "2026-11-23T17:17:42.282624+01:00",
+  "delivery_source": "/home/veritas/Bend-Programs/Clustering/vclust_bend_codex_verified",
+  "sources": [
+    {
+      "path": "/home/veritas/Bend-Programs/Clustering/vclust_bend_codex_verified/evidence/benchmark-stratified1000-t1.json",
+      "sha256": "a9da8b3ebd4d3046cd43f6c68c65d5d3a991700867191ed6e5ca6c5923f1f96e",
+      "dataset_selected": "stratified1000",
+      "workers": 1,
+      "selected_dataset_status": "complete",
+      "file_status": "complete"
+    },
+    {
+      "path": "/home/veritas/Bend-Programs/Clustering/vclust_bend_codex_verified/evidence/benchmark-stratified1000-full-t12.json",
+      "sha256": "643d8d1460dd79a265446843db987cd1e993300f2a5ecdcd89a43d1a95e29753",
+      "dataset_selected": "stratified1000",
+      "workers": 12,
+      "selected_dataset_status": "complete",
+      "file_status": "interrupted"
+    }
+  ],
+  "runs": [
+    {
+      "dataset": "stratified1000",
+      "threads": 1,
+      "tool": "vclust",
+      "stage": "prefilter",
+      "wall_seconds": 8.01,
+      "max_rss_kib": 493784
+    },
+    {
+      "dataset": "stratified1000",
+      "threads": 1,
+      "tool": "vclust",
+      "stage": "align",
+      "wall_seconds": 10.76,
+      "max_rss_kib": 94760
+    },
+    {
+      "dataset": "stratified1000",
+      "threads": 1,
+      "tool": "vclust",
+      "stage": "cluster",
+      "wall_seconds": 0.24,
+      "max_rss_kib": 135096
+    },
+    {
+      "dataset": "stratified1000",
+      "threads": 1,
+      "tool": "bend",
+      "stage": "prefilter",
+      "wall_seconds": 3.48,
+      "max_rss_kib": 206428
+    },
+    {
+      "dataset": "stratified1000",
+      "threads": 1,
+      "tool": "bend",
+      "stage": "align",
+      "wall_seconds": 22.68,
+      "max_rss_kib": 88932
+    },
+    {
+      "dataset": "stratified1000",
+      "threads": 1,
+      "tool": "bend",
+      "stage": "cluster",
+      "wall_seconds": 0.03,
+      "max_rss_kib": 14528
+    },
+    {
+      "dataset": "stratified1000",
+      "threads": 12,
+      "tool": "vclust",
+      "stage": "prefilter",
+      "wall_seconds": 8.04,
+      "max_rss_kib": 508812
+    },
+    {
+      "dataset": "stratified1000",
+      "threads": 12,
+      "tool": "vclust",
+      "stage": "align",
+      "wall_seconds": 4.45,
+      "max_rss_kib": 425296
+    },
+    {
+      "dataset": "stratified1000",
+      "threads": 12,
+      "tool": "vclust",
+      "stage": "cluster",
+      "wall_seconds": 0.2,
+      "max_rss_kib": 135096
+    },
+    {
+      "dataset": "stratified1000",
+      "threads": 12,
+      "tool": "bend",
+      "stage": "prefilter",
+      "wall_seconds": 1.4,
+      "max_rss_kib": 314828
+    },
+    {
+      "dataset": "stratified1000",
+      "threads": 12,
+      "tool": "bend",
+      "stage": "align",
+      "wall_seconds": 7.94,
+      "max_rss_kib": 272280
+    },
+    {
+      "dataset": "stratified1000",
+      "threads": 12,
+      "tool": "bend",
+      "stage": "cluster",
+      "wall_seconds": 0.03,
+      "max_rss_kib": 14744
+    }
+  ],
+  "identical_files_by_configuration": {
+    "1": 4,
+    "12": 4
+  },
+  "totals": {
+    "1": {
+      "vclust": 19.01,
+      "bend": 26.19
+    },
+    "12": {
+      "vclust": 12.69,
+      "bend": 9.37
+    }
+  },
+  "scope": "Vclust official Python CLI versus Bend native executables. Build, run.py and external Python checker excluded; native guards included. One fixed-order sample, page cache not flushed.",
+  "full_timing_status": "interrupted; no complete performance comparison or total",
+  "launcher_timing_status": "not measured in this delivery because external concurrency remains",
+  "full_interruption": "Runner exited by SIGTERM; native align survived. Other active Claude sessions/processes and edits discovered at 17:09 CET. Own native align stopped to avoid contention. Do not report full pipeline timing as complete."
+}

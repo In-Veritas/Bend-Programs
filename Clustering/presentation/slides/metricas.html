@@ -1,0 +1,21 @@
+<section id="metricas">
+<div class="head">
+<p class="eyebrow">Vclust · estágio 2</p>
+<h2>Métricas: ANI, gANI, tANI e cobertura</h2>
+</div>
+<table class="tbl-s">
+<tr class="tbl-h"><th style="width:14%">Métrica</th><th style="width:66%">Definição</th><th>Filtro no cluster</th></tr>
+<tr><td>ANI</td><td>nucleotídeos idênticos nos alinhamentos locais ÷ comprimento total desses alinhamentos</td><td>--ani</td></tr>
+<tr><td>gANI</td><td>nucleotídeos idênticos ÷ comprimento do genoma de consulta (ou de referência)</td><td>--gani</td></tr>
+<tr><td>tANI</td><td>(idênticos consulta→referência + referência→consulta) ÷ soma dos dois comprimentos; mesma definição de similaridade intergenômica usada pelo VIRIDIC</td><td>--tani (métrica padrão)</td></tr>
+<tr><td>Cobertura</td><td>fração da consulta ou da referência coberta por alinhamentos</td><td>--qcov, --rcov</td></tr>
+<tr><td>num_alns</td><td>número de alinhamentos locais entre os dois genomas</td><td>--num_alns (máximo)</td></tr>
+<tr><td>len_ratio</td><td>comprimento do menor ÷ comprimento do maior</td><td>--len_ratio</td></tr>
+</table>
+<div style="flex:1"></div>
+<div class="col" style="gap:12px">
+<p class="label">Cabeçalhos de ani.tsv (complete) e ani.ids.tsv</p>
+<p class="code">qidx ridx query reference tani gani ani qcov rcov num_alns len_ratio qlen rlen nt_match nt_mismatch<br>id seq_len no_parts</p>
+</div>
+<p class="foot">Fontes: README do Vclust (Multiple similarity measures), vclust cluster -h, datasets/infant_gut_virome/results</p>
+</section>

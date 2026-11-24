@@ -1,0 +1,38 @@
+<section id="problema">
+<div class="head">
+<p class="eyebrow">O problema</p>
+<h2>Por que agrupar genomas virais</h2>
+</div>
+<div class="row">
+<div class="card grow">
+<h3>vOTUs</h3>
+<p class="txt">Contigs agrupados por similaridade formam unidades operacionais para contar e comparar vírus entre amostras.</p>
+</div>
+<div class="card grow">
+<h3>Dereplicação</h3>
+<p class="txt">Conjuntos redundantes são reduzidos a genomas representantes antes de anotação, mapeamento ou bancos de referência.</p>
+</div>
+<div class="card grow">
+<h3>Taxonomia</h3>
+<p class="txt">A similaridade entre genomas apoia hipóteses de espécies e gêneros, conforme os critérios do grupo viral.</p>
+</div>
+</div>
+<div style="flex:1"></div>
+<div class="row" style="align-items:stretch">
+<div class="card" style="width:330px; gap:10px">
+<p class="label">ANI</p>
+<p class="big">≥ 95%</p>
+<p class="sm">identidade nas regiões alinhadas</p>
+</div>
+<div class="card" style="width:330px; gap:10px">
+<p class="label">Cobertura</p>
+<p class="big">≥ 85%</p>
+<p class="sm">fração do genoma alinhada</p>
+</div>
+<div class="col grow" style="gap:14px; justify-content:center">
+<p class="sm">Convenção MIUViG para vOTUs, como no caso de uso 6.2 do Vclust:</p>
+<p class="code">vclust cluster -i ani.tsv -o clusters.tsv \<br>&#160;&#160;--ids ani.ids.tsv --algorithm leiden \<br>&#160;&#160;--metric ani --ani 0.95 --qcov 0.85</p>
+</div>
+</div>
+<p class="foot">Fontes: README e wiki do Vclust (refresh-bio/vclust)</p>
+</section>

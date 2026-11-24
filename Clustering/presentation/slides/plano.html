@@ -1,0 +1,31 @@
+<section id="plano">
+<div class="head">
+<p class="eyebrow">Vclust em Bend · benchmarks</p>
+<h2>Como a comparação foi medida</h2>
+</div>
+<div class="row" style="align-items:stretch">
+<div class="card grow">
+<p class="label">Referência histórica</p>
+<h3>Kernel no grafo comum</h3>
+<p class="txt">Bend, C11 e Clusty recebem o mesmo ani.tsv e ani.ids.tsv, a mesma métrica e o mesmo limiar. As partições normalizadas são comparadas antes de aceitar qualquer tempo.</p>
+</div>
+<div class="card grow">
+<p class="label">Medição atual</p>
+<h3>Pipeline estágio por estágio</h3>
+<p class="txt">Quatro arquivos são comparados byte a byte: fltr.txt, ani.tsv, ani.ids.tsv e clusters.tsv. Vclust usa seu CLI Python oficial; Bend usa executáveis nativos.</p>
+</div>
+</div>
+<div style="flex:1"></div>
+<div class="row" style="gap:48px">
+<div class="col grow" style="gap:12px">
+<p class="label">Limites da medição atual</p>
+<p class="txt">Uma execução, sempre Vclust antes de Bend, sem limpar o cache. Build, run.py e checker Python ficam fora do tempo Bend; guardas nativas ficam dentro. No cluster, a diferença inclui a inicialização Python do Vclust. O launcher certificado ainda não foi medido.</p>
+</div>
+<div class="col" style="width:640px; gap:12px">
+<p class="label">Conjuntos</p>
+<p class="txt"><b>earlyvir_stratified1000</b>: 1.000 genomas, 25 MB</p>
+<p class="txt"><b>EarlyVir completo</b>: 10.021 genomas, 255 MB</p>
+</div>
+</div>
+<p class="foot">Tempo de parede e pico de RSS por estágio · cluster Leiden, ANI ≥ 0,95 · Clusty não expõe --threads · launcher fora desses tempos</p>
+</section>

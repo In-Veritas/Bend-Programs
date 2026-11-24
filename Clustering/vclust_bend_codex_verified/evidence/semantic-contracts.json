@@ -1,0 +1,344 @@
+[
+  {
+    "dataset": "example",
+    "algorithm": "single",
+    "objects": 12,
+    "clusters": 5,
+    "metric": "ani",
+    "thresholds": {
+      "ani": 0.95
+    },
+    "edges": 10,
+    "partition": true,
+    "connected": true,
+    "clique": false,
+    "edge_closed": true,
+    "input_sha256": "cb13eeca2af4f2cbe8ac7d730bb777fcb13c83239268a9afbe42bfb31ac6757c",
+    "ids_sha256": "f5bee78cccf3596e948e094eb30d21ca1a64c38583934b92bcf3d511a1f6549d",
+    "output_sha256": "d2d9006ff218671bcf13095e7e52d54f0e92ef6c73785205fa39e6d1d8bfd643",
+    "trust_boundary": "Python I/O and finite certificate checks; Forest.lean proves the abstract implication."
+  },
+  {
+    "dataset": "example",
+    "algorithm": "complete",
+    "objects": 12,
+    "clusters": 6,
+    "metric": "ani",
+    "thresholds": {
+      "ani": 0.95
+    },
+    "edges": 10,
+    "partition": true,
+    "connected": true,
+    "clique": true,
+    "edge_closed": false,
+    "input_sha256": "cb13eeca2af4f2cbe8ac7d730bb777fcb13c83239268a9afbe42bfb31ac6757c",
+    "ids_sha256": "f5bee78cccf3596e948e094eb30d21ca1a64c38583934b92bcf3d511a1f6549d",
+    "output_sha256": "2a0d351bfa649d18b65ce10c731e7705705f996d4480a4bcb836dfbb40648db5",
+    "trust_boundary": "Python I/O and finite certificate checks; Forest.lean proves the abstract implication."
+  },
+  {
+    "dataset": "example",
+    "algorithm": "uclust",
+    "objects": 12,
+    "clusters": 6,
+    "metric": "ani",
+    "thresholds": {
+      "ani": 0.95
+    },
+    "edges": 10,
+    "partition": true,
+    "connected": true,
+    "clique": false,
+    "edge_closed": false,
+    "input_sha256": "cb13eeca2af4f2cbe8ac7d730bb777fcb13c83239268a9afbe42bfb31ac6757c",
+    "ids_sha256": "f5bee78cccf3596e948e094eb30d21ca1a64c38583934b92bcf3d511a1f6549d",
+    "output_sha256": "9e13b91c3adf482cb6e938472c894754c92246b5ec09c7addd67e124bb3ff830",
+    "trust_boundary": "Python I/O and finite certificate checks; Forest.lean proves the abstract implication."
+  },
+  {
+    "dataset": "example",
+    "algorithm": "cd-hit",
+    "objects": 12,
+    "clusters": 6,
+    "metric": "ani",
+    "thresholds": {
+      "ani": 0.95
+    },
+    "edges": 10,
+    "partition": true,
+    "connected": true,
+    "clique": false,
+    "edge_closed": false,
+    "input_sha256": "cb13eeca2af4f2cbe8ac7d730bb777fcb13c83239268a9afbe42bfb31ac6757c",
+    "ids_sha256": "f5bee78cccf3596e948e094eb30d21ca1a64c38583934b92bcf3d511a1f6549d",
+    "output_sha256": "9e13b91c3adf482cb6e938472c894754c92246b5ec09c7addd67e124bb3ff830",
+    "trust_boundary": "Python I/O and finite certificate checks; Forest.lean proves the abstract implication."
+  },
+  {
+    "dataset": "example",
+    "algorithm": "set-cover",
+    "objects": 12,
+    "clusters": 5,
+    "metric": "ani",
+    "thresholds": {
+      "ani": 0.95
+    },
+    "edges": 10,
+    "partition": true,
+    "connected": true,
+    "clique": false,
+    "edge_closed": false,
+    "input_sha256": "cb13eeca2af4f2cbe8ac7d730bb777fcb13c83239268a9afbe42bfb31ac6757c",
+    "ids_sha256": "f5bee78cccf3596e948e094eb30d21ca1a64c38583934b92bcf3d511a1f6549d",
+    "output_sha256": "d2d9006ff218671bcf13095e7e52d54f0e92ef6c73785205fa39e6d1d8bfd643",
+    "trust_boundary": "Python I/O and finite certificate checks; Forest.lean proves the abstract implication."
+  },
+  {
+    "dataset": "example",
+    "algorithm": "leiden",
+    "objects": 12,
+    "clusters": 5,
+    "metric": "ani",
+    "thresholds": {
+      "ani": 0.95
+    },
+    "edges": 10,
+    "partition": true,
+    "connected": true,
+    "clique": false,
+    "edge_closed": false,
+    "input_sha256": "cb13eeca2af4f2cbe8ac7d730bb777fcb13c83239268a9afbe42bfb31ac6757c",
+    "ids_sha256": "f5bee78cccf3596e948e094eb30d21ca1a64c38583934b92bcf3d511a1f6549d",
+    "output_sha256": "d2d9006ff218671bcf13095e7e52d54f0e92ef6c73785205fa39e6d1d8bfd643",
+    "trust_boundary": "Python I/O and finite certificate checks; Forest.lean proves the abstract implication."
+  },
+  {
+    "dataset": "stratified1000",
+    "algorithm": "single",
+    "objects": 1000,
+    "clusters": 924,
+    "metric": "ani",
+    "thresholds": {
+      "ani": 0.95
+    },
+    "edges": 91,
+    "partition": true,
+    "connected": true,
+    "clique": false,
+    "edge_closed": true,
+    "input_sha256": "17310b69c329a16f3208d78613f7587dd233d16fb6fa93a4c898997a1db73635",
+    "ids_sha256": "3c89a35c12d1730016575c6d6443d6dfa5c64ea4ce750a3eb14d59511cc0937a",
+    "output_sha256": "8f4640a42edcc9d6a7b10f3c8cb65fd5f1ae77395763d9902686dafc52e43ae2",
+    "trust_boundary": "Python I/O and finite certificate checks; Forest.lean proves the abstract implication."
+  },
+  {
+    "dataset": "stratified1000",
+    "algorithm": "complete",
+    "objects": 1000,
+    "clusters": 930,
+    "metric": "ani",
+    "thresholds": {
+      "ani": 0.95
+    },
+    "edges": 91,
+    "partition": true,
+    "connected": true,
+    "clique": true,
+    "edge_closed": false,
+    "input_sha256": "17310b69c329a16f3208d78613f7587dd233d16fb6fa93a4c898997a1db73635",
+    "ids_sha256": "3c89a35c12d1730016575c6d6443d6dfa5c64ea4ce750a3eb14d59511cc0937a",
+    "output_sha256": "fa6bd9398c23e6e262938af4cfc15ea152b3e4eeba0cca2c6100471ed303b0cb",
+    "trust_boundary": "Python I/O and finite certificate checks; Forest.lean proves the abstract implication."
+  },
+  {
+    "dataset": "stratified1000",
+    "algorithm": "uclust",
+    "objects": 1000,
+    "clusters": 927,
+    "metric": "ani",
+    "thresholds": {
+      "ani": 0.95
+    },
+    "edges": 91,
+    "partition": true,
+    "connected": true,
+    "clique": false,
+    "edge_closed": false,
+    "input_sha256": "17310b69c329a16f3208d78613f7587dd233d16fb6fa93a4c898997a1db73635",
+    "ids_sha256": "3c89a35c12d1730016575c6d6443d6dfa5c64ea4ce750a3eb14d59511cc0937a",
+    "output_sha256": "94dfd252d6023e952c4a39d802caa900aa8415b519cdbe2fe45d4817d954d7cd",
+    "trust_boundary": "Python I/O and finite certificate checks; Forest.lean proves the abstract implication."
+  },
+  {
+    "dataset": "stratified1000",
+    "algorithm": "cd-hit",
+    "objects": 1000,
+    "clusters": 927,
+    "metric": "ani",
+    "thresholds": {
+      "ani": 0.95
+    },
+    "edges": 91,
+    "partition": true,
+    "connected": true,
+    "clique": false,
+    "edge_closed": false,
+    "input_sha256": "17310b69c329a16f3208d78613f7587dd233d16fb6fa93a4c898997a1db73635",
+    "ids_sha256": "3c89a35c12d1730016575c6d6443d6dfa5c64ea4ce750a3eb14d59511cc0937a",
+    "output_sha256": "5629a1d8d0a9e56a72609a144c7bbbc770221a11ded88767826e57dabb2176ad",
+    "trust_boundary": "Python I/O and finite certificate checks; Forest.lean proves the abstract implication."
+  },
+  {
+    "dataset": "stratified1000",
+    "algorithm": "set-cover",
+    "objects": 1000,
+    "clusters": 924,
+    "metric": "ani",
+    "thresholds": {
+      "ani": 0.95
+    },
+    "edges": 91,
+    "partition": true,
+    "connected": true,
+    "clique": false,
+    "edge_closed": false,
+    "input_sha256": "17310b69c329a16f3208d78613f7587dd233d16fb6fa93a4c898997a1db73635",
+    "ids_sha256": "3c89a35c12d1730016575c6d6443d6dfa5c64ea4ce750a3eb14d59511cc0937a",
+    "output_sha256": "8f4640a42edcc9d6a7b10f3c8cb65fd5f1ae77395763d9902686dafc52e43ae2",
+    "trust_boundary": "Python I/O and finite certificate checks; Forest.lean proves the abstract implication."
+  },
+  {
+    "dataset": "stratified1000",
+    "algorithm": "leiden",
+    "objects": 1000,
+    "clusters": 924,
+    "metric": "ani",
+    "thresholds": {
+      "ani": 0.95
+    },
+    "edges": 91,
+    "partition": true,
+    "connected": true,
+    "clique": false,
+    "edge_closed": false,
+    "input_sha256": "17310b69c329a16f3208d78613f7587dd233d16fb6fa93a4c898997a1db73635",
+    "ids_sha256": "3c89a35c12d1730016575c6d6443d6dfa5c64ea4ce750a3eb14d59511cc0937a",
+    "output_sha256": "8f4640a42edcc9d6a7b10f3c8cb65fd5f1ae77395763d9902686dafc52e43ae2",
+    "trust_boundary": "Python I/O and finite certificate checks; Forest.lean proves the abstract implication."
+  },
+  {
+    "dataset": "full",
+    "algorithm": "single",
+    "objects": 10021,
+    "clusters": 6373,
+    "metric": "ani",
+    "thresholds": {
+      "ani": 0.95
+    },
+    "edges": 10700,
+    "partition": true,
+    "connected": true,
+    "clique": false,
+    "edge_closed": true,
+    "input_sha256": "35849d7696e6f5ffb45f863d4a39412dfb3d4fef9a9b9df011f6ba21d25e9639",
+    "ids_sha256": "f3e99322941d104dfd6ca07146e5a6d588dec6d90cc5cda2c0d49c4cab7b28e2",
+    "output_sha256": "9c3c0ea58231c4ee3a220edb67d521883bf34f5a818916b077f9e35ad409e0da",
+    "trust_boundary": "Python I/O and finite certificate checks; Forest.lean proves the abstract implication."
+  },
+  {
+    "dataset": "full",
+    "algorithm": "complete",
+    "objects": 10021,
+    "clusters": 7181,
+    "metric": "ani",
+    "thresholds": {
+      "ani": 0.95
+    },
+    "edges": 10700,
+    "partition": true,
+    "connected": true,
+    "clique": true,
+    "edge_closed": false,
+    "input_sha256": "35849d7696e6f5ffb45f863d4a39412dfb3d4fef9a9b9df011f6ba21d25e9639",
+    "ids_sha256": "f3e99322941d104dfd6ca07146e5a6d588dec6d90cc5cda2c0d49c4cab7b28e2",
+    "output_sha256": "a319028f8c269eaee7d5953ced28e7923a04ad8c5ce6d9a26967601aa737a8f4",
+    "trust_boundary": "Python I/O and finite certificate checks; Forest.lean proves the abstract implication."
+  },
+  {
+    "dataset": "full",
+    "algorithm": "uclust",
+    "objects": 10021,
+    "clusters": 6890,
+    "metric": "ani",
+    "thresholds": {
+      "ani": 0.95
+    },
+    "edges": 10700,
+    "partition": true,
+    "connected": true,
+    "clique": false,
+    "edge_closed": false,
+    "input_sha256": "35849d7696e6f5ffb45f863d4a39412dfb3d4fef9a9b9df011f6ba21d25e9639",
+    "ids_sha256": "f3e99322941d104dfd6ca07146e5a6d588dec6d90cc5cda2c0d49c4cab7b28e2",
+    "output_sha256": "8ba452929e71d94720d8ee920ce0163c8f946eb2d8f1c259df74930088243c3f",
+    "trust_boundary": "Python I/O and finite certificate checks; Forest.lean proves the abstract implication."
+  },
+  {
+    "dataset": "full",
+    "algorithm": "cd-hit",
+    "objects": 10021,
+    "clusters": 6890,
+    "metric": "ani",
+    "thresholds": {
+      "ani": 0.95
+    },
+    "edges": 10700,
+    "partition": true,
+    "connected": true,
+    "clique": false,
+    "edge_closed": false,
+    "input_sha256": "35849d7696e6f5ffb45f863d4a39412dfb3d4fef9a9b9df011f6ba21d25e9639",
+    "ids_sha256": "f3e99322941d104dfd6ca07146e5a6d588dec6d90cc5cda2c0d49c4cab7b28e2",
+    "output_sha256": "0e5304772ec46a9597c625d48089c9c2f9d7eb7bff15c55a2dc6b3152f581133",
+    "trust_boundary": "Python I/O and finite certificate checks; Forest.lean proves the abstract implication."
+  },
+  {
+    "dataset": "full",
+    "algorithm": "set-cover",
+    "objects": 10021,
+    "clusters": 6618,
+    "metric": "ani",
+    "thresholds": {
+      "ani": 0.95
+    },
+    "edges": 10700,
+    "partition": true,
+    "connected": true,
+    "clique": false,
+    "edge_closed": false,
+    "input_sha256": "35849d7696e6f5ffb45f863d4a39412dfb3d4fef9a9b9df011f6ba21d25e9639",
+    "ids_sha256": "f3e99322941d104dfd6ca07146e5a6d588dec6d90cc5cda2c0d49c4cab7b28e2",
+    "output_sha256": "2a39ca3d901a7ed762d29e644d3ceff8632dd2173931d2b098777418a9a933d3",
+    "trust_boundary": "Python I/O and finite certificate checks; Forest.lean proves the abstract implication."
+  },
+  {
+    "dataset": "full",
+    "algorithm": "leiden",
+    "objects": 10021,
+    "clusters": 6766,
+    "metric": "ani",
+    "thresholds": {
+      "ani": 0.95
+    },
+    "edges": 10700,
+    "partition": true,
+    "connected": true,
+    "clique": false,
+    "edge_closed": false,
+    "input_sha256": "35849d7696e6f5ffb45f863d4a39412dfb3d4fef9a9b9df011f6ba21d25e9639",
+    "ids_sha256": "f3e99322941d104dfd6ca07146e5a6d588dec6d90cc5cda2c0d49c4cab7b28e2",
+    "output_sha256": "fb8d8e8989141d1846d5c976c4ba8f9cfbdf1868b12565997c000b530bb157d8",
+    "trust_boundary": "Python I/O and finite certificate checks; Forest.lean proves the abstract implication."
+  }
+]

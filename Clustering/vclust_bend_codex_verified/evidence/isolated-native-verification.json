@@ -1,0 +1,17 @@
+[
+  {
+    "stage": "prefilter",
+    "sha256": "5bbf14dc76f200f99007dbf0b54b3daa02172e9182729131d26412a812c56a9c",
+    "matches_validated_binary": true
+  },
+  {
+    "stage": "align",
+    "sha256": "78bbf13617f10a3019dd85027d646ae4069f1a515c2c5b8ee7ab132fd76a76d5",
+    "matches_validated_binary": true
+  },
+  {
+    "stage": "cluster",
+    "sha256": "68f1da1cfbcb99fe44de251f3b38bb813252c94569dac14457050c9963d40acb",
+    "matches_validated_binary": true
+  }
+]

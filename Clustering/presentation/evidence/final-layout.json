@@ -1,0 +1,168 @@
+{
+  "errors": [],
+  "network": [],
+  "navigation": "passed",
+  "responsive": {
+    "viewport": [
+      1280,
+      720
+    ],
+    "slide": [
+      42.65625,
+      0,
+      1194.666748046875,
+      672
+    ],
+    "inside": true
+  },
+  "reports": [
+    {
+      "id": "cover",
+      "overflow": []
+    },
+    {
+      "id": "problema",
+      "overflow": []
+    },
+    {
+      "id": "entrada-saida",
+      "overflow": []
+    },
+    {
+      "id": "fasta",
+      "overflow": []
+    },
+    {
+      "id": "empacotamento",
+      "overflow": []
+    },
+    {
+      "id": "streaming",
+      "overflow": []
+    },
+    {
+      "id": "kmers",
+      "overflow": []
+    },
+    {
+      "id": "sketches",
+      "overflow": []
+    },
+    {
+      "id": "grafo",
+      "overflow": []
+    },
+    {
+      "id": "single",
+      "overflow": []
+    },
+    {
+      "id": "complete",
+      "overflow": []
+    },
+    {
+      "id": "uclust",
+      "overflow": []
+    },
+    {
+      "id": "cdhit",
+      "overflow": []
+    },
+    {
+      "id": "setcover",
+      "overflow": []
+    },
+    {
+      "id": "leiden",
+      "overflow": []
+    },
+    {
+      "id": "comparacao",
+      "overflow": []
+    },
+    {
+      "id": "afim",
+      "overflow": []
+    },
+    {
+      "id": "paralelo",
+      "overflow": []
+    },
+    {
+      "id": "alvos",
+      "overflow": []
+    },
+    {
+      "id": "terminacao",
+      "overflow": []
+    },
+    {
+      "id": "provas",
+      "overflow": []
+    },
+    {
+      "id": "omissao",
+      "overflow": []
+    },
+    {
+      "id": "kmerscore",
+      "overflow": []
+    },
+    {
+      "id": "funil",
+      "overflow": []
+    },
+    {
+      "id": "fronteira",
+      "overflow": []
+    },
+    {
+      "id": "vclust",
+      "overflow": []
+    },
+    {
+      "id": "prefilter",
+      "overflow": []
+    },
+    {
+      "id": "align",
+      "overflow": []
+    },
+    {
+      "id": "metricas",
+      "overflow": []
+    },
+    {
+      "id": "cluster",
+      "overflow": []
+    },
+    {
+      "id": "mapa",
+      "overflow": []
+    },
+    {
+      "id": "pipeline-novo",
+      "overflow": []
+    },
+    {
+      "id": "plano",
+      "overflow": []
+    },
+    {
+      "id": "referencia",
+      "overflow": []
+    },
+    {
+      "id": "kernel",
+      "overflow": []
+    },
+    {
+      "id": "resultados",
+      "overflow": []
+    },
+    {
+      "id": "limitacoes",
+      "overflow": []
+    }
+  ]
+}

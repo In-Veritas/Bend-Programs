@@ -1,0 +1,16 @@
+<section id="mapa">
+<div class="head">
+<p class="eyebrow">Vclust em Bend</p>
+<h2>Base anterior: o frontend integrado</h2>
+</div>
+<table class="tbl-s">
+<tr class="tbl-h"><th style="width:20%">Estágio Vclust</th><th style="width:44%">Peça em Bend</th><th>Validação</th></tr>
+<tr><td>prefilter · Kmer-db 2.3.1</td><td>lib/kmer_db.bend: 25-mers canônicos únicos por amostra, chave completa de 50 bits, índice de 65.536 buckets, ani-shorter, --min-kmers e --min-ident</td><td>pares candidatos e contagens exatas de k-mers comuns idênticos ao Kmer-db 2.3.1 no fixture diferencial, em C e JS</td></tr>
+<tr><td>align · LZ-ANI 1.2.3</td><td>lib/lz_ani_indexed.bend: âncoras de 11-mers (65.536 buckets), sementes de 7-mers (16.384), escolha perto/longe, extensão aproximada nos dois sentidos, ANI, gANI e cobertura</td><td>nt_match, nt_mismatch e num_alns idênticos em 344 comparações dirigidas, em C e JS</td></tr>
+<tr><td>cluster · Clusty 1.2.2</td><td>as seis entradas (*.bend) sobre SparseGraph</td><td>cinco algoritmos com partições idênticas ao Clusty no grafo comum do EarlyVir; Leiden ainda não</td></tr>
+<tr><td>ligação</td><td>lib/lz_ani_graph.bend e run.py --lz-ani: grafo tANI esparso, só candidatos pontuados nos dois sentidos</td><td>testes de agrupamento em modo tANI; sem execução completa no EarlyVir</td></tr>
+</table>
+<div style="flex:1"></div>
+<p class="txt" style="width:1500px">Estas peças alimentam o frontend run.py --lz-ani. A versão vclust_bend_codex_verified/ tem executáveis separados, formatos compatíveis e opções adicionais, descritos a seguir.</p>
+<p class="foot">Fontes: README.md (Relationship to Vclust), VCLUST_ARCHITECTURE.md, LZ_ANI_PORT_NOTES.md</p>
+</section>

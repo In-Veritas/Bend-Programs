@@ -1,0 +1,3248 @@
+--- /dev/null
++++ codex/.gitignore
+@@ -0,0 +1,2 @@
++.work/
++__pycache__/
+--- /dev/null
++++ codex/CLAUDE_HANDOFF.md
+@@ -0,0 +1,407 @@
++# Entrega isolada do Codex — estado final
++
++A versão validada está em **Clustering/vclust_bend_codex_verified/**. O histórico
++abaixo começou na pasta original; os 26 arquivos Bend desta cópia foram
++restaurados e conferidos contra o manifesto da versão efetivamente testada.
++Evidência: `evidence/isolated-source-verification.json`.
++
++- Pré-filtro: 42/42 casos idênticos ao Vclust.
++- Alinhamento: 15/15 casos, ANI e IDs, incluindo 10.021 genomas com 12 workers.
++- Cluster: 98/98 saídas idênticas com os certificados nativos integrados.
++- Nesta cópia, provas foram reconferidas, 17 expectativas de CLI passaram e
++  os 18 certificados reais foram aprovados com hashes de ANI, IDs e output.
++- O benchmark de 1.000 genomas terminou em 1 e 12 workers. O completo foi
++  interrompido; o custo do launcher com verificação externa não foi medido.
++- Nenhum commit, push ou atualização do artifact Claude foi feito.
++
++## Concorrência e preservação
++
++Por volta de 17:09 CET, o coordenador do benchmark encerrou com SIGTERM/143,
++mas o alinhamento filho continuou. A origem do sinal não foi determinada.
++A inspeção mostrou Claude PID 153750 ativo com outros testes na mesma pasta.
++`cl_graph.bend`, `cl_leiden.bend`, `tests/test_prefilter.py` e `README.md`
++receberam alterações concorrentes. O usuário respondeu “talvez” sobre ter
++reaberto outra sessão. Não encerrei as sessões nem seus trabalhos.
++
++Parei somente meu alinhamento órfão (PID 240876) com TERM autorizado. O estado
++observado ficou em `../handoff/codex-concurrency-snapshot.tar.gz`; diferenças
++posteriores observadas ficaram em `../handoff/concurrent-vs-codex-observed.patch`
++e no JSON adjacente. Essas observações não são versões validadas.
++
++Reconstruí esta pasta usando o tar original do Claude e o patch do Codex, e
++conferi os hashes. Copiei explicitamente melhorias posteriores do Codex em
++launcher, verificadores, ferramentas e handoff. O README foi reconstruído.
++O trabalho da outra sessão continua preservado em `../vclust_bend/`.
++
++Referências, binários, saídas e logs foram preservados em `.work/` desta cópia.
++O cache validado tem chave `44b2ce82ed9139142844`. O benchmark completo está
++marcado `interrupted` e `performance_comparison_complete: false`. Os tempos
++parciais não constituem uma comparação completa. A tentativa de alinhamento
++completo/1 worker com timeout de 600 s também continua registrada separadamente.
++
++Uma primeira tentativa do script de observação usou `Path('.')` ao calcular o
++pai e falhou ao abrir o diretório original. Corrigido para `Path.cwd()`; os
++fontes e evidências não foram perdidos ou sobrescritos por essa falha.
++
++## Retomada pelo Claude
++
++Usar esta pasta para continuar a versão validada do Codex. Comparar com a pasta
++original antes de integrar as alterações concorrentes; os números pertencem
++aos hashes documentados. O README explica os contratos provados, limites,
++comandos e resultados. Para novas medidas, coordenar as sessões e executar sem
++concorrência. O benchmark completo e a medida do launcher certificado são os
++trabalhos de desempenho ainda pendentes.
++
++A apresentação em `../presentation/` identifica essa separação. O manifesto,
++patch completo e inventário SHA256 desta entrega são atualizados com
++`python3 tools/handoff_manifest.py`, excluindo `.work/` e caches Python.
++
++---
++
++## Histórico anterior ao isolamento
++
++# Vclust em Bend — registro de continuidade
++
++Atualização inicial: 2026-11-23. Leia também `../CLAUDE_HANDOFF.md`.
++
++## Objetivo herdado
++
++Implementar prefilter/Kmer-db, align/LZ-ANI e cluster/Clusty em Bend,
++mantendo os formatos de arquivo e comparando correção, tempo e memória com
++Vclust 1.3.1. A apresentação deve refletir resultados medidos e limitações reais.
++
++## Ambiente recuperado
++
++```bash
++source /tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/env.sh
++```
++
++- Compilador fonte: `/home/veritas/Bioinformatique/Higher Order Company/Bend`.
++- Revisão de referência anterior: `6b806192284fc9c64404d9b0b59c937f568d87ec`,
++  Bend 2.0.40; entrada `bend2/main.ts`.
++- Vclust: `../.tools/vclust-1.3.1/bin/vclust`.
++- Fontes oficiais locais: `scratchpad/cl/{clusty,igraph}` e outros diretórios
++  do scratchpad. Modelo Python: `tests/clusty_model.py`.
++- Dados: `../datasets/`; referências prontas: `scratchpad/vc/full/` e
++  `scratchpad/vc/s1000/`, além de `scratchpad/al/ref/`.
++- Timings anteriores completos realmente existem em `scratchpad/vc/full/log.txt`:
++  prefilter 12t 31.21 s / 2458324 KB; align 12t 178.45 s / 696032 KB;
++  prefilter 1t 41.16 s / 2429344 KB; align 1t 361.47 s / 178868 KB.
++  São medições herdadas, não medidas novamente pelo Codex.
++
++## Estado de cada componente antes das edições
++
++| Componente | Estado herdado e próximo passo |
++| --- | --- |
++| prefilter | Código e `tests/test_prefilter.py`; retomar a suíte diferencial que parou após nove casos. |
++| align | Código com Ctx encaixotado e caminho rápido de literais; consolidar testes reproduzíveis. |
++| single, complete, uclust, cd-hit, set-cover | Código e comparações anteriores; repetir testes independentes dos logs antigos. |
++| Leiden | **Stub**, retorna um grupo para todos. Implementar antes de comparar. |
++| launcher | Comentários citam wrappers que ainda não existem. Criar entrada documentada e mapeamento `-t` para runtime. |
++| documentação | Não havia README do pacote. Documentar comandos, escopo e limitações reais. |
++
++## Teste iniciado pelo Codex
++
++Comando, executado em `Clustering/vclust_bend` com autorização fora do sandbox:
++
++```bash
++source /tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/env.sh
++CAP=4G capped timeout 600 python3 -u tests/test_prefilter.py --quick
++```
++
++Passaram os nove primeiros casos `vclust_example`: padrão, max-seqs 50,
++fraction 0.2, max-seqs 1, batch-size 300, batch-size 300/max-seqs 5,
++k15/fraction 0.5, k16, k19/fraction 0.3/min-kmers 3.
++Todos produziram `identical`. O processo terminou com **143**, sem sumário.
++O caso seguinte é `-k 30 --min-ident 0.9`; verificar a execução de referência
++e impor timeout por subprocesso. Não presumir que seja falha do código Bend.
++
++## Alterações do Codex
++
++- `../CLAUDE_HANDOFF.md`: ponto de entrada, escopo, estado e limites de memória.
++- `../handoff/claude-inherited-source-manifest.json`: hashes dos arquivos herdados.
++- Este arquivo: continuidade técnica. **Nenhum fonte `.bend` alterado ainda
++  no momento desta entrada inicial.**
++
++## Disciplina para a retomada
++
++Registrar cada fonte alterado e o motivo; cada comando de validação e seu
++resultado; cada limitação ainda presente. Não declarar `--check-only` uma
++prova matemática completa: o compilador informa que `--verdict` é necessário
++para a verificação no kernel BendTT. Não confundir os testes herdados com os
++executados nesta retomada.
++
++## Alterações posteriores — Leiden, 2026-11-23
++
++O usuário acrescentou: **“use provas pra garantir que os clusters estejam certos”**.
++Isso exige contratos semânticos ligados aos resultados, além de tipos e testes.
++Ainda não há alegação de prova de correção do algoritmo completo.
++
++- Backup recuperável dos fontes herdados: `../handoff/claude-inherited-vclust_bend.tar.gz`.
++- `cl_leiden.bend`: substituído o stub por iterações, projeção dos níveis e
++  coordenação de fastmove/refinamento/agregação.
++- `cl_leiden_state.bend`: estado afim, cada array tem um único dono.
++  Gerado por `tools/generate_leiden_state.py`, que também foi adicionado.
++- `cl_leiden_rng.bend`: PCG32, amostragem inteira, uniformes binary64 e shuffle,
++  com constantes conferidas contra o modelo Python do Claude.
++- `cl_leiden_common.bend`: utilitários de estado, grupos, renumeração e pesos.
++  Preserva a duplicação de arestas produzida pelo Clusty no igraph não dirigido.
++- `cl_leiden_move.bend`: movimentação local com fila, desempates estritos e
++  atualização de vizinhos instáveis.
++- `cl_leiden_refine.bend`: refinamento de singletons com sorteio proporcional
++  a exp(ganho/beta), binary search cumulativa e renumeração.
++- `cl_leiden_aggregate.bend`: agregação ponderada, mantendo a ordem de somas.
++- `cluster.bend`: encaminha erro de limite do Leiden como `Result/Fail` até
++  IO, sem escrever um agrupamento parcial. Rejeita beta=0 e mais de 1000
++  iterações positivas; iterações negativas têm teto de 1000 passagens.
++- Limites internos: 1.000.000 retiradas da fila por nível; 128 tentativas por
++  amostragem aleatória; níveis limitados pelo número de vértices. Exaustão
++  marca erro, não sucesso. Revisar custo/limites em benchmarking posterior.
++- `tests/test_cluster.py`: compara Vclust oficial e binário Bend em seis
++  algoritmos, conjuntos reais e grafos aleatórios; timeout por subprocesso,
++  preservação de comandos e hashes. `.gitignore` ignora `.work/` e pycache.
++
++### Validações executadas até esta entrada
++
++Os módulos de estado/RNG/utilitários/fastmove/refinamento/Leiden integrado e
++`cluster.bend` passaram `bend ARQUIVO --check-only`. Esse comando **não é**
++o veredicto do kernel matemático. Compilação nativa também terminou com êxito:
++
++```bash
++bend cluster.bend -o /tmp/vclust-codex-cluster
++CAP=3G capped timeout 600 python3 -u tests/test_cluster.py --random 8 --full
++```
++
++A suíte está em andamento no momento desta entrada. Os seis algoritmos
++passaram no exemplo, incluindo Leiden. Conferir `.work/cluster-tests/results.json`
++para os demais resultados; não presumir aprovação antes de ler o sumário.
++
++### Sintaxe e cautelas descobertas na implementação
++
++- Bend não permite desestruturar uma tupla computada diretamente. Usados
++  eliminadores CPS (`pair`, `gu`, `gd` etc.), cuja definição desestrutura
++  um parâmetro. As versões finais passaram no checker.
++- Guardas `case ... with condição` não são suportadas; usa-se seleção
++  preguiçosa via função e lambda que casa em `Bool`.
++- Um comando que juntava patch e checagem foi interrompido na autorização.
++  Foi confirmado que `cluster.bend` continuava sem aquela alteração; ela foi
++  reaplicada separadamente e checada. Não há patch perdido dessa etapa.
++- O modelo e a versão local do igraph usam `!changed` nas iterações negativas.
++  O port preserva essa semântica, com limite explícito para evitar loop infinito.
++
++### Próximas ações
++
++1. Ler resultado completo da suíte diferencial; corrigir divergências antes
++   de benchmark. Ainda não há benchmark novo publicável.
++2. Implementar certificação independente da partição e contratos por algoritmo,
++   ligada à saída efetiva. Adicionar provas, tentar `--verdict` no kernel.
++3. Lean 4.34.0 não está instalado; `safe.ts` exige exatamente essa versão.
++   Foi verificada a release oficial e iniciada consulta dos artefatos oficiais.
++4. Retomar o prefilter (timeout no caso k30), consolidar testes de align,
++   criar launcher e README reproduzíveis. Atualizar slides 32/36/37 com evidências.
++
++## Resultado da correção e primeira prova no kernel
++
++- A primeira rodada diferencial teve 49/50 arquivos iguais. No grafo
++  `random-6-leiden-1` a partição era a mesma, mas dois grupos de tamanho 2
++  trocaram de número. Causa: `result()` renumerava os rótulos projetados,
++  alterando o desempate do Clusty. Agora `count_labels` conta `max+1` sem
++  modificar os rótulos.
++- Recompilado `/tmp/vclust-codex-cluster`. Nova suíte:
++  `CAP=3G capped timeout 600 python3 -u tests/test_cluster.py --random 20 --full`.
++  Resultado: **98/98 idênticos**, incluindo os seis algoritmos no exemplo,
++  stratified1000 e EarlyVir completo, e Leiden em 20 grafos aleatórios com
++  0/1/2/4 iterações e parâmetros variados.
++  Evidência persistente: `evidence/cluster-equivalence-98.json`.
++- Instalado Lean oficial **4.34.0** em
++  `/home/veritas/.local/opt/lean-4.34.0`, extraído da release oficial GitHub.
++  Nenhuma mudança global de PATH. Arquivo baixado em `/tmp/lean-4.34.0-linux.tar.zst`.
++  O compilador criou seu kernel em `~/.bend/bendtt/` por hash da fonte/versão.
++- Novo `partition_certificate.bend`: predicado estrutural `Partition`,
++  decisão executável `check`, prova universal `sound`, tipo `Certified`,
++  teorema universal `partition_length` e certificados fechados que rejeitam
++  tamanho menor/maior, rótulo fora do intervalo e sentinel não atribuído.
++- Comando matemático concluído com exit 0 e **ALL PROOFS CHECK**, sem aviso:
++
++```bash
++PATH="/home/veritas/.local/opt/lean-4.34.0/bin:$PATH" bend partition_certificate.bend --verdict
++```
++
++  O wrapper `bend` estava sob cgroup de 8 GB. Manifesto com hash e comando:
++  `evidence/partition-kernel-verdict.json`.
++- `cluster.bend` agora recolhe as atribuições reais do array, passa-as a
++  `PC.certify` e só chama `render` se obtiver `Some{certificate}`. Uma falha
++  retorna erro antes de escrever saída. Essa integração está em validação;
++  o resultado 98/98 anterior é **anterior à integração do certificado**.
++- A prova cobre uma atribuição por posição do grafo ativo e rótulos limitados.
++  Não prova, sozinha, clique, componentes conexos, qualidade de Leiden,
++  equivalência numérica de ANI nem a renderização TSV. Esses contratos
++  adicionais continuam sendo trabalho em andamento.
++
++## Certificados integrados e testes ampliados
++
++Esta entrada supera as pendências acima sobre integração dos certificados.
++
++- `clique_certificate.bend` foi criado: `Clique`, `Row`, checadores executáveis,
++  `sound` universal e exemplos negativos de encadeamento. `--verdict` passou
++  com **ALL PROOFS CHECK / exit 0** em Lean 4.34.0.
++- `cluster.bend` agora clona o grafo filtrado antes do algoritmo, confere
++  clique no modo complete e partição em todos os modos, inclusive grafo vazio.
++  A renderização só é chamada depois de obter os certificados.
++- Recompilado e executado `python3 tools/validate.py cluster-tests --full`:
++  **98/98 idênticos após integrar ambos os certificados**. Evidência:
++  `evidence/cluster-certified-equivalence-98.json`. A correção de numeração
++  de Leiden permaneceu; a integração não mudou os arquivos esperados.
++- `proofs/Forest.lean`: prova geral por indução forte de que uma floresta com
++  pais adjacentes, rank decrescente e raiz preservada induz caminhos à raiz.
++  Também prova que fechamento das arestas implica equivalência entre igualdade
++  de raízes e conectividade (single linkage). Verificado com `lean`, exit 0.
++  Sem axiomas adicionados, `sorry`, `native_decide` ou mathlib.
++- `tests/verify_clusters.py`: verificador independente da saída TSV, não
++  reexecuta o algoritmo. Confere partição dos identificadores, conectividade,
++  e contrato por algoritmo. Emite pais/ranks/raízes e hashes em JSON. O parser
++  e os checks finitos em Python não foram formalmente verificados; essa é a
++  fronteira explícita entre a prova Lean e os arquivos reais.
++- Verificados 18 resultados reais (6 algoritmos × exemplo/1000/completo), todos
++  aprovados. `evidence/semantic-contracts.json` resume; `*.forest.json` contém
++  os certificados concretos. No completo: single6373, complete7181, uclust6890,
++  cd-hit6890, set-cover6618 e leiden6766 grupos para10021 identificadores.
++
++### CLI durável e validação
++
++- `run.py` e `tools/capped.sh`: build por hash da fonte/compilador, limite8G
++  para build,3G para execução e10G agregado, sem swap. `-t` vira opção RTS.
++  Previne output igual/alias de input, incluindo IDs e certificado. Opções
++  repetidas são recusadas para não haver divergência de parsing nos guardas.
++- `run.py cluster`: executa em diretório temporário ao lado da saída e só
++  publica o TSV depois de passar no verificador semântico. Emite sidecar
++  `.certificate.json`. O par TSV/JSON não é atomicamente publicado junto;
++  consumidores devem comparar o hash do TSV. Teste integrado ainda pendente
++  no instante desta entrada, conferir registro posterior.
++- `tools/validate.py`: entradas limitadas para check/build/proofs/guards/testes
++  e benchmark. A ação proofs também registra stdout, hash e comando em JSON.
++- `tests/certificate_runtime.bend`: injeta rótulos fora do intervalo e um
++  agrupamento complete sem aresta na própria função de produção.
++- `tests/test_certificates.py`: TSVs adversariais para garantir rejeição de
++  duplicatas, omissões, nomes desconhecidos, componentes partidos, grupos
++  desconexos e complete/star inválidos. Ainda por executar nesta entrada.
++- `tests/test_align.py`: comparação das duas saídas (ANI e IDs), incluindo
++  formatos lite/complete e parâmetros. No momento14 casos menores passaram;
++  o caso full está em execução. Não contar full antes do encerramento.
++- `tests/reference_data.py`: preserva referências antigas em `.work/references`
++  e as regenera com Vclust se faltarem. Usado pelos testes de cluster/align.
++  Referências e FASTAs com hashes em `evidence/reference-inputs.json`.
++- `tests/test_prefilter.py`: timeout por processo/grupo, cache durável,
++  gravação de referência em `.partial` antes de rename. O caso k30 foi separado
++  da suíte padrão: Vclust/Kmer-db travou também em reprodução isolada, timeout
++  de30s/exit124. Não é evidência de bug no Bend. A suíte padrão completa terminou
++  **42/42 idênticos**, hashes preservados em `evidence/prefilter-equivalence-42.json`.
++- `benchmark.py`: pipeline sequencial Vclust/Bend,1e12threads, saídas em pasta
++  única por execução, wall/RSS por GNU time, hashes das quatro saídas. Clusty
++  não aceita `-t`, então o parâmetro só é enviado ao Vclust prefilter/align.
++  Benchmark ainda por executar nesta entrada; não inventar tempos.
++- `align.bend`: apenas comentário corrigido para apontar ao launcher real
++  `run.py align -t N`, substituindo o inexistente `align.py`.
++- `README.md`: instruções reproduzíveis, tabela precisa de garantias/limites,
++  recursos suportados e distinção do frontend antigo.
++
++### Registro de decisões e limites
++
++O benchmark mede o nativo Bend com guardas de partição/clique, excluindo o
++verificador externo Python e o build. Não confundir com custo do launcher
++completo. Os tempos são amostras únicas de desktop. Testes diferenciais não
++provam igualdade universal; os certificados cobrem propriedades do grafo
++fornecido e não provam ANI, ausência de falsos negativos ou ótimo de Leiden.
++Não foi modificado o compilador. Não houve commit/push/publicação externa.
++
++### Fechamento parcial das verificações,16:44CET
++
++- Provas reexecutadas sem depender do env.sh: `BEND_REPO=... python3
++  tools/validate.py proofs`,exit0. Dois `ALL PROOFS CHECK` e Forest.lean
++  aprovado. Registros completos em `evidence/proof-verdicts.json`.
++- A primeira suíte align teve14/15 casos idênticos: full com1worker atingiu
++  timeout600s. Processo/grupo encerrado; memória observada~355MiB,CPU~100%.
++  Evidência preservada em `evidence/align-single-thread-attempt.json`.
++  Não houve divergência de valores observada nesse caso: não terminou.
++- Adicionado `--threads` ao teste de align para verificar12workers.
++  O benchmark aceita relatório separado e timeout1200s por estágio.
++- `tests/test_cli.py`: cobertura do launcher completo, seis algoritmos com
++  e sem representantes, hashes dos certificados e preservação de inputs/
++  output anterior em erros. Ainda pendente de execução neste instante.
++- `tools/handoff_manifest.py` gera inventário completo e patch contra o
++  backup original:25arquivos novos,4modificados,0removidos,16inalterados
++  na primeira execução. Regenerar ao terminar qualquer alteração.
++
++### Guardas e launcher aprovados
++
++- `python3 tools/validate.py guards` terminou exit0: os dois probes nativos
++  deram `True{}` (ambos os resultados inválidos foram recusados). Registro
++  posterior em `evidence/native-guards.json`, identificado como observação
++  após o comando. A próxima execução do script grava stdout automaticamente.
++- A suíte adversarial tem agora12casos, todos aprovados; também recusa nome
++  de algoritmo desconhecido. Evidência `certificate-negative-tests.json`.
++- `BEND_REPO=... python3 tools/validate.py cli-tests` terminou exit0 sem o
++  env.sh antigo: três etapas,6algoritmos com/sem representantes, sidecars com
++  hash correto, parâmetros inválidos preservando saída anterior e bloqueio
++  de outputs que aliasam inputs. Registro em `evidence/cli-integration.json`.
++- Ação benchmark agora aceita `--threads` para executar a matriz efetivamente
++  desejada: stratified1000 em1/12workers, full em12. Cada invocação grava um
++  JSON separado, sem apagar a anterior. O benchmark registra plataforma,
++  hash dos executáveis e a ordem fixa Vclust→Bend, sem esvaziar page cache.
++- Nova suíte `align-tests --full --threads12` em andamento;14casos menores
++  já passaram. Memória observada do full~438MiB após o paralelismo começar.
++
++- `run.py` recebeu trava global de build (`.work/build.lock`) e publicação
++  do binário por rename após compilação em diretório temporário. Evita builds
++  simultâneos e cache parcialmente escrito, problema pertinente à duplicação
++  das sessões anteriores. `--build-only` no cache existente passou.
++
++### Alinhamento completo aprovado e início das medidas
++
++- `align-tests --full --threads 12` terminou com **15/15 casos idênticos**,
++  conferindo ANI e IDs, inclusive o EarlyVir completo de 10.021 genomas.
++  Evidência persistida em `evidence/align-equivalence-15.json`. O timeout
++  anterior de 600 s em 1 worker foi preservado como resultado separado.
++- Primeiro benchmark, 1.000 genomas/1 worker: Vclust 8,01/10,76/0,24 s;
++  Bend 3,48/22,68/0,03 s (prefilter/align/cluster). As quatro saídas coincidem.
++  Soma Vclust 19,01 s, Bend 26,19 s. JSON com comandos/RSS/hashes:
++  `evidence/benchmark-stratified1000-t1.json`.
++- A rodada 1.000/12 já passou: Vclust 8,04/4,45/0,20 s; Bend 1,40/7,94/0,03 s,
++  com quatro saídas iguais. O mesmo processo ainda mede o conjunto completo.
++- Fronteira de medição: Vclust inclui seu CLI Python oficial, Bend é executado
++  como binário nativo, sem run.py nem checker externo. A diferença de cluster
++  inclui inicialização Python; não alegar aceleração do kernel pelo fator bruto.
++  `tools/measure_certified_cluster.py` medirá o comando certificado completo
++  separadamente após terminar a rodada. `tools/validate.py certified-timings`
++  executa essa medida sob teto de 3 GiB.
++- `tools/certify_existing.py` e ação `semantics` tornam reproduzível a geração
++  dos 18 certificados reais, agora incluindo hash do arquivo IDs e thresholds.
++  Será executado depois das medidas para não competir por CPU.
++
++## Fechamento da cópia isolada
++
++`proofs`, `cli-tests` e `semantics` terminaram com exit 0 nesta pasta. As provas
++foram reconferidas; as 17 expectativas de CLI passaram; os 18 certificados
++semânticos passaram novamente, incluindo os seis algoritmos no conjunto completo.
++Os tempos do benchmark interrompido e do timeout anterior permanecem separados
++dos resultados aprovados. Não medir o launcher completo enquanto houver
++concorrência; esse script já rejeita usar um benchmark parcial como pré-requisito.
++
++Arquivos adicionais desta fase: `tools/measure_certified_cluster.py` (medida
++separada preparada, não executada), `tools/certify_existing.py` (executado),
++`evidence/isolated-source-verification.json`, observação da concorrência no
++handoff externo, e os manifests/diffs regenerados ao finalizar. O pacote
++original continua sob alterações da outra sessão; esta entrega fica isolada.
++
++Observação da versão concorrente: `cl_graph.bend` ganhou o helper
++`nb_rev_onto`; `cl_leiden.bend` foi substituído por uma implementação monolítica
++de aproximadamente 2.684 linhas, distinta da organização modular validada
++aqui. Isso é uma implementação alternativa em andamento, não uma pequena
++correção que possa ser incorporada sem nova comparação. O diff foi preservado.
++
++## Encerramento solicitado pelo usuário
++
++O usuário pediu: “de pro claude o que ele precisa pra continuar a trabalhar e e isso”.
++O Codex encerrou novas implementações, testes e medições. Ponto de entrada
++consolidado em `../CLAUDE_HANDOFF.md`; a apresentação registra separadamente
++o estado final da exportação e a revisão complementar ainda pendente.
+--- /dev/null
++++ codex/README.md
+@@ -0,0 +1,159 @@
++# Vclust em Bend
++
++Porte nativo das três etapas do Vclust 1.3.1: pré-filtro Kmer-db 2.3.1,
++alinhamento LZ-ANI 1.2.3 e seis algoritmos do Clusty 1.2.2. O cálculo das
++etapas está em Bend; Python compila, limita memória, executa e verifica a
++saída de clustering. Este pacote é separado do frontend antigo `../run.py`.
++
++## Estado da entrega — 23/11/2026
++
++Esta é a cópia isolada dos fontes validados pelo Codex. Outra sessão Claude
++voltou a modificar `../vclust_bend/` durante o trabalho. Os arquivos Bend desta
++cópia foram reconstruídos do backup/patch e conferidos contra os hashes da
++versão testada, preservando o trabalho concorrente na pasta original.
++
++| Validação | Resultado |
++| --- | --- |
++| Pré-filtro | 42/42 casos idênticos ao Vclust |
++| Alinhamento | 15/15 casos, ANI e IDs idênticos, inclusive 10.021 genomas com 12 workers |
++| Clustering | 98/98 saídas idênticas, com certificados nativos integrados |
++| Contratos semânticos | 18 resultados reais verificados |
++| Provas | Partição e clique em BendTT; floresta/componentes em Lean 4.34.0 |
++
++O alinhamento completo com 1 worker atingiu timeout de 600 s. A execução com
++12 workers terminou e passou. O caso k=30 do pré-filtro foi excluído do total
++por timeout da ferramenta de referência, como descrito abaixo.
++
++Na amostra de 1.000 genomas, somas dos tempos das três etapas:
++
++| Workers | Vclust CLI | Bend nativo |
++| --- | ---: | ---: |
++| 1 | 19,01 s | 26,19 s |
++| 12 | 12,69 s | 9,37 s |
++
++São amostras únicas, em ordem fixa Vclust→Bend e sem limpar page cache. O tempo
++Vclust inclui seu CLI Python; Bend foi medido diretamente nos binários, sem
++`run.py` nem o verificador Python, incluindo os guardas nativos. O alinhamento
++Bend foi mais lento em ambas as configurações da amostra; pré-filtro e cluster
++nativo foram mais rápidos. A diferença de cluster inclui custos de inicialização.
++
++**O benchmark completo não terminou.** Seu processo coordenador recebeu SIGTERM;
++o alinhamento órfão foi interrompido pelo Codex após detectar outras execuções
++e alterações concorrentes. A origem do SIGTERM não foi determinada. Os tempos
++parciais estão preservados e marcados como interrompidos; não constituem uma
++comparação completa nem invalidam os testes de equivalência anteriores.
++
++## Executar
++
++Requisitos: Linux com systemd de usuário, Python 3.11+, compilador Bend
++2.0.40 e compilador C disponíveis. Revisão testada do checkout fonte:
++`6b806192284fc9c64404d9b0b59c937f568d87ec`. Não é necessário usar o antigo
++scratchpad `/tmp` para executar o pipeline. Na máquina desta retomada:
++
++```bash
++cd /home/veritas/Bend-Programs/Clustering/vclust_bend_codex_verified
++export BEND_REPO='/home/veritas/Bioinformatique/Higher Order Company/Bend'
++mkdir -p results
++python3 run.py prefilter -i ../datasets/public_viromes/original/vclust_example.fasta -o results/filter.txt -t 12
++python3 run.py align -i ../datasets/public_viromes/original/vclust_example.fasta --filter results/filter.txt -o results/ani.tsv -t 12
++python3 run.py cluster -i results/ani.tsv --ids results/ani.ids.tsv -o results/clusters.tsv --algorithm leiden --metric ani --ani 0.95 -t 1
++```
++
++`align` também escreve `ani.ids.tsv`. `cluster` publica o TSV depois de
++validar seu contrato semântico e grava `clusters.tsv.certificate.json`, com
++hashes dos inputs/saída, parâmetros e testemunha de conectividade. O par de
++arquivos não constitui uma transação única; compare o hash de saída do
++certificado ao TSV ao consumi-los. Identificadores duplicados são recusados
++pelo verificador por tornarem o mapeamento ambíguo.
++
++O launcher usa cache em `.work/bin/` com hash dos fontes e compilador.
++Uma trava serializa builds e o binário só entra no cache após a compilação.
++`--build-only` imprime o executável. `--compiler CAMINHO` substitui
++`BEND_REPO`. `-t N` controla os workers Bend por `+RTS --threads N -RTS`;
++passar `-t` diretamente ao binário não configura o runtime.
++
++Os processos ficam em `bendwork.slice` (limite agregado 10 GiB, pressão a
++9 GiB, sem swap); compilação até 8 GiB, execução até 3 GiB por padrão.
++`--memory 4G` altera o limite do processo, mantendo o teto agregado. O
++sandbox do Codex precisa autorizar o acesso ao systemd de usuário. Evitar
++compilações e benchmarks simultâneos.
++
++## O que as provas garantem
++
++| Evidência | Contrato e limite |
++| --- | --- |
++| `partition_certificate.bend`, BendTT `--verdict` | Para qualquer lista aceita, há exatamente uma atribuição por posição ativa e todo rótulo é menor que o limite. O certificado é conferido antes de renderizar a saída nativa. Não exige que todos os rótulos possíveis sejam usados. |
++| `clique_certificate.bend`, BendTT `--verdict` | Aceitar implica que cada par distinto com mesmo rótulo tem aresta no grafo fornecido. O modo `complete` usa uma cópia do grafo filtrado anterior ao agrupamento. |
++| `proofs/Forest.lean`, Lean 4.34.0 | Arestas de pais, raiz preservada e rank estritamente decrescente implicam caminhos à raiz. Com fechamento das arestas, igualdade de raízes equivale a pertencer ao mesmo componente conexo. |
++| `tests/verify_clusters.py`, a cada execução do launcher | Confere todos os identificadores exatamente uma vez, constrói/confere uma floresta; exige componentes exatos em `single`, clique em `complete`, centro adjacente a todos em `uclust`/`cd-hit`/`set-cover`, e conectividade em `leiden`. |
++| Comparação byte a byte | Exercita a compatibilidade com Vclust nos casos registrados; não é prova universal de equivalência. |
++
++O parser e o verificador Python permanecem na base de confiança: o teorema
++Lean prova a implicação matemática a partir das hipóteses verificadas, não
++a implementação de Python. Extração dos arrays, IO, renderização, compilador
++e runtime também não foram provados de ponta a ponta. Os contratos referem-se
++ao **grafo filtrado recebido**, não demonstram ausência de falsos negativos
++no pré-filtro, validade biológica do limiar ANI, equivalência numérica
++universal do alinhador nem ótimo global de Leiden. `--check-only` verifica
++tipos/terminação; o veredicto matemático é `--verdict`.
++
++## Validar e comparar
++
++O Vclust de referência está em `../.tools/vclust-1.3.1/bin/vclust`.
++Dados ficam em `../datasets/`. As referências usadas foram copiadas para
++`.work/references/`, com hashes em `evidence/reference-inputs.json`.
++Os testes regeneram referências ausentes com Vclust; não dependem da
++sobrevivência do antigo `/tmp`. Executar sequencialmente:
++
++```bash
++python3 tools/validate.py check
++python3 tools/validate.py proofs
++python3 tools/validate.py guards
++python3 tools/validate.py cli-tests
++python3 tools/validate.py prefilter-tests --full
++python3 tools/validate.py align-tests --full --threads 12
++python3 tools/validate.py cluster-tests --full
++python3 tools/validate.py semantics
++python3 tools/validate.py benchmark --threads 1
++python3 tools/validate.py benchmark --full --threads 12
++```
++
++`proofs` precisa de Lean 4.34.0 em PATH ou na instalação local registrada
++no script. `guards` injeta atribuições/cliques inválidos na função de produção
++e testa TSVs adversariais. Os JSONs em `evidence/` registram as execuções
++concluídas; `.work/` contém executáveis, saídas e logs intermediários.
++O benchmark faz uma amostra sequencial por ferramenta/configuração, com
++1 e 12 workers em prefilter/align e comparação das quatro saídas. Exclui
++compilação, launcher Bend e verificador Python das medidas; inclui os guardas
++nativos. Vclust é medido pelo CLI Python oficial. Só medir desempenho quando
++as outras sessões terminarem para evitar concorrência.
++Não interpretar uma amostra em desktop como resultado estatístico.
++
++## Escopo e limitações operacionais
++
++- Algoritmos: `single`, `complete`, `uclust`, `cd-hit`, `set-cover`, `leiden`.
++  Leiden reproduz PCG32, ordem de somas binary64, desempates, refinamento,
++  agregação e projeção do igraph usado pelo Clusty. Não usa Python para calcular
++  os grupos. `tests/clusty_model.py` é referência de testes e parser numérico.
++- LZ-ANI aceita `1 <= mal <= 16`, `1 <= msl <= 12`, `1 <= aw <= 32`.
++  Há validação explícita dos parâmetros suportados; não prometer todos os
++  recursos/formats do CLI Vclust (por exemplo diretórios/gzip).
++- O leitor de métricas aceita decimais não negativos com limites declarados
++  de tamanho; notação exponencial não é suportada. O formato emitido pelo
++  alinhador testado está dentro desse domínio.
++- Leiden: beta positivo; no máximo 1000 iterações positivas; iterações negativas
++  preservam a semântica da versão de igraph empacotada com teto de segurança.
++  Limites internos de fila/sorteio/níveis recusam saída ao esgotar o orçamento.
++- A checagem nativa de clique é quadrática em pares de vértices, além da busca
++  de vizinhança. É um custo de certificação de `complete`, não uma otimização.
++- O caso `prefilter -k 30 --min-ident 0.9` não entra no total aprovado:
++  Kmer-db de referência travou no exemplo e foi interrompido após 30 s.
++  `tests/test_prefilter.py --include-slow-reference` permite tentar novamente
++  com timeout; não foi atribuído como bug do Bend.
++
++## Continuidade
++
++Leia `../CLAUDE_HANDOFF.md` e `CLAUDE_HANDOFF.md` antes de retomar.
++A fonte herdada está preservada em `../handoff/`; fontes e evidências da
++apresentação estão em `../presentation/`. Nada foi commitado ou publicado
++por esta retomada.
+--- claude/align.bend
++++ codex/align.bend
+@@ -6,7 +6,7 @@
+ #         [--mrd N] [--mqd N] [--reg N] [--aw N] [--am N] [--ar N] [-t N] [-v N]
+ #
+ # Threads come from the runtime (`+RTS --threads N -RTS`); `-t` is accepted
+-# for command-line compatibility (vclust_bend/align.py maps it). Writes
++# for command-line compatibility (`python3 run.py align -t N` maps it). Writes
+ # ani.tsv and ani.ids.tsv exactly as `vclust align` does.
+ import Base
+ import ./align_num.bend as N
+--- /dev/null
++++ codex/benchmark.py
+@@ -0,0 +1,87 @@
++#!/usr/bin/env python3
++"""Sequential, capped head-to-head pipeline timings; exact outputs are checked."""
++import argparse
++import datetime
++import fcntl
++import hashlib
++import json
++import os
++from pathlib import Path
++import signal
++import platform
++import subprocess
++import time
++import run as launcher
++
++ROOT=Path(__file__).resolve().parent
++VC=ROOT.parent/'.tools/vclust-1.3.1/bin/vclust'
++DATA={
++ 'stratified1000':ROOT.parent/'datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta',
++ 'full':ROOT.parent/'datasets/infant_gut_virome/raw/all.curated.vOTUs.EarlyVir.fna'}
++
++def measured(cmd,log,timeout):
++    timing=log.with_suffix('.time')
++    actual=['/usr/bin/time','-f','%e\t%M','-o',str(timing),*map(str,cmd)]
++    with log.open('w') as out, subprocess.Popen(actual,stdout=out,stderr=out,start_new_session=True) as p:
++        try: code=p.wait(timeout=timeout)
++        except subprocess.TimeoutExpired:
++            os.killpg(p.pid,signal.SIGKILL);p.wait();raise
++    if code: raise RuntimeError(f'exit {code}; see {log}')
++    wall,rss=timing.read_text().strip().splitlines()[-1].split('\t')
++    return {'wall_seconds':float(wall),'max_rss_kib':int(rss),'command':list(map(str,cmd))}
++
++def main():
++    p=argparse.ArgumentParser();p.add_argument('--datasets',nargs='+',choices=DATA,default=['stratified1000','full'])
++    p.add_argument('--threads',nargs='+',type=int,default=[1,12]);p.add_argument('--timeout',type=int,default=1200)
++    p.add_argument('--report',type=Path,default=ROOT/'evidence/benchmark.json')
++    a=p.parse_args();bins={s:launcher.build(s) for s in ('prefilter','align','cluster')}
++    base=ROOT/'.work/benchmark';base.mkdir(parents=True,exist_ok=True)
++    work=base/datetime.datetime.now().strftime('%Y%m%dT%H%M%S.%f')
++    work.mkdir()
++    report={'created_at':datetime.datetime.now().astimezone().isoformat(),'repetitions':1,
++            'work_directory':str(work),
++            'platform':platform.platform(),
++            'native_sha256':{stage:hashlib.sha256(binary.read_bytes()).hexdigest() for stage,binary in bins.items()},
++            'note':'Single sequential samples in fixed Vclust-then-Bend order; page cache not flushed; build excluded. Vclust timings include its Python CLI; Bend timings invoke native executables directly and exclude run.py and the independent Python semantic verifier. Native partition/clique guards are included. Clusty has no thread flag.',
++            'runs':[]}
++    with (base/'benchmark.lock').open('w') as lock:
++      fcntl.flock(lock,fcntl.LOCK_EX)
++      for dataset in a.datasets:
++       for threads in a.threads:
++        outputs={}
++        for tool in ('vclust','bend'):
++          folder=work/f'{dataset}-t{threads}-{tool}';folder.mkdir(exist_ok=True)
++          flt,ani,cl=folder/'fltr.txt',folder/'ani.tsv',folder/'clusters.tsv'
++          common={
++            'prefilter':['-i',DATA[dataset],'-o',flt],
++            'align':['-i',DATA[dataset],'-o',ani,'--filter',flt],
++            'cluster':['-i',ani,'--ids',folder/'ani.ids.tsv','-o',cl,'--algorithm','leiden','--metric','ani','--ani','0.95']}
++          for stage in ('prefilter','align','cluster'):
++            row={'dataset':dataset,'threads':threads,'tool':tool,'stage':stage,
++                 'uptime':subprocess.check_output(['uptime'],text=True).strip()}
++            cmd=([VC,stage,*common[stage],*(['-t',threads] if stage!='cluster' else []),'-v','0'] if tool=='vclust' else
++                 [bins[stage],*common[stage],'+RTS','--threads',threads,'-RTS'])
++            try: row.update(measured(cmd,folder/f'{stage}.log',a.timeout),status='ok')
++            except (OSError,RuntimeError,subprocess.TimeoutExpired) as e: row.update(status='failed',error=str(e))
++            report['runs'].append(row)
++            a.report.write_text(json.dumps(report,indent=2)+'\n')
++            print(dataset,threads,tool,stage,row.get('wall_seconds'),row.get('max_rss_kib'),row['status'],flush=True)
++            if row['status']!='ok': break
++          outputs[tool]=folder
++        comparisons={}
++        for filename in ('fltr.txt','ani.tsv','ani.ids.tsv','clusters.tsv'):
++            x,y=outputs['vclust']/filename,outputs['bend']/filename
++            if x.exists() and y.exists():
++                with x.open('rb') as f: hx=hashlib.file_digest(f,'sha256').hexdigest()
++                with y.open('rb') as f: hy=hashlib.file_digest(f,'sha256').hexdigest()
++                comparisons[filename]={'identical':hx==hy,'reference_sha256':hx,'bend_sha256':hy}
++            else: comparisons[filename]={'identical':False,'missing':True}
++        report.setdefault('comparisons',[]).append({'dataset':dataset,'threads':threads,'files':comparisons})
++        a.report.write_text(json.dumps(report,indent=2)+'\n')
++        print('COMPARE',dataset,threads,all(x['identical'] for x in comparisons.values()),flush=True)
++    success=all(r['status']=='ok' for r in report['runs']) and all(f['identical'] for c in report['comparisons'] for f in c['files'].values())
++    report.update(status='complete' if success else 'failed',performance_comparison_complete=success)
++    a.report.write_text(json.dumps(report,indent=2)+'\n')
++    raise SystemExit(0 if success else 1)
++
++if __name__=='__main__': main()
+--- claude/cl_leiden.bend
++++ codex/cl_leiden.bend
+@@ -1,7 +1,115 @@
+-# Leiden (stub; replaced below)
++# Clusty 1.2.2 / igraph 0.10.10 weighted Leiden, entirely in Bend.
++# Exhausted finite safety budgets return nclusters=U32_MAX; the CLI rejects it.
+ import Base
+ import ./f64.bend as F
+ import ./cl_graph.bend as G
++import ./cl_leiden_state.bend as S
++import ./cl_leiden_common.bend as C
++import ./cl_leiden_move.bend as M
++import ./cl_leiden_refine.bend as R
++import ./cl_leiden_aggregate.bend as A
+ 
+-def leiden(rows: Array<List<&2, G.Nb>>, +n: U32, +m: U32, +res: F.D, +beta: F.D, +iters: U32, +ineg: Bool) -> Array<U32> & U32:
+-  (G.u32_array(n, 0), 1)
++def initial(fuel: Nat, s: S.S, +i: U32) -> S.S:
++  match fuel:
++    case 0n: s
++    case 1n+p: initial(p, S.orig_set(s, i, i), U32.inc(i))
++
++def restart(fuel: Nat, s: S.S, +i: U32) -> S.S:
++  match fuel:
++    case 0n: s
++    case 1n+p:
++      C.gu(S.S, S.orig_get(s, i), s => mem =>
++        restart(p, S.mapping_set(S.nw_set(S.mem_set(s, i, mem), i, C.one()), i, i), U32.inc(i)))
++
++def project(fuel: Nat, s: S.S, +i: U32) -> S.S:
++  match fuel:
++    case 0n: s
++    case 1n+p:
++      C.gu(S.S, S.mapping_get(s, i), s => node =>
++      C.gu(S.S, S.mem_get(s, node), s => mem =>
++        project(p, S.orig_set(s, i, mem), U32.inc(i))))
++
++def map_next(fuel: Nat, s: S.S, +i: U32) -> S.S:
++  match fuel:
++    case 0n: s
++    case 1n+p:
++      C.gu(S.S, S.mapping_get(s, i), s => node =>
++      C.gu(S.S, S.ref_get(s, node), s => node =>
++        map_next(p, S.mapping_set(s, i, node), U32.inc(i))))
++
++def fallback(fuel: Nat, s: S.S, +i: U32) -> S.S:
++  match fuel:
++    case 0n: s
++    case 1n+p:
++      C.gu(S.S, S.mem_get(s, i), s => c =>
++        fallback(p, S.ref_set(s, i, c), U32.inc(i)))
++
++def refined(s: S.S, +n: U32, +nc: U32, +nr: U32) -> S.S & U32:
++  C.when(S.S & U32, U32.is_ge(nr, n), \{
++    True: (fallback(U32.to_nat(n), s, 0), nc)
++    False: (s, nr)
++  })
++
++def levels(fuel: Nat, s: S.S, +n0: U32, +n: U32, +level: U32,
++           +res: F.D, +beta: F.D, +tab: F.Tab) -> S.S:
++  match fuel:
++    case 0n: S.err_set(s, True{})
++    case 1n+p:
++      C.gu(S.S, M.fastmove(s, n, res), s => +nc =>
++      C.when(S.S, U32.is_lt(nc, n), \{
++        False: C.when(S.S, U32.is_eq(level, 0), \{
++          True: project(U32.to_nat(n0), s, 0)
++          False: s
++        })
++        True: (
++          s = project(U32.to_nat(n0), s, 0)
++          C.gu(S.S, R.refine(s, n, nc, res, beta, tab), s => nr =>
++          C.gu(S.S, refined(s, n, nc, nr), s => +nr => (
++            s = map_next(U32.to_nat(n0), s, 0)
++            levels(p, A.aggregate(s, n, nr), n0, nr, U32.inc(level), res, beta, tab))))
++        )
++      }))
++
++def once(s: S.S, +n: U32, +res: F.D, +beta: F.D, +tab: F.Tab) -> S.S:
++  s = restart(U32.to_nat(n), S.changed_set(S.reset_graph(s), False{}), 0)
++  C.gu(S.S, C.reindex(s, 0, n), s => nc =>
++    levels(U32.to_nat(U32.inc(n)), s, n, n, 0, res, beta, tab))
++
++# Preserve this bundled igraph version's negative-iteration `!changed` loop.
++def iterations(fuel: Nat, s: S.S, +n: U32, +res: F.D, +beta: F.D, +tab: F.Tab, +ineg: Bool) -> S.S:
++  match fuel:
++    case 0n:
++      C.when(S.S, ineg, \{
++        True: S.err_set(s, True{})
++        False: s
++      })
++    case 1n+p:
++      s = once(s, n, res, beta, tab)
++      C.gb(S.S, S.err_get(s), s => err =>
++      C.when(S.S, err, \{
++        True: s
++        False: C.gb(S.S, S.changed_get(s), s => changed =>
++          C.when(S.S, ineg && changed, \{
++            True: s
++            False: iterations(p, s, n, res, beta, tab, ineg)
++          }))
++      }))
++
++def count_labels(fuel: Nat, s: S.S, +i: U32, +nc: U32) -> S.S & U32:
++  match fuel:
++    case 0n: (s, nc)
++    case 1n+p:
++      C.gu(S.S & U32, S.orig_get(s, i), s => c =>
++        count_labels(p, s, U32.inc(i), U32.max(nc, U32.inc(c))))
++
++def result(s: S.S, +n: U32) -> Array<U32> & U32:
++  # Do not reindex projected labels: Clusty's equal-size ordering uses them.
++  C.gu(Array<U32> & U32, count_labels(U32.to_nat(n), s, 0, 0), s => +nc =>
++  C.gb(Array<U32> & U32, S.err_get(s), s => err =>
++    (S.output(s), F.sel(err, 4294967295, nc))))
++
++def leiden(rows: Array<List<&2, G.Nb>>, +n: U32, +m: U32, +res: F.D,
++           +beta: F.D, +iters: U32, +ineg: Bool) -> Array<U32> & U32:
++  rows = C.weights_rows(U32.to_nat(n), rows, 0)
++  s = initial(U32.to_nat(n), S.new(n, rows), 0)
++  result(iterations(U32.to_nat(F.sel(ineg, 1000, iters)), s, n, res, beta, F.exp_table(), ineg), n)
+--- /dev/null
++++ codex/cl_leiden_aggregate.bend
+@@ -0,0 +1,83 @@
++# Weighted graph aggregation, retaining igraph's summation and encounter order.
++import Base
++import ./f64.bend as F
++import ./cl_graph.bend as G
++import ./cl_leiden_state.bend as S
++import ./cl_leiden_common.bend as C
++import ./cl_leiden_move.bend as M
++
++type AG is Type:
++  AG{s: S.S, rows: Array<List<&2, G.Nb>>}
++
++type AN is Type:
++  AN{s: S.S, ns: List<&2, U32>, weight: F.D, last: U32}
++
++def collect_edges(xs: List<&2, G.Nb>, s: S.S, +c: U32, ns: List<&2, U32>) -> M.NS:
++  match xs:
++    case Nil{}: M.NS{s, ns}
++    case Con{G.Nb{u, +h, +l}, rest}:
++      C.gu(M.NS, S.ref_get(s, u), s => +c2 =>
++      C.when(M.NS, U32.is_gt(c2, c), \{
++        False: collect_edges(rest, s, c, ns)
++        True: C.gu(M.NS, S.added_get(s, c2), s => added => (
++          s = S.ewpc_add(s, c2, F.D{h, l})
++          C.when(M.NS, U32.is_eq(added, 0), \{
++            True: collect_edges(rest, S.added_set(s, c2, 1), c, c2 <> ns)
++            False: collect_edges(rest, s, c, ns)
++          })))
++      }))
++
++def after_edges(ns: M.NS, +weight: F.D, +last: U32) -> AN:
++  match ns:
++    case M.NS{s, ns}: AN{s, ns, weight, last}
++
++def collect_vertices(vs: List<&2, U32>, a: AN, +c: U32) -> AN:
++  match vs a:
++    case Nil{} AN{s, ns, weight, last}: AN{s, ns, weight, last}
++    case Con{+v, rest} AN{s, ns, +weight, last}:
++      C.gd(AN, S.nw_get(s, v), s => w =>
++      C.gr(AN, S.rows_get(s, v), s => xs =>
++        collect_vertices(rest, after_edges(collect_edges(xs, s, c, ns), F.d_add(weight, w), v), c)))
++
++def emit(ns: List<&2, U32>, a: AG, +c: U32) -> AG:
++  match ns a:
++    case Nil{} AG{s, rows}: AG{s, rows}
++    case Con{+c2, rest} AG{s, rows}:
++      C.gd(AG, S.ewpc_get(s, c2), s => w => (
++        s = S.added_set(S.ewpc_set(s, c2, C.zero()), c2, 0)
++        emit(rest, AG{s, G.push_edge(rows, c, c2, w)}, c)))
++
++def finish(a: AN, rows: Array<List<&2, G.Nb>>, +c: U32) -> AG:
++  match a:
++    case AN{s, ns, weight, last}:
++      C.gu(AG, S.mem_get(s, last), s => mem => (
++        s = S.amem_set(S.anw_set(s, c, weight), c, mem)
++        emit(G.rev_u32(ns, Nil{}), AG{s, rows}, c)))
++
++def build(fuel: Nat, a: AG, +c: U32) -> AG:
++  match fuel a:
++    case 0n AG{s, rows}: AG{s, rows}
++    case 1n+p AG{s, rows}:
++      C.gl(AG, C.group(s, c), s => vs =>
++        build(p, finish(collect_vertices(vs, AN{s, Nil{}, C.zero(), 0}, c), rows, c), U32.inc(c)))
++
++def install_values(fuel: Nat, s: S.S, +i: U32) -> S.S:
++  match fuel:
++    case 0n: s
++    case 1n+p:
++      C.gu(S.S, S.amem_get(s, i), s => mem =>
++      C.gd(S.S, S.anw_get(s, i), s => nw =>
++        install_values(p, S.mem_set(S.nw_set(s, i, nw), i, mem), U32.inc(i))))
++
++def install_rows(rs: G.RS, s: S.S) -> S.S:
++  match rs:
++    case G.RS{rows, m}: S.replace_graph(s, rows)
++
++def install(a: AG, +n: U32) -> S.S:
++  match a:
++    case AG{s, rows}:
++      install_values(U32.to_nat(n), install_rows(G.sort_rows(U32.to_nat(n), 0, G.RS{rows, 0}), s), 0)
++
++def aggregate(s: S.S, +n: U32, +nr: U32) -> S.S:
++  s = C.groups(s, n, 1)
++  install(build(U32.to_nat(nr), AG{s, Array.new(List<&2, G.Nb>, G.depth(nr), Nil{})}, 0), nr)
+--- /dev/null
++++ codex/cl_leiden_common.bend
+@@ -0,0 +1,138 @@
++# Shared, affine operations for the Clusty-compatible Leiden port.
++import Base
++import ./f64.bend as F
++import ./cl_graph.bend as G
++import ./cl_leiden_state.bend as S
++
++def when(-A: Type, c: Bool, k: Bool -> A) -> A:
++  k(c)
++
++def gu(-A: Type, p: S.S & U32, k: S.S -> U32 -> A) -> A:
++  (s, x) = p
++  k(s)(x)
++
++def gd(-A: Type, p: S.S & F.D, k: S.S -> F.D -> A) -> A:
++  (s, x) = p
++  k(s)(x)
++
++def gl(-A: Type, p: S.S & List<&2, U32>, k: S.S -> List<&2, U32> -> A) -> A:
++  (s, x) = p
++  k(s)(x)
++
++def gr(-A: Type, p: S.S & List<&2, G.Nb>, k: S.S -> List<&2, G.Nb> -> A) -> A:
++  (s, x) = p
++  k(s)(x)
++
++def gb(-A: Type, p: S.S & Bool, k: S.S -> Bool -> A) -> A:
++  (s, x) = p
++  k(s)(x)
++
++def zero() -> F.D:
++  F.D{0, 0}
++
++def one() -> F.D:
++  F.D{1072693248, 0}
++
++def clear(fuel: Nat, s: S.S, +i: U32) -> S.S:
++  match fuel:
++    case 0n:
++      s
++    case 1n+p:
++      s = S.count_set(s, i, 0)
++      s = S.stable_set(s, i, 0)
++      s = S.added_set(s, i, 0)
++      s = S.nonsingle_set(s, i, 0)
++      s = S.newc_set(s, i, 4294967295)
++      s = S.order_set(s, i, i)
++      s = S.cw_set(s, i, zero())
++      s = S.ext_set(s, i, zero())
++      s = S.ewpc_set(s, i, zero())
++      s = S.cum_set(s, i, zero())
++      s = S.anw_set(s, i, zero())
++      clear(p, S.groups_set(s, i, Nil{}), U32.inc(i))
++
++def reindex_clear(fuel: Nat, s: S.S, +i: U32) -> S.S:
++  match fuel:
++    case 0n:
++      s
++    case 1n+p:
++      reindex_clear(p, S.newc_set(s, i, 4294967295), U32.inc(i))
++
++def label_get(s: S.S, +which: U32, +i: U32) -> S.S & U32:
++  when(S.S & U32, U32.is_eq(which, 0), \{
++    True: S.mem_get(s, i)
++    False: S.orig_get(s, i)
++  })
++
++def label_set(s: S.S, +which: U32, +i: U32, x: U32) -> S.S:
++  when(S.S, U32.is_eq(which, 0), \{
++    True: S.mem_set(s, i, x)
++    False: S.orig_set(s, i, x)
++  })
++
++def reindex_go(fuel: Nat, s: S.S, +which: U32, +i: U32, +k: U32) -> S.S & U32:
++  match fuel:
++    case 0n:
++      (s, k)
++    case 1n+p:
++      gu(S.S & U32, label_get(s, which, i), s => +old =>
++      gu(S.S & U32, S.newc_get(s, old), s => +v =>
++      when(S.S & U32, U32.is_eq(v, 4294967295), \{
++        True: reindex_go(p, label_set(S.newc_set(s, old, k), which, i, k), which, U32.inc(i), U32.inc(k))
++        False: reindex_go(p, label_set(s, which, i, v), which, U32.inc(i), k)
++      })))
++
++def reindex(s: S.S, +which: U32, +n: U32) -> S.S & U32:
++  reindex_go(U32.to_nat(n), reindex_clear(U32.to_nat(n), s, 0), which, 0, 0)
++
++def groups_build(fuel: Nat, s: S.S, +i: U32, +which: U32) -> S.S:
++  match fuel:
++    case 0n:
++      s
++    case 1n+p:
++      gu(S.S, when(S.S & U32, U32.is_eq(which, 0), \{
++        True: S.mem_get(s, i)
++        False: S.ref_get(s, i)
++      }), s => +c =>
++      gl(S.S, S.groups_get(s, c), s => old =>
++        groups_build(p, S.groups_set(s, c, i <> old), U32.inc(i), which)))
++
++def groups_clear(fuel: Nat, s: S.S, +i: U32) -> S.S:
++  match fuel:
++    case 0n:
++      s
++    case 1n+p:
++      groups_clear(p, S.groups_set(s, i, Nil{}), U32.inc(i))
++
++def groups(s: S.S, +n: U32, +which: U32) -> S.S:
++  groups_build(U32.to_nat(n), groups_clear(U32.to_nat(n), s, 0), 0, which)
++
++def group(s: S.S, +c: U32) -> S.S & List<&2, U32>:
++  gl(S.S & List<&2, U32>, S.groups_get(s, c), s => xs => (s, G.rev_u32(xs, Nil{})))
++
++def list_len(xs: List<&2, U32>, +n: U32) -> U32:
++  match xs:
++    case Nil{}: n
++    case Con{h, t}: list_len(t, U32.inc(n))
++
++def order_from(xs: List<&2, U32>, s: S.S, +i: U32) -> S.S:
++  match xs:
++    case Nil{}: s
++    case Con{h, t}: order_from(t, S.order_set(s, i, h), U32.inc(i))
++
++# Clusty inserts both matrix directions into an undirected igraph graph.
++# Each neighbour is therefore encountered twice, in the same sorted order.
++def weights(xs: List<&2, G.Nb>) -> List<&2, G.Nb>:
++  match xs:
++    case Nil{}: Nil{}
++    case Con{G.Nb{+id, h, l}, t}:
++      S.pair(U32, U32, List<&2, G.Nb>, F.sub(1072693248, 0, h, l), +wh => +wl =>
++        G.Nb{id, wh, wl} <> G.Nb{id, wh, wl} <> weights(t))
++
++def weights_rows(fuel: Nat, rows: Array<List<&2, G.Nb>>, +i: U32) -> Array<List<&2, G.Nb>>:
++  match fuel:
++    case 0n: rows
++    case 1n+p:
++      S.pair(Array<List<&2, G.Nb>>, List<&2, G.Nb>, Array<List<&2, G.Nb>>,
++        Array.get(List<&2, G.Nb>, rows, i), rows => xs =>
++          weights_rows(p, Array.set(List<&2, G.Nb>, rows, i, weights(xs)), U32.inc(i)))
+--- /dev/null
++++ codex/cl_leiden_move.bend
+@@ -0,0 +1,147 @@
++# igraph Leiden fast local moves, including queue order and strict tie rules.
++import Base
++import ./f64.bend as F
++import ./cl_graph.bend as G
++import ./cl_leiden_state.bend as S
++import ./cl_leiden_rng.bend as R
++import ./cl_leiden_common.bend as C
++
++type Q is Type:
++  Q{s: S.S, head: U32, tail: U32, ne: U32}
++
++type NS is Type:
++  NS{s: S.S, ns: List<&2, U32>}
++
++type Choice is Type:
++  Choice{s: S.S, best: U32, gain: F.D}
++
++def initialize(fuel: Nat, s: S.S, +i: U32) -> S.S:
++  match fuel:
++    case 0n: s
++    case 1n+p:
++      C.gu(S.S, S.mem_get(s, i), s => +c =>
++      C.gd(S.S, S.nw_get(s, i), s => w =>
++      C.gu(S.S, S.count_get(s, c), s => count =>
++        initialize(p, S.count_set(S.cw_add(s, c, w), c, U32.inc(count)), U32.inc(i)))))
++
++def empties(fuel: Nat, s: S.S, +i: U32, +ne: U32) -> S.S & U32:
++  match fuel:
++    case 0n: (s, ne)
++    case 1n+p:
++      C.gu(S.S & U32, S.count_get(s, i), s => count =>
++      C.when(S.S & U32, U32.is_eq(count, 0), \{
++        True: empties(p, S.empty_set(s, ne, i), U32.inc(i), U32.inc(ne))
++        False: empties(p, s, U32.inc(i), ne)
++      }))
++
++def queue_init(fuel: Nat, s: S.S, +i: U32) -> S.S:
++  match fuel:
++    case 0n: s
++    case 1n+p:
++      C.gu(S.S, S.order_get(s, i), s => v =>
++        queue_init(p, S.queue_set(s, i, v), U32.inc(i)))
++
++def neighbors(xs: List<&2, G.Nb>, s: S.S, +v: U32, ns: List<&2, U32>) -> NS:
++  match xs:
++    case Nil{}: NS{s, ns}
++    case Con{G.Nb{+u, +h, +l}, rest}:
++      C.when(NS, U32.is_eq(u, v), \{
++        True: neighbors(rest, s, v, ns)
++        False: C.gu(NS, S.mem_get(s, u), s => +c =>
++          C.gu(NS, S.added_get(s, c), s => added => (
++            s = S.ewpc_add(s, c, F.D{h, l})
++            C.when(NS, U32.is_eq(added, 0), \{
++              True: neighbors(rest, S.added_set(s, c, 1), v, c <> ns)
++              False: neighbors(rest, s, v, ns)
++            }))))
++      })
++
++def gain(+ew: F.D, +nw: F.D, +cw: F.D, +res: F.D) -> F.D:
++  F.d_sub(ew, F.d_mul(F.d_mul(nw, cw), res))
++
++def choose_loop(ns: List<&2, U32>, s: S.S, +nw: F.D, +res: F.D, +best: U32, +maxd: F.D) -> Choice:
++  match ns:
++    case Nil{}: Choice{s, best, maxd}
++    case Con{+c, rest}:
++      C.gd(Choice, S.ewpc_get(s, c), s => ew =>
++      C.gd(Choice, S.cw_get(s, c), s => cw => (
++        +d = gain(ew, nw, cw, res)
++        s = S.added_set(S.ewpc_set(s, c, C.zero()), c, 0)
++        C.when(Choice, F.d_gt(d, maxd), \{
++          True: choose_loop(rest, s, nw, res, c, d)
++          False: choose_loop(rest, s, nw, res, best, maxd)
++        }))))
++
++def choose(ns: NS, +cur: U32, +nw: F.D, +res: F.D) -> Choice:
++  match ns:
++    case NS{s, ns}:
++      C.gd(Choice, S.ewpc_get(s, cur), s => ew =>
++      C.gd(Choice, S.cw_get(s, cur), s => cw =>
++        choose_loop(G.rev_u32(ns, Nil{}), s, nw, res, cur, gain(ew, nw, cw, res))))
++
++def enqueue(xs: List<&2, G.Nb>, s: S.S, +best: U32, +tail: U32, +n: U32) -> S.S & U32:
++  match xs:
++    case Nil{}: (s, tail)
++    case Con{G.Nb{+u, h, l}, rest}:
++      C.gu(S.S & U32, S.stable_get(s, u), s => stable =>
++      C.gu(S.S & U32, S.mem_get(s, u), s => mem =>
++      C.when(S.S & U32, U32.is_ne(stable, 0) && U32.is_ne(mem, best), \{
++        True: enqueue(rest, S.stable_set(S.queue_set(s, U32.mod(tail, n), u), u, 0), best, U32.inc(tail), n)
++        False: enqueue(rest, s, best, tail, n)
++      })))
++
++def finish_choice(ch: Choice, +v: U32, +cur: U32, +nw: F.D, +head: U32, +tail: U32, +ne: U32, +n: U32) -> Q:
++  match ch:
++    case Choice{s, +best, maxd}:
++      C.gu(Q, S.count_get(s, best), s => nb =>
++      C.gu(Q, S.empty_get(s, U32.sub(ne, 1)), s => last => (
++        s = S.stable_set(S.count_set(S.cw_add(s, best, nw), best, U32.inc(nb)), v, 1)
++        +ne2 = U32.sub(ne, F.b2u(U32.is_eq(best, last)))
++        C.when(Q, U32.is_eq(best, cur), \{
++          True: Q{s, head, tail, ne2}
++          False: C.gr(Q, S.rows_get(S.mem_set(S.changed_set(s, True{}), v, best), v), s => xs =>
++            C.gu(Q, enqueue(xs, s, best, tail, n), s => t => Q{s, head, t, ne2}))
++        }))))
++
++def remove(s: S.S, +v: U32, +cur: U32, +nw: F.D, +ne: U32) -> S.S & U32:
++  C.gu(S.S & U32, S.count_get(s, cur), s => nb => (
++    +nb2 = U32.sub(nb, 1)
++    s = S.count_set(S.cw_sub(s, cur, nw), cur, nb2)
++    C.when(S.S & U32, U32.is_eq(nb2, 0), \{
++      True: (S.empty_set(s, ne, cur), U32.inc(ne))
++      False: (s, ne)
++    })))
++
++def visit(s: S.S, +v: U32, +head: U32, +tail: U32, +ne: U32, +n: U32, +res: F.D) -> Q:
++  C.gu(Q, S.mem_get(s, v), s => +cur =>
++  C.gd(Q, S.nw_get(s, v), s => +nw =>
++  C.gu(Q, remove(s, v, cur, nw, ne), s => +ne =>
++  C.gu(Q, S.empty_get(s, U32.sub(ne, 1)), s => +empty =>
++  C.gr(Q, S.rows_get(S.added_set(s, empty, 1), v), s => xs =>
++    finish_choice(choose(neighbors(xs, s, v, [empty]), cur, nw, res),
++      v, cur, nw, head, tail, ne, n))))))
++
++def step(q: Q, +n: U32, +res: F.D) -> Q:
++  match q:
++    case Q{s, +head, +tail, +ne}:
++      C.gu(Q, S.queue_get(s, U32.mod(head, n)), s => v =>
++        visit(s, v, U32.inc(head), tail, ne, n, res))
++
++def run(fuel: Nat, q: Q, +n: U32, +res: F.D) -> S.S:
++  match fuel q:
++    case 0n Q{s, +head, +tail, ne}:
++      C.when(S.S, U32.is_eq(head, tail), \{
++        True: s
++        False: S.err_set(s, True{})
++      })
++    case 1n+p Q{s, +head, +tail, ne}:
++      C.when(S.S, U32.is_eq(head, tail), \{
++        True: s
++        False: run(p, step(Q{s, head, tail, ne}, n, res), n, res)
++      })
++
++def fastmove(s: S.S, +n: U32, +res: F.D) -> S.S & U32:
++  s = initialize(U32.to_nat(n), C.clear(U32.to_nat(n), s, 0), 0)
++  C.gu(S.S & U32, empties(U32.to_nat(n), s, 0, 0), s => ne => (
++    s = queue_init(U32.to_nat(n), R.shuffle(s, n), 0)
++    C.reindex(run(U32.to_nat(1000000), Q{s, 0, n, ne}, n, res), 0, n)))
+--- /dev/null
++++ codex/cl_leiden_refine.bend
+@@ -0,0 +1,224 @@
++# Constrained singleton refinement, matching igraph's weighted random choice.
++import Base
++import ./f64.bend as F
++import ./cl_graph.bend as G
++import ./cl_leiden_state.bend as S
++import ./cl_leiden_rng.bend as R
++import ./cl_leiden_common.bend as C
++import ./cl_leiden_move.bend as M
++
++type Pick is Type:
++  Pick{s: S.S, best: U32, maxd: F.D, total: F.D, len: U32}
++
++
++def clear(fuel: Nat, s: S.S, +i: U32) -> S.S:
++  match fuel:
++    case 0n: s
++    case 1n+p:
++      s = S.cw_set(s, i, C.zero())
++      s = S.ext_set(s, i, C.zero())
++      s = S.ewpc_set(s, i, C.zero())
++      s = S.added_set(s, i, 0)
++      s = S.nonsingle_set(s, i, 0)
++      s = S.count_set(s, i, 0)
++      clear(p, S.newc_set(s, i, 4294967295), U32.inc(i))
++
++
++def ext_init(xs: List<&2, G.Nb>, s: S.S, +v: U32, +ci: U32, +csub: U32) -> S.S:
++  match xs:
++    case Nil{}: s
++    case Con{G.Nb{+u, +h, +l}, rest}:
++      C.gu(S.S, S.mem_get(s, u), s => c =>
++      C.when(S.S, U32.is_ne(u, v) && U32.is_eq(c, csub), \{
++        True: ext_init(rest, S.ext_add(s, ci, F.D{h, l}), v, ci, csub)
++        False: ext_init(rest, s, v, ci, csub)
++      }))
++
++
++def initialize(xs: List<&2, U32>, s: S.S, +i: U32, +csub: U32, +total: F.D) -> S.S & F.D:
++  match xs:
++    case Nil{}: (s, total)
++    case Con{+v, rest}:
++      C.gd(S.S & F.D, S.nw_get(s, v), s => +w =>
++      C.gr(S.S & F.D, S.rows_get(s, v), s => row => (
++        s = S.ref_set(S.count_set(S.cw_set(s, i, w), i, 1), v, i)
++        initialize(rest, ext_init(row, s, v, i, csub), U32.inc(i), csub, F.d_add(total, w)))))
++
++
++def neighbors(xs: List<&2, G.Nb>, s: S.S, +v: U32, +csub: U32, ns: List<&2, U32>) -> M.NS:
++  match xs:
++    case Nil{}: M.NS{s, ns}
++    case Con{G.Nb{+u, +h, +l}, rest}:
++      C.gu(M.NS, S.mem_get(s, u), s => c =>
++      C.when(M.NS, U32.is_ne(u, v) && U32.is_eq(c, csub), \{
++        False: neighbors(rest, s, v, csub, ns)
++        True: C.gu(M.NS, S.ref_get(s, u), s => +rc =>
++          C.gu(M.NS, S.added_get(s, rc), s => added => (
++            s = S.ewpc_add(s, rc, F.D{h, l})
++            C.when(M.NS, U32.is_eq(added, 0), \{
++              True: neighbors(rest, S.added_set(s, rc, 1), v, csub, rc <> ns)
++              False: neighbors(rest, s, v, csub, ns)
++            }))))
++      }))
++
++
++def connected(+ext: F.D, +cw: F.D, +total: F.D, +res: F.D) -> Bool:
++  F.d_ge(ext, F.d_mul(F.d_mul(cw, F.d_sub(total, cw)), res))
++
++
++def evaluate(s: S.S, +c: U32, +nw: F.D, +sumw: F.D, +res: F.D, +beta: F.D,
++             +tab: F.Tab, +best: U32, +maxd: F.D, +tot: F.D, +j: U32) -> Pick:
++  C.gd(Pick, S.ext_get(s, c), s => ext =>
++  C.gd(Pick, S.cw_get(s, c), s => +cw =>
++  C.gd(Pick, S.ewpc_get(s, c), s => ew => (
++    s = S.added_set(S.ewpc_set(s, c, C.zero()), c, 0)
++    C.when(Pick, connected(ext, cw, sumw, res), \{
++      False: Pick{s, best, maxd, tot, j}
++      True: (
++        +d = M.gain(ew, nw, cw, res)
++        +better = F.d_gt(d, maxd)
++        +newbest = F.sel(better, c, best)
++        +newmax = G.nth_pick(better, d, maxd)
++        C.when(Pick, F.d_ge(d, C.zero()), \{
++          True: Pick{s, newbest, newmax, F.d_add(tot, F.d_exp(F.d_div(d, beta), tab)), j}
++          False: Pick{s, newbest, newmax, tot, j}
++        })
++      )
++    })))))
++
++
++def save_pick(p: Pick, +c: U32) -> Pick:
++  match p:
++    case Pick{s, best, maxd, +tot, +j}:
++      Pick{S.amem_set(S.cum_set(s, j, tot), j, c), best, maxd, tot, U32.inc(j)}
++
++
++def picks(ns: List<&2, U32>, p: Pick, +nw: F.D, +sumw: F.D, +res: F.D, +beta: F.D, +tab: F.Tab) -> Pick:
++  match ns p:
++    case Nil{} Pick{s, best, maxd, tot, j}: Pick{s, best, maxd, tot, j}
++    case Con{+c, rest} Pick{s, best, maxd, tot, +j}:
++      # Evaluate one choice first; its cumulative weight is stored by save_pick.
++      picks(rest, save_pick(evaluate(s, c, nw, sumw, res, beta, tab, best, maxd, tot, j), c),
++        nw, sumw, res, beta, tab)
++
++
++def binary(fuel: Nat, s: S.S, +lo: U32, +hi: U32, +r: F.D) -> S.S & U32:
++  match fuel:
++    case 0n: (S.err_set(s, True{}), lo)
++    case 1n+p:
++      C.when(S.S & U32, U32.is_gt(lo, hi), \{
++        True: (s, lo)
++        False: (
++          +mid = U32.add(lo, U32.shrn(U32.sub(hi, lo), 1n))
++          C.gd(S.S & U32, S.cum_get(s, mid), s => +x =>
++          C.when(S.S & U32, F.d_gt(x, r), \{
++            True: C.when(S.S & U32, U32.is_eq(mid, 0), \{
++              True: (s, 0)
++              False: binary(p, s, lo, U32.sub(mid, 1), r)
++            })
++            False: C.when(S.S & U32, F.d_lt(x, r), \{
++              True: binary(p, s, U32.inc(mid), hi, r)
++              False: (s, mid)
++            })
++          }))
++        )
++      })
++
++
++def selected(p: Pick) -> S.S & U32:
++  match p:
++    case Pick{s, best, maxd, +tot, +len}:
++      C.when(S.S & U32, F.d_lt(tot, F.D{2146435072, 0}), \{
++        False: (s, best)
++        True: C.gd(S.S & U32, R.uniform(s, tot), s => r =>
++          C.gu(S.S & U32, binary(64n, s, 0, U32.sub(len, 1), r), s => pos =>
++            S.amem_get(s, pos)))
++      })
++
++
++def choose(ns: M.NS, +cur: U32, +nw: F.D, +sumw: F.D, +res: F.D, +beta: F.D, +tab: F.Tab) -> S.S & U32:
++  match ns:
++    case M.NS{s, ns}:
++      selected(picks(G.rev_u32(ns, Nil{}), Pick{s, cur, C.zero(), C.zero(), 0}, nw, sumw, res, beta, tab))
++
++
++def update_ext(xs: List<&2, G.Nb>, s: S.S, +chosen: U32, +csub: U32) -> S.S:
++  match xs:
++    case Nil{}: s
++    case Con{G.Nb{+u, +h, +l}, rest}:
++      C.gu(S.S, S.mem_get(s, u), s => c =>
++      C.when(S.S, U32.is_eq(c, csub), \{
++        False: update_ext(rest, s, chosen, csub)
++        True: C.gu(S.S, S.ref_get(s, u), s => rc =>
++          C.when(S.S, U32.is_eq(rc, chosen), \{
++            True: update_ext(rest, S.ext_sub(s, chosen, F.D{h, l}), chosen, csub)
++            False: update_ext(rest, S.ext_add(s, chosen, F.D{h, l}), chosen, csub)
++          }))
++      }))
++
++
++def move(s: S.S, +v: U32, +cur: U32, +csub: U32, +sumw: F.D, +res: F.D, +beta: F.D, +tab: F.Tab) -> S.S:
++  s = S.added_set(S.count_set(S.cw_set(s, cur, C.zero()), cur, 0), cur, 1)
++  C.gd(S.S, S.nw_get(s, v), s => +nw =>
++  C.gr(S.S, S.rows_get(s, v), s => xs =>
++  C.gu(S.S, choose(neighbors(xs, s, v, csub, [cur]), cur, nw, sumw, res, beta, tab), s => +chosen =>
++  C.gu(S.S, S.count_get(s, chosen), s => nb => (
++    s = S.count_set(S.cw_add(s, chosen, nw), chosen, U32.inc(nb))
++    C.gr(S.S, S.rows_get(s, v), s => xs => (
++      s = update_ext(xs, s, chosen, csub)
++      C.when(S.S, U32.is_eq(chosen, cur), \{
++        True: s
++        False: S.nonsingle_set(S.ref_set(s, v, chosen), chosen, 1)
++      }))))))))
++
++
++def visit(s: S.S, +v: U32, +csub: U32, +sumw: F.D, +res: F.D, +beta: F.D, +tab: F.Tab) -> S.S:
++  C.gu(S.S, S.ref_get(s, v), s => +cur =>
++  C.gu(S.S, S.nonsingle_get(s, cur), s => ns =>
++  C.gd(S.S, S.ext_get(s, cur), s => ext =>
++  C.gd(S.S, S.cw_get(s, cur), s => cw =>
++  C.when(S.S, U32.is_eq(ns, 0) && connected(ext, cw, sumw, res), \{
++    True: move(s, v, cur, csub, sumw, res, beta, tab)
++    False: s
++  })))))
++
++
++def run(fuel: Nat, s: S.S, +i: U32, +csub: U32, +sumw: F.D, +res: F.D, +beta: F.D, +tab: F.Tab) -> S.S:
++  match fuel:
++    case 0n: s
++    case 1n+p:
++      C.gu(S.S, S.order_get(s, i), s => v =>
++        run(p, visit(s, v, csub, sumw, res, beta, tab), U32.inc(i), csub, sumw, res, beta, tab))
++
++
++def clean(xs: List<&2, U32>, s: S.S, +next: U32) -> S.S & U32:
++  match xs:
++    case Nil{}: (s, next)
++    case Con{+v, rest}:
++      C.gu(S.S & U32, S.ref_get(s, v), s => +old =>
++      C.gu(S.S & U32, S.newc_get(s, old), s => +nc =>
++      C.when(S.S & U32, U32.is_eq(nc, 4294967295), \{
++        True: clean(rest, S.ref_set(S.newc_set(s, old, next), v, next), U32.inc(next))
++        False: clean(rest, S.ref_set(s, v, nc), next)
++      })))
++
++
++def merge(+subset: List<&2, U32>, s: S.S, +csub: U32, +res: F.D, +beta: F.D, +tab: F.Tab, +next: U32) -> S.S & U32:
++  +n = C.list_len(subset, 0)
++  s = clear(U32.to_nat(n), s, 0)
++  C.gd(S.S & U32, initialize(subset, s, 0, csub, C.zero()), s => sumw => (
++    s = R.shuffle(C.order_from(subset, s, 0), n)
++    clean(subset, run(U32.to_nat(n), s, 0, csub, sumw, res, beta, tab), next)))
++
++
++def clusters(fuel: Nat, s: S.S, +c: U32, +res: F.D, +beta: F.D, +tab: F.Tab, +next: U32) -> S.S & U32:
++  match fuel:
++    case 0n: (s, next)
++    case 1n+p:
++      C.gl(S.S & U32, C.group(s, c), s => subset =>
++      C.gu(S.S & U32, merge(subset, s, c, res, beta, tab, next), s => next =>
++        clusters(p, s, U32.inc(c), res, beta, tab, next)))
++
++
++def refine(s: S.S, +n: U32, +nc: U32, +res: F.D, +beta: F.D, +tab: F.Tab) -> S.S & U32:
++  clusters(U32.to_nat(nc), C.groups(s, n, 0), 0, res, beta, tab, 0)
+--- /dev/null
++++ codex/cl_leiden_rng.bend
+@@ -0,0 +1,78 @@
++# igraph 0.10.10 PCG32, bounded integer sampling, and binary64 uniform draws.
++import Base
++import ./f64.bend as F
++import ./cl_leiden_state.bend as S
++
++def when(-A: Type, c: Bool, k: Bool -> A) -> A:
++  k(c)
++
++def draw(s: S.S) -> S.S & U32:
++  S.pair(S.S, U32, S.S & U32, S.rh_get(s), s => +h =>
++  S.pair(S.S, U32, S.S & U32, S.rl_get(s), s => +l =>
++  S.pair(U32, U32, S.S & U32, F.mul32(l, 1284865837), +ph => +pl => (
++  +nl = U32.add(pl, 2495175643)
++  +nh = U32.add(U32.add(U32.add(U32.add(ph, U32.mul(h, 1284865837)),
++    U32.mul(l, 1481765933)), 3661511115), F.b2u(U32.is_lt(nl, pl)))
++  +xh = U32.xor(U32.shrn(h, 18n), h)
++  +xl = U32.xor(U32.or(U32.shrn(l, 18n), U32.shln(h, 14n)), l)
++  +xs = U32.or(U32.shrn(xl, 27n), U32.shln(xh, 5n))
++  +rot = U32.shrn(h, 27n)
++  +r = U32.or(F.shr(xs, rot), F.shl(xs, U32.and(U32.sub(0, rot), 31)))
++  (S.rl_set(S.rh_set(s, nh), nl), r)))))
++
++def integer_go(fuel: Nat, s: S.S, +range: U32, +threshold: U32) -> S.S & U32:
++  match fuel:
++    case 0n:
++      (S.err_set(s, True{}), 0)
++    case 1n+p:
++      S.pair(S.S, U32, S.S & U32, draw(s), s => x =>
++      S.pair(U32, U32, S.S & U32, F.mul32(x, range), +hi => +lo =>
++      when(S.S & U32, U32.is_ge(lo, threshold), \{
++        True: (s, hi)
++        False: integer_go(p, s, range, threshold)
++      })))
++
++def integer(s: S.S, +range: U32) -> S.S & U32:
++  when(S.S & U32, U32.is_le(range, 1), \{
++    True: (s, 0)
++    False: integer_go(128n, s, range, U32.mod(U32.sub(0, range), range))
++  })
++
++def uniform01(s: S.S) -> S.S & F.D:
++  S.pair(S.S, U32, S.S & F.D, draw(s), s => +a =>
++  S.pair(S.S, U32, S.S & F.D, draw(s), s => +b => (
++  +h = U32.or(1072693248, U32.and(U32.shrn(a, 12n), 1048575))
++  +l = U32.or(U32.shln(a, 20n), U32.shrn(b, 12n))
++  (s, F.d_sub(F.D{h, l}, F.D{1072693248, 0})))))
++
++def uniform_go(fuel: Nat, s: S.S, +hi: F.D) -> S.S & F.D:
++  match fuel:
++    case 0n:
++      (S.err_set(s, True{}), F.D{0, 0})
++    case 1n+p:
++      S.pair(S.S, F.D, S.S & F.D, uniform01(s), s => r => (
++      +v = F.d_mul(r, hi)
++      when(S.S & F.D, F.d_eq(v, hi), \{
++        True: uniform_go(p, s, hi)
++        False: (s, v)
++      })))
++
++def uniform(s: S.S, +hi: F.D) -> S.S & F.D:
++  when(S.S & F.D, F.d_eq(hi, F.D{0, 0}), \{
++    True: (s, hi)
++    False: uniform_go(128n, s, hi)
++  })
++
++def shuffle_go(fuel: Nat, s: S.S, +n: U32) -> S.S:
++  match fuel:
++    case 0n:
++      s
++    case 1n+p:
++      +last = U32.sub(n, 1)
++      S.pair(S.S, U32, S.S, integer(s, n), s => +k =>
++      S.pair(S.S, U32, S.S, S.order_get(s, last), s => a =>
++      S.pair(S.S, U32, S.S, S.order_get(s, k), s => b =>
++        shuffle_go(p, S.order_set(S.order_set(s, last, b), k, a), last))))
++
++def shuffle(s: S.S, +n: U32) -> S.S:
++  shuffle_go(U32.to_nat(U32.sub(U32.max(n, 1), 1)), s, n)
+--- /dev/null
++++ codex/cl_leiden_state.bend
+@@ -0,0 +1,365 @@
++# Generated by tools/generate_leiden_state.py. Do not hand-edit.
++
++import Base
++import ./f64.bend as F
++import ./cl_graph.bend as G
++
++type S is Type:
++  S{rows: Array<List<&2, G.Nb>>, original_rows: Array<List<&2, G.Nb>>, groups: Array<List<&2, U32>>, mem: Array<U32>, ref: Array<U32>, count: Array<U32>, stable: Array<U32>, added: Array<U32>, nonsingle: Array<U32>, order: Array<U32>, empty: Array<U32>, queue: Array<U32>, mapping: Array<U32>, orig: Array<U32>, newc: Array<U32>, amem: Array<U32>, nw: Array<F.D>, cw: Array<F.D>, ext: Array<F.D>, ewpc: Array<F.D>, cum: Array<F.D>, anw: Array<F.D>, rh: U32, rl: U32, changed: Bool, err: Bool}
++
++def pair(-A: Type, -B: Type, -C: Type, p: A & B, k: A -> B -> C) -> C:
++  (a, b) = p
++  k(a)(b)
++
++def rows_get(s: S, +i: U32) -> S & List<&2, G.Nb>:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      pair(Array<List<&2, G.Nb>>, List<&2, G.Nb>, S & List<&2, G.Nb>, Array.get(List<&2, G.Nb>, rows, i), a => v =>
++        (S{a, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}, v))
++
++def rows_set(s: S, +i: U32, v: List<&2, G.Nb>) -> S:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      S{Array.set(List<&2, G.Nb>, rows, i, v), original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}
++
++def original_rows_get(s: S, +i: U32) -> S & List<&2, G.Nb>:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      pair(Array<List<&2, G.Nb>>, List<&2, G.Nb>, S & List<&2, G.Nb>, Array.get(List<&2, G.Nb>, original_rows, i), a => v =>
++        (S{rows, a, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}, v))
++
++def original_rows_set(s: S, +i: U32, v: List<&2, G.Nb>) -> S:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      S{rows, Array.set(List<&2, G.Nb>, original_rows, i, v), groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}
++
++def groups_get(s: S, +i: U32) -> S & List<&2, U32>:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      pair(Array<List<&2, U32>>, List<&2, U32>, S & List<&2, U32>, Array.get(List<&2, U32>, groups, i), a => v =>
++        (S{rows, original_rows, a, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}, v))
++
++def groups_set(s: S, +i: U32, v: List<&2, U32>) -> S:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      S{rows, original_rows, Array.set(List<&2, U32>, groups, i, v), mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}
++
++def mem_get(s: S, +i: U32) -> S & U32:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      pair(Array<U32>, U32, S & U32, Array.get(U32, mem, i), a => v =>
++        (S{rows, original_rows, groups, a, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}, v))
++
++def mem_set(s: S, +i: U32, v: U32) -> S:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      S{rows, original_rows, groups, Array.set(U32, mem, i, v), ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}
++
++def ref_get(s: S, +i: U32) -> S & U32:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      pair(Array<U32>, U32, S & U32, Array.get(U32, ref, i), a => v =>
++        (S{rows, original_rows, groups, mem, a, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}, v))
++
++def ref_set(s: S, +i: U32, v: U32) -> S:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      S{rows, original_rows, groups, mem, Array.set(U32, ref, i, v), count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}
++
++def count_get(s: S, +i: U32) -> S & U32:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      pair(Array<U32>, U32, S & U32, Array.get(U32, count, i), a => v =>
++        (S{rows, original_rows, groups, mem, ref, a, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}, v))
++
++def count_set(s: S, +i: U32, v: U32) -> S:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      S{rows, original_rows, groups, mem, ref, Array.set(U32, count, i, v), stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}
++
++def stable_get(s: S, +i: U32) -> S & U32:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      pair(Array<U32>, U32, S & U32, Array.get(U32, stable, i), a => v =>
++        (S{rows, original_rows, groups, mem, ref, count, a, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}, v))
++
++def stable_set(s: S, +i: U32, v: U32) -> S:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      S{rows, original_rows, groups, mem, ref, count, Array.set(U32, stable, i, v), added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}
++
++def added_get(s: S, +i: U32) -> S & U32:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      pair(Array<U32>, U32, S & U32, Array.get(U32, added, i), a => v =>
++        (S{rows, original_rows, groups, mem, ref, count, stable, a, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}, v))
++
++def added_set(s: S, +i: U32, v: U32) -> S:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      S{rows, original_rows, groups, mem, ref, count, stable, Array.set(U32, added, i, v), nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}
++
++def nonsingle_get(s: S, +i: U32) -> S & U32:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      pair(Array<U32>, U32, S & U32, Array.get(U32, nonsingle, i), a => v =>
++        (S{rows, original_rows, groups, mem, ref, count, stable, added, a, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}, v))
++
++def nonsingle_set(s: S, +i: U32, v: U32) -> S:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      S{rows, original_rows, groups, mem, ref, count, stable, added, Array.set(U32, nonsingle, i, v), order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}
++
++def order_get(s: S, +i: U32) -> S & U32:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      pair(Array<U32>, U32, S & U32, Array.get(U32, order, i), a => v =>
++        (S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, a, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}, v))
++
++def order_set(s: S, +i: U32, v: U32) -> S:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, Array.set(U32, order, i, v), empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}
++
++def empty_get(s: S, +i: U32) -> S & U32:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      pair(Array<U32>, U32, S & U32, Array.get(U32, empty, i), a => v =>
++        (S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, a, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}, v))
++
++def empty_set(s: S, +i: U32, v: U32) -> S:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, Array.set(U32, empty, i, v), queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}
++
++def queue_get(s: S, +i: U32) -> S & U32:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      pair(Array<U32>, U32, S & U32, Array.get(U32, queue, i), a => v =>
++        (S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, a, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}, v))
++
++def queue_set(s: S, +i: U32, v: U32) -> S:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, Array.set(U32, queue, i, v), mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}
++
++def mapping_get(s: S, +i: U32) -> S & U32:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      pair(Array<U32>, U32, S & U32, Array.get(U32, mapping, i), a => v =>
++        (S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, a, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}, v))
++
++def mapping_set(s: S, +i: U32, v: U32) -> S:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, Array.set(U32, mapping, i, v), orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}
++
++def orig_get(s: S, +i: U32) -> S & U32:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      pair(Array<U32>, U32, S & U32, Array.get(U32, orig, i), a => v =>
++        (S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, a, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}, v))
++
++def orig_set(s: S, +i: U32, v: U32) -> S:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, Array.set(U32, orig, i, v), newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}
++
++def newc_get(s: S, +i: U32) -> S & U32:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      pair(Array<U32>, U32, S & U32, Array.get(U32, newc, i), a => v =>
++        (S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, a, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}, v))
++
++def newc_set(s: S, +i: U32, v: U32) -> S:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, Array.set(U32, newc, i, v), amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}
++
++def amem_get(s: S, +i: U32) -> S & U32:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      pair(Array<U32>, U32, S & U32, Array.get(U32, amem, i), a => v =>
++        (S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, a, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}, v))
++
++def amem_set(s: S, +i: U32, v: U32) -> S:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, Array.set(U32, amem, i, v), nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}
++
++def nw_get(s: S, +i: U32) -> S & F.D:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      pair(Array<F.D>, F.D, S & F.D, Array.get(F.D, nw, i), a => v =>
++        (S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, a, cw, ext, ewpc, cum, anw, rh, rl, changed, err}, v))
++
++def nw_set(s: S, +i: U32, v: F.D) -> S:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, Array.set(F.D, nw, i, v), cw, ext, ewpc, cum, anw, rh, rl, changed, err}
++
++def cw_get(s: S, +i: U32) -> S & F.D:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      pair(Array<F.D>, F.D, S & F.D, Array.get(F.D, cw, i), a => v =>
++        (S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, a, ext, ewpc, cum, anw, rh, rl, changed, err}, v))
++
++def cw_set(s: S, +i: U32, v: F.D) -> S:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, Array.set(F.D, cw, i, v), ext, ewpc, cum, anw, rh, rl, changed, err}
++
++def ext_get(s: S, +i: U32) -> S & F.D:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      pair(Array<F.D>, F.D, S & F.D, Array.get(F.D, ext, i), a => v =>
++        (S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, a, ewpc, cum, anw, rh, rl, changed, err}, v))
++
++def ext_set(s: S, +i: U32, v: F.D) -> S:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, Array.set(F.D, ext, i, v), ewpc, cum, anw, rh, rl, changed, err}
++
++def ewpc_get(s: S, +i: U32) -> S & F.D:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      pair(Array<F.D>, F.D, S & F.D, Array.get(F.D, ewpc, i), a => v =>
++        (S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, a, cum, anw, rh, rl, changed, err}, v))
++
++def ewpc_set(s: S, +i: U32, v: F.D) -> S:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, Array.set(F.D, ewpc, i, v), cum, anw, rh, rl, changed, err}
++
++def cum_get(s: S, +i: U32) -> S & F.D:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      pair(Array<F.D>, F.D, S & F.D, Array.get(F.D, cum, i), a => v =>
++        (S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, a, anw, rh, rl, changed, err}, v))
++
++def cum_set(s: S, +i: U32, v: F.D) -> S:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, Array.set(F.D, cum, i, v), anw, rh, rl, changed, err}
++
++def anw_get(s: S, +i: U32) -> S & F.D:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      pair(Array<F.D>, F.D, S & F.D, Array.get(F.D, anw, i), a => v =>
++        (S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, a, rh, rl, changed, err}, v))
++
++def anw_set(s: S, +i: U32, v: F.D) -> S:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, Array.set(F.D, anw, i, v), rh, rl, changed, err}
++
++def rh_get(s: S) -> S & U32:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, +rh, rl, changed, err}:
++      (S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}, rh)
++
++def rh_set(s: S, v: U32) -> S:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, v, rl, changed, err}
++
++def rl_get(s: S) -> S & U32:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, +rl, changed, err}:
++      (S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}, rl)
++
++def rl_set(s: S, v: U32) -> S:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, v, changed, err}
++
++def changed_get(s: S) -> S & Bool:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, +changed, err}:
++      (S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}, changed)
++
++def changed_set(s: S, v: Bool) -> S:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, v, err}
++
++def err_get(s: S) -> S & Bool:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, +err}:
++      (S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}, err)
++
++def err_set(s: S, v: Bool) -> S:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, v}
++
++def nw_add(s: S, +i: U32, v: F.D) -> S:
++  pair(S, F.D, S, nw_get(s, i), s => old =>
++    nw_set(s, i, F.d_add(old, v)))
++
++def nw_sub(s: S, +i: U32, v: F.D) -> S:
++  pair(S, F.D, S, nw_get(s, i), s => old =>
++    nw_set(s, i, F.d_sub(old, v)))
++
++def cw_add(s: S, +i: U32, v: F.D) -> S:
++  pair(S, F.D, S, cw_get(s, i), s => old =>
++    cw_set(s, i, F.d_add(old, v)))
++
++def cw_sub(s: S, +i: U32, v: F.D) -> S:
++  pair(S, F.D, S, cw_get(s, i), s => old =>
++    cw_set(s, i, F.d_sub(old, v)))
++
++def ext_add(s: S, +i: U32, v: F.D) -> S:
++  pair(S, F.D, S, ext_get(s, i), s => old =>
++    ext_set(s, i, F.d_add(old, v)))
++
++def ext_sub(s: S, +i: U32, v: F.D) -> S:
++  pair(S, F.D, S, ext_get(s, i), s => old =>
++    ext_set(s, i, F.d_sub(old, v)))
++
++def ewpc_add(s: S, +i: U32, v: F.D) -> S:
++  pair(S, F.D, S, ewpc_get(s, i), s => old =>
++    ewpc_set(s, i, F.d_add(old, v)))
++
++def ewpc_sub(s: S, +i: U32, v: F.D) -> S:
++  pair(S, F.D, S, ewpc_get(s, i), s => old =>
++    ewpc_set(s, i, F.d_sub(old, v)))
++
++def cum_add(s: S, +i: U32, v: F.D) -> S:
++  pair(S, F.D, S, cum_get(s, i), s => old =>
++    cum_set(s, i, F.d_add(old, v)))
++
++def cum_sub(s: S, +i: U32, v: F.D) -> S:
++  pair(S, F.D, S, cum_get(s, i), s => old =>
++    cum_set(s, i, F.d_sub(old, v)))
++
++def anw_add(s: S, +i: U32, v: F.D) -> S:
++  pair(S, F.D, S, anw_get(s, i), s => old =>
++    anw_set(s, i, F.d_add(old, v)))
++
++def anw_sub(s: S, +i: U32, v: F.D) -> S:
++  pair(S, F.D, S, anw_get(s, i), s => old =>
++    anw_set(s, i, F.d_sub(old, v)))
++
++def new(+n: U32, rows: Array<List<&2, G.Nb>>) -> S:
++  +d = G.depth(n)
++  pair(Array<List<&2, G.Nb>>, Array<List<&2, G.Nb>>, S,
++    Array.clone(List<&2, G.Nb>, rows), rows => original_rows =>
++  S{rows, original_rows, Array.new(List<&2, U32>, d, Nil{}), G.u32_array(n, 0), G.u32_array(n, 0), G.u32_array(n, 0), G.u32_array(n, 0), G.u32_array(n, 0), G.u32_array(n, 0), G.u32_array(n, 0), G.u32_array(n, 0), G.u32_array(n, 0), G.u32_array(n, 0), G.u32_array(n, 0), G.u32_array(n, 0), G.u32_array(n, 0), Array.new(F.D, d, F.D{0, 0}), Array.new(F.D, d, F.D{0, 0}), Array.new(F.D, d, F.D{0, 0}), Array.new(F.D, d, F.D{0, 0}), Array.new(F.D, d, F.D{0, 0}), Array.new(F.D, d, F.D{0, 0}), 2235320806, 1955588763, False{}, False{}})
++
++def reset_graph(s: S) -> S:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      pair(Array<List<&2, G.Nb>>, Array<List<&2, G.Nb>>, S,
++        Array.clone(List<&2, G.Nb>, original_rows), original_rows => rows =>
++          S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err})
++
++def replace_graph(s: S, g: Array<List<&2, G.Nb>>) -> S:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      S{g, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}
++
++def output(s: S) -> Array<U32>:
++  match s:
++    case S{rows, original_rows, groups, mem, ref, count, stable, added, nonsingle, order, empty, queue, mapping, orig, newc, amem, nw, cw, ext, ewpc, cum, anw, rh, rl, changed, err}:
++      orig
+--- /dev/null
++++ codex/clique_certificate.bend
+@@ -0,0 +1,77 @@
++# Independent certificate for complete-linkage's pairwise threshold contract.
++# Rows come from the filtered input graph, before the clustering algorithm runs.
++import Base
++import ./partition_certificate.bend as P
++
++type Vertex is Data:
++  Vertex{id: U32, label: U32, adjacent: List<&2, U32>}
++
++def contains(+x: U32, xs: List<&2, U32>) -> Bool:
++  match xs:
++    case Nil{}: False{}
++    case Con{h, t}: Bool.or(U32.is_eq(x, h), contains(x, t))
++
++def pair_ok(a: Vertex, b: Vertex) -> Bool:
++  match a b:
++    case Vertex{+i, c, ns} Vertex{+j, d, ms}:
++      Bool.or(U32.is_eq(i, j), Bool.or(U32.is_ne(c, d), contains(j, ns)))
++
++def Row(+a: Vertex, xs: List<&2, Vertex>) -> Data:
++  match xs:
++    case Nil{}: Unit
++    case Con{b, t}:
++      Sigma<&2, &2, P.Holds(pair_ok(a, b)), _ => Row(a, t)>
++
++def Clique(xs: List<&2, Vertex>) -> Data:
++  match xs:
++    case Nil{}: Unit
++    case Con{a, t}:
++      Sigma<&2, &2, Row(a, t), _ => Clique(t)>
++
++def check_row(+a: Vertex, xs: List<&2, Vertex>) -> Bool:
++  match xs:
++    case Nil{}: True{}
++    case Con{b, t}: Bool.and(pair_ok(a, b), check_row(a, t))
++
++def check(xs: List<&2, Vertex>) -> Bool:
++  match xs:
++    case Nil{}: True{}
++    case Con{a, +t}: Bool.and(check_row(a, t), check(t))
++
++def row_sound(+a: Vertex, +xs: List<&2, Vertex>, +ok: P.Holds(check_row(a, xs))) -> Row(a, xs):
++  match xs:
++    case Nil{}: Unit{}
++    case Con{+b, +t}:
++      (P.and_left(pair_ok(a, b), check_row(a, t), ok),
++       row_sound(a, t, P.and_right(pair_ok(a, b), check_row(a, t), ok)))
++
++law sound:
++  for +xs: List<&2, Vertex>
++  for +ok: P.Holds(check(xs))
++  Clique(xs)
++
++def sound(xs, ok):
++  match xs:
++    case Nil{}: Unit{}
++    case Con{+a, +t}:
++      (row_sound(a, t, P.and_left(check_row(a, t), check(t), ok)),
++       sound(t, P.and_right(check_row(a, t), check(t), ok)))
++
++type Certified<-xs: List<&2, Vertex>> is Data:
++  Certified{-proof: Clique(xs)}
++
++def finish(-xs: List<&2, Vertex>, result: P.Decision<P.Holds(check(xs))>) -> Maybe<&2, Certified<xs>>:
++  match result:
++    case P.Reject{}: None{}
++    case P.Accept{proof}: Some{Certified{sound(xs, proof)}}
++
++def certify(+xs: List<&2, Vertex>) -> Maybe<&2, Certified<xs>>:
++  finish(xs, P.decide(check(xs)))
++
++# A path is connected but is not a clique: this is an intentionally rejected
++# complete-linkage result, rather than a successful fixture only.
++def rejects_chaining() -> {check([Vertex{0, 0, [1]}, Vertex{1, 0, [0, 2]}, Vertex{2, 0, [1]}]) == False{} : Bool}:
++  {==}
++
++def accepts_split() -> {check([Vertex{0, 0, [1]}, Vertex{1, 0, [0, 2]}, Vertex{2, 1, [1]}]) == True{} : Bool}:
++  {==}
+--- claude/cluster.bend
++++ codex/cluster.bend
+@@ -17,6 +17,8 @@
+ import ./cl_graph.bend as G
+ import ./cl_complete.bend as C
+ import ./cl_leiden.bend as LD
++import ./partition_certificate.bend as PC
++import ./clique_certificate.bend as QC
+ 
+ type Opt is Data:
+   Opt{+key: String, +val: String}
+@@ -301,8 +303,8 @@
+   +e3 = str_pick(Bool.or(String.eq(metric, "tani"), Bool.or(String.eq(metric, "gani"), String.eq(metric, "ani"))),
+     "", "argument --metric: invalid choice: '" ++ metric ++ "'")
+   +e4 = th_bad(thr)
+-  +e5 = str_pick(Bool.and(si_ok(na), Bool.and(si_ok(it), Bool.and(d_in01(res), d_in01(beta)))), "",
+-    "invalid --num_alns / --leiden-* value")
++  +e5 = str_pick(Bool.and(si_ok(na), Bool.and(si_ok(it), Bool.and(Bool.or(si_neg_of(it), U32.is_le(si_mag(it), 1000)), Bool.and(d_in01(res), Bool.and(d_in01(beta), d_pos(beta)))))), "",
++    "invalid --num_alns / --leiden-* value (beta must be positive; iterations at most 1000)")
+   +e6 = str_pick(d_pos(th_value(thr, metric)), "", metric ++ " threshold must be above 0. Specify the option: --" ++ metric)
+   (str_pick(String.eq(e1, ""), str_pick(String.eq(e2, ""), str_pick(String.eq(e3, ""),
+      str_pick(String.eq(e4, ""), str_pick(String.eq(e5, ""), e6, e5), e4), e3), e2), e1),
+@@ -755,20 +757,98 @@
+   Bool.or(U32.is_eq(a, 1), Bool.or(U32.is_eq(a, 2), U32.is_eq(a, 5)))
+ 
+ 
+-def cluster_fin(r: Array<U32> & U32, g2l: Array<U32>, +nloc: U32, names: Array<List<&2, U32>>, +nnames: U32, +repr: Bool) -> List<&2, U32>:
++def pair_bind(-A: Type, -B: Type, -R: Type, p: A & B, k: A -> B -> R) -> R:
++  (a, b) = p
++  k(a)(b)
++
++def labels_collect(fuel: Nat, asg: Array<U32>, +i: U32, acc: List<&2, U32>) -> Array<U32> & List<&2, U32>:
++  match fuel:
++    case 0n: (asg, G.rev_u32(acc, Nil{}))
++    case 1n+p:
++      pair_bind(Array<U32>, U32, Array<U32> & List<&2, U32>, Array.get(U32, asg, i), asg => value =>
++        labels_collect(p, asg, U32.inc(i), value <> acc))
++
++def certified_emit(-labels: List<&2, U32>, +ncl: U32, +nloc: U32,
++    certificate: Maybe<&2, PC.Certified<U32.to_nat(nloc), ncl, labels>>, asg: Array<U32>,
++    g2l: Array<U32>, names: Array<List<&2, U32>>, +nnames: U32, +repr: Bool) -> Result<&1, &1, String, List<&2, U32>>:
++  match certificate:
++    case None{}:
++      Fail{"partition certificate rejected: missing, extra, or out-of-range cluster assignment"}
++    case Some{proof}:
++      Done{render(asg, ncl, nloc, g2l, names, nnames, repr)}
++
++def certify_labels(r: Array<U32> & List<&2, U32>, +ncl: U32, +nloc: U32,
++    g2l: Array<U32>, names: Array<List<&2, U32>>, +nnames: U32, +repr: Bool) -> Result<&1, &1, String, List<&2, U32>>:
++  (asg, +labels) = r
++  certified_emit(labels, ncl, nloc, PC.certify(U32.to_nat(nloc), ncl, labels), asg, g2l, names, nnames, repr)
++
++type VertexState is Type:
++  VertexState{rows: Array<List<&2, G.Nb>>, asg: Array<U32>, vertices: List<&2, QC.Vertex>}
++
++def neighbor_ids(xs: List<&2, G.Nb>) -> List<&2, U32>:
++  match xs:
++    case Nil{}: Nil{}
++    case Con{G.Nb{id, h, l}, rest}: id <> neighbor_ids(rest)
++
++def reverse_vertices(xs: List<&2, QC.Vertex>, acc: List<&2, QC.Vertex>) -> List<&2, QC.Vertex>:
++  match xs:
++    case Nil{}: acc
++    case Con{v, rest}: reverse_vertices(rest, v <> acc)
++
++def collect_vertices(fuel: Nat, s: VertexState, +i: U32) -> Array<U32> & List<&2, QC.Vertex>:
++  match fuel s:
++    case 0n VertexState{rows, asg, vertices}: (asg, reverse_vertices(vertices, Nil{}))
++    case 1n+p VertexState{rows, asg, vertices}:
++      pair_bind(Array<List<&2, G.Nb>>, List<&2, G.Nb>, Array<U32> & List<&2, QC.Vertex>,
++        Array.get(List<&2, G.Nb>, rows, i), rows => ns =>
++      pair_bind(Array<U32>, U32, Array<U32> & List<&2, QC.Vertex>, Array.get(U32, asg, i), asg => label =>
++        collect_vertices(p, VertexState{rows, asg, QC.Vertex{i, label, neighbor_ids(ns)} <> vertices}, U32.inc(i))))
++
++def complete_emit(-vertices: List<&2, QC.Vertex>, certificate: Maybe<&2, QC.Certified<vertices>>,
++    asg: Array<U32>, +ncl: U32, +nloc: U32, g2l: Array<U32>, names: Array<List<&2, U32>>,
++    +nnames: U32, +repr: Bool) -> Result<&1, &1, String, List<&2, U32>>:
++  match certificate:
++    case None{}: Fail{"complete-linkage certificate rejected: a within-cluster pair has no accepted edge"}
++    case Some{proof}:
++      certify_labels(labels_collect(U32.to_nat(nloc), asg, 0, Nil{}), ncl, nloc, g2l, names, nnames, repr)
++
++def complete_checked(r: Array<U32> & List<&2, QC.Vertex>, +ncl: U32, +nloc: U32,
++    g2l: Array<U32>, names: Array<List<&2, U32>>, +nnames: U32, +repr: Bool) -> Result<&1, &1, String, List<&2, U32>>:
++  (asg, +vertices) = r
++  complete_emit(vertices, QC.certify(vertices), asg, ncl, nloc, g2l, names, nnames, repr)
++
++def verify_graph(complete: Bool, rows: Array<List<&2, G.Nb>>, asg: Array<U32>, +ncl: U32, +nloc: U32,
++    g2l: Array<U32>, names: Array<List<&2, U32>>, +nnames: U32, +repr: Bool) -> Result<&1, &1, String, List<&2, U32>>:
++  match complete:
++    case True{}:
++      complete_checked(collect_vertices(U32.to_nat(nloc), VertexState{rows, asg, Nil{}}, 0), ncl, nloc, g2l, names, nnames, repr)
++    case False{}:
++      certify_labels(labels_collect(U32.to_nat(nloc), asg, 0, Nil{}), ncl, nloc, g2l, names, nnames, repr)
++
++def cluster_checked(failed: Bool, asg: Array<U32>, +ncl: U32, +nloc: U32, g2l: Array<U32>, names: Array<List<&2, U32>>, +nnames: U32, +repr: Bool, rows: Array<List<&2, G.Nb>>, +algo: U32) -> Result<&1, &1, String, List<&2, U32>>:
++  match failed:
++    case True{}:
++      Fail{"Leiden exceeded its safety budget; no clustering output was written"}
++    case False{}:
++      verify_graph(U32.is_eq(algo, 1), rows, asg, ncl, nloc, g2l, names, nnames, repr)
++
++
++def cluster_fin(r: Array<U32> & U32, g2l: Array<U32>, +nloc: U32, names: Array<List<&2, U32>>, +nnames: U32, +repr: Bool, rows: Array<List<&2, G.Nb>>, +algo: U32) -> Result<&1, &1, String, List<&2, U32>>:
+   (asg, +ncl) = r
+-  render(asg, ncl, nloc, g2l, names, nnames, repr)
+-
+-
+-def cluster_objs(ro: Array<U32> & List<&2, U32>, rows: Array<List<&2, G.Nb>>, +m: U32, +nloc: U32, names: Array<List<&2, U32>>, +nnames: U32, cfg: Cfg) -> List<&2, U32>:
++  cluster_checked(U32.is_eq(ncl, 4294967295), asg, ncl, nloc, g2l, names, nnames, repr, rows, algo)
++
++
++def cluster_objs(ro: Array<U32> & List<&2, U32>, rows: Array<List<&2, G.Nb>>, +m: U32, +nloc: U32, names: Array<List<&2, U32>>, +nnames: U32, cfg: Cfg) -> Result<&1, &1, String, List<&2, U32>>:
+   (g2l, +objs) = ro
+   match cfg:
+     case Cfg{inp, out, ids, repr, algo, metric, thr, nalns, res, beta, iters, ineg}:
+-      cluster_fin(run_algo(algo, rows, nloc, m, objs, Cfg{inp, out, ids, repr, algo, metric, thr, nalns, res, beta, iters, ineg}),
+-        g2l, nloc, names, nnames, repr)
+-
+-
+-def cluster_rows(rs: G.RS, g2l: Array<U32>, +nloc: U32, names: Array<List<&2, U32>>, +nnames: U32, cfg: Cfg) -> List<&2, U32>:
++      pair_bind(Array<List<&2, G.Nb>>, Array<List<&2, G.Nb>>, Result<&1, &1, String, List<&2, U32>>,
++        Array.clone(List<&2, G.Nb>, rows), working => original =>
++          cluster_fin(run_algo(algo, working, nloc, m, objs, Cfg{inp, out, ids, repr, algo, metric, thr, nalns, res, beta, iters, ineg}),
++            g2l, nloc, names, nnames, repr, original, algo))
++
++
++def cluster_rows(rs: G.RS, g2l: Array<U32>, +nloc: U32, names: Array<List<&2, U32>>, +nnames: U32, cfg: Cfg) -> Result<&1, &1, String, List<&2, U32>>:
+   match rs:
+     case G.RS{rows, m}:
+       match cfg:
+@@ -777,12 +857,12 @@
+             Cfg{inp, out, ids, repr, algo, metric, thr, nalns, res, beta, iters, ineg})
+ 
+ 
+-def cluster_go(empty: Bool, g2l: Array<U32>, edges: List<&2, L.Edge>, +nloc: U32, names: Array<List<&2, U32>>, +nnames: U32, cfg: Cfg) -> List<&2, U32>:
++def cluster_go(empty: Bool, g2l: Array<U32>, edges: List<&2, L.Edge>, +nloc: U32, names: Array<List<&2, U32>>, +nnames: U32, cfg: Cfg) -> Result<&1, &1, String, List<&2, U32>>:
+   match empty:
+     case True{}:
+       match cfg:
+         case Cfg{inp, out, ids, repr, algo, metric, thr, nalns, res, beta, iters, ineg}:
+-          render(G.u32_array(1, 0), 0, 0, g2l, names, nnames, repr)
++          cluster_checked(False{}, G.u32_array(1, 0), 0, 0, g2l, names, nnames, repr, Array.new(List<&2, G.Nb>, 0n, Nil{}), algo)
+     case False{}:
+       match cfg:
+         case Cfg{inp, out, ids, repr, algo, metric, thr, nalns, res, beta, iters, ineg}:
+@@ -790,7 +870,7 @@
+             Cfg{inp, out, ids, repr, algo, metric, thr, nalns, res, beta, iters, ineg})
+ 
+ 
+-def cluster_bytes(g2l: Array<U32>, edges: List<&2, L.Edge>, +nloc: U32, +nedge: U32, names: Array<List<&2, U32>>, +nnames: U32, cfg: Cfg) -> List<&2, U32>:
++def cluster_bytes(g2l: Array<U32>, edges: List<&2, L.Edge>, +nloc: U32, +nedge: U32, names: Array<List<&2, U32>>, +nnames: U32, cfg: Cfg) -> Result<&1, &1, String, List<&2, U32>>:
+   match cfg:
+     case Cfg{inp, out, ids, repr, algo, metric, thr, nalns, res, beta, iters, ineg}:
+       cluster_go(U32.is_eq(nedge, 0), g2l, edges, nloc, names, nnames,
+@@ -839,12 +919,18 @@
+       out
+ 
+ 
++def write_result(result: Result<&1, &1, String, List<&2, U32>>, path: String) -> IO(Unit):
++  match result:
++    case Fail{e}: IO.die(Unit, 2, "vclust cluster: error: " ++ e)
++    case Done{bytes}: write_out(path, bytes)
++
++
+ def run_rows(parts: Parts, +cfg: Cfg, names: Array<List<&2, U32>>, +nnames: U32) -> IO(Unit):
+   match parts:
+     case Parts{g2l, edges, nloc, nedge, err}:
+       do IO<Unit>:
+         die_if(str_pick(U32.is_eq(err, 0), "", err_text(err)))
+-        write_out(cfg_out(cfg), cluster_bytes(g2l, edges, nloc, nedge, names, nnames, cfg))
++        write_result(cluster_bytes(g2l, edges, nloc, nedge, names, nnames, cfg), cfg_out(cfg))
+ 
+ 
+ def run_meta(mh: MH, rest: List<&2, U32>, f: File, +cfg: Cfg, names: Array<List<&2, U32>>, +nnames: U32, +cap: U32) -> IO(Unit):
+--- /dev/null
++++ codex/partition_certificate.bend
+@@ -0,0 +1,110 @@
++# A checked clustering has one bounded label per input position.
++# The decision runs on the actual labels. Its proof fields erase at runtime.
++# No unsafe definitions, foreign functions, or assumed axioms are used.
++import Base
++
++def Holds(b: Bool) -> Data:
++  match b:
++    case True{}: Unit
++    case False{}: Empty
++
++type Decision<-P: Data> is Data:
++  Accept{-proof: P}
++  Reject{}
++
++def decide(b: Bool) -> Decision<Holds(b)>:
++  match b:
++    case True{}: Accept{Unit{}}
++    case False{}: Reject{}
++
++def and_left(a: Bool, b: Bool, p: Holds(Bool.and(a, b))) -> Holds(a):
++  match a b:
++    case True{} True{}: Unit{}
++    case True{} False{}: Unit{}
++    case False{} True{}: p
++    case False{} False{}: p
++
++def and_right(a: Bool, b: Bool, p: Holds(Bool.and(a, b))) -> Holds(b):
++  match a b:
++    case True{} True{}: Unit{}
++    case True{} False{}: p
++    case False{} True{}: Unit{}
++    case False{} False{}: p
++
++def length(xs: List<&2, U32>) -> Nat:
++  match xs:
++    case Nil{}: 0n
++    case Con{x, rest}: 1n+length(rest)
++
++# Structural specification: the only inhabited cases have equal lengths.
++# Each present label is strictly below the declared number of clusters.
++def Partition(n: Nat, +bound: U32, xs: List<&2, U32>) -> Data:
++  match n xs:
++    case 0n Nil{}: Unit
++    case 0n Con{x, rest}: Empty
++    case 1n+p Nil{}: Empty
++    case 1n+p Con{x, rest}:
++      Sigma<&2, &2, Holds(U32.is_lt(x, bound)), _ => Partition(p, bound, rest)>
++
++def check(n: Nat, +bound: U32, xs: List<&2, U32>) -> Bool:
++  match n xs:
++    case 0n Nil{}: True{}
++    case 0n Con{x, rest}: False{}
++    case 1n+p Nil{}: False{}
++    case 1n+p Con{x, rest}:
++      Bool.and(U32.is_lt(x, bound), check(p, bound, rest))
++
++def sound(+n: Nat, +bound: U32, +xs: List<&2, U32>, +ok: Holds(check(n, bound, xs))) -> Partition(n, bound, xs):
++  match n xs:
++    case 0n Nil{}: Unit{}
++    case 0n Con{x, rest}: ok
++    case 1n+p Nil{}: ok
++    case 1n+p Con{+x, +rest}:
++      (and_left(U32.is_lt(x, bound), check(p, bound, rest), ok),
++       sound(p, bound, rest, and_right(U32.is_lt(x, bound), check(p, bound, rest), ok)))
++
++type Certified<-n: Nat, -bound: U32, -xs: List<&2, U32>> is Data:
++  Certified{-proof: Partition(n, bound, xs)}
++
++def finish(-n: Nat, -bound: U32, -xs: List<&2, U32>, result: Decision<Holds(check(n, bound, xs))>) -> Maybe<&2, Certified<n, bound, xs>>:
++  match result:
++    case Reject{}: None{}
++    case Accept{proof}: Some{Certified{sound(n, bound, xs, proof)}}
++
++def certify(+n: Nat, +bound: U32, +xs: List<&2, U32>) -> Maybe<&2, Certified<n, bound, xs>>:
++  finish(n, bound, xs, decide(check(n, bound, xs)))
++
++def accepted(-n: Nat, -bound: U32, -xs: List<&2, U32>, result: Maybe<&2, Certified<n, bound, xs>>) -> Bool:
++  match result:
++    case None{}: False{}
++    case Some{proof}: True{}
++
++def valid(+n: Nat, +bound: U32, +xs: List<&2, U32>) -> Bool:
++  accepted(n, bound, xs, certify(n, bound, xs))
++
++# Semantic theorem, for arbitrary input sizes and labels, not a test fixture.
++# The length of any certified partition is exactly the number of inputs.
++law partition_length:
++  for +n: Nat
++  for +bound: U32
++  for +xs: List<&2, U32>
++  for proof: Partition(n, bound, xs)
++  {length(xs) == n : Nat}
++
++def partition_length(n, bound, xs, proof):
++  match n xs:
++    case 0n Nil{}: {==}
++    case 0n Con{x, rest}:
++      match proof:
++    case 1n+p Nil{}:
++      match proof:
++    case 1n+p Con{x, +rest}:
++      (head, tail) = proof
++      %partition_length(p, bound, rest, tail) : {1n+length(rest) == 1n+_ : Nat}
++      {==}
++
++def preserves_empty() -> {valid(0n, 0, Nil{}) == True{} : Bool}: {==}
++def rejects_missing() -> {valid(3n, 2, [0, 1]) == False{} : Bool}: {==}
++def rejects_extra() -> {valid(1n, 2, [0, 1]) == False{} : Bool}: {==}
++def rejects_bad_label() -> {valid(2n, 2, [0, 2]) == False{} : Bool}: {==}
++def rejects_unassigned() -> {valid(2n, 2, [0, 4294967295]) == False{} : Bool}: {==}
+--- /dev/null
++++ codex/proofs/Forest.lean
+@@ -0,0 +1,69 @@
++/- General graph theorem for the spanning-forest output certificate.
++   No axioms, sorry, native_decide, or external libraries are used.
++   The runtime certificate verifier must establish the hypotheses below.
++   This file does not claim to verify the Python I/O/parser implementation. -/
++namespace Clustering
++
++inductive Walk {α : Type} (edge : α → α → Prop) : α → α → Prop where
++  | refl (v : α) : Walk edge v v
++  | step {a b c : α} : edge a b → Walk edge b c → Walk edge a c
++
++theorem walk_trans {α : Type} {edge : α → α → Prop} {a b c : α}
++    (ab : Walk edge a b) (bc : Walk edge b c) : Walk edge a c := by
++  induction ab with
++  | refl => exact bc
++  | step e _ ih => exact Walk.step e (ih bc)
++
++theorem walk_symm {α : Type} {edge : α → α → Prop}
++    (symmetric : ∀ a b, edge a b → edge b a) {a b : α}
++    (p : Walk edge a b) : Walk edge b a := by
++  induction p with
++  | refl v => exact Walk.refl v
++  | step e _ ih => exact walk_trans ih (Walk.step (symmetric _ _ e) (Walk.refl _))
++
++theorem forest_path {α : Type} (edge : α → α → Prop)
++    (root parent : α → α) (rank : α → Nat)
++    (at_root : ∀ v, parent v = v → root v = v)
++    (descends : ∀ v, parent v ≠ v → rank (parent v) < rank v)
++    (same_root : ∀ v, parent v ≠ v → root (parent v) = root v)
++    (parent_edge : ∀ v, parent v ≠ v → edge v (parent v))
++    (v : α) : Walk edge v (root v) := by
++  have all : ∀ n, ∀ x, rank x = n → Walk edge x (root x) := by
++    intro n
++    induction n using Nat.strongRecOn with
++    | ind n ih =>
++      intro x hx
++      by_cases h : parent x = x
++      · rw [at_root x h]
++        exact Walk.refl x
++      · have smaller : rank (parent x) < n := by simpa [hx] using descends x h
++        have path := ih (rank (parent x)) smaller (parent x) rfl
++        rw [same_root x h] at path
++        exact Walk.step (parent_edge x h) path
++  exact all (rank v) v rfl
++
++theorem same_root_connected {α : Type} {edge : α → α → Prop}
++    (symmetric : ∀ a b, edge a b → edge b a) (root : α → α)
++    (paths : ∀ v, Walk edge v (root v)) {a b : α}
++    (same : root a = root b) : Walk edge a b := by
++  have pa := paths a
++  rw [same] at pa
++  exact walk_trans pa (walk_symm symmetric (paths b))
++
++theorem walk_preserves_root {α : Type} {edge : α → α → Prop}
++    (root : α → α) (closed : ∀ a b, edge a b → root a = root b)
++    {a b : α} (path : Walk edge a b) : root a = root b := by
++  induction path with
++  | refl => rfl
++  | step e _ ih => exact Eq.trans (closed _ _ e) ih
++
++theorem single_components_correct {α : Type} {edge : α → α → Prop}
++    (symmetric : ∀ a b, edge a b → edge b a) (root : α → α)
++    (paths : ∀ v, Walk edge v (root v))
++    (closed : ∀ a b, edge a b → root a = root b) (a b : α) :
++    root a = root b ↔ Walk edge a b := by
++  constructor
++  · exact same_root_connected symmetric root paths
++  · exact walk_preserves_root root closed
++
++end Clustering
+--- /dev/null
++++ codex/run.py
+@@ -0,0 +1,135 @@
++#!/usr/bin/env python3
++"""Build and run the three native Bend stages, with cgroup memory limits."""
++import argparse
++import hashlib
++import os
++from pathlib import Path
++import shutil
++import subprocess
++import sys
++import tempfile
++import json
++import fcntl
++
++ROOT = Path(__file__).resolve().parent
++CAP = ROOT / 'tools/capped.sh'
++
++def compiler(explicit=None):
++    value = explicit or os.environ.get('BEND_REPO') or os.environ.get('BEND')
++    if value:
++        path = Path(value).expanduser()
++    else:
++        found = shutil.which('bend')
++        if not found:
++            raise RuntimeError('Set BEND_REPO to the Bend source checkout, or put bend on PATH.')
++        path = Path(found)
++    if path.is_dir():
++        entry = path/'bend2/main.ts'
++        if not entry.is_file(): raise RuntimeError(f'No compiler entry: {entry}')
++        bun = shutil.which('bun')
++        if bun:
++            cmd = [bun, str(entry)]
++        elif (path/'.bend/bin/bend').is_file():
++            # Official standalone executable also contains Bun.
++            cmd = [str(path/'.bend/bin/bend'), str(entry)]
++        else:
++            raise RuntimeError('Bun is needed to run this compiler checkout.')
++        files = sorted((path/'bend2').rglob('*.ts')) + sorted((path/'bend2').rglob('*.bend'))
++    else:
++        resolved = shutil.which(str(path)) or str(path)
++        path = Path(resolved)
++        if not path.is_file(): raise RuntimeError(f'Compiler does not exist: {path}')
++        cmd, files = [str(path)], [path]
++    digest = hashlib.sha256()
++    for f in files:
++        digest.update(str(f).encode()); digest.update(f.read_bytes())
++    return cmd, digest.hexdigest()
++
++def capped(cmd, memory, **kwargs):
++    env = dict(os.environ, BEND_NO_TELEMETRY='1', BUN_BE_BUN='1', CAP=memory)
++    return subprocess.run(['sh', str(CAP), *map(str,cmd)], env=env, check=True, **kwargs)
++
++def build(stage, explicit=None):
++    command, identity = compiler(explicit)
++    digest = hashlib.sha256(identity.encode())
++    for f in sorted(ROOT.glob('*.bend')):
++        digest.update(f.name.encode()); digest.update(f.read_bytes())
++    out = ROOT/'.work/bin'/digest.hexdigest()[:20]/stage
++    out.parent.mkdir(parents=True, exist_ok=True)
++    with (ROOT/'.work/build.lock').open('a') as lock:
++        fcntl.flock(lock,fcntl.LOCK_EX)
++        if not out.exists():
++            with tempfile.TemporaryDirectory(prefix=stage+'-build-',dir=out.parent) as tmp:
++                staged=Path(tmp)/stage
++                capped([*command, ROOT/f'{stage}.bend', '-o', staged], '8G', cwd=ROOT)
++                os.replace(staged,out)
++    return out
++
++def main():
++    ap = argparse.ArgumentParser(description=__doc__, epilog='Stage flags (-i, -o, --ids, --filter, --algorithm, etc.) are forwarded to Bend.')
++    ap.add_argument('stage', choices=['prefilter','align','cluster'])
++    ap.add_argument('--compiler')
++    ap.add_argument('-t','--threads', type=int, default=1)
++    ap.add_argument('--memory', default='3G')
++    ap.add_argument('--build-only', action='store_true')
++    args, rest = ap.parse_known_args()
++    if args.threads < 1 or args.threads > 256: ap.error('threads must be in 1..256')
++    if '+RTS' in rest or '-RTS' in rest: ap.error('use --threads instead of raw runtime flags')
++    # Prevent accidental truncation of an input through a named output alias.
++    paths = {}
++    supplied = set()
++    aliases = {'--in':'-i','--out':'-o','--out-repr':'-r'}
++    for token in rest:
++        if token.startswith('-') and not token[1:2].isdigit():
++            key = aliases.get(token,token)
++            if key in supplied: ap.error(f'duplicate option: {key}')
++            supplied.add(key)
++    for i,key in enumerate(rest[:-1]):
++        if key in ('-i','--in','-o','--out','--ids','--filter'):
++            paths[key] = Path(rest[i+1]).resolve()
++    out = paths.get('-o',paths.get('--out'))
++    if out:
++        outputs = [out]
++        if args.stage == 'align': outputs.append(out.with_suffix('.ids.tsv'))
++        if args.stage == 'cluster': outputs.append(Path(str(out)+'.certificate.json'))
++        for key,value in paths.items():
++            if key not in ('-o','--out'):
++                for target in outputs:
++                    same = target == value or (target.exists() and value.exists() and os.path.samefile(target,value))
++                    if same: ap.error(f'output would overwrite {key}: {value}')
++    try:
++        binary = build(args.stage,args.compiler)
++        if args.build_only:
++            print(binary)
++        elif args.stage == 'cluster' and out:
++            # Publish the named TSV only after the independent semantic check.
++            out.parent.mkdir(parents=True,exist_ok=True)
++            with tempfile.TemporaryDirectory(prefix='.vclust-bend-',dir=out.parent) as tmp:
++                staged=Path(tmp)/'clusters.tsv'
++                forwarded=list(rest)
++                key='-o' if '-o' in forwarded else '--out'
++                forwarded[forwarded.index(key)+1]=str(staged)
++                capped([binary,*forwarded,'+RTS','--threads',args.threads,'-RTS'],args.memory)
++                sys.path.insert(0,str(ROOT/'tests'))
++                from verify_clusters import verify
++                def value(key,default):
++                    return rest[rest.index(key)+1] if key in rest else default
++                metric=value('--metric','tani')
++                thresholds={key:float(value('--'+key,'0')) for key in
++                            ('ani','gani','tani','qcov','rcov','len_ratio','num_alns')}
++                thresholds={key:v for key,v in thresholds.items() if v>0}
++                cert=verify(paths.get('-i',paths.get('--in')),paths['--ids'],staged,
++                            value('--algorithm','single'),thresholds,metric)
++                certificate=Path(tmp)/'certificate.json'
++                certificate.write_text(json.dumps(cert,indent=2)+'\n')
++                os.replace(staged,out)
++                os.replace(certificate,Path(str(out)+'.certificate.json'))
++        else:
++            capped([binary,*rest,'+RTS','--threads',args.threads,'-RTS'],args.memory)
++    except (RuntimeError,ValueError,KeyError,OSError,subprocess.CalledProcessError) as e:
++        print(f'vclust-bend: {e}',file=sys.stderr)
++        return 1
++    return 0
++
++if __name__ == '__main__':
++    raise SystemExit(main())
+--- /dev/null
++++ codex/tests/certificate_runtime.bend
+@@ -0,0 +1,20 @@
++# Negative integration probes: actual production guard, deliberately bad data.
++import Base
++import ../cluster.bend as C
++import ../cl_graph.bend as G
++
++def refused(r: Result<&1, &1, String, List<&2, U32>>) -> Bool:
++  match r:
++    case Fail{error}: True{}
++    case Done{bytes}: False{}
++
++def invalid_labels() -> Bool:
++  refused(C.cluster_checked(False{}, G.u32_array(2, 99), 1, 2, G.u32_array(2, 0),
++    Array.new(List<&2, U32>, 1n, [65]), 2, False{}, Array.new(List<&2, G.Nb>, 1n, Nil{}), 0))
++
++def invalid_clique() -> Bool:
++  refused(C.cluster_checked(False{}, G.u32_array(2, 0), 1, 2, G.u32_array(2, 0),
++    Array.new(List<&2, U32>, 1n, [65]), 2, False{}, Array.new(List<&2, G.Nb>, 1n, Nil{}), 1))
++
++def main() -> Bool:
++  Bool.and(invalid_labels(), invalid_clique())
+--- /dev/null
++++ codex/tests/reference_data.py
+@@ -0,0 +1,42 @@
++"""Durable Vclust fixtures; recover existing references or regenerate them."""
++from pathlib import Path
++import os
++import shutil
++import signal
++import subprocess
++import tempfile
++
++ROOT=Path(__file__).resolve().parents[1]
++CLU=ROOT.parent
++VC=CLU/'.tools/vclust-1.3.1/bin/vclust'
++SCRATCH=Path(os.environ.get('VCLUST_OLD_SCRATCH','/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad'))
++DATA={
++ 'example':('public_viromes/original/vclust_example.fasta','vc/fltr.txt','vc/ani.tsv'),
++ 'prefix1000':('public_viromes/ready/vclust_example_prefix1000.fasta','al/ref/vclust_example_prefix1000.fltr.txt','al/ref/vclust_example_prefix1000.ani.tsv'),
++ 'shortest1000':('infant_gut_virome/ready/earlyvir_shortest1000.fasta','al/ref/earlyvir_shortest1000.fltr.txt','al/ref/earlyvir_shortest1000.ani.tsv'),
++ 'stratified1000':('infant_gut_virome/ready/earlyvir_stratified1000.fasta','vc/s1000/fltr12.txt','vc/s1000/ani12.tsv'),
++ 'full':('infant_gut_virome/raw/all.curated.vOTUs.EarlyVir.fna','vc/full/fltr12.txt','vc/full/ani12.tsv')}
++
++def run(cmd):
++    with subprocess.Popen(list(map(str,cmd)),start_new_session=True,stdout=subprocess.DEVNULL,stderr=subprocess.PIPE) as p:
++        try: _,err=p.communicate(timeout=600)
++        except subprocess.TimeoutExpired:
++            os.killpg(p.pid,signal.SIGKILL);p.wait();raise
++        if p.returncode: raise RuntimeError(err.decode(errors='replace'))
++
++def load(name):
++    fasta,old_filter,old_ani=DATA[name]
++    folder=ROOT/'.work/references'/name;folder.mkdir(parents=True,exist_ok=True)
++    fa=CLU/'datasets'/fasta;flt=folder/'fltr.txt';ani=folder/'ani.tsv';ids=folder/'ani.ids.tsv'
++    for old,new in [(SCRATCH/old_filter,flt),(SCRATCH/old_ani,ani),((SCRATCH/old_ani).with_suffix('.ids.tsv'),ids)]:
++        if not new.exists() and old.is_file(): shutil.copy2(old,new)
++    with tempfile.TemporaryDirectory(prefix='reference-',dir=folder) as tmp:
++        staging=Path(tmp)
++        if not flt.exists():
++            target=staging/'fltr.txt'
++            run([VC,'prefilter','-i',fa,'-o',target,'-t','1','-v','0']);os.replace(target,flt)
++        if not ani.exists() or not ids.exists():
++            target=staging/'ani.tsv'
++            run([VC,'align','-i',fa,'--filter',flt,'-o',target,'-t','1','-v','0'])
++            os.replace(target,ani);os.replace(target.with_suffix('.ids.tsv'),ids)
++    return fa,flt,ani,ids
+--- /dev/null
++++ codex/tests/test_align.py
+@@ -0,0 +1,65 @@
++#!/usr/bin/env python3
++"""Differential LZ-ANI tests with exact comparison of both output files."""
++import argparse
++import hashlib
++import importlib.util
++import json
++import os
++from pathlib import Path
++import signal
++import subprocess
++import sys
++from reference_data import load
++
++ROOT=Path(__file__).resolve().parents[1]
++spec=importlib.util.spec_from_file_location('launcher',ROOT/'run.py')
++launcher=importlib.util.module_from_spec(spec); spec.loader.exec_module(launcher)
++SCRATCH=Path('/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad')
++CLU=ROOT.parent
++VC=CLU/'.tools/vclust-1.3.1/bin/vclust'
++
++def run(cmd, timeout=180):
++    with subprocess.Popen(list(map(str,cmd)),stdout=subprocess.PIPE,stderr=subprocess.PIPE,
++                          text=True,start_new_session=True) as p:
++        try: out,err=p.communicate(timeout=timeout)
++        except subprocess.TimeoutExpired:
++            os.killpg(p.pid,signal.SIGKILL);p.wait();raise
++        if p.returncode: raise RuntimeError(f'exit {p.returncode}: {err[-2000:]} {out[-1000:]}')
++
++def main():
++    ap=argparse.ArgumentParser();ap.add_argument('--full',action='store_true')
++    ap.add_argument('--threads',type=int,default=1);args=ap.parse_args()
++    if not 1<=args.threads<=256: ap.error('threads must be in 1..256')
++    binary=launcher.build('align');work=ROOT/'.work/align-tests';work.mkdir(parents=True,exist_ok=True)
++    datasets=[
++      ('example',CLU/'datasets/public_viromes/original/vclust_example.fasta',SCRATCH/'vc/fltr.txt',SCRATCH/'vc/ani.tsv'),
++      ('prefix1000',CLU/'datasets/public_viromes/ready/vclust_example_prefix1000.fasta',SCRATCH/'al/ref/vclust_example_prefix1000.fltr.txt',SCRATCH/'al/ref/vclust_example_prefix1000.ani.tsv'),
++      ('shortest1000',CLU/'datasets/infant_gut_virome/ready/earlyvir_shortest1000.fasta',SCRATCH/'al/ref/earlyvir_shortest1000.fltr.txt',SCRATCH/'al/ref/earlyvir_shortest1000.ani.tsv'),
++      ('stratified1000',CLU/'datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta',SCRATCH/'vc/s1000/fltr12.txt',SCRATCH/'vc/s1000/ani12.tsv')]
++    if args.full: datasets.append(('full',CLU/'datasets/infant_gut_virome/raw/all.curated.vOTUs.EarlyVir.fna',SCRATCH/'vc/full/fltr12.txt',SCRATCH/'vc/full/ani12.tsv'))
++    results=[]
++    for name,fa,flt,baseline in datasets:
++        fa,flt,baseline,_=load(name)
++        variants=[[]]
++        if name in ('example','prefix1000'):
++            variants += [['--outfmt','lite'],['--outfmt','complete'],['--out-ani','0.95'],['--filter-threshold','0.8'],['--mal','12','--msl','8']]
++        for i,opts in enumerate(variants):
++            ref=baseline if not opts else work/f'{name}-{i}.reference.tsv'
++            out=work/f'{name}-{i}.bend.tsv'
++            row={'dataset':name,'options':opts,'fasta':str(fa),'filter':str(flt),'reference':str(ref)}
++            try:
++                if opts: run([VC,'align','-i',fa,'--filter',flt,'-o',ref,'-t','1','-v','0',*opts])
++                cmd=[binary,'-i',fa,'--filter',flt,'-o',out,*opts,'+RTS','--threads',str(args.threads),'-RTS']
++                row['command']=list(map(str,cmd));run(cmd,timeout=600 if name=='full' else 180)
++                checks={}
++                for suffix,a,b in [('table',ref,out),('ids',ref.with_suffix('.ids.tsv'),out.with_suffix('.ids.tsv'))]:
++                    av,bv=a.read_bytes(),b.read_bytes()
++                    checks[suffix]={'identical':av==bv,'reference_sha256':hashlib.sha256(av).hexdigest(),'bend_sha256':hashlib.sha256(bv).hexdigest()}
++                row.update(checks=checks,identical=all(c['identical'] for c in checks.values()))
++            except (OSError,RuntimeError,subprocess.TimeoutExpired) as e: row.update(identical=False,error=str(e))
++            results.append(row);(work/'results.json').write_text(json.dumps(results,indent=2)+'\n')
++            print('PASS' if row['identical'] else 'FAIL',name,opts,row.get('error',''),flush=True)
++    print(f'{sum(r["identical"] for r in results)}/{len(results)} identical')
++    raise SystemExit(0 if all(r['identical'] for r in results) else 1)
++
++if __name__=='__main__': main()
+--- /dev/null
++++ codex/tests/test_certificates.py
+@@ -0,0 +1,36 @@
++#!/usr/bin/env python3
++"""Adversarial output tests: plausible wrong TSVs must not be certified."""
++import json
++from pathlib import Path
++import tempfile
++from verify_clusters import verify
++
++def main():
++    results=[]
++    with tempfile.TemporaryDirectory(prefix='vclust-certificate-') as tmp:
++        d=Path(tmp);ids=d/'ids.tsv';ani=d/'ani.tsv';out=d/'clusters.tsv'
++        ids.write_text('id\tlength\na\t100\nb\t100\nc\t100\nd\t100\n')
++        ani.write_text('qidx\tridx\tani\n0\t1\t0.99\n1\t2\t0.99\n2\t3\t0.99\n')
++        def test(name,algo,rows,accept):
++            out.write_text('object\tcluster\n'+''.join(f'{obj}\t{label}\n' for obj,label in rows))
++            try: verify(ani,ids,out,algo,{'ani':.95});accepted=True;reason='accepted'
++            except ValueError as e: accepted=False;reason=str(e)
++            if accepted!=accept: raise AssertionError(f'{name}: {reason}')
++            results.append({'case':name,'expected_accept':accept,'actual_accept':accepted,'reason':reason})
++            print('PASS',name,reason)
++        whole=[(x,0) for x in 'abcd']
++        test('valid single chain','single',whole,True)
++        test('unknown algorithm contract','unknown',whole,False)
++        test('complete must reject chain','complete',whole,False)
++        test('single must reject split component','single',[(x,i//2) for i,x in enumerate('abcd')],False)
++        test('leiden must reject disconnected group','leiden',[('a',0),('b',1),('c',0),('d',1)],False)
++        for algo in ('uclust','cd-hit','set-cover'):
++            test(algo+' must reject no-star chain',algo,whole,False)
++        test('missing object','single',whole[:-1],False)
++        test('duplicate object','single',whole+[('a',0)],False)
++        test('unknown object','single',whole+[('z',0)],False)
++        test('valid complete split','complete',[(x,i//2) for i,x in enumerate('abcd')],True)
++    evidence=Path(__file__).resolve().parents[1]/'evidence/certificate-negative-tests.json'
++    evidence.write_text(json.dumps(results,indent=2)+'\n')
++
++if __name__=='__main__': main()
+--- /dev/null
++++ codex/tests/test_cli.py
+@@ -0,0 +1,47 @@
++#!/usr/bin/env python3
++"""Exercise the shipped launcher, certificates and output preservation."""
++import hashlib
++import json
++from pathlib import Path
++import subprocess
++import sys
++from reference_data import ROOT,VC,load
++
++def main():
++    fa,reference_filter,reference_ani,reference_ids=load('example')
++    work=ROOT/'.work/cli-tests';work.mkdir(parents=True,exist_ok=True)
++    results=[]
++    def run(stage,args,success=True):
++        cmd=[sys.executable,ROOT/'run.py',stage,*map(str,args)]
++        p=subprocess.run(cmd,capture_output=True,text=True,timeout=120)
++        if (p.returncode==0)!=success: raise AssertionError(p.stdout+p.stderr)
++        results.append({'command':list(map(str,cmd)),'exit_code':p.returncode,'expected_success':success})
++    flt=work/'filter.txt';ani=work/'ani.tsv';out=work/'clusters.tsv'
++    run('prefilter',['-i',fa,'-o',flt,'-t','2'])
++    assert flt.read_bytes()==reference_filter.read_bytes()
++    run('align',['-i',fa,'--filter',flt,'-o',ani,'-t','2'])
++    assert ani.read_bytes()==reference_ani.read_bytes()
++    assert ani.with_suffix('.ids.tsv').read_bytes()==reference_ids.read_bytes()
++    for algo in ('single','complete','uclust','cd-hit','set-cover','leiden'):
++        for representative in (False,True):
++            opts=['-i',ani,'--ids',ani.with_suffix('.ids.tsv'),'--algorithm',algo,'--metric','ani','--ani','.95']
++            if representative: opts+=['-r']
++            run('cluster',opts+['-o',out])
++            ref=work/'reference.tsv'
++            subprocess.run(list(map(str,[VC,'cluster',*opts,'-o',ref,'-v','0'])),check=True,capture_output=True)
++            assert out.read_bytes()==ref.read_bytes(),(algo,representative)
++            cert=json.loads(Path(str(out)+'.certificate.json').read_text())
++            assert cert['output_sha256']==hashlib.sha256(out.read_bytes()).hexdigest()
++            assert cert['objects']==12 and cert['partition'] and cert['connected']
++    previous=out.read_bytes()
++    run('cluster',['-i',ani,'--ids',reference_ids,'-o',out,'--metric','nonsense'],False)
++    assert out.read_bytes()==previous
++    ani_before=ani.read_bytes()
++    run('cluster',['-i',ani,'--ids',reference_ids,'-o',ani,'--ani','.95','--metric','ani'],False)
++    assert ani.read_bytes()==ani_before
++    run('cluster',['-i',ani,'--ids',reference_ids,'-o',out,'--out',ani,'--ani','.95','--metric','ani'],False)
++    assert ani.read_bytes()==ani_before and out.read_bytes()==previous
++    (ROOT/'evidence/cli-integration.json').write_text(json.dumps(results,indent=2)+'\n')
++    print('PASS launcher pipeline, all algorithms and representatives, certificates, input/output preservation')
++
++if __name__=='__main__': main()
+--- /dev/null
++++ codex/tests/test_cluster.py
+@@ -0,0 +1,80 @@
++#!/usr/bin/env python3
++"""Compare every cluster algorithm against the installed Vclust binary.
++
++Run this script inside `capped`; children inherit its memory ceiling.
++Each case has its own timeout and its output/command is retained on failure.
++"""
++import argparse
++import hashlib
++import json
++import random
++import subprocess
++from pathlib import Path
++from reference_data import load
++
++PKG = Path(__file__).resolve().parents[1]
++CLU = PKG.parent
++SCRATCH = Path('/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad')
++VCLUST = CLU / '.tools/vclust-1.3.1/bin/vclust'
++ALGORITHMS = ['single', 'complete', 'uclust', 'cd-hit', 'set-cover', 'leiden']
++
++def main():
++    ap = argparse.ArgumentParser()
++    ap.add_argument('--binary', type=Path, default=Path('/tmp/vclust-codex-cluster'))
++    ap.add_argument('--full', action='store_true')
++    ap.add_argument('--random', type=int, default=20)
++    args = ap.parse_args()
++    work = PKG / '.work/cluster-tests'
++    work.mkdir(parents=True, exist_ok=True)
++    cases = []
++    for name in ['example','stratified1000'] + (['full'] if args.full else []):
++        _,_,ani,ids=load(name)
++        for algo in ALGORITHMS:
++            cases.append((f'{name}-{algo}', ani, ids,
++                          ['--algorithm', algo, '--metric', 'ani', '--ani', '0.95']))
++    for seed in range(args.random):
++        rng = random.Random(seed)
++        n = rng.randrange(5, 45)
++        ani, ids = work/f'random-{seed}.ani.tsv', work/f'random-{seed}.ids.tsv'
++        ids.write_text('id\tseq_len\tno_parts\n'+''.join(f'seq{i}\t1000\t1\n' for i in range(n)))
++        rows = ['qidx\tridx\tquery\treference\ttani\tgani\tani\tqcov\trcov\tnum_alns\tlen_ratio']
++        for a in range(n):
++            for b in range(a+1,n):
++                if rng.random() < 0.22:
++                    w = rng.choice([0.3,0.5,0.7,0.9,0.95,1.0])
++                    rows.append(f'{a}\t{b}\tseq{a}\tseq{b}\t{w:.6f}\t{w:.6f}\t{w:.6f}\t1\t1\t1\t1')
++        ani.write_text('\n'.join(rows)+'\n')
++        for iters in (0,1,2,4):
++            cases.append((f'random-{seed}-leiden-{iters}', ani, ids,
++                          ['--algorithm','leiden','--metric','ani','--ani','0.1',
++                           '--leiden-resolution',str(rng.choice([0.1,0.4,0.7,1.0])),
++                           '--leiden-beta',str(rng.choice([0.01,0.1,0.5])),
++                           '--leiden-iterations',str(iters)]))
++    results = []
++    for name, ani, ids, opts in cases:
++        common = ['-i',str(ani),'--ids',str(ids)] + opts
++        row = {'case': name, 'input':str(ani), 'options':opts}
++        try:
++            outputs = []
++            for tool, prefix in [('reference',[str(VCLUST),'cluster']),('bend',[str(args.binary)])]:
++                out = work/f'{name}.{tool}.tsv'
++                cmd = prefix+common+['-o',str(out),'-v','0']
++                if tool == 'bend': cmd += ['+RTS','--threads','1','-RTS']
++                row[tool+'_command'] = cmd
++                p = subprocess.run(cmd, capture_output=True, text=True, timeout=90)
++                if p.returncode:
++                    raise RuntimeError(f'{tool}: exit {p.returncode}: {p.stderr[-2000:]} {p.stdout[-1000:]}')
++                outputs.append(out.read_bytes())
++            row['identical'] = outputs[0] == outputs[1]
++            row['reference_sha256'] = hashlib.sha256(outputs[0]).hexdigest()
++            row['bend_sha256'] = hashlib.sha256(outputs[1]).hexdigest()
++        except (OSError, RuntimeError, subprocess.TimeoutExpired) as e:
++            row.update(identical=False, error=str(e))
++        results.append(row)
++        (work/'results.json').write_text(json.dumps(results,indent=2)+'\n')
++        print(('PASS' if row['identical'] else 'FAIL'),name,row.get('error',''),flush=True)
++    print(f'{sum(r["identical"] for r in results)}/{len(results)} identical',flush=True)
++    raise SystemExit(0 if all(r['identical'] for r in results) else 1)
++
++if __name__ == '__main__':
++    main()
+--- claude/tests/test_prefilter.py
++++ codex/tests/test_prefilter.py
+@@ -19,9 +19,14 @@
+ Stdlib only.
+ """
+ import os
++import json
++import signal
++import importlib.util
++from pathlib import Path
+ import subprocess
+ import sys
+ import time
++import shutil
+ 
+ HERE = os.path.dirname(os.path.abspath(__file__))
+ PKG = os.path.dirname(HERE)
+@@ -29,9 +34,9 @@
+ SCRATCH = os.environ.get(
+     "PF_SCRATCH",
+     "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad")
+-WORK = os.path.join(SCRATCH, "pf", "test")
+-REF_DIR = os.path.join(SCRATCH, "pf", "refs")
+-LOCK = os.path.join(SCRATCH, "bench.lock")
++WORK = os.path.join(PKG, ".work", "prefilter-tests")
++REF_DIR = os.path.join(PKG, '.work', 'references', 'prefilter-options')
++LOCK = os.path.join(PKG, '.work', 'benchmark', 'benchmark.lock')
+ VCLUST = os.path.join(CLU, ".tools", "vclust-1.3.1", "bin", "vclust")
+ BIN = os.path.join(WORK, "prefilter")
+ DS = os.path.join(CLU, "datasets")
+@@ -56,23 +61,33 @@
+     ["-k", "15", "--kmers-fraction", "0.5"],
+     ["-k", "16"],
+     ["-k", "19", "--kmers-fraction", "0.3", "--min-kmers", "3"],
+-    ["-k", "30", "--min-ident", "0.9"],
++    # Kmer-db 2.3.1 stalls on the bundled example at k=30; see handoff.
++    # Opt in with --include-slow-reference to retry it with a timeout.
+     ["--min-kmers", "1", "--min-ident", "0"],
+     ["--min-ident", "0.95", "--max-seqs", "3"],
+ ]
+ 
+ 
+ def run(cmd, **kw):
+-    return subprocess.run(cmd, check=True, **kw)
++    timeout = kw.pop('timeout', 180)
++    with subprocess.Popen(cmd, start_new_session=True, **kw) as child:
++        try:
++            code = child.wait(timeout=timeout)
++        except subprocess.TimeoutExpired:
++            os.killpg(child.pid, signal.SIGKILL)
++            child.wait()
++            raise
++        if code:
++            raise subprocess.CalledProcessError(code, cmd)
+ 
+ 
+ def build():
++    global BIN
+     os.makedirs(WORK, exist_ok=True)
+-    src = os.path.join(PKG, "prefilter.bend")
+-    if os.path.exists(BIN) and os.path.getmtime(BIN) > max(
+-            os.path.getmtime(os.path.join(PKG, f)) for f in os.listdir(PKG) if f.startswith(("pf_", "prefilter"))):
+-        return
+-    run(["bend", src, "-o", BIN], cwd=PKG)
++    spec = importlib.util.spec_from_file_location('launcher', os.path.join(PKG, 'run.py'))
++    launcher = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(launcher)
++    BIN = str(launcher.build('prefilter'))
+ 
+ 
+ def tag(opts):
+@@ -82,13 +97,17 @@
+ def reference(name, opts):
+     os.makedirs(REF_DIR, exist_ok=True)
+     path = os.path.join(REF_DIR, f"{name}.{tag(opts)}.txt")
++    old = os.path.join(SCRATCH, 'pf', 'refs', os.path.basename(path))
++    if not os.path.exists(path) and os.path.isfile(old): shutil.copy2(old,path)
+     if name == "full" and not opts:
+         lead = os.path.join(SCRATCH, "vc", "full", "fltr12.txt")
+         if os.path.exists(lead):
+-            return lead
++            if not os.path.exists(path): shutil.copy2(lead,path)
++            return path
+     if not os.path.exists(path):
+-        run([VCLUST, "prefilter", "-i", DATASETS[name], "-o", path, "-t", "12", "-v", "0"] + opts,
++        run([VCLUST, "prefilter", "-i", DATASETS[name], "-o", path + ".partial", "-t", "12", "-v", "0"] + opts,
+             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
++        os.replace(path + ".partial", path)
+     return path
+ 
+ 
+@@ -123,6 +142,7 @@
+ 
+ 
+ def timed(cmd):
++    os.makedirs(os.path.dirname(LOCK),exist_ok=True)
+     t = time.time()
+     r = subprocess.run(["flock", LOCK, "/usr/bin/time", "-f", "%e %M"] + cmd,
+                        stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True, check=True)
+@@ -139,12 +159,26 @@
+     cases = [(n, o) for n in names for o in BASIC + (EXTRA if n != "stratified1000" else EXTRA[:3])]
+     if "--full" in args:
+         cases += [("full", o) for o in BASIC]
++    if "--include-slow-reference" in args:
++        cases.append(("vclust_example", ["-k", "30", "--min-ident", "0.9"]))
++    else:
++        print("SKIP reference k=30: Kmer-db 2.3.1 timed out on the example; opt in with --include-slow-reference", flush=True)
++    reports = []
+     fails = 0
+     for name, opts in cases:
+-        ref = reference(name, opts)
+-        out = os.path.join(WORK, f"{name}.{tag(opts)}.bend.txt")
+-        run(bend_cmd(DATASETS[name], out, opts))
+-        ok, msg = compare(ref, out)
++        row = {"dataset": name, "options": opts}
++        try:
++            ref = reference(name, opts)
++            out = os.path.join(WORK, f"{name}.{tag(opts)}.bend.txt")
++            cmd = bend_cmd(DATASETS[name], out, opts)
++            run(cmd, timeout=600 if name == "full" else 180)
++            ok, msg = compare(ref, out)
++            row.update(command=cmd, reference=ref, output=out)
++        except (OSError, subprocess.SubprocessError) as error:
++            ok, msg = False, str(error)
++        row.update(identical=ok, detail=msg)
++        reports.append(row)
++        Path(WORK, 'results.json').write_text(json.dumps(reports, indent=2)+'\n')
+         fails += not ok
+         print(f"{'PASS' if ok else 'FAIL'} {name:15s} {' '.join(opts) or '(defaults)':45s} {msg}", flush=True)
+     if "--time" in args:
+--- /dev/null
++++ codex/tests/verify_clusters.py
+@@ -0,0 +1,91 @@
++#!/usr/bin/env python3
++"""Independent semantic checks and a spanning-forest witness for actual TSVs.
++
++This checker does not rerun the clustering algorithms. It checks their output
++contracts against the filtered input graph. The general forest implication is
++proved separately in proofs/Forest.lean; this Python parser/checker is not itself
++a formally verified program and remains an explicit trust boundary.
++"""
++import argparse
++import csv
++from collections import defaultdict, deque
++import hashlib
++import json
++from pathlib import Path
++
++def read_graph(ani, ids, thresholds, metric):
++    from clusty_model import clusty_strtod
++    with Path(ids).open() as f:
++        names=[line.rstrip('\n').split('\t')[0] for line in list(f)[1:] if line.strip()]
++    if len(set(names)) != len(names): raise ValueError('duplicate identifiers cannot certify an unambiguous TSV mapping')
++    graph=[set() for _ in names]
++    with Path(ani).open() as f:
++        for row in csv.DictReader(f,delimiter='\t'):
++            accepted=all(clusty_strtod(row[k]) >= v for k,v in thresholds.items() if k!='num_alns')
++            if thresholds.get('num_alns',0)>0:
++                accepted &= clusty_strtod(row['num_alns']) <= thresholds['num_alns']
++            if not accepted: continue
++            a,b=int(row['qidx']),int(row['ridx'])
++            if not (0<=a<len(names) and 0<=b<len(names)): raise ValueError('input edge index outside ids')
++            if a!=b: graph[a].add(b);graph[b].add(a)
++    return names,graph
++
++def verify(ani,ids,output,algorithm,thresholds,metric='ani'):
++    if algorithm not in ('single','complete','uclust','cd-hit','set-cover','leiden'):
++        raise ValueError(f'unknown algorithm contract: {algorithm}')
++    names,graph=read_graph(ani,ids,thresholds,metric)
++    lookup={v:i for i,v in enumerate(names)};groups=defaultdict(list); seen=set()
++    with Path(output).open() as f:
++        for row in csv.DictReader(f,delimiter='\t'):
++            name=row['object']
++            if name not in lookup: raise ValueError(f'unknown output object: {name}')
++            if name in seen: raise ValueError(f'duplicate output object: {name}')
++            seen.add(name);groups[row['cluster']].append(lookup[name])
++    if seen != set(names): raise ValueError('missing output objects')
++    root=[-1]*len(names);parent=[-1]*len(names);rank=[-1]*len(names)
++    stars={}
++    for label,members in groups.items():
++        allowed=set(members);r=members[0];q=deque([r]);parent[r]=r;rank[r]=0
++        while q:
++            v=q.popleft();root[v]=r
++            for u in sorted(graph[v] & allowed):
++                if parent[u]<0: parent[u]=v;rank[u]=rank[v]+1;q.append(u)
++        if any(root[v]!=r for v in members): raise ValueError(f'disconnected cluster: {label}')
++        if algorithm=='complete':
++            for v in members:
++                if allowed-{v}-graph[v]: raise ValueError(f'non-clique complete cluster: {label}')
++        if algorithm in ('uclust','cd-hit','set-cover'):
++            seeds=[v for v in members if not (allowed-{v}-graph[v])]
++            if not seeds: raise ValueError(f'no adjacent seed for cluster: {label}')
++            stars[label]=min(seeds)
++    # Check the witness independently of the BFS that constructed it.
++    for v in range(len(names)):
++        p=parent[v]
++        if p==v:
++            if root[v]!=v or rank[v]!=0: raise ValueError('invalid forest root')
++        elif not (p in graph[v] and root[p]==root[v] and 0<=rank[p]<rank[v]):
++            raise ValueError('invalid forest step')
++    if algorithm=='single':
++        if any(root[v]!=root[u] for v,ns in enumerate(graph) for u in ns):
++            raise ValueError('single linkage split an accepted connected component')
++    return {'algorithm':algorithm,'objects':len(names),'clusters':len(groups),
++            'metric':metric,'thresholds':thresholds,
++            'edges':sum(map(len,graph))//2,'partition':True,'connected':True,
++            'clique':algorithm=='complete','edge_closed':algorithm=='single',
++            'star_seeds':stars,'root':root,'parent':parent,'rank':rank,
++            'input_sha256':hashlib.sha256(Path(ani).read_bytes()).hexdigest(),
++            'ids_sha256':hashlib.sha256(Path(ids).read_bytes()).hexdigest(),
++            'output_sha256':hashlib.sha256(Path(output).read_bytes()).hexdigest(),
++            'trust_boundary':'Python I/O and finite certificate checks; Forest.lean proves the abstract implication.'}
++
++def main():
++    ap=argparse.ArgumentParser(description=__doc__)
++    ap.add_argument('-i','--input',required=True);ap.add_argument('--ids',required=True)
++    ap.add_argument('--clusters',required=True);ap.add_argument('--algorithm',required=True)
++    ap.add_argument('--metric',default='ani');ap.add_argument('--threshold',type=float,default=.95)
++    ap.add_argument('--certificate',type=Path)
++    a=ap.parse_args();result=verify(a.input,a.ids,a.clusters,a.algorithm,{a.metric:a.threshold},a.metric)
++    if a.certificate: a.certificate.write_text(json.dumps(result,indent=2)+'\n')
++    print(f'PASS {result["objects"]} objects; {result["clusters"]} clusters; partition and {a.algorithm} contract')
++
++if __name__=='__main__': main()
+--- /dev/null
++++ codex/tools/capped.sh
+@@ -0,0 +1,7 @@
++#!/bin/sh
++# Durable replacement for the previous session's /tmp-only memory wrapper.
++set -eu
++systemctl --user set-property --runtime bendwork.slice \
++  MemoryHigh=9G MemoryMax=10G MemorySwapMax=0
++exec systemd-run --user --scope --quiet --collect --slice=bendwork.slice \
++  -p "MemoryMax=${CAP:-3G}" -p MemorySwapMax=0 -- "$@"
+--- /dev/null
++++ codex/tools/certify_existing.py
+@@ -0,0 +1,25 @@
++#!/usr/bin/env python3
++"""Certify the 18 real-data outputs retained by the differential suite."""
++from pathlib import Path
++import json
++import sys
++
++ROOT=Path(__file__).resolve().parents[1]
++sys.path.insert(0,str(ROOT/'tests'))
++from reference_data import load
++from verify_clusters import verify
++
++def main():
++    summary=[]
++    for dataset in ('example','stratified1000','full'):
++        _,_,ani,ids=load(dataset)
++        for algo in ('single','complete','uclust','cd-hit','set-cover','leiden'):
++            name=f'{dataset}-{algo}'
++            out=ROOT/'.work/cluster-tests'/f'{name}.bend.tsv'
++            cert=verify(ani,ids,out,algo,{'ani':.95},'ani')
++            (ROOT/'evidence'/f'{name}.forest.json').write_text(json.dumps(cert,indent=2)+'\n')
++            summary.append({'dataset':dataset,**{k:v for k,v in cert.items() if k not in ('root','parent','rank','star_seeds')}})
++            print('PASS',name,cert['objects'],cert['clusters'],flush=True)
++    (ROOT/'evidence/semantic-contracts.json').write_text(json.dumps(summary,indent=2)+'\n')
++
++if __name__=='__main__': main()
+--- /dev/null
++++ codex/tools/generate_leiden_state.py
+@@ -0,0 +1,93 @@
++#!/usr/bin/env python3
++"""Generate mechanical affine state accessors for the Leiden implementation.
++
++No algorithm lives here. The generated module owns each array exactly once;
++each read returns the state with the value, each write returns the new state.
++Run from any directory with Python 3. All generated source remains reviewable.
++"""
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parents[1]
++fields = {'rows': 'Array<List<&2, G.Nb>>', 'original_rows': 'Array<List<&2, G.Nb>>', 'groups': 'Array<List<&2, U32>>'}
++uints = 'mem ref count stable added nonsingle order empty queue mapping orig newc amem'.split()
++doubles = 'nw cw ext ewpc cum anw'.split()
++for name in uints:
++    fields[name] = 'Array<U32>'
++for name in doubles:
++    fields[name] = 'Array<F.D>'
++fields.update(rh='U32', rl='U32', changed='Bool', err='Bool')
++
++names = ', '.join(fields)
++def record(replacements=None):
++    replacements = replacements or {}
++    return 'S{' + ', '.join(replacements.get(n, n) for n in fields) + '}'
++
++out = ['# Generated by tools/generate_leiden_state.py. Do not hand-edit.\n',
++       'import Base\nimport ./f64.bend as F\nimport ./cl_graph.bend as G\n',
++       'type S is Type:\n  S{' + ', '.join(f'{n}: {t}' for n,t in fields.items()) + '}\n',
++       '''def pair(-A: Type, -B: Type, -C: Type, p: A & B, k: A -> B -> C) -> C:
++  (a, b) = p
++  k(a)(b)
++''']
++for name, typ in fields.items():
++    if typ.startswith('Array<'):
++        value = typ[6:-1]
++        out.append(f'''def {name}_get(s: S, +i: U32) -> S & {value}:
++  match s:
++    case {record()}:
++      pair(Array<{value}>, {value}, S & {value}, Array.get({value}, {name}, i), a => v =>
++        ({record({name: 'a'})}, v))
++
++def {name}_set(s: S, +i: U32, v: {value}) -> S:
++  match s:
++    case {record()}:
++      {record({name: f'Array.set({value}, {name}, i, v)'})}
++''')
++    else:
++        pattern = record({name:'+'+name})
++        out.append(f'''def {name}_get(s: S) -> S & {typ}:
++  match s:
++    case {pattern}:
++      ({record()}, {name})
++
++def {name}_set(s: S, v: {typ}) -> S:
++  match s:
++    case {record()}:
++      {record({name: 'v'})}
++''')
++for name in doubles:
++    for operation in ('add','sub'):
++        out.append(f'''def {name}_{operation}(s: S, +i: U32, v: F.D) -> S:
++  pair(S, F.D, S, {name}_get(s, i), s => old =>
++    {name}_set(s, i, F.d_{operation}(old, v)))
++''')
++
++out.append('''def new(+n: U32, rows: Array<List<&2, G.Nb>>) -> S:
++  +d = G.depth(n)
++  pair(Array<List<&2, G.Nb>>, Array<List<&2, G.Nb>>, S,
++    Array.clone(List<&2, G.Nb>, rows), rows => original_rows =>
++  S{''' + ', '.join(
++    name if name in ('rows','original_rows') else
++    'Array.new(List<&2, U32>, d, Nil{})' if name=='groups' else
++    'G.u32_array(n, 0)' if name in uints else
++    'Array.new(F.D, d, F.D{0, 0})' if name in doubles else
++    str(0x853c49e6) if name=='rh' else str(0x748fea9b) if name=='rl' else 'False{}'
++    for name in fields) + '})\n')
++out.append(f'''def reset_graph(s: S) -> S:
++  match s:
++    case {record()}:
++      pair(Array<List<&2, G.Nb>>, Array<List<&2, G.Nb>>, S,
++        Array.clone(List<&2, G.Nb>, original_rows), original_rows => rows =>
++          {record()})
++
++def replace_graph(s: S, g: Array<List<&2, G.Nb>>) -> S:
++  match s:
++    case {record()}:
++      {record({'rows':'g'})}
++''')
++out.append(f'''def output(s: S) -> Array<U32>:
++  match s:
++    case {record()}:
++      orig
++''')
++(ROOT/'cl_leiden_state.bend').write_text('\n'.join(out))
+--- /dev/null
++++ codex/tools/handoff_manifest.py
+@@ -0,0 +1,38 @@
++#!/usr/bin/env python3
++"""Record every package source change relative to the preserved Claude files."""
++from pathlib import Path
++import datetime
++import difflib
++import hashlib
++import json
++import tarfile
++
++ROOT=Path(__file__).resolve().parents[1]
++def main():
++    old={}
++    with tarfile.open(ROOT.parent/'handoff/claude-inherited-vclust_bend.tar.gz') as archive:
++        for member in archive.getmembers():
++            if member.isfile(): old[member.name.removeprefix('vclust_bend/')]=archive.extractfile(member).read()
++    current={str(p.relative_to(ROOT)):p.read_bytes() for p in ROOT.rglob('*')
++             if p.is_file() and not set(p.relative_to(ROOT).parts)&{'.work','__pycache__','evidence'}}
++    rows=[];diff=[]
++    for name in sorted(old.keys()|current.keys()):
++        before,after=old.get(name),current.get(name)
++        status='unchanged' if before==after else 'new' if before is None else 'removed' if after is None else 'modified'
++        rows.append({'file':name,'status':status,'before_sha256':hashlib.sha256(before).hexdigest() if before is not None else None,
++                     'after_sha256':hashlib.sha256(after).hexdigest() if after is not None else None})
++        if status!='unchanged':
++            diff.extend(difflib.unified_diff((before or b'').decode().splitlines(True),(after or b'').decode().splitlines(True),
++                        fromfile='claude/'+name if before is not None else '/dev/null',
++                        tofile='codex/'+name if after is not None else '/dev/null'))
++    (ROOT/'evidence/codex-source-manifest.json').write_text(json.dumps({'updated_at':datetime.datetime.now().astimezone().isoformat(),'files':rows},indent=2)+'\n')
++    (ROOT/'evidence/codex-source-changes.patch').write_text(''.join(diff))
++    inventory={}
++    for path in sorted(ROOT.rglob('*')):
++        relative=path.relative_to(ROOT)
++        if not path.is_file() or set(relative.parts)&{'.work','__pycache__'} or relative.as_posix()=='evidence/delivered-sha256.json': continue
++        inventory[str(relative)]={'sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'bytes':path.stat().st_size}
++    (ROOT/'evidence/delivered-sha256.json').write_text(json.dumps(inventory,indent=2)+'\n')
++    print({s:sum(r['status']==s for r in rows) for s in ('new','modified','removed','unchanged')})
++
++if __name__=='__main__': main()
+--- /dev/null
++++ codex/tools/measure_certified_cluster.py
+@@ -0,0 +1,30 @@
++#!/usr/bin/env python3
++"""Measure the actual certified launcher separately from native stage timings."""
++from pathlib import Path
++import json
++import sys
++import hashlib
++
++ROOT=Path(__file__).resolve().parents[1]
++sys.path.insert(0,str(ROOT))
++from benchmark import measured
++
++def main():
++    source=ROOT/'evidence/benchmark-stratified1000-full-t12.json'
++    report=json.loads(source.read_text());base=Path(report['work_directory'])
++    if not report.get('performance_comparison_complete',False):
++        raise SystemExit('Run a complete, uncontended benchmark --full --threads 12 before measuring the certified launcher.')
++    rows=[]
++    for dataset in ('stratified1000','full'):
++        folder=base/f'{dataset}-t12-bend';out=folder/'certified-clusters.tsv'
++        cmd=[sys.executable,ROOT/'run.py','cluster','-i',folder/'ani.tsv','--ids',folder/'ani.ids.tsv',
++             '-o',out,'--algorithm','leiden','--metric','ani','--ani','0.95','-t','1']
++        row={'dataset':dataset,**measured(cmd,folder/'certified-cluster.log',300)}
++        row['identical_to_native']=out.read_bytes()==(folder/'clusters.tsv').read_bytes()
++        cert=json.loads(Path(str(out)+'.certificate.json').read_text())
++        row['certificate_hash_matches']=cert['output_sha256']==hashlib.sha256(out.read_bytes()).hexdigest()
++        if not row['identical_to_native'] or not row['certificate_hash_matches']: raise RuntimeError(row)
++        rows.append(row);print(dataset,row['wall_seconds'],row['max_rss_kib'],'certified launcher PASS',flush=True)
++    (ROOT/'evidence/certified-launcher-timings.json').write_text(json.dumps({'note':'Single samples including cached launcher build lookup, systemd scope, native clustering, Python semantic verification and certificate publication. Compare with native stage timings only with this boundary in mind.','runs':rows},indent=2)+'\n')
++
++if __name__=='__main__': main()
+--- /dev/null
++++ codex/tools/validate.py
+@@ -0,0 +1,75 @@
++#!/usr/bin/env python3
++"""Project-scoped validation entry: no arbitrary command execution arguments."""
++import argparse
++import importlib.util
++import hashlib
++import json
++import os
++from pathlib import Path
++import subprocess
++import sys
++
++ROOT = Path(__file__).resolve().parents[1]
++spec = importlib.util.spec_from_file_location('vclust_bend_run',ROOT/'run.py')
++launcher = importlib.util.module_from_spec(spec)
++spec.loader.exec_module(launcher)
++
++def main():
++    p=argparse.ArgumentParser()
++    p.add_argument('action',choices=['build','check','proofs','guards','cli-tests','semantics','certified-timings','benchmark','cluster-tests','prefilter-tests','align-tests'])
++    p.add_argument('stage',nargs='?',choices=['prefilter','align','cluster'])
++    p.add_argument('--full',action='store_true')
++    p.add_argument('--threads',type=int)
++    args=p.parse_args()
++    command,_=launcher.compiler()
++    if args.action=='build':
++        print(launcher.build(args.stage or 'cluster'))
++    elif args.action=='check':
++        for stage in ([args.stage] if args.stage else ['prefilter','align','cluster']):
++            launcher.capped([*command,ROOT/f'{stage}.bend','--check-only'],'8G',cwd=ROOT)
++    elif args.action=='proofs':
++        os.environ['PATH']='/home/veritas/.local/opt/lean-4.34.0/bin:'+os.environ['PATH']
++        records=[]
++        entries=[(ROOT/f'{name}.bend',[*command,ROOT/f'{name}.bend','--verdict']) for name in ['partition_certificate','clique_certificate']]
++        entries.append((ROOT/'proofs/Forest.lean',['lean',ROOT/'proofs/Forest.lean']))
++        for source,cmd in entries:
++            result=launcher.capped(cmd,'8G',cwd=ROOT,capture_output=True,text=True)
++            print(result.stdout,result.stderr,flush=True)
++            record={'file':str(source.relative_to(ROOT)),'sha256':hashlib.sha256(source.read_bytes()).hexdigest(),
++                    'command':list(map(str,cmd)),'exit_code':result.returncode,'stdout':result.stdout,'stderr':result.stderr}
++            records.append(record)
++            (ROOT/'evidence/proof-verdicts.json').write_text(json.dumps(records,indent=2)+'\n')
++    elif args.action=='guards':
++        binary=ROOT/'.work/certificate-runtime'
++        launcher.capped([*command,ROOT/'tests/certificate_runtime.bend','-o',binary],'8G',cwd=ROOT)
++        result=launcher.capped([binary],'1G',cwd=ROOT,capture_output=True,text=True)
++        if result.stdout.strip()!='True{}': raise RuntimeError(result.stdout+result.stderr)
++        record={'exit_code':result.returncode,'stdout':result.stdout,'binary_sha256':hashlib.sha256(binary.read_bytes()).hexdigest(),
++                'sources':{name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in
++                           ('cluster.bend','partition_certificate.bend','clique_certificate.bend','tests/certificate_runtime.bend')}}
++        (ROOT/'evidence/native-guards.json').write_text(json.dumps(record,indent=2)+'\n')
++        print('PASS native rejects invalid partition and invalid complete clique',flush=True)
++        launcher.capped([sys.executable,ROOT/'tests/test_certificates.py'],'1G',cwd=ROOT)
++    elif args.action=='benchmark':
++        for stage in ('prefilter','align','cluster'): launcher.build(stage)
++        datasets=['stratified1000','full'] if args.full else ['stratified1000']
++        threads=[args.threads] if args.threads else [1,12]
++        report=ROOT/'evidence'/('benchmark-'+'-'.join(datasets)+'-t'+'-'.join(map(str,threads))+'.json')
++        launcher.capped([sys.executable,ROOT/'benchmark.py','--datasets',*datasets,'--threads',*map(str,threads),'--report',report],'4G',cwd=ROOT)
++    elif args.action=='cli-tests':
++        for stage in ('prefilter','align','cluster'): launcher.build(stage)
++        launcher.capped([sys.executable,ROOT/'tests/test_cli.py'],'3G',cwd=ROOT)
++    elif args.action in ('semantics','certified-timings'):
++        script='certify_existing.py' if args.action=='semantics' else 'measure_certified_cluster.py'
++        launcher.capped([sys.executable,ROOT/'tools'/script],'3G',cwd=ROOT)
++    elif args.action=='cluster-tests':
++        binary=launcher.build('cluster')
++        launcher.capped([sys.executable,ROOT/'tests/test_cluster.py','--binary',binary,
++                        *(['--full'] if args.full else [])],'3G',cwd=ROOT)
++    else:
++        test='test_prefilter.py' if args.action=='prefilter-tests' else 'test_align.py'
++        launcher.capped([sys.executable,ROOT/'tests'/test,*(['--full'] if args.full else []),
++                        *(['--threads',str(args.threads or 1)] if args.action=='align-tests' else [])],'4G',cwd=ROOT)
++
++if __name__=='__main__':
++    main()

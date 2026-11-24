@@ -1,0 +1,32 @@
+<section id="afim">
+<div class="head">
+<p class="eyebrow">Bend · 1 de 5</p>
+<h2>Tipos afins: no máximo um uso</h2>
+</div>
+<div class="row" style="gap:40px; align-items:stretch">
+<div class="col grow" style="gap:12px">
+<p class="label">Guia do Bend</p>
+<p class="code"><span class="kw">def</span> main() -&gt; Array&lt;U32&gt; &amp; U32:<br>&#160;&#160;a = [0 : U32*8n] <span class="cm"># new array with 8 copies of 0</span><br>&#160;&#160;a[5] &lt;- 42&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="cm"># performs an in-place rewrite</span><br>&#160;&#160;a[5]&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span class="cm"># reads index 5</span></p>
+</div>
+<div class="col" style="width:640px; gap:12px">
+<p class="label">single_linkage.bend</p>
+<p class="code"><span class="kw">law</span> find_root:<br>&#160;&#160;<span class="kw">for</span> fuel: Nat<br>&#160;&#160;<span class="kw">for</span> parents: Array&lt;U32&gt;<br>&#160;&#160;<span class="kw">for</span> +node: U32<br>&#160;&#160;Array&lt;U32&gt; &amp; U32</p>
+</div>
+</div>
+<div style="flex:1"></div>
+<div class="row" style="align-items:stretch">
+<div class="card grow">
+<h3>Afim por padrão</h3>
+<p class="txt">Cada variável é usada no máximo uma vez. Reusar exige <b>+x</b>, só para tipos Data, pago com contagem de referências.</p>
+</div>
+<div class="card grow">
+<h3>Arrays no lugar</h3>
+<p class="txt">Array é Type: tem um único dono. Por isso a escrita reescreve o slot e a leitura devolve o array junto com o valor.</p>
+</div>
+<div class="card grow">
+<h3>Sem coletor de lixo</h3>
+<p class="txt">Um match libera o nó que abre na hora. O union-find do agrupamento muda seu vetor de pais sem cópias.</p>
+</div>
+</div>
+<p class="foot">Fontes: bend guide (Arrays, Quantities, Under the Hood), single_linkage.bend</p>
+</section>

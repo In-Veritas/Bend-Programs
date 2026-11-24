@@ -1,0 +1,25 @@
+{
+  "observed_at": "2026-11-23T17:19:50.396131+01:00",
+  "files": [
+    {
+      "file": "cl_graph.bend",
+      "codex_sha256": "b6498aa9d9accd9c1628c3f53f7d8cbb344c223ea7a8faa5ad9982f596f61bf8",
+      "observed_sha256": "e029c6ebec4cea4018987bf1b9e83c5c549c6d5dc8049dc861a025532afbc0b9"
+    },
+    {
+      "file": "cl_leiden.bend",
+      "codex_sha256": "36d3626a7f6ba2b6105ce5368706acc001697c1f7ad9a6de8b17338e9df112c8",
+      "observed_sha256": "52174de39d1b9850bdec69b30e7d30a1353bbba30f847db39e4cb99a34eb278f"
+    },
+    {
+      "file": "README.md",
+      "codex_sha256": "9d3108d83f98c843359a8894f13d45f3ba3ae9029ed03a86baae478ab71f66ae",
+      "observed_sha256": "a1c717c864aefce7b4587ce163bff0874b3fc2160165e12499ed58b34b8ebca1"
+    },
+    {
+      "file": "tests/test_prefilter.py",
+      "codex_sha256": "308e657f7e9fac3db5b0a2febb2f87a385a25b8c9de12104308f50b8305b136b",
+      "observed_sha256": "4f612e52b296553324ce9ee7d3da9c2ee0f19951d7383cefebe9bea86ffebd1c"
+    }
+  ]
+}

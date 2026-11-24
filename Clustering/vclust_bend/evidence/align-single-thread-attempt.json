@@ -1,0 +1,544 @@
+[
+  {
+    "dataset": "example",
+    "options": [],
+    "fasta": "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/original/vclust_example.fasta",
+    "filter": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/vc/fltr.txt",
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/vc/ani.tsv",
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/align",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/original/vclust_example.fasta",
+      "--filter",
+      "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/vc/fltr.txt",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/align-tests/example-0.bend.tsv",
+      "+RTS",
+      "--threads",
+      "1",
+      "-RTS"
+    ],
+    "checks": {
+      "table": {
+        "identical": true,
+        "reference_sha256": "cb13eeca2af4f2cbe8ac7d730bb777fcb13c83239268a9afbe42bfb31ac6757c",
+        "bend_sha256": "cb13eeca2af4f2cbe8ac7d730bb777fcb13c83239268a9afbe42bfb31ac6757c"
+      },
+      "ids": {
+        "identical": true,
+        "reference_sha256": "f5bee78cccf3596e948e094eb30d21ca1a64c38583934b92bcf3d511a1f6549d",
+        "bend_sha256": "f5bee78cccf3596e948e094eb30d21ca1a64c38583934b92bcf3d511a1f6549d"
+      }
+    },
+    "identical": true
+  },
+  {
+    "dataset": "example",
+    "options": [
+      "--outfmt",
+      "lite"
+    ],
+    "fasta": "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/original/vclust_example.fasta",
+    "filter": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/vc/fltr.txt",
+    "reference": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/align-tests/example-1.reference.tsv",
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/align",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/original/vclust_example.fasta",
+      "--filter",
+      "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/vc/fltr.txt",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/align-tests/example-1.bend.tsv",
+      "--outfmt",
+      "lite",
+      "+RTS",
+      "--threads",
+      "1",
+      "-RTS"
+    ],
+    "checks": {
+      "table": {
+        "identical": true,
+        "reference_sha256": "9276bc8376d09a9d5234bebacd5c074f84bda682a20476cf137f41a208268363",
+        "bend_sha256": "9276bc8376d09a9d5234bebacd5c074f84bda682a20476cf137f41a208268363"
+      },
+      "ids": {
+        "identical": true,
+        "reference_sha256": "f5bee78cccf3596e948e094eb30d21ca1a64c38583934b92bcf3d511a1f6549d",
+        "bend_sha256": "f5bee78cccf3596e948e094eb30d21ca1a64c38583934b92bcf3d511a1f6549d"
+      }
+    },
+    "identical": true
+  },
+  {
+    "dataset": "example",
+    "options": [
+      "--outfmt",
+      "complete"
+    ],
+    "fasta": "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/original/vclust_example.fasta",
+    "filter": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/vc/fltr.txt",
+    "reference": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/align-tests/example-2.reference.tsv",
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/align",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/original/vclust_example.fasta",
+      "--filter",
+      "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/vc/fltr.txt",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/align-tests/example-2.bend.tsv",
+      "--outfmt",
+      "complete",
+      "+RTS",
+      "--threads",
+      "1",
+      "-RTS"
+    ],
+    "checks": {
+      "table": {
+        "identical": true,
+        "reference_sha256": "f76e8e3f222e90218e48ea3bdbcb0bb4dbb753d79fc173228391ebf6e8e6d453",
+        "bend_sha256": "f76e8e3f222e90218e48ea3bdbcb0bb4dbb753d79fc173228391ebf6e8e6d453"
+      },
+      "ids": {
+        "identical": true,
+        "reference_sha256": "f5bee78cccf3596e948e094eb30d21ca1a64c38583934b92bcf3d511a1f6549d",
+        "bend_sha256": "f5bee78cccf3596e948e094eb30d21ca1a64c38583934b92bcf3d511a1f6549d"
+      }
+    },
+    "identical": true
+  },
+  {
+    "dataset": "example",
+    "options": [
+      "--out-ani",
+      "0.95"
+    ],
+    "fasta": "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/original/vclust_example.fasta",
+    "filter": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/vc/fltr.txt",
+    "reference": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/align-tests/example-3.reference.tsv",
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/align",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/original/vclust_example.fasta",
+      "--filter",
+      "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/vc/fltr.txt",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/align-tests/example-3.bend.tsv",
+      "--out-ani",
+      "0.95",
+      "+RTS",
+      "--threads",
+      "1",
+      "-RTS"
+    ],
+    "checks": {
+      "table": {
+        "identical": true,
+        "reference_sha256": "e0d4c26650d62359392908d6ee31b5e0792a3b6204549bc77c99a687b27ea10b",
+        "bend_sha256": "e0d4c26650d62359392908d6ee31b5e0792a3b6204549bc77c99a687b27ea10b"
+      },
+      "ids": {
+        "identical": true,
+        "reference_sha256": "f5bee78cccf3596e948e094eb30d21ca1a64c38583934b92bcf3d511a1f6549d",
+        "bend_sha256": "f5bee78cccf3596e948e094eb30d21ca1a64c38583934b92bcf3d511a1f6549d"
+      }
+    },
+    "identical": true
+  },
+  {
+    "dataset": "example",
+    "options": [
+      "--filter-threshold",
+      "0.8"
+    ],
+    "fasta": "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/original/vclust_example.fasta",
+    "filter": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/vc/fltr.txt",
+    "reference": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/align-tests/example-4.reference.tsv",
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/align",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/original/vclust_example.fasta",
+      "--filter",
+      "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/vc/fltr.txt",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/align-tests/example-4.bend.tsv",
+      "--filter-threshold",
+      "0.8",
+      "+RTS",
+      "--threads",
+      "1",
+      "-RTS"
+    ],
+    "checks": {
+      "table": {
+        "identical": true,
+        "reference_sha256": "cb13eeca2af4f2cbe8ac7d730bb777fcb13c83239268a9afbe42bfb31ac6757c",
+        "bend_sha256": "cb13eeca2af4f2cbe8ac7d730bb777fcb13c83239268a9afbe42bfb31ac6757c"
+      },
+      "ids": {
+        "identical": true,
+        "reference_sha256": "f5bee78cccf3596e948e094eb30d21ca1a64c38583934b92bcf3d511a1f6549d",
+        "bend_sha256": "f5bee78cccf3596e948e094eb30d21ca1a64c38583934b92bcf3d511a1f6549d"
+      }
+    },
+    "identical": true
+  },
+  {
+    "dataset": "example",
+    "options": [
+      "--mal",
+      "12",
+      "--msl",
+      "8"
+    ],
+    "fasta": "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/original/vclust_example.fasta",
+    "filter": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/vc/fltr.txt",
+    "reference": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/align-tests/example-5.reference.tsv",
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/align",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/original/vclust_example.fasta",
+      "--filter",
+      "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/vc/fltr.txt",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/align-tests/example-5.bend.tsv",
+      "--mal",
+      "12",
+      "--msl",
+      "8",
+      "+RTS",
+      "--threads",
+      "1",
+      "-RTS"
+    ],
+    "checks": {
+      "table": {
+        "identical": true,
+        "reference_sha256": "840d9a9aaf0b3d0a69ee8562772388d4a6c58be5344719ec51c50bffc1586aa9",
+        "bend_sha256": "840d9a9aaf0b3d0a69ee8562772388d4a6c58be5344719ec51c50bffc1586aa9"
+      },
+      "ids": {
+        "identical": true,
+        "reference_sha256": "f5bee78cccf3596e948e094eb30d21ca1a64c38583934b92bcf3d511a1f6549d",
+        "bend_sha256": "f5bee78cccf3596e948e094eb30d21ca1a64c38583934b92bcf3d511a1f6549d"
+      }
+    },
+    "identical": true
+  },
+  {
+    "dataset": "prefix1000",
+    "options": [],
+    "fasta": "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/ready/vclust_example_prefix1000.fasta",
+    "filter": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/al/ref/vclust_example_prefix1000.fltr.txt",
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/al/ref/vclust_example_prefix1000.ani.tsv",
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/align",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/ready/vclust_example_prefix1000.fasta",
+      "--filter",
+      "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/al/ref/vclust_example_prefix1000.fltr.txt",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/align-tests/prefix1000-0.bend.tsv",
+      "+RTS",
+      "--threads",
+      "1",
+      "-RTS"
+    ],
+    "checks": {
+      "table": {
+        "identical": true,
+        "reference_sha256": "db4b0dd69feb81a713aeb3200258ee320771a8963e02f960ac35628a9a8456d0",
+        "bend_sha256": "db4b0dd69feb81a713aeb3200258ee320771a8963e02f960ac35628a9a8456d0"
+      },
+      "ids": {
+        "identical": true,
+        "reference_sha256": "52541558201a9d8d1786b27145ad3bbd75b803d1542a926629d8a61a9ed32327",
+        "bend_sha256": "52541558201a9d8d1786b27145ad3bbd75b803d1542a926629d8a61a9ed32327"
+      }
+    },
+    "identical": true
+  },
+  {
+    "dataset": "prefix1000",
+    "options": [
+      "--outfmt",
+      "lite"
+    ],
+    "fasta": "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/ready/vclust_example_prefix1000.fasta",
+    "filter": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/al/ref/vclust_example_prefix1000.fltr.txt",
+    "reference": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/align-tests/prefix1000-1.reference.tsv",
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/align",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/ready/vclust_example_prefix1000.fasta",
+      "--filter",
+      "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/al/ref/vclust_example_prefix1000.fltr.txt",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/align-tests/prefix1000-1.bend.tsv",
+      "--outfmt",
+      "lite",
+      "+RTS",
+      "--threads",
+      "1",
+      "-RTS"
+    ],
+    "checks": {
+      "table": {
+        "identical": true,
+        "reference_sha256": "ae61281ae26f21f1509690ada8dbc9d5317dae65d3271e75016fcfe36fce804d",
+        "bend_sha256": "ae61281ae26f21f1509690ada8dbc9d5317dae65d3271e75016fcfe36fce804d"
+      },
+      "ids": {
+        "identical": true,
+        "reference_sha256": "52541558201a9d8d1786b27145ad3bbd75b803d1542a926629d8a61a9ed32327",
+        "bend_sha256": "52541558201a9d8d1786b27145ad3bbd75b803d1542a926629d8a61a9ed32327"
+      }
+    },
+    "identical": true
+  },
+  {
+    "dataset": "prefix1000",
+    "options": [
+      "--outfmt",
+      "complete"
+    ],
+    "fasta": "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/ready/vclust_example_prefix1000.fasta",
+    "filter": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/al/ref/vclust_example_prefix1000.fltr.txt",
+    "reference": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/align-tests/prefix1000-2.reference.tsv",
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/align",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/ready/vclust_example_prefix1000.fasta",
+      "--filter",
+      "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/al/ref/vclust_example_prefix1000.fltr.txt",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/align-tests/prefix1000-2.bend.tsv",
+      "--outfmt",
+      "complete",
+      "+RTS",
+      "--threads",
+      "1",
+      "-RTS"
+    ],
+    "checks": {
+      "table": {
+        "identical": true,
+        "reference_sha256": "6a10ee0bbd0e7ab36d5bdab60571ed4e352d6c8cac99fcf28e9262929bda8d5b",
+        "bend_sha256": "6a10ee0bbd0e7ab36d5bdab60571ed4e352d6c8cac99fcf28e9262929bda8d5b"
+      },
+      "ids": {
+        "identical": true,
+        "reference_sha256": "52541558201a9d8d1786b27145ad3bbd75b803d1542a926629d8a61a9ed32327",
+        "bend_sha256": "52541558201a9d8d1786b27145ad3bbd75b803d1542a926629d8a61a9ed32327"
+      }
+    },
+    "identical": true
+  },
+  {
+    "dataset": "prefix1000",
+    "options": [
+      "--out-ani",
+      "0.95"
+    ],
+    "fasta": "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/ready/vclust_example_prefix1000.fasta",
+    "filter": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/al/ref/vclust_example_prefix1000.fltr.txt",
+    "reference": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/align-tests/prefix1000-3.reference.tsv",
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/align",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/ready/vclust_example_prefix1000.fasta",
+      "--filter",
+      "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/al/ref/vclust_example_prefix1000.fltr.txt",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/align-tests/prefix1000-3.bend.tsv",
+      "--out-ani",
+      "0.95",
+      "+RTS",
+      "--threads",
+      "1",
+      "-RTS"
+    ],
+    "checks": {
+      "table": {
+        "identical": true,
+        "reference_sha256": "37b0c7e1c7e1e69071142f73d470e4ce4fb26cd2897465781bd6e50c7daa81cb",
+        "bend_sha256": "37b0c7e1c7e1e69071142f73d470e4ce4fb26cd2897465781bd6e50c7daa81cb"
+      },
+      "ids": {
+        "identical": true,
+        "reference_sha256": "52541558201a9d8d1786b27145ad3bbd75b803d1542a926629d8a61a9ed32327",
+        "bend_sha256": "52541558201a9d8d1786b27145ad3bbd75b803d1542a926629d8a61a9ed32327"
+      }
+    },
+    "identical": true
+  },
+  {
+    "dataset": "prefix1000",
+    "options": [
+      "--filter-threshold",
+      "0.8"
+    ],
+    "fasta": "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/ready/vclust_example_prefix1000.fasta",
+    "filter": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/al/ref/vclust_example_prefix1000.fltr.txt",
+    "reference": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/align-tests/prefix1000-4.reference.tsv",
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/align",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/ready/vclust_example_prefix1000.fasta",
+      "--filter",
+      "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/al/ref/vclust_example_prefix1000.fltr.txt",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/align-tests/prefix1000-4.bend.tsv",
+      "--filter-threshold",
+      "0.8",
+      "+RTS",
+      "--threads",
+      "1",
+      "-RTS"
+    ],
+    "checks": {
+      "table": {
+        "identical": true,
+        "reference_sha256": "db4b0dd69feb81a713aeb3200258ee320771a8963e02f960ac35628a9a8456d0",
+        "bend_sha256": "db4b0dd69feb81a713aeb3200258ee320771a8963e02f960ac35628a9a8456d0"
+      },
+      "ids": {
+        "identical": true,
+        "reference_sha256": "52541558201a9d8d1786b27145ad3bbd75b803d1542a926629d8a61a9ed32327",
+        "bend_sha256": "52541558201a9d8d1786b27145ad3bbd75b803d1542a926629d8a61a9ed32327"
+      }
+    },
+    "identical": true
+  },
+  {
+    "dataset": "prefix1000",
+    "options": [
+      "--mal",
+      "12",
+      "--msl",
+      "8"
+    ],
+    "fasta": "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/ready/vclust_example_prefix1000.fasta",
+    "filter": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/al/ref/vclust_example_prefix1000.fltr.txt",
+    "reference": "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/align-tests/prefix1000-5.reference.tsv",
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/align",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/public_viromes/ready/vclust_example_prefix1000.fasta",
+      "--filter",
+      "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/al/ref/vclust_example_prefix1000.fltr.txt",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/align-tests/prefix1000-5.bend.tsv",
+      "--mal",
+      "12",
+      "--msl",
+      "8",
+      "+RTS",
+      "--threads",
+      "1",
+      "-RTS"
+    ],
+    "checks": {
+      "table": {
+        "identical": true,
+        "reference_sha256": "b1b027392e86c781c29e4450401a332a4f1c60ec6c2f0c7c2a90eca94dfdefde",
+        "bend_sha256": "b1b027392e86c781c29e4450401a332a4f1c60ec6c2f0c7c2a90eca94dfdefde"
+      },
+      "ids": {
+        "identical": true,
+        "reference_sha256": "52541558201a9d8d1786b27145ad3bbd75b803d1542a926629d8a61a9ed32327",
+        "bend_sha256": "52541558201a9d8d1786b27145ad3bbd75b803d1542a926629d8a61a9ed32327"
+      }
+    },
+    "identical": true
+  },
+  {
+    "dataset": "shortest1000",
+    "options": [],
+    "fasta": "/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/ready/earlyvir_shortest1000.fasta",
+    "filter": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/al/ref/earlyvir_shortest1000.fltr.txt",
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/al/ref/earlyvir_shortest1000.ani.tsv",
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/align",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/ready/earlyvir_shortest1000.fasta",
+      "--filter",
+      "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/al/ref/earlyvir_shortest1000.fltr.txt",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/align-tests/shortest1000-0.bend.tsv",
+      "+RTS",
+      "--threads",
+      "1",
+      "-RTS"
+    ],
+    "checks": {
+      "table": {
+        "identical": true,
+        "reference_sha256": "2990a1a60a347c5a7821a801064dd2aab30e7f859f5ce8d705a14867d9e03776",
+        "bend_sha256": "2990a1a60a347c5a7821a801064dd2aab30e7f859f5ce8d705a14867d9e03776"
+      },
+      "ids": {
+        "identical": true,
+        "reference_sha256": "ed6b88cf402acab62933eff61f2ec1af0080d264a1ed0c2a7ff3c0d997a93935",
+        "bend_sha256": "ed6b88cf402acab62933eff61f2ec1af0080d264a1ed0c2a7ff3c0d997a93935"
+      }
+    },
+    "identical": true
+  },
+  {
+    "dataset": "stratified1000",
+    "options": [],
+    "fasta": "/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+    "filter": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/vc/s1000/fltr12.txt",
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/vc/s1000/ani12.tsv",
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/align",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/ready/earlyvir_stratified1000.fasta",
+      "--filter",
+      "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/vc/s1000/fltr12.txt",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/align-tests/stratified1000-0.bend.tsv",
+      "+RTS",
+      "--threads",
+      "1",
+      "-RTS"
+    ],
+    "checks": {
+      "table": {
+        "identical": true,
+        "reference_sha256": "17310b69c329a16f3208d78613f7587dd233d16fb6fa93a4c898997a1db73635",
+        "bend_sha256": "17310b69c329a16f3208d78613f7587dd233d16fb6fa93a4c898997a1db73635"
+      },
+      "ids": {
+        "identical": true,
+        "reference_sha256": "3c89a35c12d1730016575c6d6443d6dfa5c64ea4ce750a3eb14d59511cc0937a",
+        "bend_sha256": "3c89a35c12d1730016575c6d6443d6dfa5c64ea4ce750a3eb14d59511cc0937a"
+      }
+    },
+    "identical": true
+  },
+  {
+    "dataset": "full",
+    "options": [],
+    "fasta": "/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/raw/all.curated.vOTUs.EarlyVir.fna",
+    "filter": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/vc/full/fltr12.txt",
+    "reference": "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/vc/full/ani12.tsv",
+    "command": [
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/align",
+      "-i",
+      "/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/raw/all.curated.vOTUs.EarlyVir.fna",
+      "--filter",
+      "/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/vc/full/fltr12.txt",
+      "-o",
+      "/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/align-tests/full-0.bend.tsv",
+      "+RTS",
+      "--threads",
+      "1",
+      "-RTS"
+    ],
+    "identical": false,
+    "error": "Command '['/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/bin/fba50abd1885e6a43985/align', '-i', '/home/veritas/Bend-Programs/Clustering/datasets/infant_gut_virome/raw/all.curated.vOTUs.EarlyVir.fna', '--filter', '/tmp/claude-1000/-home-veritas/5691d3ef-5733-4e4a-b581-7568273d0c95/scratchpad/vc/full/fltr12.txt', '-o', '/home/veritas/Bend-Programs/Clustering/vclust_bend/.work/align-tests/full-0.bend.tsv', '+RTS', '--threads', '1', '-RTS']' timed out after 600 seconds"
+  }
+]

@@ -1,0 +1,20 @@
+<section id="fronteira" style="gap:32px">
+<div class="head">
+<p class="eyebrow">Tipos e provas no pipeline</p>
+<h2>Frontend anterior: provas e testes</h2>
+</div>
+<table class="tbl-s">
+<tr class="tbl-h"><th style="width:58%">Afirmação</th><th style="width:15%">Estado</th><th>Onde</th></tr>
+<tr><td>Escore indexado = escore original, para todo contador e limiar</td><td style="color:var(--teal)">Provado</td><td>lib/vclust_index.bend</td></tr>
+<tr><td>Par sem entrada comum no índice tem escore 0</td><td style="color:var(--teal)">Provado</td><td>lib/fast_score.bend</td></tr>
+<tr><td>Par com zero k-mers comuns não passa o prefiltro</td><td style="color:var(--teal)">Provado</td><td>lib/kmer_score.bend</td></tr>
+<tr><td>Costuras numéricas do LZ-ANI: ANI inteiro = matches/total, lacuna vazia soma 0, alinhamento vazio dá 0</td><td style="color:var(--teal)">Provado</td><td>lib/lz_ani_numeric.bend</td></tr>
+<tr><td>50 arquivos do frontend integrado passam tipos, afinidade e terminação</td><td>Checado</td><td>--check-only, Bend 2.0.40</td></tr>
+<tr><td>Pares e contagens de 25-mers iguais ao Kmer-db 2.3.1</td><td style="color:var(--orange)">Testado</td><td>tests/test_kmer_db.py</td></tr>
+<tr><td>nt_match, nt_mismatch e num_alns iguais ao LZ-ANI 1.2.3 em 344 comparações</td><td style="color:var(--orange)">Testado</td><td>tests/test_lz_ani_numeric.py</td></tr>
+<tr><td>Partições iguais ao Clusty em cinco algoritmos</td><td style="color:var(--orange)">Testado</td><td>benchmark/</td></tr>
+<tr><td>MinHash ≈ ANI biológico; parser LZ-ANI inteiro equivalente; verdict do livro completo</td><td>Não afirmado</td><td>bloqueio documentado</td></tr>
+</table>
+<p class="sm" style="width:1600px">Leis puras do frontend tinham verdict no BendTT; o livro completo tinha divergência checker/kernel documentada. Novas provas de partição e clique passaram no Linux com Lean 4.34.0; ver slide 37.</p>
+<p class="foot">Fontes: README.md (Validation), VCLUST_ARCHITECTURE.md (Proof boundary), LZ_ANI_PORT_NOTES.md</p>
+</section>

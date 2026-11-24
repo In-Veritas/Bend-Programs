@@ -1,0 +1,29 @@
+<section id="referencia">
+<div class="head">
+<p class="eyebrow">Vclust em Bend · benchmarks</p>
+<h2>Amostra de 1.000 genomas: tempo e memória</h2>
+</div>
+<table class="tbl">
+<tr class="tbl-h"><th style="width:12%">Workers*</th><th style="width:20%">Estágio</th><th style="width:17%">Vclust CLI (s)</th><th style="width:17%">Bend nativo (s)</th><th style="width:17%">Vclust (MiB)</th><th>Bend (MiB)</th></tr>
+<tr><td rowspan="3" style="vertical-align:middle">1</td><td>prefilter</td><td>8,01</td><td style="color:var(--teal)">3,48</td><td>482,2</td><td>201,6</td></tr>
+<tr><td>align</td><td>10,76</td><td style="color:var(--orange)">22,68</td><td>92,5</td><td>86,8</td></tr>
+<tr><td>cluster</td><td>0,24</td><td style="color:var(--teal)">0,03</td><td>131,9</td><td>14,2</td></tr>
+<tr><td rowspan="3" style="vertical-align:middle">12</td><td>prefilter</td><td>8,04</td><td style="color:var(--teal)">1,40</td><td>496,9</td><td>307,4</td></tr>
+<tr><td>align</td><td>4,45</td><td style="color:var(--orange)">7,94</td><td>415,3</td><td>265,9</td></tr>
+<tr><td>cluster</td><td>0,20</td><td style="color:var(--teal)">0,03</td><td>131,9</td><td>14,4</td></tr>
+</table>
+<div style="flex:1"></div>
+<div class="row" style="align-items:stretch">
+<div class="card grow">
+<p class="label">1 worker · tempo Bend / Vclust</p>
+<p class="big-o">1,38×</p>
+<p class="txt">Soma dos estágios: 26,19 s / 19,01 s.</p>
+</div>
+<div class="card grow">
+<p class="label">12 workers · tempo Bend / Vclust</p>
+<p class="big">0,74×</p>
+<p class="txt">Soma dos estágios: 9,37 s / 12,69 s.</p>
+</div>
+</div>
+<p class="foot">Uma execução por célula · quatro arquivos idênticos em cada configuração · * Clusty sem --threads · evidence/benchmark-*.json</p>
+</section>

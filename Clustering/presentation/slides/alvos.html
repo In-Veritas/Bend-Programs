@@ -1,0 +1,21 @@
+<section id="alvos">
+<div class="head">
+<p class="eyebrow">Bend · 3 de 5</p>
+<h2>Um código-fonte, três alvos</h2>
+</div>
+<div class="row" style="align-items:center; gap:24px">
+<div class="box-t" style="width:340px"><p style="font-size:30px; font-weight:600">single_linkage.bend</p><p>uma fonte Bend</p></div>
+<x-connector class="arrow"></x-connector>
+<div class="col grow" style="gap:16px">
+<div class="box" style="text-align:left"><p><b>C nativo</b> · clang compila para a CPU; chamadas paralelas usam threads</p></div>
+<div class="box" style="text-align:left"><p><b>GPU</b> · o mesmo arquivo C vira kernel CUDA (NVIDIA) ou Metal (Apple) para chamadas com !</p></div>
+<div class="box" style="text-align:left"><p><b>JavaScript</b> · executado com Bun, sequencialmente</p></div>
+</div>
+</div>
+<div style="flex:1"></div>
+<div class="row" style="gap:48px; align-items:center">
+<p class="code" style="width:900px; box-sizing:border-box">bend file.bend -o file&#160;&#160;&#160;&#160;<span class="cm"># binário nativo</span><br>bend file.bend -o file.c&#160;&#160;<span class="cm"># fonte C</span><br>bend file.bend -o file.js <span class="cm"># fonte JS</span><br>./file +RTS --threads 8 -RTS</p>
+<p class="txt grow">A suíte de testes compila as seis entradas para C e JavaScript e exige saídas idênticas byte a byte. No run.py, <b>--backend js</b> pede <b>--threads 1</b>.</p>
+</div>
+<p class="foot">Fontes: bend guide (Tooling, Under the Hood), README.md (Validation)</p>
+</section>

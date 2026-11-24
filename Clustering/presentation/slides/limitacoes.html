@@ -1,0 +1,26 @@
+<section id="limitacoes" class="dark">
+<div class="head">
+<p class="eyebrow">Encerramento · estado em 23/11/2026</p>
+<h2>Garantias verificadas e sua fronteira</h2>
+</div>
+<div class="row" style="gap:64px">
+<div class="col grow" style="gap:16px">
+<p class="label">Teoremas no BendTT e no Lean</p>
+<ul class="lst">
+<li>Partição: aceitar o certificado implica exatamente n rótulos, todos abaixo do limite declarado.</li>
+<li>Ligação completa: aceitar o certificado de clique implica aresta entre os pares do mesmo grupo no grafo fornecido.</li>
+<li>Floresta: cada vértice alcança sua raiz. Com simetria e fechamento das arestas, as classes são exatamente os componentes conexos de single linkage.</li>
+</ul>
+</div>
+<div class="col grow" style="gap:16px">
+<p class="label">Execução e limites da evidência</p>
+<ul class="lst">
+<li>Certificados integrados: 98/98 arquivos idênticos ao Vclust. As guardas nativas rejeitam dados de partição e clique inválidos.</li>
+<li>18 saídas reais: partição e conectividade verificadas; complete também satisfaz clique e single satisfaz fechamento das arestas.</li>
+<li>O parser e o verificador Python das florestas não têm prova formal. Lean prova a implicação abstrata sob as hipóteses verificadas.</li>
+<li>As garantias não demonstram ANI biologicamente correto, equivalência universal com Vclust ou ótimo global do Leiden.</li>
+</ul>
+</div>
+</div>
+<p class="foot">Fontes na cópia verificada: *_certificate.bend, proofs/Forest.lean e evidence/semantic-contracts.json</p>
+</section>
