@@ -17,7 +17,7 @@ import ./pf_sel.bend as S
 
 type Opts is Data:
   Opts{inp: String, out: String, k: String, mink: String, mini: String, batch: String, frac: String,
-       maxs: String, gpu: Bool}
+       maxs: String}
 
 def pick_s(c: Bool, a: String, b: String) -> String:
   match c:
@@ -29,46 +29,23 @@ def pick_s(c: Bool, a: String, b: String) -> String:
 def is_flag(+f: String, a: String, b: String) -> Bool:
   String.eq(f, a) || String.eq(f, b)
 
-def set_gpu(o: Opts) -> Opts:
-  Opts{+inp, +out, +k, +mink, +mini, +batch, +frac, +maxs, +gpu} = o
-  Opts{inp, out, k, mink, mini, batch, frac, maxs, True{}}
-
 def set_opt(+f: String, +v: String, o: Opts) -> Opts:
-  Opts{+inp, +out, +k, +mink, +mini, +batch, +frac, +maxs, +gpu} = o
+  Opts{+inp, +out, +k, +mink, +mini, +batch, +frac, +maxs} = o
   Opts{pick_s(is_flag(f, "-i", "--in"), v, inp), pick_s(is_flag(f, "-o", "--out"), v, out),
        pick_s(is_flag(f, "-k", "--k"), v, k), pick_s(is_flag(f, "--min-kmers", "--min-kmers"), v, mink),
        pick_s(is_flag(f, "--min-ident", "--min-ident"), v, mini),
        pick_s(is_flag(f, "--batch-size", "--batch-size"), v, batch),
        pick_s(is_flag(f, "--kmers-fraction", "--kmers-fraction"), v, frac),
-       pick_s(is_flag(f, "--max-seqs", "--max-seqs"), v, maxs), gpu}
+       pick_s(is_flag(f, "--max-seqs", "--max-seqs"), v, maxs)}
 
-# --gpu takes no value: the fork-join stages run as `!` calls.
-type PA is Data:
-  PA{o: Opts, +pending: String}
-
-def pa_step(idle: Bool, g: Bool, +f: String, pa: PA) -> PA:
-  match idle g:
-    case True{} True{}:
-      PA{+o, +pending} = pa
-      PA{set_gpu(o), ""}
-    case True{} False{}:
-      PA{+o, +pending} = pa
-      PA{o, f}
-    case False{} _:
-      PA{+o, +pending} = pa
-      PA{set_opt(pending, f, o), ""}
-
-def pa_idle(pa: PA) -> Bool:
-  PA{+o, +pending} = pa
-  String.is_empty(pending)
-
-def parse_args(xs: List<String>, +pa: PA) -> Opts:
+def parse_args(xs: List<String>, o: Opts) -> Opts:
   match xs:
     case Nil{}:
-      PA{+o, +pending} = pa
       o
-    case Con{+f, rest}:
-      parse_args(rest, pa_step(pa_idle(pa), String.eq(f, "--gpu"), f, pa))
+    case Con{f, Nil{}}:
+      o
+    case Con{+f, Con{+v, rest}}:
+      parse_args(rest, set_opt(f, v, o))
 
 def drop1(xs: List<String>) -> List<String>:
   match xs:
@@ -168,11 +145,7 @@ def write_rows(rows: List<&2, List<&2, U32>>, w: WF) -> IO(WF):
 # ====
 
 type Run is Data:
-  Run{c: K.Cfg, ly: K.LY, fp: K.FP, +bsz: U32, +gpu: Bool}
-
-def run_gpu(r: Run) -> Bool:
-  Run{+c, +ly, +fp, +bsz, +gpu} = r
-  gpu
+  Run{c: K.Cfg, ly: K.LY, fp: K.FP, +bsz: U32}
 
 def rows_written(+b1: U32, w: WF) -> IO(WF):
   IO.pure(WF, w)
@@ -207,12 +180,12 @@ type RSum is Type:
 
 
 def run_maxs(r: Run) -> U32:
-  Run{+c, +ly, +fp, +bsz, +gpu} = r
+  Run{+c, +ly, +fp, +bsz} = r
   K.FP{+mink, +k, +t, +maxs} = fp
   maxs
 
 def run_n(r: Run) -> U32:
-  Run{+c, +ly, +fp, +bsz, +gpu} = r
+  Run{+c, +ly, +fp, +bsz} = r
   K.LY{+lp, +lq, +lr, +n} = ly
   n
 
@@ -226,7 +199,7 @@ def log_if(tm: Bool, msg: String) -> IO(Unit):
     case False{}:
       IO.pure(Unit, Unit{})
 
-def pass_io(fuel: Nat, +c: K.Cfg, +ly: K.LY, +rb: K.RB, +tm: Bool, +gpu: Bool, s: K.BS) -> IO(K.BS):
+def pass_io(fuel: Nat, +c: K.Cfg, +ly: K.LY, +rb: K.RB, +tm: Bool, s: K.BS) -> IO(K.BS):
   match fuel:
     case 0n:
       IO.pure(K.BS, s)
@@ -235,27 +208,27 @@ def pass_io(fuel: Nat, +c: K.Cfg, +ly: K.LY, +rb: K.RB, +tm: Bool, +gpu: Bool, s
       K.BS{st, uc, dt, +p} = s
       do IO<K.BS>:
         t0 : Nat <- IO.now()
-        pr : K.PR = K.pass_dev(gpu, st, 1, K.cfg_pass(c, p), K.shl(1, lq), K.shl(1, (lp + lq : U32)))
+        pr : K.PR = K.par_pass(st, 1, K.cfg_pass(c, p), K.shl(1, lq), K.shl(1, (lp + lq : U32)))
         +t1 : Nat <- IO.now()
-        s2 : K.BS = K.bs_passed(gpu, uc, dt, p, ly, rb, pr)
+        s2 : K.BS = K.bs_passed(uc, dt, p, ly, rb, pr)
         t2 : Nat <- IO.now()
         log_if(tm, "pass " ++ U32.show(p) ++ ": extract " ++ ms_since(t0, t1) ++ " groups+apply " ++ ms_since(t1, t2))
-        pass_io(q, c, ly, rb, tm, gpu, s2)
+        pass_io(q, c, ly, rb, tm, s2)
 
 def batch_loop(fuel: Nat, st: K.ST, +b0: U32, +r: Run, +tm: Bool, w: WA) -> IO(WA):
   match fuel:
     case 0n:
       IO.pure(WA, w)
     case 1n+p:
-      Run{+c, +ly, +fp, +bsz, +gpu} = r
+      Run{+c, +ly, +fp, +bsz} = r
       K.LY{+lp, +lq, +lr, +n} = ly
       +b1 = U32.min(n, (b0 + bsz : U32))
-      +rb = K.rb_make(b0, b1, lr)
+      +rb = K.rb_make(b0, b1, K.shl(1, lr))
       do IO<WA>:
-        s : K.BS <- pass_io(U32.to_nat(K.shl(1, lp)), c, ly, rb, tm, gpu,
+        s : K.BS <- pass_io(U32.to_nat(K.shl(1, lp)), c, ly, rb, tm,
           K.BS{st, K.arr_new(n), K.dt_build(U32.to_nat(lr), 0, rb), 0})
         t0 : Nat <- IO.now()
-        br : K.BR = K.br_fin(gpu, ly, fp, s)
+        br : K.BR = K.br_fin(ly, fp, s)
         +t1 : Nat <- IO.now()
         log_if(tm, "final " ++ ms_since(t0, t1))
         batch_done(U32.is_ne(run_maxs(r), 0), br, w, s2 => w2 => batch_loop(p, s2, b1, r, tm, w2))
@@ -266,11 +239,6 @@ def raws_sum(xs: F.Raws, acc: F.Raws, +sum: U32) -> RSum:
     case F.RawCon{h, t}:
       F.Raw{+len, codes, +segs} = h
       raws_sum(t, F.RawCon{F.Raw{len, codes, segs}, acc}, (sum + len : U32))
-
-# Bases scaled by the sampled fraction (fewer passes when sampling).
-def eff_bases(+total: U32, t: N.Thr) -> U32:
-  N.Thr{+one, +fx} = t
-  K.sel(one, total, (N.mulhi(N.w2hi(fx), total) + 1 : U32))
 
 def lp_of(+total: U32) -> U32:
   # P = 2^lp passes with P * 2^24 >= total bases
@@ -328,24 +296,19 @@ def go_tree(+out: String, +k: U32, +frac: String, +names: List<&2, List<&2, U32>
     finish_out(U32.is_ne(run_maxs(r), 0), run_n(r), run_maxs(r), w)
 
 
-def tree_fst(r: K.ST & K.CK) -> K.ST:
+def tree_fst(r: K.ST & F.Raws) -> K.ST:
   (st, rest) = r
   st
 
-def tree_ck(c: K.CKS) -> K.ST:
-  K.CKS{chunks, +count} = c
-  tree_fst(K.build_st(F.depth(U32.max(count, 1)), count, chunks))
-
 
 def tree_of(+n: U32, xs: F.Raws) -> K.ST:
-  # chunks of about 2^19 bases
-  tree_ck(K.chunks_of(xs, 524288))
+  tree_fst(K.build_st(F.depth(U32.max(n, 1)), 0, n, xs))
 
 
-def go_summed(+out: String, +k: U32, +n: U32, +mink: String, +mini: String, +batch: String, +frac: String, +maxs: String, +gpu: Bool,
+def go_summed(+out: String, +k: U32, +n: U32, +mink: String, +mini: String, +batch: String, +frac: String, +maxs: String,
               names: List<&2, List<&2, U32>>, rs: RSum) -> IO(Unit):
   RSum{xs, +total} = rs
-  +lp = lp_of(eff_bases(total, N.thr_of(N.dec_value(N.dec_parse(frac)))))
+  +lp = lp_of(total)
   +lq = {6 : U32}
   +lr = {6 : U32}
   +ly = {K.LY{lp, lq, lr, n} : K.LY}
@@ -354,17 +317,17 @@ def go_summed(+out: String, +k: U32, +n: U32, +mink: String, +mini: String, +bat
   +bs = u32_or(batch, 0)
   +bsz = K.sel(U32.is_eq(bs, 0), U32.max(n, 1), bs)
   +nb = U32.div((n + bsz - 1 : U32), bsz)
-  go_tree(out, k, frac, names, Run{c, ly, fp, bsz, gpu}, nb,
-    K.count_pass(gpu, tree_of(n, xs), c, ly))
+  go_tree(out, k, frac, names, Run{c, ly, fp, bsz}, nb,
+    K.count_pass(tree_of(n, xs), c, ly))
 
 
 def go_parsed(o: Opts, +k: U32, p: F.Parsed) -> IO(Unit):
-  Opts{+inp, +out, +ks, +mink, +mini, +batch, +frac, +maxs, +gpu} = o
+  Opts{+inp, +out, +ks, +mink, +mini, +batch, +frac, +maxs} = o
   F.Parsed{raws, names, +n} = p
-  go_summed(out, k, n, mink, mini, batch, frac, maxs, gpu, names, raws_sum(raws, F.RawNil{}, 0))
+  go_summed(out, k, n, mink, mini, batch, frac, maxs, names, raws_sum(raws, F.RawNil{}, 0))
 
 def go_opts(+o: Opts) -> IO(Unit):
-  Opts{+inp, +out, +ks, +mink, +mini, +batch, +frac, +maxs, +gpu} = o
+  Opts{+inp, +out, +ks, +mink, +mini, +batch, +frac, +maxs} = o
   +k = u32_or(ks, 25)
   do IO<Unit>:
     p : F.Parsed <- F.read_fasta(inp, k)
@@ -373,6 +336,6 @@ def go_opts(+o: Opts) -> IO(Unit):
 def main() -> IO(Unit):
   do IO<Unit>:
     args : List<String> <- IO.args()
-    o : Opts = parse_args(drop1(args), PA{Opts{"", "", "25", "20", "0.7", "0", "1", "0", False{}}, ""})
+    o : Opts = parse_args(drop1(args), Opts{"", "", "25", "20", "0.7", "0", "1", "0"})
     go_opts(o)
 
