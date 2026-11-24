@@ -32,6 +32,16 @@ python3 tools/run_energy_matrix.py --datasets stratified1000 --timeout 1800 2>&1
 
 if [ -n "$BIG" ]; then
   [ -f "$BIG" ] || { echo "Large dataset not found: $BIG"; exit 1; }
+  case "$BIG" in
+    *.gz) # Bend reads plain FASTA only: decompress once next to the archive's name in ~
+      PLAIN="$HOME/$(basename "${BIG%.gz}")"
+      [ -s "$PLAIN" ] || { echo "   decompressing $BIG -> $PLAIN"; gunzip -c "$BIG" > "$PLAIN"; }
+      BIG=$PLAIN ;;
+  esac
+  case "$(readlink -f "$BIG")" in
+    /mnt/*) echo "   copying the dataset off /mnt (Windows disk is slow under WSL)"; cp "$BIG" "$HOME/"; BIG="$HOME/$(basename "$BIG")" ;;
+  esac
+  echo "   $(grep -c '>' "$BIG") sequences in $BIG"
   export ALL_CLEAN_CONTIGS=$(readlink -f "$BIG")
   echo "== 2/2 large dataset: $ALL_CLEAN_CONTIGS, 1 repeat"
   echo "   probing Vclust prefilter memory first"

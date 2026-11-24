@@ -43,12 +43,17 @@ na CPU e na GPU; as duas linhas devem mostrar `1048576` e aparecer
 
 ## 3. Copiar o dataset grande
 
-O `all_clean_contigs.fasta` (299 MB) não está no repositório. Copie para dentro do
-WSL, por exemplo:
+O `all_clean_contigs.fasta` (299 MB; 91 MB como `.fasta.gz`) não está no repositório,
+porque o repositório é público e o arquivo são dados de pesquisa. Baixe-o do Google
+Drive no Windows e passe o caminho para o script; ele aceita `.fasta` ou `.fasta.gz`,
+descompacta se preciso e copia para `~` se estiver em `/mnt/c` (o disco do Windows é
+lento no WSL):
 
 ```sh
-cp /mnt/c/Users/<você>/Downloads/all_clean_contigs.fasta ~/
+bash Clustering/vclust_bend/wsl/run_bench.sh /mnt/c/Users/<você>/Downloads/all_clean_contigs.fasta.gz
 ```
+
+Critério: o script mostra `323556 sequences`.
 
 ## 4. Rodar
 
