@@ -66,6 +66,22 @@ EXTRA = [
     # Opt in with --include-slow-reference to retry it with a timeout.
     ["--min-kmers", "1", "--min-ident", "0"],
     ["--min-ident", "0.95", "--max-seqs", "3"],
+    # zero-count SparseMatrix entries (patterns left without k-mers) reach
+    # the filter only here
+    ["--min-kmers", "0", "--min-ident", "0"],
+    ["--min-kmers", "0", "--min-ident", "0", "--max-seqs", "4"],
+]
+
+# Bend-only Kmer-db options (Vclust leaves them at their defaults): the
+# output must equal the Vclust run without them. A tiny -bubble-size turns
+# most patterns into bubbles (CBubbleHelper path), -t changes the number of
+# all2all-sp workers (rows mod 2t).
+BEND_ONLY = [
+    (["--bubble-size", "2"], []),
+    (["--bubble-size", "3", "--batch-size", "300"], ["--batch-size", "300"]),
+    (["--bubble-size", "2", "--max-seqs", "5"], ["--max-seqs", "5"]),
+    (["-t", "1"], []),
+    (["-t", "5", "--batch-size", "200"], ["--batch-size", "200"]),
 ]
 
 
@@ -162,19 +178,20 @@ def main():
     names = ["vclust_example", "prefix1000", "shortest1000"]
     if "--quick" not in args:
         names.append("stratified1000")
-    cases = [(n, o) for n in names for o in BASIC + (EXTRA if n != "stratified1000" else EXTRA[:3])]
+    cases = [(n, o, o) for n in names for o in BASIC + (EXTRA if n != "stratified1000" else EXTRA[:3])]
+    cases += [(n, o, r) for n in names[:3] for (o, r) in BEND_ONLY]
     if "--full" in args:
-        cases += [("full", o) for o in BASIC]
+        cases += [("full", o, o) for o in BASIC]
     if "--include-slow-reference" in args:
-        cases.append(("vclust_example", ["-k", "30", "--min-ident", "0.9"]))
+        cases.append(("vclust_example", ["-k", "30", "--min-ident", "0.9"], ["-k", "30", "--min-ident", "0.9"]))
     else:
         print("SKIP reference k=30: Kmer-db 2.3.1 timed out on the example; opt in with --include-slow-reference", flush=True)
     reports = []
     fails = 0
-    for name, opts in cases:
+    for name, opts, ropts in cases:
         row = {"dataset": name, "options": opts}
         try:
-            ref = reference(name, opts)
+            ref = reference(name, ropts)
             out = os.path.join(WORK, f"{name}.{tag(opts)}.bend.txt")
             cmd = bend_cmd(DATASETS[name], out, opts)
             run(cmd, timeout=600 if name == "full" else 180)

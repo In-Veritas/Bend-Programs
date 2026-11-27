@@ -11,7 +11,7 @@
 import Base
 import ./pf_fasta.bend as F
 import ./pf_num.bend as N
-import ./pf_core.bend as K
+import ./kdb_util.bend as K
 
 # Row lists hold 4 words per candidate: a, c, m, x (see K.fr_keep).
 
@@ -148,9 +148,14 @@ def rw_go(n: Nat, +nmax: U32, st: RW) -> RW:
 type EO is Type:
   EO{t: Array<U32>, out: List<&2, U32>, +j: U32}
 
+# kmer-db distance drops the entries with common == 0 (they reach the
+# sampler only with --min-kmers 0 --min-ident 0)
 def eo_r(out: List<&2, U32>, +j: U32, r: K.R4A) -> EO:
   K.R4A{t, +it, +c, +mn, +x} = r
-  EO{t, K.put_entry((it + 1 : U32), x, out), j}
+  EO{t, K.when(List<&2, U32>, U32.is_eq(c, 0), \{
+    True: out
+    False: K.put_entry((it + 1 : U32), x, out)
+  }), j}
 
 def eo_step(st: EO) -> EO:
   EO{t, out, +j0} = st

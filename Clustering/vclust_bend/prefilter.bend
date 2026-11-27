@@ -1,23 +1,32 @@
-# `vclust prefilter` in Bend: Kmer-db 2.3.1 (build -multisample-fasta,
-# all2all-sp -sparse -min num-kmers:N -min ani-shorter:T [-sample-rows
-# ani-shorter:M], distance ani-shorter -sparse -min T) on one multi-FASTA.
+# `vclust prefilter` in Bend: a port of Kmer-db 2.3.1 as Vclust 1.3.1 runs it
+# on one multi-FASTA file:
+#   kmer-db build -multisample-fasta -k K -f F          (kdb_build, kdb_db)
+#   kmer-db all2all-sp -sparse -min num-kmers:N -min ani-shorter:T
+#           [-sample-rows ani-shorter:M]                (kdb_a2a, pf_sel)
+#   kmer-db distance ani-shorter -sparse -min T         (rows written below)
+# With --batch-size B: mfasta-tool split + all2all-parts (kdb_parts).
 #
 #   prefilter -i in.fasta -o fltr.txt [-k 25] [--min-kmers 20]
 #             [--min-ident 0.7] [--batch-size 0] [--kmers-fraction 1]
-#             [--max-seqs 0] [-t N]
+#             [--max-seqs 0] [-t 12] [--bubble-size 8000]
 #
-# Threads are the runtime's: run as `prefilter ... +RTS --threads N -RTS`
-# (the `prefilter.sh` wrapper maps -t N to that). The output is Kmer-db's
-# sparse distance text, byte-identical to Vclust's (see README).
+# -t is Kmer-db's thread count (all2all-sp workers, rows mod 2t); the Bend
+# runtime threads are `+RTS --threads N -RTS`. --bubble-size is Kmer-db's
+# -bubble-size (Vclust leaves the default 8000).
 import Base
 import ./pf_fasta.bend as F
 import ./pf_num.bend as N
-import ./pf_core.bend as K
 import ./pf_sel.bend as S
+import ./kdb_util.bend as K
+import ./kdb_extract.bend as X
+import ./kdb_db.bend as D
+import ./kdb_a2a.bend as A
+import ./kdb_build.bend as B
+import ./kdb_parts.bend as P
 
 type Opts is Data:
   Opts{inp: String, out: String, k: String, mink: String, mini: String, batch: String, frac: String,
-       maxs: String}
+       maxs: String, thr: String, bub: String}
 
 def pick_s(c: Bool, a: String, b: String) -> String:
   match c:
@@ -30,13 +39,15 @@ def is_flag(+f: String, a: String, b: String) -> Bool:
   String.eq(f, a) || String.eq(f, b)
 
 def set_opt(+f: String, +v: String, o: Opts) -> Opts:
-  Opts{+inp, +out, +k, +mink, +mini, +batch, +frac, +maxs} = o
+  Opts{+inp, +out, +k, +mink, +mini, +batch, +frac, +maxs, +thr, +bub} = o
   Opts{pick_s(is_flag(f, "-i", "--in"), v, inp), pick_s(is_flag(f, "-o", "--out"), v, out),
        pick_s(is_flag(f, "-k", "--k"), v, k), pick_s(is_flag(f, "--min-kmers", "--min-kmers"), v, mink),
        pick_s(is_flag(f, "--min-ident", "--min-ident"), v, mini),
        pick_s(is_flag(f, "--batch-size", "--batch-size"), v, batch),
        pick_s(is_flag(f, "--kmers-fraction", "--kmers-fraction"), v, frac),
-       pick_s(is_flag(f, "--max-seqs", "--max-seqs"), v, maxs)}
+       pick_s(is_flag(f, "--max-seqs", "--max-seqs"), v, maxs),
+       pick_s(is_flag(f, "-t", "--threads"), v, thr),
+       pick_s(is_flag(f, "--bubble-size", "--bubble-size"), v, bub)}
 
 def parse_args(xs: List<String>, o: Opts) -> Opts:
   match xs:
@@ -109,21 +120,6 @@ def put(f: File, bs: List<&2, U32>) -> IO(File):
     r : File & Result<&1, &1, U32 & String, Unit> <- File.write_bytes(f, bs)
     wrote(r)
 
-def bytes_rows(xs: List<&2, List<&2, U32>>, acc: List<&2, List<&2, U32>>) -> List<&2, List<&2, U32>>:
-  match xs:
-    case Nil{}:
-      acc
-    case Con{h, t}:
-      Con{h, bytes_rows(t, acc)}
-
-def rt_list(rt: K.RT, acc: List<&2, List<&2, U32>>) -> List<&2, List<&2, U32>>:
-  match rt:
-    case K.RTNil{}:
-      acc
-    case K.RTLeaf{rows}:
-      bytes_rows(rows, acc)
-    case K.RTNode{l, r}:
-      rt_list(l, rt_list(r, acc))
 
 def write_row(row: List<&2, U32>, f: File, names: List<&2, List<&2, U32>>, k: WF -> IO(WF)) -> IO(WF):
   match names:
@@ -134,24 +130,74 @@ def write_row(row: List<&2, U32>, f: File, names: List<&2, List<&2, U32>>, k: WF
         g : File <- put(f, bytes_app(nm, Con{44, bytes_app(row, Con{10, Nil{}})}))
         k(WF{g, rest})
 
-def write_rows(rows: List<&2, List<&2, U32>>, w: WF) -> IO(WF):
+def write_rows(rows: List<&2, List<&2, U32>>, w: WF, k: WF -> IO(WF)) -> IO(WF):
   match rows w:
     case Nil{} _:
-      IO.pure(WF, w)
+      k(w)
     case Con{row, rest} WF{f, names}:
-      write_row(row, f, names, wf => write_rows(rest, wf))
+      write_row(row, f, names, wf => write_rows(rest, wf, k))
 
-# Main
-# ====
+def rl_list(rl: A.RL) -> List<&2, List<&2, U32>>:
+  match rl:
+    case A.RLNil{}:
+      Nil{}
+    case A.RLCon{+r, row, t}:
+      Con{row, rl_list(t)}
 
-type Run is Data:
-  Run{c: K.Cfg, ly: K.LY, fp: K.FP, +bsz: U32}
+def close_wf(w: WF) -> IO(Unit):
+  WF{f, names} = w
+  File.close(f)
 
-def rows_written(+b1: U32, w: WF) -> IO(WF):
-  IO.pure(WF, w)
+# distance rows, written block by block (rows [r0, r0 + 4096))
+def blk_loop(f: Nat, ot: A.OT, +r0: U32, +n: U32, +w2: U32, +op: A.OP, wf: WF) -> IO(WF):
+  match f:
+    case 0n:
+      IO.pure(WF, wf)
+    case 1n+q:
+      +r1 = U32.min(n, (r0 + 4096 : U32))
+      K.apply(A.OT & A.RL, IO(WF), \{Tuple: ot2 => rl => (
+        write_rows(rl_list(rl), wf, w => blk_loop(q, ot2, r1, n, w2, op, w))
+      )}, A.out_block(ot, r0, r1, w2, op))
 
-type WA is Type:
-  WA{w: WF, acc: List<&2, List<&2, U32>>}
+def raw_out(+n: U32, +maxs: U32, wf: WF, r: A.OT & A.RL) -> IO(WF):
+  (ot, rl) = r
+  write_rows(S.select(n, maxs, rl_list(rl)), wf, w => IO.pure(WF, w))
+
+def write_out(raw: Bool, ot: A.OT, +n: U32, +w2: U32, +maxs: U32, +op: A.OP, wf: WF) -> IO(WF):
+  match raw:
+    case True{}:
+      raw_out(n, maxs, wf, A.out_block(ot, 0, n, w2, op))
+    case False{}:
+      blk_loop(U32.to_nat((U32.div(n, 4096) + 1 : U32)), ot, 0, n, w2, op, wf)
+
+def header(+k: U32, +frac: String, +names: List<&2, List<&2, U32>>) -> List<&2, U32>:
+  bytes_app(str_bytes("kmer-length: " ++ U32.show(k) ++ " fraction: " ++ N.dec_g(N.dec_parse(frac)) ++ " ", Nil{}),
+    bytes_app(names_line(names, Con{44, Nil{}}), Con{10, Nil{}}))
+
+def op_of(+mink: U32, +k: U32, t: N.Thr, +maxs: U32) -> A.OP:
+  N.Thr{+one, +fx} = t
+  A.OP{mink, k, one, fx, U32.is_ne(maxs, 0)}
+
+# all2all-sp + distance on the built database
+def run_a2a(o: Opts, +n: U32, +k: U32, +names: List<&2, List<&2, U32>>, bs: B.BS) -> IO(Unit):
+  Opts{+inp, +out, +ks, +mink, +mini, +batch, +frac, +maxs, +thr, +bub} = o
+  B.BS{db, cnt, s} = bs
+  D.DB{ht, pt, +pb} = db
+  D.PS{pat, +np, +pcap, nod, +nn, +ncap} = pt
+  +w = U32.max(1, u32_or(thr, 12))
+  +ms = u32_or(maxs, 0)
+  +op = op_of(u32_or(mink, 20), k, N.thr_of(N.dec_value(N.dec_parse(mini))), ms)
+  +bsize = K.sel(U32.is_lt(2000000, n), U32.shln(n, 1n), 2000000)
+  ot = A.out_tree(n, A.all2all_sp(pat, nod, np, n, w, bsize, u32_or(bub, 8000)), cnt)
+  do IO<Unit>:
+    f : File <- IO.try(File, File.open(out, "w"))
+    g : File <- put(f, header(k, frac, names))
+    w2 : WF <- write_out(U32.is_ne(ms, 0), ot, n, U32.shln(w, 1n), ms, op, WF{g, names})
+    close_wf(w2)
+
+# --batch-size: all2all-parts, row part by row part
+type PW is Type:
+  PW{wf: WF, acc: List<&2, List<&2, U32>>}
 
 def rows_rev(xs: List<&2, List<&2, U32>>, acc: List<&2, List<&2, U32>>) -> List<&2, List<&2, U32>>:
   match xs:
@@ -160,174 +206,70 @@ def rows_rev(xs: List<&2, List<&2, U32>>, acc: List<&2, List<&2, U32>>) -> List<
     case Con{h, t}:
       rows_rev(t, Con{h, acc})
 
-# Without --max-seqs a batch's rows are written at once; with it they are
-# kept (reversed) for the final selection.
-def batch_done(raw: Bool, br: K.BR, wa: WA, k: K.ST -> WA -> IO(WA)) -> IO(WA):
+def part_rows(raw: Bool, ot: A.OT, +o: U32, +b: U32, +w2: U32, +op: A.OP, pw: PW, k: PW -> IO(PW)) -> IO(PW):
   match raw:
     case True{}:
-      K.BR{st, rows} = br
-      WA{w, acc} = wa
-      k(st, WA{w, rows_rev(rt_list(rows, Nil{}), acc)})
+      PW{wf, acc} = pw
+      K.apply(A.OT & A.RL, IO(PW), \{Tuple: ot2 => rl => (
+        k(PW{wf, rows_rev(rl_list(rl), acc)})
+      )}, A.out_block(ot, o, (o + b : U32), w2, op))
     case False{}:
-      K.BR{st, rows} = br
-      WA{w, acc} = wa
-      do IO<WA>:
-        w2 : WF <- write_rows(rt_list(rows, Nil{}), w)
-        k(st, WA{w2, acc})
+      PW{wf, acc} = pw
+      do IO<PW>:
+        w2f : WF <- blk_loop(U32.to_nat((U32.div(b, 4096) + 1 : U32)), ot, o, (o + b : U32), w2, op, wf)
+        k(PW{w2f, acc})
 
-type RSum is Type:
-  RSum{xs: F.Raws, +sum: U32}
-
-
-def run_maxs(r: Run) -> U32:
-  Run{+c, +ly, +fp, +bsz} = r
-  K.FP{+mink, +k, +t, +maxs} = fp
-  maxs
-
-def run_n(r: Run) -> U32:
-  Run{+c, +ly, +fp, +bsz} = r
-  K.LY{+lp, +lq, +lr, +n} = ly
-  n
-
-def ms_since(+t0: Nat, +t1: Nat) -> String:
-  Nat.show(Nat.sub(t1, t0))
-
-def log_if(tm: Bool, msg: String) -> IO(Unit):
-  match tm:
-    case True{}:
-      IO.print_err(msg)
-    case False{}:
-      IO.pure(Unit, Unit{})
-
-def pass_io(fuel: Nat, +c: K.Cfg, +ly: K.LY, +rb: K.RB, +tm: Bool, s: K.BS) -> IO(K.BS):
-  match fuel:
-    case 0n:
-      IO.pure(K.BS, s)
-    case 1n+q:
-      K.LY{+lp, +lq, +lr, +n} = ly
-      K.BS{st, uc, dt, +p} = s
-      do IO<K.BS>:
-        t0 : Nat <- IO.now()
-        pr : K.PR = K.par_pass(st, 1, K.cfg_pass(c, p), K.shl(1, lq), K.shl(1, (lp + lq : U32)))
-        +t1 : Nat <- IO.now()
-        s2 : K.BS = K.bs_passed(uc, dt, p, ly, rb, pr)
-        t2 : Nat <- IO.now()
-        log_if(tm, "pass " ++ U32.show(p) ++ ": extract " ++ ms_since(t0, t1) ++ " groups+apply " ++ ms_since(t1, t2))
-        pass_io(q, c, ly, rb, tm, s2)
-
-def batch_loop(fuel: Nat, st: K.ST, +b0: U32, +r: Run, +tm: Bool, w: WA) -> IO(WA):
-  match fuel:
-    case 0n:
-      IO.pure(WA, w)
-    case 1n+p:
-      Run{+c, +ly, +fp, +bsz} = r
-      K.LY{+lp, +lq, +lr, +n} = ly
-      +b1 = U32.min(n, (b0 + bsz : U32))
-      +rb = K.rb_make(b0, b1, K.shl(1, lr))
-      do IO<WA>:
-        s : K.BS <- pass_io(U32.to_nat(K.shl(1, lp)), c, ly, rb, tm,
-          K.BS{st, K.arr_new(n), K.dt_build(U32.to_nat(lr), 0, rb), 0})
-        t0 : Nat <- IO.now()
-        br : K.BR = K.br_fin(ly, fp, s)
-        +t1 : Nat <- IO.now()
-        log_if(tm, "final " ++ ms_since(t0, t1))
-        batch_done(U32.is_ne(run_maxs(r), 0), br, w, s2 => w2 => batch_loop(p, s2, b1, r, tm, w2))
-def raws_sum(xs: F.Raws, acc: F.Raws, +sum: U32) -> RSum:
+def parts_loop(xs: P.PL, done: P.PL, cnt: Array<U32>, +n: U32, +w: U32, +bubble: U32, +raw: Bool, +op: A.OP,
+               pw: PW) -> IO(PW):
   match xs:
-    case F.RawNil{}:
-      RSum{F.raws_reverse(acc, F.RawNil{}), sum}
-    case F.RawCon{h, t}:
-      F.Raw{+len, codes, +segs} = h
-      raws_sum(t, F.RawCon{F.Raw{len, codes, segs}, acc}, (sum + len : U32))
+    case P.PLNil{}:
+      IO.pure(PW, pw)
+    case P.PLCon{r, t}:
+      K.apply(Array<U32> & Array<U32>, IO(PW), \{Tuple: c1 => c2 => (
+        K.apply(P.RP, IO(PW), \{P.RP: done2 => ot => +o => +b => (
+          part_rows(raw, ot, o, b, U32.shln(w, 1n), op, pw, pw2 => parts_loop(t, done2, c2, n, w, bubble, raw, op, pw2))
+        )}, P.row_part(r, done, n, c1, w, bubble))
+      )}, Array.clone(U32, cnt))
 
-def lp_of(+total: U32) -> U32:
-  # P = 2^lp passes with P * 2^24 >= total bases
-  U32.from_nat(F.depth(U32.max(1, U32.shrn((total + 16777215 : U32), 24n))))
-
-def cfg_mk(+k: U32, t: N.Thr, +dv: N.DV) -> K.Cfg:
-  N.Thr{+one, +fx} = t
-  K.Cfg{k, K.sel(U32.is_ge(k, 16), (K.shl(1, K.sel(U32.is_ge(k, 16), (U32.mul(k, 2) - 32 : U32), 0)) - 1 : U32), 0),
-        K.sel(U32.is_ge(k, 16), 4294967295, (K.shl(1, U32.mul(k, 2)) - 1 : U32)),
-        K.sel(U32.is_ge(k, 17), K.shl(1, K.sel(U32.is_ge(k, 17), (U32.mul(k, 2) - 34 : U32), 0)), 0),
-        K.sel(U32.is_le(k, 16), K.shl(1, (U32.mul(k, 2) - 2 : U32)), 0),
-        0, 0, 0, Bool.not(one), N.frac_threshold(dv), U32.shrn((k + 3 : U32), 2n),
-        K.sel(U32.is_lt(k, 20), (40 - U32.mul(k, 2) : U32), 0)}
-
-def cfg_of(+k: U32, frac: String) -> K.Cfg:
-  +dv = N.dec_value(N.dec_parse(frac))
-  cfg_mk(k, N.thr_of(dv), dv)
-
-def cfg_bits(c: K.Cfg, +lb: U32, +lq: U32) -> K.Cfg:
-  K.Cfg{+k, +himask, +lomask, +rhu, +rlu, +lb0, +lq0, +p, +usef, +th, +kd4, +psh} = c
-  K.Cfg{k, himask, lomask, rhu, rlu, lb, lq, p, usef, th, kd4, psh}
-
-def close_wf(w: WF) -> IO(Unit):
-  WF{f, names} = w
-  File.close(f)
-
-
-def finish_out(raw: Bool, +n: U32, +maxs: U32, wa: WA) -> IO(Unit):
+def parts_fin(raw: Bool, +n: U32, +maxs: U32, pw: PW) -> IO(WF):
   match raw:
     case True{}:
-      WA{w, acc} = wa
-      do IO<Unit>:
-        w2 : WF <- write_rows(S.select(n, maxs, rows_rev(acc, Nil{})), w)
-        close_wf(w2)
+      PW{wf, acc} = pw
+      write_rows(S.select(n, maxs, rows_rev(acc, Nil{})), wf, w => IO.pure(WF, w))
     case False{}:
-      WA{w, acc} = wa
-      close_wf(w)
+      PW{wf, acc} = pw
+      IO.pure(WF, wf)
 
-def is_done(r: Result<&1, &1, U32 & String, String>) -> Bool:
-  match r:
-    case Fail{e}:
-      False{}
-    case Done{v}:
-      True{}
-
-def go_tree(+out: String, +k: U32, +frac: String, +names: List<&2, List<&2, U32>>, +r: Run, +nb: U32,
-            st: K.ST) -> IO(Unit):
-  +hdr = bytes_app(str_bytes("kmer-length: " ++ U32.show(k) ++ " fraction: " ++ N.dec_g(N.dec_parse(frac)) ++ " ", Nil{}),
-    names_line(names, Con{44, Nil{}}))
+def run_parts(o: Opts, +n: U32, +k: U32, +bsz: U32, +names: List<&2, List<&2, U32>>, bp: P.BP) -> IO(Unit):
+  Opts{+inp, +out, +ks, +mink, +mini, +batch, +frac, +maxs, +thr, +bub} = o
+  P.BP{parts, cnt, ob} = bp
+  +w = U32.max(1, u32_or(thr, 12))
+  +ms = u32_or(maxs, 0)
+  +op = op_of(u32_or(mink, 20), k, N.thr_of(N.dec_value(N.dec_parse(mini))), ms)
   do IO<Unit>:
     f : File <- IO.try(File, File.open(out, "w"))
-    g : File <- put(f, bytes_app(hdr, Con{10, Nil{}}))
-    tv : Result<&1, &1, U32 & String, String> <- IO.get_env("PF_TIME")
-    w : WA <- batch_loop(U32.to_nat(nb), st, 0, r, is_done(tv), WA{WF{g, names}, Nil{}})
-    finish_out(U32.is_ne(run_maxs(r), 0), run_n(r), run_maxs(r), w)
+    g : File <- put(f, header(k, frac, names))
+    pw : PW <- parts_loop(parts, P.PLNil{}, cnt, n, w, u32_or(bub, 8000), U32.is_ne(ms, 0), op, PW{WF{g, names}, Nil{}})
+    w2 : WF <- parts_fin(U32.is_ne(ms, 0), n, ms, pw)
+    close_wf(w2)
 
+def go_split(split: Bool, +o: Opts, +k: U32, +bsz: U32, +n: U32, +names: List<&2, List<&2, U32>>, raws: F.Raws) -> IO(Unit):
+  match split:
+    case True{}:
+      Opts{+inp, +out, +ks, +mink, +mini, +batch, +frac, +maxs, +thr, +bub} = o
+      run_parts(o, n, k, bsz, names, P.build_parts(n, bsz, X.cfg_of(k, frac), raws))
+    case False{}:
+      Opts{+inp, +out, +ks, +mink, +mini, +batch, +frac, +maxs, +thr, +bub} = o
+      run_a2a(o, n, k, names, B.build(n, X.cfg_of(k, frac), 64, raws))
 
-def tree_fst(r: K.ST & F.Raws) -> K.ST:
-  (st, rest) = r
-  st
-
-
-def tree_of(+n: U32, xs: F.Raws) -> K.ST:
-  tree_fst(K.build_st(F.depth(U32.max(n, 1)), 0, n, xs))
-
-
-def go_summed(+out: String, +k: U32, +n: U32, +mink: String, +mini: String, +batch: String, +frac: String, +maxs: String,
-              names: List<&2, List<&2, U32>>, rs: RSum) -> IO(Unit):
-  RSum{xs, +total} = rs
-  +lp = lp_of(total)
-  +lq = {6 : U32}
-  +lr = {6 : U32}
-  +ly = {K.LY{lp, lq, lr, n} : K.LY}
-  +c = cfg_bits(cfg_of(k, frac), (lp + lq : U32), lq)
-  +fp = {K.FP{u32_or(mink, 20), k, N.thr_of(N.dec_value(N.dec_parse(mini))), u32_or(maxs, 0)} : K.FP}
-  +bs = u32_or(batch, 0)
-  +bsz = K.sel(U32.is_eq(bs, 0), U32.max(n, 1), bs)
-  +nb = U32.div((n + bsz - 1 : U32), bsz)
-  go_tree(out, k, frac, names, Run{c, ly, fp, bsz}, nb,
-    K.count_pass(tree_of(n, xs), c, ly))
-
-
-def go_parsed(o: Opts, +k: U32, p: F.Parsed) -> IO(Unit):
-  Opts{+inp, +out, +ks, +mink, +mini, +batch, +frac, +maxs} = o
-  F.Parsed{raws, names, +n} = p
-  go_summed(out, k, n, mink, mini, batch, frac, maxs, names, raws_sum(raws, F.RawNil{}, 0))
+def go_parsed(+o: Opts, +k: U32, p: F.Parsed) -> IO(Unit):
+  Opts{+inp, +out, +ks, +mink, +mini, +batch, +frac, +maxs, +thr, +bub} = o
+  F.Parsed{raws, +names, +n} = p
+  +bsz = u32_or(batch, 0)
+  go_split(U32.is_ne(bsz, 0) && U32.is_lt(bsz, n), o, k, bsz, n, names, raws)
 
 def go_opts(+o: Opts) -> IO(Unit):
-  Opts{+inp, +out, +ks, +mink, +mini, +batch, +frac, +maxs} = o
+  Opts{+inp, +out, +ks, +mink, +mini, +batch, +frac, +maxs, +thr, +bub} = o
   +k = u32_or(ks, 25)
   do IO<Unit>:
     p : F.Parsed <- F.read_fasta(inp, k)
@@ -336,6 +278,5 @@ def go_opts(+o: Opts) -> IO(Unit):
 def main() -> IO(Unit):
   do IO<Unit>:
     args : List<String> <- IO.args()
-    o : Opts = parse_args(drop1(args), Opts{"", "", "25", "20", "0.7", "0", "1", "0"})
+    o : Opts = parse_args(drop1(args), Opts{"", "", "25", "20", "0.7", "0", "1", "0", "12", "8000"})
     go_opts(o)
-
