@@ -512,39 +512,237 @@ def chunk_fuel() -> Nat:
 
 
 
-# the table: header in the first chunk, rows streamed
-def read_tab_res(r: File & Result<&1, &1, U32 & String, List<&2, U32>>, ps: L.PS, k: File -> L.PS -> IO(L.PS)) -> IO(L.PS):
+# The table: header in the first chunk; the rest is read in batches of
+# chunks that are parsed in parallel (fork-join). A chunk's bytes up to its
+# first newline (head) and after its last one (tail) belong to lines shared
+# with its neighbours: they are joined and parsed in order between the
+# chunks' bodies. After a newline the row parser is back in its initial
+# per-line state, so every body parses from a fresh state; accepted rows
+# keep global ids, mapped to local ids afterwards in file order
+# (L.map_edges), so the result equals the sequential parse.
+
+# accepted rows of a stretch of lines (reversed), their count, error bits
+type Grp is Data:
+  Grp{edges: List<&2, L.Edge>, +nedge: U32, +err: U32}
+
+type CRes is Data:
+  CRes{+hasnl: Bool, head: List<&2, U32>, tail: List<&2, U32>, +body: Grp}
+
+def ps_grp(ps: L.PS) -> Grp:
+  match ps:
+    case L.PS{m, g2l, edges, l2g, nloc, nedge, err, col, num, k, mode, iv, bad, nch, q, r, nd, kd, dbad, rej}:
+      Grp{edges, nedge, err}
+
+def ps_fresh(+m: L.Meta) -> L.PS:
+  L.ps_new(m, G.u32_array(1, 0))
+
+# one complete line (without its newline)
+def line_grp(bs: List<&2, U32>, +m: L.Meta) -> Grp:
+  ps_grp(L.ps_newline(L.ps_bytes(bs, ps_fresh(m))))
+
+# number of bytes up to and including the last newline
+def last_nl(bs: List<&2, U32>, +i: U32, +at: U32) -> U32:
+  match bs:
+    case Nil{}:
+      at
+    case Con{+h, t}:
+      +j = U32.inc(i)
+      last_nl(t, j, F.sel(L.is_nl(h), j, at))
+
+def drop_n(n: Nat, bs: List<&2, U32>) -> List<&2, U32>:
+  match n bs:
+    case 0n _:
+      bs
+    case _ Nil{}:
+      Nil{}
+    case 1n+p Con{h, t}:
+      drop_n(p, t)
+
+def chunk_body(+hasnl: Bool, +head: List<&2, U32>, +rest: List<&2, U32>, +m: L.Meta) -> CRes:
+  CRes{hasnl, head, drop_n(U32.to_nat(last_nl(rest, 0, 0)), rest), ps_grp(L.ps_bytes(rest, ps_fresh(m)))}
+
+def chunk_cut(c: L.Cut & List<&2, U32>, +m: L.Meta) -> CRes:
+  (cut, +rest) = c
+  match cut:
+    case L.Cut{+line, +done}:
+      chunk_body(done, L.rev_bytes(line, Nil{}), rest, m)
+
+def chunk_task(bs: List<&2, U32>, +m: L.Meta) -> CRes:
+  chunk_cut(L.cut_line(bs, L.Cut{Nil{}, False{}}), m)
+
+type CT is Type:
+  CTNil{}
+  CTLeaf{bs: List<&2, U32>}
+  CTNode{l: CT, r: CT}
+
+type CO is Type:
+  CONil{}
+  COLeaf{+r: CRes}
+  CONode{l: CO, r: CO}
+
+def ct_apply(-A: Type, -B: Type, body: A -> B, value: A) -> B:
+  body(value)
+
+# the first 2^d chunks of xs as a tree, and the rest
+def ct_tree(+d: Nat, xs: List<&2, List<&2, U32>>) -> CT & List<&2, List<&2, U32>>:
+  match d:
+    case 0n:
+      match xs:
+        case Nil{}:
+          (CTNil{}, Nil{})
+        case Con{h, t}:
+          (CTLeaf{h}, t)
+    case 1n+p:
+      ct_apply(CT & List<&2, List<&2, U32>>, CT & List<&2, List<&2, U32>>, \{Tuple: l => rest => (
+        ct_apply(CT & List<&2, List<&2, U32>>, CT & List<&2, List<&2, U32>>, \{Tuple: r => rest2 => (
+          (CTNode{l, r}, rest2)
+        )}, ct_tree(p, rest))
+      )}, ct_tree(p, xs))
+
+def co_join(a: CO, b: CO) -> CO:
+  CONode{a, b}
+
+def par_chunks(ct: CT, +m: L.Meta) -> CO:
+  match ct:
+    case CTNil{}:
+      CONil{}
+    case CTLeaf{bs}:
+      COLeaf{chunk_task(bs, m)}
+    case CTNode{l, r}:
+      a b = par_chunks(l, m) par_chunks(r, m)
+      co_join(a, b)
+
+# carry: bytes of the open line (in order); groups in reverse file order
+type TA is Data:
+  TA{carry: List<&2, U32>, groups: List<&2, Grp>}
+
+def bytes_app(a: List<&2, U32>, b: List<&2, U32>) -> List<&2, U32>:
+  match a:
+    case Nil{}:
+      b
+    case Con{+h, t}:
+      h <> bytes_app(t, b)
+
+def ta_nl(hasnl: Bool, +head: List<&2, U32>, +tail: List<&2, U32>, +body: Grp, +m: L.Meta, ta: TA) -> TA:
+  match hasnl ta:
+    case True{} TA{carry, groups}:
+      TA{tail, body <> (line_grp(bytes_app(carry, head), m) <> groups)}
+    case False{} TA{carry, groups}:
+      TA{bytes_app(carry, head), groups}
+
+def ta_add(+r: CRes, +m: L.Meta, ta: TA) -> TA:
+  match r:
+    case CRes{+hasnl, +head, +tail, +body}:
+      ta_nl(hasnl, head, tail, body, m, ta)
+
+def co_fold(co: CO, +m: L.Meta, ta: TA) -> TA:
+  match co:
+    case CONil{}:
+      ta
+    case COLeaf{+r}:
+      ta_add(r, m, ta)
+    case CONode{l, r}:
+      co_fold(r, m, co_fold(l, m, ta))
+
+def chunks_rev(xs: List<&2, List<&2, U32>>, acc: List<&2, List<&2, U32>>) -> List<&2, List<&2, U32>>:
+  match xs:
+    case Nil{}:
+      acc
+    case Con{h, t}:
+      chunks_rev(t, h <> acc)
+
+def batch_tree(r: CT & List<&2, List<&2, U32>>, +m: L.Meta, ta: TA) -> TA:
+  (ct, rest) = r
+  co_fold(par_chunks(ct, m), m, ta)
+
+# chunks in reverse order (at most 32)
+def ta_batch(cs: List<&2, List<&2, U32>>, +m: L.Meta, ta: TA) -> TA:
+  batch_tree(ct_tree(5n, chunks_rev(cs, Nil{})), m, ta)
+
+type RB is Type:
+  RB{f: File, cs: List<&2, List<&2, U32>>, +eof: Bool}
+
+def rb_res(r: File & Result<&1, &1, U32 & String, List<&2, U32>>, cs: List<&2, List<&2, U32>>,
+           k: File -> List<&2, List<&2, U32>> -> IO(RB)) -> IO(RB):
   (f, res) = r
   match res:
     case Fail{e}:
-      do IO<L.PS>:
+      do IO<RB>:
         File.close(f)
-        IO.die(L.PS, 1, "Unable to read distance file")
+        IO.die(RB, 1, "Unable to read distance file")
     case Done{bs}:
       match bs:
         case Nil{}:
-          do IO<L.PS>:
-            File.close(f)
-            return ps
+          IO.pure(RB, RB{f, cs, True{}})
         case Con{h, t}:
-          k(f, L.ps_bytes(h <> t, ps))
+          k(f, (h <> t) <> cs)
 
-
-
-
-def read_tab_loop(n: Nat, f: File, ps: L.PS) -> IO(L.PS):
+def rb_loop(n: Nat, f: File, cs: List<&2, List<&2, U32>>) -> IO(RB):
   match n:
     case 0n:
-      do IO<L.PS>:
-        File.close(f)
-        return ps
+      IO.pure(RB, RB{f, cs, False{}})
     case 1n+p:
-      do IO<L.PS>:
-        r : File & Result<&1, &1, U32 & String, List<&2, U32>> <- File.read_bytes(f, 1048576)
-        read_tab_res(r, ps, g => s2 => read_tab_loop(p, g, s2))
+      do IO<RB>:
+        r : File & Result<&1, &1, U32 & String, List<&2, U32>> <- File.read_bytes(f, 524288)
+        rb_res(r, cs, g => c2 => rb_loop(p, g, c2))
 
+def tab_res(b: RB, +m: L.Meta, ta: TA, k: File -> TA -> IO(TA)) -> IO(TA):
+  match b:
+    case RB{f, cs, eof}:
+      match eof:
+        case True{}:
+          do IO<TA>:
+            File.close(f)
+            return ta_batch(cs, m, ta)
+        case False{}:
+          k(f, ta_batch(cs, m, ta))
 
+def tab_loop(n: Nat, f: File, +m: L.Meta, first: List<&2, List<&2, U32>>, ta: TA) -> IO(TA):
+  match n:
+    case 0n:
+      do IO<TA>:
+        File.close(f)
+        return ta
+    case 1n+p:
+      do IO<TA>:
+        b : RB <- rb_loop(24n, f, first)
+        tab_res(b, m, ta, g => t2 => tab_loop(p, g, m, Nil{}, t2))
 
+type PM is Type:
+  PM{ms: L.MS, +nedge: U32, +err: U32}
+
+def pm_grp(+g: Grp, pm: PM) -> PM:
+  match g pm:
+    case Grp{+es, +ne, +er} PM{ms, +nedge, +err}:
+      PM{L.map_edges(L.edges_rev(es, Nil{}), ms), U32.add(nedge, ne), U32.or(err, er)}
+
+def pm_go(gs: List<&2, Grp>, pm: PM) -> PM:
+  match gs:
+    case Nil{}:
+      pm
+    case Con{+g, t}:
+      pm_go(t, pm_grp(g, pm))
+
+def grps_rev(xs: List<&2, Grp>, acc: List<&2, Grp>) -> List<&2, Grp>:
+  match xs:
+    case Nil{}:
+      acc
+    case Con{+h, t}:
+      grps_rev(t, h <> acc)
+
+def pm_parts(pm: PM) -> Parts:
+  match pm:
+    case PM{ms, nedge, err}:
+      match ms:
+        case L.MS{g2l, edges, l2g, nloc}:
+          Parts{g2l, edges, nloc, nedge, err}
+
+# the last open line, then every group in file order through the id map
+def ta_parts(+m: L.Meta, +cap: U32, ta: TA) -> Parts:
+  match ta:
+    case TA{+carry, +groups}:
+      pm_parts(pm_go(grps_rev(line_grp(carry, m) <> groups, Nil{}),
+        PM{L.MS{G.u32_array(cap, L.none()), Nil{}, Nil{}, 0}, 0, 0}))
 
 def filt_add(on: Bool, +c: U32, +v: F.D, +rest: List<&2, L.Filt>) -> List<&2, L.Filt>:
   match on:
@@ -1312,12 +1510,12 @@ def run_rows(parts: Parts, +cfg: Cfg, names: Array<List<&2, U32>>, +nnames: U32,
 
 def run_meta(mh: MH, rest: List<&2, U32>, f: File, +cfg: Cfg, names: Array<List<&2, U32>>, +nnames: U32, +cap: U32) -> IO(Unit):
   match mh:
-    case MH{err, m}:
+    case MH{err, +m}:
       do IO<Unit>:
         die_if(err)
         +t0 : Nat <- IO.now()
-        ps : L.PS <- read_tab_loop(chunk_fuel(), f, L.ps_bytes(rest, L.ps_new(m, G.u32_array(cap, L.none()))))
-        pp : Parts = ps_parts(ps_finish(ps))
+        ta : TA <- tab_loop(chunk_fuel(), f, m, rest <> Nil{}, TA{Nil{}, Nil{}})
+        pp : Parts = ta_parts(m, cap, ta)
         +t1 : Nat <- IO.now()
         run_rows(pp, cfg, names, nnames, Nat.sub(t1, t0))
 

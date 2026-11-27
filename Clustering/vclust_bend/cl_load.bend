@@ -597,19 +597,6 @@ def map_id(g2l: Array<U32>, l2g: List<&2, U32>, +nloc: U32, +id: U32) -> MapR:
   map_go(Array.get(U32, g2l, id), l2g, nloc, id)
 
 
-def accept_fin(mr: MapR, +m: Meta, edges: List<&2, Edge>, +nedge: U32, +err: U32, +lq: U32, +nd: U32, +kd: U32) -> PS:
-  match mr:
-    case MapR{g2l, l2g, nloc, lr}:
-      PS{m, g2l, Edge{lq, lr, nd, kd} <> edges, l2g, nloc, U32.inc(nedge), err,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-
-
-def accept_r(mq: MapR, +m: Meta, edges: List<&2, Edge>, +nedge: U32, +err: U32, +r: U32, +nd: U32, +kd: U32) -> PS:
-  match mq:
-    case MapR{g2l, l2g, nloc, lq}:
-      accept_fin(map_id(g2l, l2g, nloc, r), m, edges, nedge, err, lq, nd, kd)
-
-
 def ps_reset(ps: PS) -> PS:
   match ps:
     case PS{m, g2l, edges, l2g, nloc, nedge, err, col, num, k, mode, iv, bad, nch, q, r, nd, kd, dbad, rej}:
@@ -623,7 +610,8 @@ def ps_accept(go: Bool, ps: PS) -> PS:
     case True{}:
       match ps:
         case PS{m, g2l, edges, l2g, nloc, nedge, err, col, num, k, mode, iv, bad, nch, q, r, nd, kd, dbad, rej}:
-          accept_r(map_id(g2l, l2g, nloc, q), m, edges, nedge, err, r, nd, kd)
+          PS{m, g2l, Edge{q, r, nd, kd} <> edges, l2g, nloc, U32.inc(nedge), err,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
 
 # end of a non-empty row (after its last field)
@@ -687,3 +675,43 @@ def ps_bytes(bs: List<&2, U32>, ps: PS) -> PS:
       ps
     case Con{+h, t}:
       ps_bytes(t, ps_byte(is_nl(h), is_sep(h), h, ps))
+
+
+# ---------------------------------------------------------------------------
+# Local ids. The row parser records accepted rows with their global ids
+# (so independent chunks of the table can be parsed in parallel); this pass
+# then assigns local ids in first-appearance order over the accepted rows in
+# file order, query before reference, exactly as a sequential parse would.
+
+type MS is Type:
+  MS{g2l: Array<U32>, edges: List<&2, Edge>, l2g: List<&2, U32>, +nloc: U32}
+
+def ms_r(mr: MapR, edges: List<&2, Edge>, +lq: U32, +nd: U32, +kd: U32) -> MS:
+  match mr:
+    case MapR{g2l, l2g, nloc, lr}:
+      MS{g2l, Edge{lq, lr, nd, kd} <> edges, l2g, nloc}
+
+def ms_q(mq: MapR, edges: List<&2, Edge>, +r: U32, +nd: U32, +kd: U32) -> MS:
+  match mq:
+    case MapR{g2l, l2g, nloc, lq}:
+      ms_r(map_id(g2l, l2g, nloc, r), edges, lq, nd, kd)
+
+def ms_one(+e: Edge, ms: MS) -> MS:
+  match e ms:
+    case Edge{+q, +r, +nd, +kd} MS{g2l, edges, l2g, +nloc}:
+      ms_q(map_id(g2l, l2g, nloc, q), edges, r, nd, kd)
+
+# es in file order
+def map_edges(es: List<&2, Edge>, ms: MS) -> MS:
+  match es:
+    case Nil{}:
+      ms
+    case Con{+e, t}:
+      map_edges(t, ms_one(e, ms))
+
+def edges_rev(xs: List<&2, Edge>, acc: List<&2, Edge>) -> List<&2, Edge>:
+  match xs:
+    case Nil{}:
+      acc
+    case Con{+h, t}:
+      edges_rev(t, h <> acc)
