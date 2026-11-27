@@ -16,6 +16,7 @@ import ./f64.bend as F
 import ./cl_load.bend as L
 import ./cl_graph.bend as G
 import ./cl_complete.bend as C
+import ./cl_heaptrix.bend as HX
 import ./cl_leiden.bend as LD
 import ./partition_certificate.bend as PC
 import ./clique_certificate.bend as QC
@@ -911,9 +912,9 @@ def run_algo_go(a0: Bool, a1: Bool, a2: Bool, a3: Bool, a4: Bool, rows: Array<Li
                 +objs: List<&2, U32>, cfg: Cfg) -> Array<U32> & U32:
   match a0 a1 a2 a3 a4:
     case True{} _ _ _ _:
-      st_res(G.single(objs, U32.to_nat(U32.add(U32.add(m, n), 2)), G.St{rows, G.u32_array(n, L.none()), 0}))
+      st_res(G.single(objs, U32.to_nat(U32.add(U32.shl(U32.add(m, n)), 4)), G.St{rows, G.u32_array(n, L.none()), 0}))
     case False{} True{} _ _ _:
-      C.complete(rows, n, m)
+      HX.complete(rows, n, m)
     case False{} False{} True{} _ _:
       st_res(G.us_st(G.uclust(objs, G.US{rows, G.u32_array(n, L.none()), G.u32_array(n, L.none()), 0})))
     case False{} False{} False{} True{} _:

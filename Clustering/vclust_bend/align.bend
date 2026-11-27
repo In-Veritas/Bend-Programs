@@ -812,7 +812,9 @@ def plan.c(names: Array<List<&2, U32>>, lens: Array<U32>, +n: U32, +threads: U32
   (adj, s) = r
   match s:
     case JS{jobs, seqs, +k, +pk, +total}:
-      +thr = N.u32_max(U32.div(total, (16 * N.u32_max(threads, 1) : U32)), 1)
+      # one task per reference row (CLZMatcher::do_matching: a worker takes the
+      # next row, prepares it as reference once and parses all its partners)
+      +thr = {4294967295 : U32}
       plan.d(n, names, lens, pk, k, p, ct, ub.go(U32.to_nat(n), UB{jobs, seqs, Nil{}}, thr, 0))
 
 def plan.b(+n: U32, +d: Nat, +threads: U32, +p: L.Prm, +ct: List<&2, U32>, seqs: Array<L.Seq>,

@@ -38,9 +38,10 @@ type DL is Type:
 
 
 
-# single linkage: connected components, numbered by first object
+# single linkage (Clusty SingleLinkageBFS): connected components, numbered
+# by first object; a FIFO queue (std::deque) as front list + reversed back
 type FS is Type:
-  FS{rows: Array<List<&2, Nb>>, asg: Array<U32>, +cid: U32, +stack: List<&2, U32>}
+  FS{rows: Array<List<&2, Nb>>, asg: Array<U32>, +cid: U32, +front: List<&2, U32>, +back: List<&2, U32>}
 
 
 
@@ -382,26 +383,55 @@ def push_ids(ns: List<&2, Nb>, acc: List<&2, U32>) -> List<&2, U32>:
 
 
 
-def flood_open(r: Array<List<&2, Nb>> & List<&2, Nb>, asg: Array<U32>, +x: U32, +cid: U32, +stack: List<&2, U32>) -> FS:
+def cons_if(c: Bool, +o: U32, +back: List<&2, U32>) -> List<&2, U32>:
+  match c:
+    case True{}:
+      o <> back
+    case False{}:
+      back
+
+def apply_au(-B: Type, body: Array<U32> & U32 -> B, v: Array<U32> & U32) -> B:
+  body(v)
+
+# Q.push_back(other) for every neighbour not assigned yet (edge order)
+def push_new(ns: List<&2, Nb>, asg: Array<U32>, +back: List<&2, U32>) -> Array<U32> & List<&2, U32>:
+  match ns:
+    case Nil{}:
+      (asg, back)
+    case Con{x, t}:
+      +o = nb_id(x)
+      apply_au(Array<U32> & List<&2, U32>, \{Tuple: asg2 => +v => (
+        push_new(t, asg2, cons_if(U32.is_eq(v, none()), o, back))
+      )}, Array.get(U32, asg, o))
+
+def flood_push(rows: Array<List<&2, Nb>>, +cid: U32, +front: List<&2, U32>, r: Array<U32> & List<&2, U32>) -> FS:
+  (asg, +back) = r
+  FS{rows, asg, cid, front, back}
+
+def flood_open(r: Array<List<&2, Nb>> & List<&2, Nb>, asg: Array<U32>, +x: U32, +cid: U32, +front: List<&2, U32>,
+               +back: List<&2, U32>) -> FS:
   (rows, ns) = r
-  FS{rows, Array.set(U32, asg, x, cid), cid, push_ids(ns, stack)}
+  flood_push(rows, cid, front, push_new(ns, Array.set(U32, asg, x, cid), back))
 
-
-
-def flood_new(fresh: Bool, rows: Array<List<&2, Nb>>, asg: Array<U32>, +x: U32, +cid: U32, +stack: List<&2, U32>) -> FS:
+def flood_new(fresh: Bool, rows: Array<List<&2, Nb>>, asg: Array<U32>, +x: U32, +cid: U32, +front: List<&2, U32>,
+              +back: List<&2, U32>) -> FS:
   match fresh:
     case True{}:
-      flood_open(row_get(rows, x), asg, x, cid, stack)
+      flood_open(row_get(rows, x), asg, x, cid, front, back)
     case False{}:
-      FS{rows, asg, cid, stack}
+      FS{rows, asg, cid, front, back}
 
-
-
-def flood_visit(r: Array<U32> & U32, rows: Array<List<&2, Nb>>, +x: U32, +cid: U32, +stack: List<&2, U32>) -> FS:
+def flood_visit(r: Array<U32> & U32, rows: Array<List<&2, Nb>>, +x: U32, +cid: U32, +front: List<&2, U32>,
+                +back: List<&2, U32>) -> FS:
   (asg, +v) = r
-  flood_new(U32.is_eq(v, none()), rows, asg, x, cid, stack)
+  flood_new(U32.is_eq(v, none()), rows, asg, x, cid, front, back)
 
-
+def rev_q(xs: List<&2, U32>, acc: List<&2, U32>) -> List<&2, U32>:
+  match xs:
+    case Nil{}:
+      acc
+    case Con{+x, t}:
+      rev_q(t, x <> acc)
 
 def flood(n: Nat, fs: FS) -> FS:
   match n:
@@ -409,18 +439,18 @@ def flood(n: Nat, fs: FS) -> FS:
       fs
     case 1n+p:
       match fs:
-        case FS{rows, asg, cid, stack}:
-          match stack:
-            case Nil{}:
-              FS{rows, asg, cid, Nil{}}
-            case Con{+x, t}:
-              flood(p, flood_visit(Array.get(U32, asg, x), rows, x, cid, t))
-
-
+        case FS{rows, asg, cid, front, back}:
+          match front back:
+            case Nil{} Nil{}:
+              FS{rows, asg, cid, Nil{}, Nil{}}
+            case Nil{} Con{+y, u}:
+              flood(p, FS{rows, asg, cid, rev_q(Con{y, u}, Nil{}), Nil{}})
+            case Con{+x, t} _:
+              flood(p, flood_visit(Array.get(U32, asg, x), rows, x, cid, t, back))
 
 def single_fin(fs: FS) -> St:
   match fs:
-    case FS{rows, asg, cid, stack}:
+    case FS{rows, asg, cid, front, back}:
       St{rows, asg, U32.inc(cid)}
 
 
@@ -428,7 +458,7 @@ def single_fin(fs: FS) -> St:
 def single_new(fresh: Bool, +fuel: Nat, rows: Array<List<&2, Nb>>, asg: Array<U32>, +o: U32, +cid: U32) -> St:
   match fresh:
     case True{}:
-      single_fin(flood(fuel, FS{rows, asg, cid, [o]}))
+      single_fin(flood(fuel, FS{rows, asg, cid, [o], Nil{}}))
     case False{}:
       St{rows, asg, cid}
 
