@@ -50,10 +50,15 @@ type BL is Type:
   BLNil{}
   BLCon{h: Blks, t: BL}
 
-# Samples.
+# Samples: a leaf holds a chunk of ns consecutive samples from idx, each its
+# packed codes and segments.
+type SL is Type:
+  SLNil{}
+  SLCon{codes: Array<U32>, segs: F.Seg, t: SL}
+
 type ST is Type:
   STNil{}
-  STLeaf{+idx: U32, codes: Array<U32>, segs: F.Seg, cnt: Array<U32>}
+  STLeaf{+idx: U32, +ns: U32, ss: SL, cnt: Array<U32>}
   STNode{l: ST, r: ST}
 
 # Parameters.
@@ -106,30 +111,32 @@ def bump(+i: U32, +d: U32, a: Array<U32>) -> Array<U32>:
 # Extraction
 # ==========
 
-# The k-mer action state: out (pass arrays) and cur (counts or cursors).
+# The k-mer action state: out (pass array of the leaf), cur (counts or
+# cursors), s (the current sample). A pass record is 3 words: hi, lo, s.
 type XS is Type:
-  XS{out: Array<U32>, cur: Array<U32>}
+  XS{out: Array<U32>, cur: Array<U32>, +s: U32}
 
-def put_at(+khi: U32, +klo: U32, +q: U32, out: Array<U32>, r: Array<U32> & U32) -> XS:
+def put_at(+khi: U32, +klo: U32, +q: U32, +s: U32, out: Array<U32>, r: Array<U32> & U32) -> XS:
   (cur, +pos) = r
   o2 = out[pos] <- khi
-  XS{o2[(pos + 1 : U32)] <- klo, cur[q] <- (pos + 2 : U32)}
+  o3 = o2[(pos + 1 : U32)] <- klo
+  XS{o3[(pos + 2 : U32)] <- s, cur[q] <- (pos + 3 : U32), s}
 
 def act_fill(go: Bool, +khi: U32, +klo: U32, +q: U32, x: XS) -> XS:
   match go:
     case False{}:
       x
     case True{}:
-      XS{out, cur} = x
-      put_at(khi, klo, q, out, cur[q])
+      XS{out, cur, +s} = x
+      put_at(khi, klo, q, s, out, cur[q])
 
 def act_count(go: Bool, +b: U32, x: XS) -> XS:
   match go:
     case False{}:
       x
     case True{}:
-      XS{out, cur} = x
-      XS{out, bump(b, 1, cur)}
+      XS{out, cur, +s} = x
+      XS{out, bump(b, 1, cur), s}
 
 def act_fill_in(inp: Bool, +khi: U32, +klo: U32, +q: U32, +c: Cfg, +usef: Bool, x: XS) -> XS:
   match inp:
@@ -213,12 +220,12 @@ def ext_segs(segs: F.Seg, +mode: U32, +c: Cfg, cx: CX) -> CX:
 type SS is Type:
   SS{+q: U32, +prev: U32, out: Array<U32>, cur: Array<U32>, acc: Blks}
 
-# The run lengths are (end - prev) >> sh; the run tag is s, or q when s is
-# 4294967295.
+# The run lengths are (end - prev) / sh words; the run tag is s, or q when s
+# is 4294967295.
 def split_c(+q: U32, +end: U32, +s: U32, +sh: U32, +len: U32, cur: Array<U32>, acc: Blks,
             r: Array<U32> & Array<U32>) -> SS:
   (out, dst) = r
-  SS{(q + 1 : U32), end, out, cur, BCon{Blk{sel(U32.is_eq(s, 4294967295), q, s), shr(len, sh), dst}, acc}}
+  SS{(q + 1 : U32), end, out, cur, BCon{Blk{sel(U32.is_eq(s, 4294967295), q, s), U32.div(len, sh), dst}, acc}}
 
 def split_r(+q: U32, +prev: U32, +s: U32, +sh: U32, out: Array<U32>, acc: Blks, r: Array<U32> & U32) -> SS:
   (cur, +end) = r
@@ -258,18 +265,49 @@ type BT is Type:
 type PR is Type:
   PR{st: ST, bt: BT}
 
-def leaf_counted(+idx: U32, +segs: F.Seg, cx: CX) -> PR:
-  CX{codes, x} = cx
-  XS{out, cnt} = x
-  PR{STLeaf{idx, codes, segs, cnt}, BTNil{}}
+# The samples of a leaf, one after the other, through ext_segs with one
+# shared action state (the list comes back reversed).
+type SW is Type:
+  SW{todo: SL, done: SL, x: XS}
 
-# Group cursors of pass p: cur[q] = 2 * (k-mers of groups < q).
+def sw_done(segs: F.Seg, t: SL, done: SL, cx: CX) -> SW:
+  CX{codes, x} = cx
+  XS{out, cur, +s} = x
+  SW{t, SLCon{codes, segs, done}, XS{out, cur, (s + 1 : U32)}}
+
+def sw_step(+mode: U32, +c: Cfg, st: SW) -> SW:
+  match st:
+    case SW{SLNil{}, done, x}:
+      SW{SLNil{}, done, x}
+    case SW{SLCon{codes, +segs, t}, done, x}:
+      sw_done(segs, t, done, ext_segs(segs, mode, c, CX{codes, x}))
+
+def sw_go(n: Nat, +mode: U32, +c: Cfg, st: SW) -> SW:
+  match n:
+    case 0n:
+      st
+    case 1n+p:
+      sw_go(p, mode, c, sw_step(mode, c, st))
+
+def sl_rev(xs: SL, acc: SL) -> SL:
+  match xs:
+    case SLNil{}:
+      acc
+    case SLCon{codes, segs, t}:
+      sl_rev(t, SLCon{codes, segs, acc})
+
+def leaf_counted(+idx: U32, +ns: U32, st: SW) -> PR:
+  SW{todo, done, x} = st
+  XS{out, cnt, s} = x
+  PR{STLeaf{idx, ns, sl_rev(done, SLNil{}), cnt}, BTNil{}}
+
+# Group cursors of pass p: cur[q] = 3 * (k-mers of groups < q).
 type CS is Type:
   CS{cnt: Array<U32>, cur: Array<U32>, +acc: U32}
 
 def cs_r(+q: U32, cur: Array<U32>, +acc: U32, r: Array<U32> & U32) -> CS:
   (cnt, +v) = r
-  CS{cnt, cur[q] <- acc, (acc + U32.shln(v, 1n) : U32)}
+  CS{cnt, cur[q] <- acc, (acc + U32.mul(v, 3) : U32)}
 
 def cs_go(n: Nat, +q: U32, +base: U32, st: CS) -> CS:
   match n st:
@@ -278,23 +316,23 @@ def cs_go(n: Nat, +q: U32, +base: U32, st: CS) -> CS:
     case 1n+p CS{cnt, cur, +acc}:
       cs_go(p, (q + 1 : U32), base, cs_r(q, cur, acc, cnt[(base + q : U32)]))
 
-def leaf_filled(+idx: U32, +segs: F.Seg, cnt: Array<U32>, +nq: U32, cx: CX) -> PR:
-  CX{codes, x} = cx
-  XS{out, cur} = x
-  PR{STLeaf{idx, codes, segs, cnt},
-     BTLeaf{split_fin(split_go(U32.to_nat(nq), idx, 1, SS{0, 0, out, cur, BNil{}}))}}
+def leaf_filled(+idx: U32, +ns: U32, cnt: Array<U32>, +nq: U32, st: SW) -> PR:
+  SW{todo, done, x} = st
+  XS{out, cur, s} = x
+  PR{STLeaf{idx, ns, sl_rev(done, SLNil{}), cnt},
+     BTLeaf{split_fin(split_go(U32.to_nat(nq), idx, 3, SS{0, 0, out, cur, BNil{}}))}}
 
-def leaf_fill(+idx: U32, codes: Array<U32>, +segs: F.Seg, +c: Cfg, +nq: U32, cs: CS) -> PR:
+def leaf_fill(+idx: U32, +ns: U32, ss: SL, +c: Cfg, +nq: U32, cs: CS) -> PR:
   CS{cnt, cur, +total} = cs
-  leaf_filled(idx, segs, cnt, nq, ext_segs(segs, 1, c, CX{codes, XS{arr_new(total), cur}}))
+  leaf_filled(idx, ns, cnt, nq, sw_go(U32.to_nat(ns), 1, c, SW{ss, SLNil{}, XS{arr_new(total), cur, idx}}))
 
-def leaf_pass(+mode: U32, +idx: U32, codes: Array<U32>, +segs: F.Seg, cnt: Array<U32>, +c: Cfg,
+def leaf_pass(+mode: U32, +idx: U32, +ns: U32, ss: SL, cnt: Array<U32>, +c: Cfg,
               +nq: U32, +pq: U32, isc: Bool) -> PR:
   match isc:
     case True{}:
-      leaf_counted(idx, segs, ext_segs(segs, 0, c, CX{codes, XS{arr_new(1), arr_new(pq)}}))
+      leaf_counted(idx, ns, sw_go(U32.to_nat(ns), 0, c, SW{ss, SLNil{}, XS{arr_new(1), arr_new(pq), idx}}))
     case False{}:
-      leaf_fill(idx, codes, segs, c, nq,
+      leaf_fill(idx, ns, ss, c, nq,
         cs_go(U32.to_nat(nq), 0, U32.mul(cfg_p(c), nq), CS{cnt, arr_new(nq), 0}))
 
 def pr_join(a: PR, b: PR) -> PR:
@@ -307,8 +345,8 @@ def par_pass(st: ST, +mode: U32, +c: Cfg, +nq: U32, +pq: U32) -> PR:
   match st:
     case STNil{}:
       PR{STNil{}, BTNil{}}
-    case STLeaf{+idx, codes, +segs, cnt}:
-      leaf_pass(mode, idx, codes, segs, cnt, c, nq, pq, U32.is_eq(mode, 0))
+    case STLeaf{+idx, +ns, ss, cnt}:
+      leaf_pass(mode, idx, ns, ss, cnt, c, nq, pq, U32.is_eq(mode, 0))
     case STNode{l, r}:
       a b = par_pass(l, mode, c, nq, pq) par_pass(r, mode, c, nq, pq)
       pr_join(a, b)
@@ -370,13 +408,21 @@ def ge_2(w4: Array<U32>, +i: U32, +w: U32, +s: U32, +hi: U32, r: Array<U32> & U3
   x3 = x2[(o + 2 : U32)] <- s
   GE{a, x3[(o + 3 : U32)] <- mix(hi, lo), (i + 1 : U32), (w + 1 : U32), s}
 
+def ge_s(w4: Array<U32>, +i: U32, +w: U32, +hi: U32, +lo: U32, r: Array<U32> & U32) -> GE:
+  (a, +s) = r
+  ge_2(w4, i, w, s, hi, (a, lo))
+
+def ge_lo(w4: Array<U32>, +i: U32, +w: U32, +hi: U32, r: Array<U32> & U32) -> GE:
+  (a, +lo) = r
+  ge_s(w4, i, w, hi, lo, a[(U32.mul(i, 3) + 2 : U32)])
+
 def ge_1(w4: Array<U32>, +i: U32, +w: U32, +s: U32, r: Array<U32> & U32) -> GE:
   (a, +hi) = r
-  ge_2(w4, i, w, s, hi, a[(U32.shln(i, 1n) + 1 : U32)])
+  ge_lo(w4, i, w, hi, a[(U32.mul(i, 3) + 1 : U32)])
 
 def ge_step(st: GE) -> GE:
   GE{a, w4, +i, +w, +s} = st
-  ge_1(w4, i, w, s, a[U32.shln(i, 1n)])
+  ge_1(w4, i, w, s, a[U32.mul(i, 3)])
 
 def ge_go(n: Nat, st: GE) -> GE:
   match n:
@@ -614,41 +660,29 @@ def sb_fin(st: SB) -> Array<U32>:
 # k-mer (gn of them). Pass 1 counts the pairs of every row block; pass 2
 # writes their codes T(b) - T(B0) + a.
 
-def tri(+b: U32) -> U32:
-  sel(U32.is_eq(U32.and(b, 1), 0), U32.mul(U32.shrn(b, 1n), (b - 1 : U32)),
-    U32.mul(b, U32.shrn((b - 1 : U32), 1n)))
-
-# Row blocks of a batch [b0, b1): row b belongs to block
-# min(rm1, (T(b) - T(b0)) / t), t = ceil((T(b1) - T(b0)) / R).
+# Row blocks of a batch [b0, b1): R blocks of h = ceil((b1 - b0) / R)
+# consecutive rows. A pair a < b of row b (block (b - b0) / h, first row r0)
+# has the block-local code (b - r0) * n + a < h * n; the caller picks R so
+# that h * n < 2^32 (lr_of in prefilter.bend), so codes fit a U32.
 type RB is Data:
-  RB{+b0: U32, +b1: U32, +tb0: U32, +t: U32, +rm1: U32}
-
-def rb_tb0(rb: RB) -> U32:
-  RB{+b0, +b1, +tb0, +t, +rm1} = rb
-  tb0
+  RB{+b0: U32, +b1: U32, +h: U32, +n: U32, +rm1: U32}
 
 def rowblk(+b: U32, rb: RB) -> U32:
-  RB{+b0, +b1, +tb0, +t, +rm1} = rb
-  sel(U32.is_lt(b, b0) || U32.is_ge(b, b1), 4294967295, U32.min(rm1, U32.div((tri(b) - tb0 : U32), t)))
+  RB{+b0, +b1, +h, +n, +rm1} = rb
+  sel(U32.is_lt(b, b0) || U32.is_ge(b, b1), 4294967295, U32.min(rm1, U32.div((b - b0 : U32), h)))
 
-def rb_make(+b0: U32, +b1: U32, +r: U32) -> RB:
-  +tb0 = tri(b0)
-  +area = (tri(b1) - tb0 : U32)
-  RB{b0, b1, tb0, U32.max(1, U32.div((area + r - 1 : U32), r)), (r - 1 : U32)}
+# code of the pair (a, b) minus a
+def rb_base(+b: U32, rb: RB) -> U32:
+  RB{+b0, +b1, +h, +n, +rm1} = rb
+  U32.mul(U32.mod((b - b0 : U32), h), n)
 
-# first row of block r: the least b in [b0, b1] with T(b) - T(b0) >= r t
-def bd_go(n: Nat, +lo: U32, +hi: U32, +goal: U32, +tb0: U32) -> U32:
-  match n:
-    case 0n:
-      hi
-    case 1n+p:
-      +mid = U32.shrn((lo + hi : U32), 1n)
-      +ok = U32.is_ge((tri(mid) - tb0 : U32), goal)
-      bd_go(p, sel(ok, lo, (mid + 1 : U32)), sel(ok, mid, hi), goal, tb0)
+def rb_make(+b0: U32, +b1: U32, +n: U32, +r: U32) -> RB:
+  RB{b0, b1, U32.max(1, U32.div((b1 - b0 + r - 1 : U32), r)), n, (r - 1 : U32)}
 
+# first row of block r
 def bound(+r: U32, rb: RB) -> U32:
-  RB{+b0, +b1, +tb0, +t, +rm1} = rb
-  sel(U32.is_eq(r, 0), b0, sel(U32.is_gt(r, rm1), b1, bd_go(34n, b0, b1, U32.mul(r, t), tb0)))
+  RB{+b0, +b1, +h, +n, +rm1} = rb
+  U32.min(b1, (b0 + U32.mul(U32.min(r, (rm1 + 1 : U32)), h) : U32))
 
 type SN is Type:
   SN{a: Array<U32>, uc: Array<U32>, tb: Array<U32>, rc: Array<U32>, e: Array<U32>, g: Array<U32>,
@@ -704,7 +738,7 @@ def sn_mode(p1: Bool, inb: Bool, +s: U32, +gn: U32, +rb: RB, +blk: U32, a: Array
     case True{} False{}:
       SN{a, uc, tb, rc, e, g, 0, 0, 0, False{}, 0, 0}
     case False{} True{}:
-      emit_if(U32.is_gt(gn, 0), a, uc, tb, rc, e, g[gn] <- s, blk, (tri(s) - rb_tb0(rb) : U32), gn)
+      emit_if(U32.is_gt(gn, 0), a, uc, tb, rc, e, g[gn] <- s, blk, rb_base(s, rb), gn)
     case False{} False{}:
       SN{a, uc, tb, rc, e, g[gn] <- s, 0, 0, 0, False{}, 0, 0}
 
@@ -769,7 +803,7 @@ type GOut is Type:
 
 def gt_split(+nr: U32, st: SN) -> GOut:
   SN{a, uc, tb, rc, e, g, i, phi, plo, valid, ls, gn} = st
-  GOut{uc, split_fin(split_go(U32.to_nat(nr), 4294967295, 0, SS{0, 0, e, rc, BNil{}}))}
+  GOut{uc, split_fin(split_go(U32.to_nat(nr), 4294967295, 1, SS{0, 0, e, rc, BNil{}}))}
 
 def gt_pass2(+m: U32, +n: U32, +nr: U32, +rb: RB, a: Array<U32>, uc: Array<U32>,
              r: Array<U32> & U32) -> GOut:
@@ -894,66 +928,298 @@ def collect(got: GOT, +n: U32, co: CO) -> CO:
     case GONode{l, r} _:
       collect(r, n, collect(l, n, co))
 
-# Dense row blocks
-# ================
+# Sparse row blocks
+# =================
+#
+# A row block accumulates its pair counts in an owned open-addressing hash
+# table (linear probing, 2^lg slots of two words: code + 1 (0 = empty) and
+# count; load kept <= 1/2). Memory is proportional to the number of pairs
+# that share a k-mer, not to n^2.
+
+type HT is Type:
+  HT{+lg: U32, +cnt: U32, a: Array<U32>}
+
+def ht_new(+lg: U32) -> HT:
+  HT{lg, 0, Array.new(U32, U32.to_nat((lg + 1 : U32)), 0)}
+
+def h_slot(+key: U32, +lg: U32) -> U32:
+  shr(U32.mul(key, 2654435761), (32 - lg : U32))
+
+# probe state: go, table, key, add, slot, mask, new (key inserted)
+type HP is Type:
+  HP{+go: Bool, a: Array<U32>, +key: U32, +d: U32, +i: U32, +mask: U32, +nw: Bool}
+
+def hp_empty(e: Bool, a: Array<U32>, +key: U32, +d: U32, +i: U32, +mask: U32) -> HP:
+  match e:
+    case True{}:
+      +o = U32.shln(i, 1n)
+      a1 = a[o] <- key
+      HP{False{}, a1[(o + 1 : U32)] <- d, key, d, i, mask, True{}}
+    case False{}:
+      HP{True{}, a, key, d, U32.and((i + 1 : U32), mask), mask, False{}}
+
+def hp_hit(hit: Bool, +k: U32, a: Array<U32>, +key: U32, +d: U32, +i: U32, +mask: U32) -> HP:
+  match hit:
+    case True{}:
+      HP{False{}, bump((U32.shln(i, 1n) + 1 : U32), d, a), key, d, i, mask, False{}}
+    case False{}:
+      hp_empty(U32.is_eq(k, 0), a, key, d, i, mask)
+
+def hp_rd(+key: U32, +d: U32, +i: U32, +mask: U32, r: Array<U32> & U32) -> HP:
+  (a, +k) = r
+  hp_hit(U32.is_eq(k, key), k, a, key, d, i, mask)
+
+def hp_go(fuel: Nat, s: HP) -> HP:
+  match fuel s:
+    case _ HP{False{}, a, key, d, i, mask, nw}:
+      HP{False{}, a, key, d, i, mask, nw}
+    case 0n HP{True{}, a, key, d, i, mask, nw}:
+      HP{False{}, a, key, d, i, mask, nw}
+    case 1n+f HP{True{}, a, +key, +d, +i, +mask, nw}:
+      hp_go(f, hp_rd(key, d, i, mask, a[U32.shln(i, 1n)]))
+
+# add d to the count of key (> 0), without growing
+def ht_put(+key: U32, +d: U32, +lg: U32, a: Array<U32>) -> HP:
+  +i = h_slot(key, lg)
+  +mask = (shl(1, lg) - 1 : U32)
+  hp_go(U32.to_nat(shl(1, lg)), HP{True{}, a, key, d, i, mask, False{}})
+
+# rehash: every occupied slot of the old table into the new one
+type RH is Type:
+  RH{old: Array<U32>, a: Array<U32>, +lg: U32, +i: U32}
+
+def rh_fin(old: Array<U32>, +lg: U32, +i: U32, hp: HP) -> RH:
+  HP{go, a, key, d, j, mask, nw} = hp
+  RH{old, a, lg, (i + 1 : U32)}
+
+def rh_v(a: Array<U32>, +lg: U32, +i: U32, +k: U32, r: Array<U32> & U32) -> RH:
+  (old, +v) = r
+  rh_fin(old, lg, i, ht_put(k, v, lg, a))
+
+def rh_k(occ: Bool, a: Array<U32>, +lg: U32, +i: U32, +k: U32, old: Array<U32>) -> RH:
+  match occ:
+    case True{}:
+      rh_v(a, lg, i, k, old[(U32.shln(i, 1n) + 1 : U32)])
+    case False{}:
+      RH{old, a, lg, (i + 1 : U32)}
+
+def rh_rd(a: Array<U32>, +lg: U32, +i: U32, r: Array<U32> & U32) -> RH:
+  (old, +k) = r
+  rh_k(U32.is_ne(k, 0), a, lg, i, k, old)
+
+def rh_step(st: RH) -> RH:
+  RH{old, a, +lg, +i} = st
+  rh_rd(a, lg, i, old[U32.shln(i, 1n)])
+
+def rh_go(n: Nat, st: RH) -> RH:
+  match n:
+    case 0n:
+      st
+    case 1n+p:
+      rh_go(p, rh_step(st))
+
+def rh_tab(st: RH) -> Array<U32>:
+  RH{old, a, lg, i} = st
+  a
+
+def ht_grow(+lg: U32, +cnt: U32, a: Array<U32>) -> HT:
+  +lg2 = (lg + 1 : U32)
+  HT{lg2, cnt, rh_tab(rh_go(U32.to_nat(shl(1, lg)),
+    RH{a, Array.new(U32, U32.to_nat((lg2 + 1 : U32)), 0), lg2, 0}))}
+
+def ht_chk(big: Bool, +lg: U32, +cnt: U32, a: Array<U32>) -> HT:
+  match big:
+    case True{}:
+      ht_grow(lg, cnt, a)
+    case False{}:
+      HT{lg, cnt, a}
+
+def ht_added(+lg: U32, +cnt: U32, hp: HP) -> HT:
+  HP{go, a, key, d, i, mask, +nw} = hp
+  +c2 = (cnt + b2u(nw) : U32)
+  ht_chk(U32.is_gt(U32.shln(c2, 1n), shl(1, lg)), lg, c2, a)
+
+# count[code] += d
+def ht_add(+code: U32, +d: U32, t: HT) -> HT:
+  HT{+lg, +cnt, a} = t
+  ht_added(lg, cnt, ht_put((code + 1 : U32), d, lg, a))
+
+def ht_cnt(t: HT) -> HT & U32:
+  HT{+lg, +cnt, a} = t
+  (HT{lg, cnt, a}, cnt)
 
 type DT is Type:
   DTNil{}
-  DTLeaf{+r0: U32, +r1: U32, m: Array<U32>}
+  DTLeaf{+r0: U32, +r1: U32, m: HT}
   DTNode{l: DT, r: DT}
 
 def dt_build(+d: Nat, +r: U32, +rb: RB) -> DT:
   match d:
     case 0n:
-      +r0 = bound(r, rb)
-      +r1 = bound((r + 1 : U32), rb)
-      DTLeaf{r0, r1, arr_new((tri(r1) - tri(r0) : U32))}
+      DTLeaf{bound(r, rb), bound((r + 1 : U32), rb), ht_new(10)}
     case 1n+p:
       +h = U32.shln(1, p)
       DTNode{dt_build(p, r, rb), dt_build(p, (r + h : U32), rb)}
 
-# m[code - base] += 1 for the n codes of a
+# count[c] += 1 for the n codes c of a
 type AP is Type:
-  AP{a: Array<U32>, m: Array<U32>, +i: U32}
+  AP{a: Array<U32>, m: HT, +i: U32}
 
-def ap_r(m: Array<U32>, +i: U32, +base: U32, r: Array<U32> & U32) -> AP:
+def ap_r(m: HT, +i: U32, r: Array<U32> & U32) -> AP:
   (a, +c) = r
-  AP{a, bump((c - base : U32), 1, m), (i + 1 : U32)}
+  AP{a, ht_add(c, 1, m), (i + 1 : U32)}
 
-def ap_step(+base: U32, st: AP) -> AP:
+def ap_step(st: AP) -> AP:
   AP{a, m, +i} = st
-  ap_r(m, i, base, a[i])
+  ap_r(m, i, a[i])
 
-def ap_go(n: Nat, +base: U32, st: AP) -> AP:
+def ap_go(n: Nat, st: AP) -> AP:
   match n:
     case 0n:
       st
     case 1n+p:
-      ap_go(p, base, ap_step(base, st))
+      ap_go(p, ap_step(st))
 
-def ap_fin(st: AP) -> Array<U32>:
+def ap_fin(st: AP) -> HT:
   AP{a, m, i} = st
   m
 
-def ap_blks(bs: Blks, +base: U32, m: Array<U32>) -> Array<U32>:
+def ap_blks(bs: Blks, m: HT) -> HT:
   match bs:
     case BNil{}:
       m
     case BCon{Blk{+s, +n, a}, t}:
-      ap_blks(t, base, ap_fin(ap_go(U32.to_nat(n), base, AP{a, m, 0})))
+      ap_blks(t, ap_fin(ap_go(U32.to_nat(n), AP{a, m, 0})))
 
 def dt_join(a: DT, b: DT) -> DT:
   DTNode{a, b}
 
-def par_apply(dt: DT, gt: GT, +tb0: U32) -> DT:
+def par_apply(dt: DT, gt: GT) -> DT:
   match dt gt:
     case DTLeaf{+r0, +r1, m} GTLeaf{+cm, bs}:
-      DTLeaf{r0, r1, ap_blks(bs, (tri(r0) - tb0 : U32), m)}
+      DTLeaf{r0, r1, ap_blks(bs, m)}
     case DTNode{l, r} GTNode{gl, gr}:
-      a b = par_apply(l, gl, tb0) par_apply(r, gr, tb0)
+      a b = par_apply(l, gl) par_apply(r, gr)
       dt_join(a, b)
     case _ _:
       dt
+
+# Sorting (code, count) records
+# =============================
+
+# the occupied slots of a table, as records [code, count] in e
+type HX is Type:
+  HX{a: Array<U32>, e: Array<U32>, +i: U32, +w: U32}
+
+def hx_v(e: Array<U32>, +i: U32, +w: U32, +k: U32, r: Array<U32> & U32) -> HX:
+  (a, +v) = r
+  +o = U32.shln(w, 1n)
+  e1 = e[o] <- (k - 1 : U32)
+  HX{a, e1[(o + 1 : U32)] <- v, (i + 1 : U32), (w + 1 : U32)}
+
+def hx_k(occ: Bool, e: Array<U32>, +i: U32, +w: U32, +k: U32, a: Array<U32>) -> HX:
+  match occ:
+    case True{}:
+      hx_v(e, i, w, k, a[(U32.shln(i, 1n) + 1 : U32)])
+    case False{}:
+      HX{a, e, (i + 1 : U32), w}
+
+def hx_rd(e: Array<U32>, +i: U32, +w: U32, r: Array<U32> & U32) -> HX:
+  (a, +k) = r
+  hx_k(U32.is_ne(k, 0), e, i, w, k, a)
+
+def hx_step(st: HX) -> HX:
+  HX{a, e, +i, +w} = st
+  hx_rd(e, i, w, a[U32.shln(i, 1n)])
+
+def hx_go(n: Nat, st: HX) -> HX:
+  match n:
+    case 0n:
+      st
+    case 1n+p:
+      hx_go(p, hx_step(st))
+
+def hx_e(st: HX) -> Array<U32>:
+  HX{a, e, i, w} = st
+  e
+
+def ht_records(t: HT) -> Array<U32>:
+  HT{+lg, +cnt, a} = t
+  hx_e(hx_go(U32.to_nat(shl(1, lg)), HX{a, arr_new(U32.shln(U32.max(cnt, 1), 1n)), 0, 0}))
+
+# One stable LSD pass on the 11-bit digit at sh: count, prefix, scatter.
+def dig(+k: U32, +sh: U32) -> U32:
+  U32.and(shr(k, sh), 2047)
+
+type RC is Type:
+  RC{e: Array<U32>, cnt: Array<U32>, +i: U32}
+
+def rc_r(cnt: Array<U32>, +i: U32, +sh: U32, r: Array<U32> & U32) -> RC:
+  (e, +k) = r
+  RC{e, bump((dig(k, sh) + 1 : U32), 1, cnt), (i + 1 : U32)}
+
+def rc_step(+sh: U32, st: RC) -> RC:
+  RC{e, cnt, +i} = st
+  rc_r(cnt, i, sh, e[U32.shln(i, 1n)])
+
+def rc_go(n: Nat, +sh: U32, st: RC) -> RC:
+  match n:
+    case 0n:
+      st
+    case 1n+p:
+      rc_go(p, sh, rc_step(sh, st))
+
+type RS2 is Type:
+  RS2{e: Array<U32>, f: Array<U32>, cnt: Array<U32>, +i: U32}
+
+def rs_p(e: Array<U32>, f: Array<U32>, +i: U32, +d: U32, +k: U32, +v: U32, r: Array<U32> & U32) -> RS2:
+  (cnt, +pos) = r
+  +o = U32.shln(pos, 1n)
+  f1 = f[o] <- k
+  RS2{e, f1[(o + 1 : U32)] <- v, cnt[d] <- (pos + 1 : U32), (i + 1 : U32)}
+
+def rs_v(f: Array<U32>, cnt: Array<U32>, +i: U32, +sh: U32, +k: U32, r: Array<U32> & U32) -> RS2:
+  (e, +v) = r
+  +d = dig(k, sh)
+  rs_p(e, f, i, d, k, v, cnt[d])
+
+def rs_k(f: Array<U32>, cnt: Array<U32>, +i: U32, +sh: U32, r: Array<U32> & U32) -> RS2:
+  (e, +k) = r
+  rs_v(f, cnt, i, sh, k, e[(U32.shln(i, 1n) + 1 : U32)])
+
+def rs_step(+sh: U32, st: RS2) -> RS2:
+  RS2{e, f, cnt, +i} = st
+  rs_k(f, cnt, i, sh, e[U32.shln(i, 1n)])
+
+def rs2_go(n: Nat, +sh: U32, st: RS2) -> RS2:
+  match n:
+    case 0n:
+      st
+    case 1n+p:
+      rs2_go(p, sh, rs_step(sh, st))
+
+type EF is Type:
+  EF{e: Array<U32>, f: Array<U32>}
+
+def rs_fin(st: RS2) -> EF:
+  RS2{e, f, cnt, i} = st
+  EF{f, e}
+
+def rx_counted(+m: U32, +sh: U32, f: Array<U32>, st: RC) -> EF:
+  RC{e, cnt, i} = st
+  rs_fin(rs2_go(U32.to_nat(m), sh, RS2{e, f, prefix(2049, cnt), 0}))
+
+def rx_pass(+m: U32, +sh: U32, ef: EF) -> EF:
+  EF{e, f} = ef
+  rx_counted(m, sh, f, rc_go(U32.to_nat(m), sh, RC{e, arr_new(2049), 0}))
+
+# sort the m records of e by code (codes < 2^33, three 11-bit digits)
+def ef_e(ef: EF) -> Array<U32>:
+  EF{e, f} = ef
+  e
+
+def rx_sort(+m: U32, e: Array<U32>) -> Array<U32>:
+  ef_e(rx_pass(m, 22, rx_pass(m, 11, rx_pass(m, 0, EF{e, arr_new(U32.shln(U32.max(m, 1), 1n))}))))
 
 # Final scan of a row block
 # =========================
@@ -992,8 +1258,11 @@ def fp_mink(p: FP) -> U32:
   FP{+mink, +k, +t, +maxs} = p
   mink
 
+# Row b's entries are the records with code >= (b - r0) * n at the end of
+# the sorted records [0, j); they are consumed from the end, so consing
+# yields ascending a.
 type FR is Type:
-  FR{m: Array<U32>, uc: Array<U32>, row: List<&2, U32>, +a: U32}
+  FR{+go: Bool, e: Array<U32>, uc: Array<U32>, row: List<&2, U32>, +j: U32}
 
 # Without --max-seqs a kept entry is its output text; with it, the words
 # a, c, m, x (for the per-row selection that follows).
@@ -1011,65 +1280,82 @@ def fr_ani(+a: U32, +c: U32, +mn: U32, +p: FP, +an: N.Ani, row: List<&2, U32>) -
   N.Thr{+one, +fx} = t
   fr_keep(N.ani_ge(an, one, fx), U32.is_ne(maxs, 0), a, c, mn, N.ani_x(an), row)
 
-def fr_u(m: Array<U32>, row: List<&2, U32>, +a: U32, +c: U32, +ub: U32, +p: FP, r: Array<U32> & U32) -> FR:
+def fr_u(e: Array<U32>, row: List<&2, U32>, +a: U32, +c: U32, +ub: U32, +p: FP, +j: U32,
+         r: Array<U32> & U32) -> FR:
   (uc, +ua) = r
   +mn = U32.min(ua, ub)
-  FR{m, uc, fr_ani(a, c, mn, p, N.ani(c, mn, fp_k(p)), row), a}
+  FR{U32.is_gt(j, 0), e, uc, fr_ani(a, c, mn, p, N.ani(c, mn, fp_k(p)), row), j}
 
-def fr_c(go: Bool, m: Array<U32>, uc: Array<U32>, row: List<&2, U32>, +a: U32, +c: U32, +ub: U32, +p: FP) -> FR:
+def fr_c(go: Bool, e: Array<U32>, uc: Array<U32>, row: List<&2, U32>, +a: U32, +c: U32, +ub: U32, +p: FP,
+         +j: U32) -> FR:
   match go:
     case True{}:
-      fr_u(m, row, a, c, ub, p, uc[a])
+      fr_u(e, row, a, c, ub, p, j, uc[a])
     case False{}:
-      FR{m, uc, row, a}
+      FR{U32.is_gt(j, 0), e, uc, row, j}
 
-def fr_m(uc: Array<U32>, row: List<&2, U32>, +a: U32, +ub: U32, +p: FP, r: Array<U32> & U32) -> FR:
-  (m, +c) = r
-  fr_c(U32.is_gt(c, 0) && U32.is_ge(c, fp_mink(p)), m, uc, row, a, c, ub, p)
+def fr_v(uc: Array<U32>, row: List<&2, U32>, +a: U32, +ub: U32, +p: FP, +j: U32, r: Array<U32> & U32) -> FR:
+  (e, +c) = r
+  fr_c(U32.is_gt(c, 0) && U32.is_ge(c, fp_mink(p)), e, uc, row, a, c, ub, p, j)
 
-def fr_step(+base: U32, +ub: U32, +p: FP, st: FR) -> FR:
-  FR{m, uc, row, +a0} = st
-  +a = (a0 - 1 : U32)
-  fr_m(uc, row, a, ub, p, m[(base + a : U32)])
+def fr_in(inr: Bool, e: Array<U32>, uc: Array<U32>, row: List<&2, U32>, +code: U32, +base: U32, +ub: U32,
+          +p: FP, +j: U32) -> FR:
+  match inr:
+    case True{}:
+      +j1 = (j - 1 : U32)
+      fr_v(uc, row, (code - base : U32), ub, p, j1, e[(U32.shln(j1, 1n) + 1 : U32)])
+    case False{}:
+      FR{False{}, e, uc, row, j}
 
-# entries a = b-1 .. 0 of row b, consed in front of row (so in order)
-def fr_go(n: Nat, +base: U32, +ub: U32, +p: FP, st: FR) -> FR:
-  match n:
-    case 0n:
-      st
-    case 1n+q:
-      fr_go(q, base, ub, p, fr_step(base, ub, p, st))
+def fr_k(uc: Array<U32>, row: List<&2, U32>, +base: U32, +ub: U32, +p: FP, +j: U32, r: Array<U32> & U32) -> FR:
+  (e, +code) = r
+  fr_in(U32.is_ge(code, base), e, uc, row, code, base, ub, p, j)
+
+def fr_go(fuel: Nat, +base: U32, +ub: U32, +p: FP, s: FR) -> FR:
+  match fuel s:
+    case _ FR{False{}, e, uc, row, j}:
+      FR{False{}, e, uc, row, j}
+    case 0n FR{True{}, e, uc, row, j}:
+      FR{False{}, e, uc, row, j}
+    case 1n+f FR{True{}, e, uc, row, +j}:
+      fr_go(f, base, ub, p, fr_k(uc, row, base, ub, p, j, e[U32.shln((j - 1 : U32), 1n)]))
 
 type FO is Type:
-  FO{m: Array<U32>, uc: Array<U32>, rows: List<&2, List<&2, U32>>, +b: U32}
+  FO{e: Array<U32>, uc: Array<U32>, rows: List<&2, List<&2, U32>>, +b: U32, +j: U32}
 
 def fo_fin(rows: List<&2, List<&2, U32>>, +b: U32, st: FR) -> FO:
-  FR{m, uc, row, a} = st
-  FO{m, uc, Con{row, rows}, b}
+  FR{go, e, uc, row, +j} = st
+  FO{e, uc, Con{row, rows}, b, j}
 
-def fo_r(m: Array<U32>, rows: List<&2, List<&2, U32>>, +b: U32, +tr0: U32, +p: FP, r: Array<U32> & U32) -> FO:
+def fo_r(e: Array<U32>, rows: List<&2, List<&2, U32>>, +b: U32, +j: U32, +r0: U32, +n: U32, +p: FP,
+         r: Array<U32> & U32) -> FO:
   (uc, +ub) = r
-  fo_fin(rows, b, fr_go(U32.to_nat(b), (tri(b) - tr0 : U32), ub, p, FR{m, uc, Nil{}, b}))
+  fo_fin(rows, b, fr_go(U32.to_nat(j), U32.mul((b - r0 : U32), n), ub, p, FR{U32.is_gt(j, 0), e, uc, Nil{}, j}))
 
-def fo_step(+tr0: U32, +p: FP, st: FO) -> FO:
-  FO{m, uc, rows, +b0} = st
+def fo_step(+r0: U32, +n: U32, +p: FP, st: FO) -> FO:
+  FO{e, uc, rows, +b0, +j} = st
   +b = (b0 - 1 : U32)
-  fo_r(m, rows, b, tr0, p, uc[b])
+  fo_r(e, rows, b, j, r0, n, p, uc[b])
 
-def fo_go(n: Nat, +tr0: U32, +p: FP, st: FO) -> FO:
-  match n:
+def fo_go(fuel: Nat, +r0: U32, +n: U32, +p: FP, st: FO) -> FO:
+  match fuel:
     case 0n:
       st
     case 1n+q:
-      fo_go(q, tr0, p, fo_step(tr0, p, st))
+      fo_go(q, r0, n, p, fo_step(r0, n, p, st))
 
 def fo_rows(st: FO) -> List<&2, List<&2, U32>>:
-  FO{m, uc, rows, b} = st
+  FO{e, uc, rows, b, j} = st
   rows
 
+def block_sorted(+r0: U32, +r1: U32, +m: U32, +n: U32, e: Array<U32>, uc: Array<U32>, +p: FP)
+    -> List<&2, List<&2, U32>>:
+  fo_rows(fo_go(U32.to_nat((r1 - r0 : U32)), r0, n, p, FO{e, uc, Nil{}, r1, m}))
+
 # The output rows r0 .. r1-1 of a block (entry lists, without names).
-def block_rows(+r0: U32, +r1: U32, m: Array<U32>, uc: Array<U32>, +p: FP) -> List<&2, List<&2, U32>>:
-  fo_rows(fo_go(U32.to_nat((r1 - r0 : U32)), tri(r0), p, FO{m, uc, Nil{}, r1}))
+def block_rows(+r0: U32, +r1: U32, +n: U32, t: HT, uc: Array<U32>, +p: FP) -> List<&2, List<&2, U32>>:
+  HT{+lg, +m, a} = t
+  block_sorted(r0, r1, m, n, rx_sort(m, ht_records(HT{lg, m, a})), uc, p)
 
 type RT is Data:
   RTNil{}
@@ -1084,7 +1370,7 @@ def par_final(dt: DT, uc: Array<U32>, +n: U32, +p: FP) -> RT:
     case DTNil{}:
       RTNil{}
     case DTLeaf{+r0, +r1, m}:
-      RTLeaf{block_rows(r0, r1, m, uc, p)}
+      RTLeaf{block_rows(r0, r1, n, m, uc, p)}
     case DTNode{l, r}:
       apply(Array<U32> & Array<U32>, RT, \{Tuple: u1 => u2 => (
         a b = par_final(l, u1, n, p) par_final(r, u2, n, p)
@@ -1094,23 +1380,34 @@ def par_final(dt: DT, uc: Array<U32>, +n: U32, +p: FP) -> RT:
 # Samples tree
 # ============
 
-def st_leaf(empty: Bool, +lo: U32, xs: F.Raws) -> ST & F.Raws:
+# The next cnt records as a leaf list (in order).
+def sl_take(n: Nat, xs: F.Raws, acc: SL) -> SL & F.Raws:
+  match n:
+    case 0n:
+      (sl_rev(acc, SLNil{}), xs)
+    case 1n+p:
+      match xs:
+        case F.RawNil{}:
+          (sl_rev(acc, SLNil{}), F.RawNil{})
+        case F.RawCon{h, t}:
+          F.Raw{+len, codes, +segs} = h
+          sl_take(p, t, SLCon{codes, segs, acc})
+
+def st_leaf(empty: Bool, +lo: U32, +cnt: U32, xs: F.Raws) -> ST & F.Raws:
   match empty:
     case True{}:
       (STNil{}, xs)
     case False{}:
-      match xs:
-        case F.RawNil{}:
-          (STNil{}, F.RawNil{})
-        case F.RawCon{h, t}:
-          F.Raw{+len, codes, +segs} = h
-          (STLeaf{lo, codes, segs, arr_new(1)}, t)
+      apply(SL & F.Raws, ST & F.Raws, \{Tuple: ss => rest => (
+        (STLeaf{lo, cnt, ss, arr_new(1)}, rest)
+      )}, sl_take(U32.to_nat(cnt), xs, SLNil{}))
 
-# A balanced tree of the next cnt records (cnt <= 2^d), indices from lo.
+# A balanced tree of the next cnt records over 2^d leaves (chunks of
+# consecutive samples), indices from lo.
 def build_st(+d: Nat, +lo: U32, +cnt: U32, xs: F.Raws) -> ST & F.Raws:
   match d:
     case 0n:
-      st_leaf(U32.is_eq(cnt, 0), lo, xs)
+      st_leaf(U32.is_eq(cnt, 0), lo, cnt, xs)
     case 1n+p:
       +nl = U32.shrn((cnt + 1 : U32), 1n)
       +nr = (cnt - nl : U32)
@@ -1134,7 +1431,7 @@ def bs_applied(st: ST, uc: Array<U32>, dt: DT, +p: U32, +ly: LY, +rb: RB, co: CO
   LY{+lp, +lq, +lr, +n} = ly
   CO{uc2, bl} = co
   apply(GT & GQ, BS, \{Tuple: gt => rest => (
-    BS{st, arr_add(n, uc2, uc), par_apply(dt, gt, rb_tb0(rb)), (p + 1 : U32)}
+    BS{st, arr_add(n, uc2, uc), par_apply(dt, gt), (p + 1 : U32)}
   )}, gq_tree(U32.to_nat(lr), transpose(bl, gq_new(U32.to_nat(shl(1, lr))))))
 
 def bs_passed(uc: Array<U32>, dt: DT, +p: U32, +ly: LY, +rb: RB, pr: PR) -> BS:
@@ -1168,7 +1465,7 @@ def br_fin(+ly: LY, +fp: FP, s: BS) -> BR:
 # One batch of rows [b0, b1): all passes, then the filtered rows.
 def run_batch(st: ST, +c: Cfg, +ly: LY, +fp: FP, +b0: U32, +b1: U32) -> BR:
   LY{+lp, +lq, +lr, +n} = ly
-  +rb = rb_make(b0, b1, shl(1, lr))
+  +rb = rb_make(b0, b1, n, shl(1, lr))
   br_fin(ly, fp, bs_go(U32.to_nat(shl(1, lp)), c, ly, rb,
     BS{st, arr_new(n), dt_build(U32.to_nat(lr), 0, rb), 0}))
 

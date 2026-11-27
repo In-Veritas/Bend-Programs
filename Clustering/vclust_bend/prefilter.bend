@@ -223,7 +223,7 @@ def batch_loop(fuel: Nat, st: K.ST, +b0: U32, +r: Run, +tm: Bool, w: WA) -> IO(W
       Run{+c, +ly, +fp, +bsz} = r
       K.LY{+lp, +lq, +lr, +n} = ly
       +b1 = U32.min(n, (b0 + bsz : U32))
-      +rb = K.rb_make(b0, b1, K.shl(1, lr))
+      +rb = K.rb_make(b0, b1, n, K.shl(1, lr))
       do IO<WA>:
         s : K.BS <- pass_io(U32.to_nat(K.shl(1, lp)), c, ly, rb, tm,
           K.BS{st, K.arr_new(n), K.dt_build(U32.to_nat(lr), 0, rb), 0})
@@ -243,6 +243,24 @@ def raws_sum(xs: F.Raws, acc: F.Raws, +sum: U32) -> RSum:
 def lp_of(+total: U32) -> U32:
   # P = 2^lp passes with P * 2^24 >= total bases
   U32.from_nat(F.depth(U32.max(1, U32.shrn((total + 16777215 : U32), 24n))))
+
+# R = 2^lr row blocks, lr >= 6, with ceil(n / R) * n < 2^32 (block-local
+# pair codes fit a U32 and code + 1 is never 0).
+def lr_ok(+n: U32, +lr: U32) -> Bool:
+  U32.is_le(U32.shrn((n + K.shl(1, lr) - 1 : U32), U32.to_nat(lr)), U32.div(4294967294, U32.max(n, 1)))
+
+def lr_go(fuel: Nat, +n: U32, +lr: U32, ok: Bool) -> U32:
+  match fuel ok:
+    case _ True{}:
+      lr
+    case 0n False{}:
+      lr
+    case 1n+p False{}:
+      +l2 = (lr + 1 : U32)
+      lr_go(p, n, l2, lr_ok(n, l2))
+
+def lr_of(+n: U32) -> U32:
+  lr_go(10n, n, 6, lr_ok(n, 6))
 
 def cfg_mk(+k: U32, t: N.Thr, +dv: N.DV) -> K.Cfg:
   N.Thr{+one, +fx} = t
@@ -302,7 +320,8 @@ def tree_fst(r: K.ST & F.Raws) -> K.ST:
 
 
 def tree_of(+n: U32, xs: F.Raws) -> K.ST:
-  tree_fst(K.build_st(F.depth(U32.max(n, 1)), 0, n, xs))
+  # at most 2^10 leaves (chunks of consecutive samples)
+  tree_fst(K.build_st(U32.to_nat(U32.min(10, U32.from_nat(F.depth(U32.max(n, 1))))), 0, n, xs))
 
 
 def go_summed(+out: String, +k: U32, +n: U32, +mink: String, +mini: String, +batch: String, +frac: String, +maxs: String,
@@ -310,7 +329,7 @@ def go_summed(+out: String, +k: U32, +n: U32, +mink: String, +mini: String, +bat
   RSum{xs, +total} = rs
   +lp = lp_of(total)
   +lq = {6 : U32}
-  +lr = {6 : U32}
+  +lr = lr_of(n)
   +ly = {K.LY{lp, lq, lr, n} : K.LY}
   +c = cfg_bits(cfg_of(k, frac), (lp + lq : U32), lq)
   +fp = {K.FP{u32_or(mink, 20), k, N.thr_of(N.dec_value(N.dec_parse(mini))), u32_or(maxs, 0)} : K.FP}
