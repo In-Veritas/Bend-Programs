@@ -162,6 +162,13 @@ What is reproduced (sources read: LZ-ANI v1.2.3 `src/`, vclust v1.3.1):
   Thresholds are compared exactly as rationals against ceil(t * 10^9), which
   equals the binary64 comparison for thresholds with <= 9 decimals.
 
+Input and output are parallel too (branch `vclust-optimized`): the FASTA and
+the filter are read in batches of 1 MiB chunks parsed by fork-join (cut at
+"\n>" and "\n" respectively, where a fresh parser state is equivalent to
+the sequential one), and ani.tsv rows are formatted by fork-join over chunks
+of 1024 pairs and written in order. `ALIGN_TIMING=1` prints the phase times
+(fasta, filter, plan+align, write). Arguments: `OPTIMIZATIONS.md`.
+
 Parallelism and memory: each reference row is cut into work units (the
 reference plus a chunk of partners, about total/(16*threads) cost each); a
 balanced binary fork-join tree over the units runs them. A unit owns one
@@ -325,6 +332,11 @@ pin the semantics and as a debugging oracle).
       [--metric tani|gani|ani] [--tani --gani --ani --qcov --rcov --len_ratio F]
       [--num_alns N] [--leiden-resolution F --leiden-beta F --leiden-iterations N]
       +RTS --threads N -RTS            (or: python3 run.py cluster ... -t N)
+
+The table is parsed in parallel (branch `vclust-optimized`): 512 KiB chunks,
+24 per batch, fork-join, lines crossing chunk boundaries joined in order,
+accepted rows mapped to local ids afterwards in file order; rendering uses
+counting sorts. Why the output is unchanged: `OPTIMIZATIONS.md`.
 
 `CLUSTER_TIMING=1` prints per-phase milliseconds to stderr
 (parse, build, kernel, certify+render, write).

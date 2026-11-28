@@ -809,7 +809,7 @@ def gt_pass2(+m: U32, +n: U32, +nr: U32, +rb: RB, a: Array<U32>, uc: Array<U32>,
              r: Array<U32> & U32) -> GOut:
   (rc2, +total) = r
   gt_split(nr, sn_go(U32.to_nat(m), 1, rb,
-    SN{a, uc, arr_new(1), rc2, arr_new(total), arr_new(n), 0, 0, 0, False{}, 0, 0}))
+    SN{a, uc, arr_new(1), rc2, arr_new(total), arr_new(U32.min(n, m)), 0, 0, 0, False{}, 0, 0}))
 
 def gt_pass1(+m: U32, +n: U32, +nr: U32, +rb: RB, st: SN) -> GOut:
   SN{a, uc, tb, rc, e, g, i, phi, plo, valid, ls, gn} = st
