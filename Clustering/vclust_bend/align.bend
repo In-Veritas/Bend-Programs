@@ -171,28 +171,6 @@ def last_nl(+fuel: Nat, file: File, +end: U32) -> IO(File & U32):
         r : File & Result<&1, &1, U32 & String, List<&2, U32>> <- File.read_at(file, start, (end - start : U32))
         last_nl.k(start, r, h => e => last_nl(f, h, e))
 
-def fl_read.k(r: File & Result<&1, &1, U32 & String, List<&2, U32>>, +st: R.FL,
-              k: File -> R.FL -> IO(File & R.FL)) -> IO(File & R.FL):
-  (file, res) = r
-  match res:
-    case Fail{e}:
-      IO.pure(File & R.FL, (file, st))
-    case Done{bytes}:
-      match bytes:
-        case Nil{}:
-          IO.pure(File & R.FL, (file, st))
-        case Con{+h, +t}:
-          k(file)(R.fl_feed(Con{h, t}, st))
-
-def fl_read(+fuel: Nat, file: File, +st: R.FL) -> IO(File & R.FL):
-  match fuel:
-    case 0n:
-      IO.pure(File & R.FL, (file, st))
-    case 1n+f:
-      do IO<File & R.FL>:
-        r : File & Result<&1, &1, U32 & String, List<&2, U32>> <- File.read_bytes(file, 1048576)
-        fl_read.k(r, st, h => s => fl_read(f, h, s))
-
 def fuel_for(+size: U32) -> Nat:
   U32.to_nat((U32.shrn(size, 20n) + 3 : U32))
 
@@ -460,17 +438,263 @@ def read_fasta(+path: String) -> IO(List<&2, R.Rec>):
     sz : File & Result<&1, &1, U32 & String, U32> <- File.size(file)
     read_fasta.a(file_size(sz))
 
-def read_filter.b(got: File & R.FL) -> IO(R.FL):
-  (f3, +st) = got
+# Filter in parallel: lines are independent once the header is read, and
+# after every '\n' the row parser is back in its initial per-line state
+# (only the row counter and the pairs carry over). Chunks are cut after
+# their first and last '\n'; bodies are parsed by fork-join from a fresh
+# row state (rows counted from 0, shifted afterwards); the bytes around the
+# cuts join the neighbouring pieces in order. The first piece holds the
+# header line and is parsed from the initial state; the last one ends with
+# R.fl_done as before. Pair lists keep the sequential (reverse file) order.
+
+type NS is Data:
+  NS{first: U32, last: U32, len: U32}
+
+def nl_splits(xs: List<&2, U32>, +i: U32, +f: U32, +l: U32) -> NS:
+  match xs:
+    case Nil{}:
+      NS{f, l, i}
+    case Con{+b, t}:
+      +j = (i + 1 : U32)
+      +hit = U32.is_eq(b, 10)
+      nl_splits(t, j, N.u32_if(hit && U32.is_eq(f, 0), j, f), N.u32_if(hit, j, l))
+
+def fl_row0(+thr: U32) -> R.FL:
+  R.FL{False{}, 0, Nil{}, R.NLNil{}, 0, 0, True{}, 0, 0, False{}, False{}, Nil{}, thr, Nil{}}
+
+def fl_feedn(n: Nat, xs: List<&2, U32>, +s: R.FL) -> R.FL:
+  match n xs:
+    case 0n _:
+      s
+    case _ Nil{}:
+      s
+    case 1n+p Con{+c, rest}:
+      fl_feedn(p, rest, R.fl_byte(c, s))
+
+# a parsed stretch of lines: rows seen, pairs (reversed, rows from 0)
+type FG is Data:
+  FG{rows: U32, ps: List<&2, R.P2>}
+
+def fg_of(+s: R.FL) -> FG:
+  match s:
+    case R.FL{h, nf, cur, names, +row, ll, fi, co, iv, idd, ids, vb, thr, +ps}:
+      FG{row, ps}
+
+type FLC is Data:
+  FLC{has: Bool, head: List<&2, U32>, tail: List<&2, U32>, body: FG}
+
+def flc_sp(+thr: U32, +xs: List<&2, U32>, +sp: NS) -> FLC:
+  match sp:
+    case NS{+f, +l, +n}:
+      +rest = fa_drop(U32.to_nat(f), xs)
+      FLC{U32.is_gt(f, 0), lsel(U32.is_gt(f, 0), fa_take(U32.to_nat(f), xs), xs),
+        fa_drop(U32.to_nat((l - f : U32)), rest), fg_of(fl_feedn(U32.to_nat((l - f : U32)), rest, fl_row0(thr)))}
+
+def flc(+thr: U32, +xs: List<&2, U32>) -> FLC:
+  flc_sp(thr, xs, nl_splits(xs, 0, 0, 0))
+
+type LT is Data:
+  LTNil{}
+  LTLeaf{xs: List<&2, U32>}
+  LTNode{l: LT, r: LT}
+
+type LO is Data:
+  LONil{}
+  LOLeaf{r: FLC}
+  LONode{l: LO, r: LO}
+
+def lt_tree(+d: Nat, +xs: List<&2, List<&2, U32>>) -> LT & List<&2, List<&2, U32>>:
+  match d:
+    case 0n:
+      match xs:
+        case Nil{}:
+          (LTNil{}, Nil{})
+        case Con{+h, +t}:
+          (LTLeaf{h}, t)
+    case 1n+p:
+      ft_ap(LT & List<&2, List<&2, U32>>, LT & List<&2, List<&2, U32>>, \{Tuple: l => rest => (
+        ft_ap(LT & List<&2, List<&2, U32>>, LT & List<&2, List<&2, U32>>, \{Tuple: r => rest2 => (
+          (LTNode{l, r}, rest2)
+        )}, lt_tree(p, rest))
+      )}, lt_tree(p, xs))
+
+def lo_join(+a: LO, +b: LO) -> LO:
+  LONode{a, b}
+
+def lt_par(+t: LT, +thr: U32) -> LO:
+  match t:
+    case LTNil{}:
+      LONil{}
+    case LTLeaf{+xs}:
+      LOLeaf{flc(thr, xs)}
+    case LTNode{+l, +r}:
+      x y = lt_par(l, thr) lt_par(r, thr)
+      lo_join(x, y)
+
+# feed pieces (in order)
+def fl_feeds(xs: List<&2, List<&2, U32>>, +s: R.FL) -> R.FL:
+  match xs:
+    case Nil{}:
+      s
+    case Con{+h, t}:
+      fl_feeds(t, R.fl_feed(h, s))
+
+def bl_rev(xs: List<&2, List<&2, U32>>, acc: List<&2, List<&2, U32>>) -> List<&2, List<&2, U32>>:
+  match xs:
+    case Nil{}:
+      acc
+    case Con{+h, t}:
+      bl_rev(t, h <> acc)
+
+# carry: open pieces (reversed); st: the header state (the first piece),
+# None until the header line is complete; gs: stretches, last first
+type FX is Data:
+  FX{carry: List<&2, List<&2, U32>>, hd: Bool, st: R.FL, gs: List<&2, FG>}
+
+# a complete stretch (ends with '\n'): the first one goes through the
+# header state, the others through a fresh row state
+def fx_line(+thr: U32, +pieces: List<&2, List<&2, U32>>, +x: FX) -> FX:
+  match x:
+    case FX{c, +hd, +st, +gs}:
+      when(FX, hd, \{
+        True: FX{Nil{}, False{}, fl_feeds(pieces, st), gs}
+        False: FX{Nil{}, False{}, st, fg_of(fl_feeds(pieces, fl_row0(thr))) <> gs}
+      })
+
+def fx_body(+tail: List<&2, U32>, +body: FG, +x: FX) -> FX:
+  match x:
+    case FX{c, +hd, +st, +gs}:
+      FX{tail <> Nil{}, hd, st, body <> gs}
+
+def fx_add(+thr: U32, +r: FLC, +x: FX) -> FX:
+  match r x:
+    case FLC{+has, +head, +tail, +body} FX{+carry, +hd, +st, +gs}:
+      when(FX, has, \{
+        True: fx_body(tail, body, fx_line(thr, bl_rev(head <> carry, Nil{}), FX{carry, hd, st, gs}))
+        False: FX{head <> carry, hd, st, gs}
+      })
+
+def lo_fold(+o: LO, +thr: U32, +x: FX) -> FX:
+  match o:
+    case LONil{}:
+      x
+    case LOLeaf{+r}:
+      fx_add(thr, r, x)
+    case LONode{+l, +r}:
+      lo_fold(r, thr, lo_fold(l, thr, x))
+
+def lt_fst(r: LT & List<&2, List<&2, U32>>) -> LT:
+  (+t, +rest) = r
+  t
+
+def fx_batch(+thr: U32, +cs: List<&2, List<&2, U32>>, +x: FX) -> FX:
+  lo_fold(lt_par(lt_fst(lt_tree(4n, bl_rev(cs, Nil{}))), thr), thr, x)
+
+type RL is Type:
+  RL{f: File, cs: List<&2, List<&2, U32>>, eof: Bool}
+
+def rl_k(r: File & Result<&1, &1, U32 & String, List<&2, U32>>, +cs: List<&2, List<&2, U32>>,
+         k: File -> List<&2, List<&2, U32>> -> IO(RL)) -> IO(RL):
+  (file, res) = r
+  match res:
+    case Fail{e}:
+      IO.pure(RL, RL{file, cs, True{}})
+    case Done{+bytes}:
+      match bytes:
+        case Nil{}:
+          IO.pure(RL, RL{file, cs, True{}})
+        case Con{+h, +t}:
+          k(file)((h <> t) <> cs)
+
+def rl_go(+fuel: Nat, file: File, +cs: List<&2, List<&2, U32>>) -> IO(RL):
+  match fuel:
+    case 0n:
+      IO.pure(RL, RL{file, cs, False{}})
+    case 1n+f:
+      do IO<RL>:
+        r : File & Result<&1, &1, U32 & String, List<&2, U32>> <- File.read_bytes(file, 1048576)
+        rl_k(r, cs, h => c => rl_go(f, h, c))
+
+def fx_res(b: RL, +thr: U32, +x: FX, k: File -> FX -> IO(File & FX)) -> IO(File & FX):
+  match b:
+    case RL{file, +cs, +eof}:
+      when(IO(File & FX), eof, \{
+        True: IO.pure(File & FX, (file, fx_batch(thr, cs, x)))
+        False: k(file)(fx_batch(thr, cs, x))
+      })
+
+def fx_loop(+fuel: Nat, file: File, +thr: U32, +x: FX) -> IO(File & FX):
+  match fuel:
+    case 0n:
+      IO.pure(File & FX, (file, x))
+    case 1n+f:
+      do IO<File & FX>:
+        b : RL <- rl_go(12n, file, Nil{})
+        fx_res(b, thr, x, h => a => fx_loop(f, h, thr, a))
+
+def p2_rev(xs: List<&2, R.P2>, acc: List<&2, R.P2>) -> List<&2, R.P2>:
+  match xs:
+    case Nil{}:
+      acc
+    case Con{+h, t}:
+      p2_rev(t, h <> acc)
+
+# xs (earliest first) pushed onto acc with rows shifted by base
+def p2_onto(xs: List<&2, R.P2>, +base: U32, acc: List<&2, R.P2>) -> List<&2, R.P2>:
+  match xs:
+    case Nil{}:
+      acc
+    case Con{R.P2{+i, +j}, t}:
+      p2_onto(t, base, R.P2{(i + base : U32), j} <> acc)
+
+# stretches in file order onto the header state's pairs: the result is in
+# reverse file order like the sequential list; base counts rows so far
+def fg_go(gs: List<&2, FG>, +base: U32, acc: List<&2, R.P2>) -> List<&2, R.P2> & U32:
+  match gs:
+    case Nil{}:
+      (acc, base)
+    case Con{FG{+rows, +ps}, t}:
+      fg_go(t, (base + rows : U32), p2_onto(p2_rev(ps, Nil{}), base, acc))
+
+def fg_rev(xs: List<&2, FG>, acc: List<&2, FG>) -> List<&2, FG>:
+  match xs:
+    case Nil{}:
+      acc
+    case Con{+h, t}:
+      fg_rev(t, h <> acc)
+
+def fl_merge(+st: R.FL, r: List<&2, R.P2> & U32) -> R.FL:
+  match st:
+    case R.FL{h, +nf, cur, +names, row, ll, fi, co, iv, idd, ids, vb, +thr, ps0}:
+      (+ps, +rows) = r
+      R.FL{h, nf, cur, names, rows, ll, fi, co, iv, idd, ids, vb, thr, ps}
+
+def fl_join(+st: R.FL, +gs: List<&2, FG>) -> R.FL:
+  match st:
+    case R.FL{h, nf, cur, names, +row, ll, fi, co, iv, idd, ids, vb, thr, +ps0}:
+      fl_merge(st, fg_go(fg_rev(gs, Nil{}), row, ps0))
+
+# the open piece ends with fl_done (from the header state when the header
+# line never ended, else from a fresh row state, as one more stretch)
+def fx_final(+thr: U32, +x: FX) -> R.FL:
+  match x:
+    case FX{+carry, +hd, +st, +gs}:
+      when(R.FL, hd, \{
+        True: R.fl_done(fl_feeds(bl_rev(carry, Nil{}), st))
+        False: fl_join(st, fg_of(R.fl_done(fl_feeds(bl_rev(carry, Nil{}), fl_row0(thr)))) <> gs)
+      })
+
+def read_filter.b(got: File & FX, +thr: U32) -> IO(R.FL):
+  (f3, +x) = got
   do IO<R.FL>:
     File.close(f3)
-    return R.fl_done(st)
+    return fx_final(thr, x)
 
 def read_filter.a(+thr: U32, r: File & U32) -> IO(R.FL):
   (file, +size) = r
   do IO<R.FL>:
-    got : File & R.FL <- fl_read(fuel_for(size), file, R.fl_new(thr))
-    read_filter.b(got)
+    got : File & FX <- fx_loop(fuel_for(size), file, thr, FX{Nil{}, True{}, R.fl_new(thr), Nil{}})
+    read_filter.b(got, thr)
 
 def read_filter(+path: String, +thr: U32) -> IO(R.FL):
   do IO<R.FL>:
@@ -930,61 +1154,167 @@ def gname(-B: Type, q: Array<List<&2, U32>> & List<&2, U32>, k: Array<List<&2, U
   (a2, +v) = q
   k(a2)(v)
 
-def pair_rows(+fmt: U32, +th: TH, +k: U32, +p: PK, st: OS, tail: List<&2, U32>) -> OS & List<&2, U32>:
+# Rows are formatted in parallel: the pairs' values are first read from the
+# result arrays in order (sequential, cheap), then batches of chunks of
+# pairs are formatted by fork-join (the decimal formatting is the costly
+# part) and written in order. Each pair's two rows are exactly the text the
+# sequential writer produced; only the order of evaluation changes.
+
+type RP is Data:
+  RP{a: U32, b: U32, na: List<&2, U32>, nb: List<&2, U32>, m0: U32, l0: U32, c0: U32, m1: U32, l1: U32,
+     c1: U32, len0: U32, len1: U32}
+
+def rp_rows(+fmt: U32, +th: TH, +rp: RP, tail: List<&2, U32>) -> List<&2, U32>:
+  match rp:
+    case RP{+a, +b, +na, +nb, +m0, +l0, +c0, +m1, +l1, +c1, +len0, +len1}:
+      row(fmt, th, RowIn{b, a, nb, na, m0, l0, c0, len0, len1, m1, l1},
+        row(fmt, th, RowIn{a, b, na, nb, m1, l1, c1, len1, len0, m0, l0}, tail))
+
+def rps_bytes(+fmt: U32, +th: TH, rs: List<&2, RP>) -> List<&2, U32>:
+  match rs:
+    case Nil{}:
+      Nil{}
+    case Con{+r, t}:
+      rp_rows(fmt, th, r, rps_bytes(fmt, th, t))
+
+def pair_get(+k: U32, +p: PK, st: OS) -> OS & RP:
   match p st:
     case PK{+a, +b} OS{res, names, lens}:
       +at = (k * 6 : U32)
-      g32(OS & List<&2, U32>, Array.get(U32, res, at), r1 => +m0 =>
-      g32(OS & List<&2, U32>, Array.get(U32, r1, (at + 1 : U32)), r2 => +l0 =>
-      g32(OS & List<&2, U32>, Array.get(U32, r2, (at + 2 : U32)), r3 => +c0 =>
-      g32(OS & List<&2, U32>, Array.get(U32, r3, (at + 3 : U32)), r4 => +m1 =>
-      g32(OS & List<&2, U32>, Array.get(U32, r4, (at + 4 : U32)), r5 => +l1 =>
-      g32(OS & List<&2, U32>, Array.get(U32, r5, (at + 5 : U32)), r6 => +c1 =>
-      g32(OS & List<&2, U32>, Array.get(U32, lens, b), s1 => +len0 =>
-      g32(OS & List<&2, U32>, Array.get(U32, s1, a), s2 => +len1 =>
-      gname(OS & List<&2, U32>, Array.get(List<&2, U32>, names, a), n1 => +na =>
-      gname(OS & List<&2, U32>, Array.get(List<&2, U32>, n1, b), n2 => +nb =>
-        (OS{r6, n2, s2},
-         row(fmt, th, RowIn{b, a, nb, na, m0, l0, c0, len0, len1, m1, l1},
-           row(fmt, th, RowIn{a, b, na, nb, m1, l1, c1, len1, len0, m0, l0}, tail)))))))))))))
+      g32(OS & RP, Array.get(U32, res, at), r1 => +m0 =>
+      g32(OS & RP, Array.get(U32, r1, (at + 1 : U32)), r2 => +l0 =>
+      g32(OS & RP, Array.get(U32, r2, (at + 2 : U32)), r3 => +c0 =>
+      g32(OS & RP, Array.get(U32, r3, (at + 3 : U32)), r4 => +m1 =>
+      g32(OS & RP, Array.get(U32, r4, (at + 4 : U32)), r5 => +l1 =>
+      g32(OS & RP, Array.get(U32, r5, (at + 5 : U32)), r6 => +c1 =>
+      g32(OS & RP, Array.get(U32, lens, b), s1 => +len0 =>
+      g32(OS & RP, Array.get(U32, s1, a), s2 => +len1 =>
+      gname(OS & RP, Array.get(List<&2, U32>, names, a), n1 => +na =>
+      gname(OS & RP, Array.get(List<&2, U32>, n1, b), n2 => +nb =>
+        (OS{r6, n2, s2}, RP{a, b, na, nb, m0, l0, c0, m1, l1, c1, len0, len1})))))))))))
 
-type EM is Type:
-  EM{st: OS, bytes: List<&2, U32>, rest: List<&2, PK>, k: U32}
+# a chunk of up to fuel pairs from k (reversed into acc)
+type CK is Type:
+  CK{st: OS, acc: List<&2, RP>, rest: List<&2, PK>, k: U32}
 
-def emit.k2(rest: List<&2, PK>, +k2: U32, r: OS & List<&2, U32>) -> EM:
-  (st, bytes) = r
-  EM{st, bytes, rest, k2}
+def ck_got(+rest: List<&2, PK>, +k: U32, +acc: List<&2, RP>, r: OS & RP) -> CK:
+  (st, +rp) = r
+  CK{st, rp <> acc, rest, (k + 1 : U32)}
 
-def emit.k(+fmt: U32, +th: TH, +k: U32, +p: PK, e: EM) -> EM:
-  match e:
-    case EM{st, bytes, rest, k2}:
-      emit.k2(rest, k2, pair_rows(fmt, th, k, p, st, bytes))
+def ck_go(+fuel: Nat, c: CK) -> CK:
+  match fuel c:
+    case 0n _:
+      c
+    case 1n+f CK{st, +acc, +rest, +k}:
+      match rest:
+        case Nil{}:
+          CK{st, acc, Nil{}, k}
+        case Con{+p, +t}:
+          ck_go(f, ck_got(t, k, acc, pair_get(k, p, st)))
 
-# rows of up to fuel pairs starting at pair k
-def emit(+fuel: Nat, +fmt: U32, +th: TH, ps: List<&2, PK>, +k: U32, st: OS) -> EM:
-  match fuel ps:
-    case _ Nil{}:
-      EM{st, Nil{}, Nil{}, k}
-    case 0n Con{+p, +rest}:
-      EM{st, Nil{}, p <> rest, k}
-    case 1n+f Con{+p, rest}:
-      emit.k(fmt, th, k, p, emit(f, fmt, th, rest, (k + 1 : U32), st))
+def rp_rev(xs: List<&2, RP>, acc: List<&2, RP>) -> List<&2, RP>:
+  match xs:
+    case Nil{}:
+      acc
+    case Con{+h, t}:
+      rp_rev(t, h <> acc)
 
-def write_rows.k(r: File & Result<&1, &1, U32 & String, Unit>, k: File -> IO(Unit)) -> IO(Unit):
-  (file, res) = r
-  k(file)
+# a batch: up to n chunks (reversed list of chunks, each in order)
+type BT is Type:
+  BT{st: OS, cs: List<&2, List<&2, RP>>, rest: List<&2, PK>, k: U32}
 
-def write_rows(+fuel: Nat, file: File, +fmt: U32, +th: TH, e: EM) -> IO(Unit):
-  match fuel e:
-    case 0n EM{st, bytes, rest, k}:
-      File.close(file)
-    case 1n+f EM{st, +bytes, +rest, +k}:
-      when(IO(Unit), R.is_empty(bytes) && List.is_empty(&2, PK, rest), \{
-        True: File.close(file)
-        False: do IO<Unit>:
-          w : File & Result<&1, &1, U32 & String, Unit> <- File.write_bytes(file, bytes)
-          write_rows.k(w, h => write_rows(f, h, fmt, th, emit(4096n, fmt, th, rest, k, st)))
+def bt_got(+cs: List<&2, List<&2, RP>>, c: CK) -> BT:
+  match c:
+    case CK{st, +acc, +rest, +k}:
+      BT{st, rp_rev(acc, Nil{}) <> cs, rest, k}
+
+def bt_go(+fuel: Nat, b: BT) -> BT:
+  match fuel b:
+    case 0n _:
+      b
+    case 1n+f BT{st, +cs, +rest, +k}:
+      when(BT, List.is_empty(&2, PK, rest), \{
+        True: BT{st, cs, rest, k}
+        False: bt_go(f, bt_got(cs, ck_go(1024n, CK{st, Nil{}, rest, k})))
       })
+
+type XT is Data:
+  XTNil{}
+  XTLeaf{rs: List<&2, RP>}
+  XTNode{l: XT, r: XT}
+
+type XO is Data:
+  XONil{}
+  XOLeaf{bs: List<&2, U32>}
+  XONode{l: XO, r: XO}
+
+def xt_tree(+d: Nat, +xs: List<&2, List<&2, RP>>) -> XT & List<&2, List<&2, RP>>:
+  match d:
+    case 0n:
+      match xs:
+        case Nil{}:
+          (XTNil{}, Nil{})
+        case Con{+h, +t}:
+          (XTLeaf{h}, t)
+    case 1n+p:
+      ft_ap(XT & List<&2, List<&2, RP>>, XT & List<&2, List<&2, RP>>, \{Tuple: l => rest => (
+        ft_ap(XT & List<&2, List<&2, RP>>, XT & List<&2, List<&2, RP>>, \{Tuple: r => rest2 => (
+          (XTNode{l, r}, rest2)
+        )}, xt_tree(p, rest))
+      )}, xt_tree(p, xs))
+
+def xo_join(+a: XO, +b: XO) -> XO:
+  XONode{a, b}
+
+def xt_par(+t: XT, +fmt: U32, +th: TH) -> XO:
+  match t:
+    case XTNil{}:
+      XONil{}
+    case XTLeaf{+rs}:
+      XOLeaf{rps_bytes(fmt, th, rs)}
+    case XTNode{+l, +r}:
+      x y = xt_par(l, fmt, th) xt_par(r, fmt, th)
+      xo_join(x, y)
+
+def xo_wrote(w: File & Result<&1, &1, U32 & String, Unit>) -> IO(File):
+  (file, res) = w
+  IO.pure(File, file)
+
+def xo_write(+o: XO, file: File) -> IO(File):
+  match o:
+    case XONil{}:
+      IO.pure(File, file)
+    case XOLeaf{+bs}:
+      do IO<File>:
+        w : File & Result<&1, &1, U32 & String, Unit> <- File.write_bytes(file, bs)
+        xo_wrote(w)
+    case XONode{+l, +r}:
+      do IO<File>:
+        f2 : File <- xo_write(l, file)
+        xo_write(r, f2)
+
+def chunks_rev(xs: List<&2, List<&2, RP>>, acc: List<&2, List<&2, RP>>) -> List<&2, List<&2, RP>>:
+  match xs:
+    case Nil{}:
+      acc
+    case Con{+h, t}:
+      chunks_rev(t, h <> acc)
+
+def xt_fst(r: XT & List<&2, List<&2, RP>>) -> XT:
+  (+t, +rest) = r
+  t
+
+def write_rows(+fuel: Nat, file: File, +fmt: U32, +th: TH, b: BT) -> IO(Unit):
+  match fuel b:
+    case 0n BT{st, cs, rest, k}:
+      File.close(file)
+    case 1n+f BT{st, +cs, +rest, +k}:
+      do IO<Unit>:
+        f2 : File <- xo_write(xt_par(xt_fst(xt_tree(5n, chunks_rev(cs, Nil{}))), fmt, th), file)
+        when(IO(Unit), List.is_empty(&2, PK, rest), \{
+          True: File.close(f2)
+          False: write_rows(f, f2, fmt, th, bt_go(24n, BT{st, Nil{}, rest, k}))
+        })
 
 # Pipeline
 # ========
@@ -1114,7 +1444,7 @@ def ids_path(+out: String) -> String:
 def write_ani.c(r: File & Result<&1, &1, U32 & String, Unit>, +fmt: U32, +th: TH, +pairs: List<&2, PK>,
                 +np: U32, st: OS) -> IO(Unit):
   (fa, res) = r
-  write_rows(U32.to_nat((U32.shrn(np, 12n) + 4 : U32)), fa, fmt, th, emit(4096n, fmt, th, pairs, 0, st))
+  write_rows(U32.to_nat((U32.shrn(np, 14n) + 4 : U32)), fa, fmt, th, bt_go(24n, BT{st, Nil{}, pairs, 0}))
 
 def write_ani.b(r: File & Result<&1, &1, U32 & String, Unit>, +out: String, +fmt: U32, +th: TH,
                 +pairs: List<&2, PK>, +np: U32, st: OS) -> IO(Unit):

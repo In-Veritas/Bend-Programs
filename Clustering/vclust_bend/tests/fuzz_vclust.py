@@ -3,7 +3,7 @@
 
   CAP=6G capped python3 tests/fuzz_vclust.py [--seeds N] [--stage prefilter|cluster|all]
 
-prefilter: random multi-FASTAs made of mutated copies of a few ancestors
+prefilter (+ align): random multi-FASTAs made of mutated copies of a few ancestors
 (near-identical and duplicate genomes, shared repeats, short contigs, N runs,
 lowercase, IUPAC symbols, CRLF line ends), run with several option sets
 (defaults, --max-seqs, --kmers-fraction, -k 15/19, --min-kmers 1
@@ -51,11 +51,11 @@ def mutate(rng, s, rate):
     return "".join(out)
 
 
-def random_fasta(rng, path):
+def random_fasta(rng, path, big=False):
     anc = ["".join(rng.choice("ACGT") for _ in range(rng.randint(300, 6000))) for _ in range(rng.randint(2, 8))]
     repeat = "".join(rng.choice("ACGT") for _ in range(rng.randint(30, 200)))
     recs = []
-    n = rng.randint(5, 220)
+    n = rng.randint(900, 1600) if big else rng.randint(5, 220)
     for i in range(n):
         a = rng.choice(anc)
         kind = rng.random()
@@ -91,10 +91,26 @@ PF_OPTS = [[], ["--max-seqs", "3"], ["--kmers-fraction", "0.3"], ["-k", "15"], [
            ["--batch-size", "7"], ["--batch-size", "7", "--max-seqs", "2"]]
 
 
-def fuzz_prefilter(rng, seed, binp):
+def fuzz_prefilter(rng, seed, binp, bina=None):
     fa = os.path.join(WORK, f"pf{seed}.fasta")
-    random_fasta(rng, fa)
+    big = seed % 3 == 2  # > 1 MiB: rows/records straddle the parallel readers' chunks
+    random_fasta(rng, fa, big)
     bad = 0
+    if bina:
+        ref = fa + ".fltr"
+        subprocess.run([VCLUST, "prefilter", "-i", fa, "-o", ref, "-t", "4", "-v", "0", "--min-ident", "0.3",
+                        "--min-kmers", "2"], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        for fmt in ("lite", "complete"):
+            subprocess.run([VCLUST, "align", "-i", fa, "-o", fa + ".ani.ref.tsv", "--filter", ref, "-t", "4", "-v", "0",
+                            "--outfmt", fmt, "--out-ani", "0.5"],
+                           check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            subprocess.run([bina, "-i", fa, "-o", fa + ".ani.bend.tsv", "--filter", ref, "--outfmt", fmt, "--out-ani", "0.5",
+                            "+RTS", "--threads", "12", "--gpu", "off", "-RTS"],
+                           check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            for sfx in (".tsv", ".ids.tsv"):
+                if open(fa + ".ani.ref" + sfx, "rb").read() != open(fa + ".ani.bend" + sfx, "rb").read():
+                    print(f"DIFF align seed {seed} {fmt} {sfx} ({fa})", flush=True)
+                    bad += 1
     for opts in PF_OPTS:
         ref, out = fa + ".ref", fa + ".bend"
         subprocess.run([VCLUST, "prefilter", "-i", fa, "-o", ref, "-t", "4", "-v", "0"] + opts, check=True,
@@ -172,9 +188,10 @@ def main():
     bad = runs = 0
     if stage in ("prefilter", "all"):
         binp = build("prefilter")
+        bina = build("align")
         for s in range(seeds):
-            bad += fuzz_prefilter(random.Random(s), s, binp)
-            runs += len(PF_OPTS)
+            bad += fuzz_prefilter(random.Random(s), s, binp, bina)
+            runs += len(PF_OPTS) + 4
     if stage in ("cluster", "all"):
         binc = build("cluster")
         for s in range(seeds):

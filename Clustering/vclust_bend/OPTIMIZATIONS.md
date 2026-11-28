@@ -119,3 +119,37 @@ the first so the byte list comes out in order.
 
 Why the output is unchanged: both counting sorts are stable sorts on the same
 keys as the comparison sorts they replace, so they produce the same orders.
+
+## Align
+
+Phase profile before (ALIGN_TIMING=1, 12 threads, acc100000): FASTA 2.9 s,
+filter 2.8 s, plan + alignment 13.8 s, writing ani.tsv 26.1 s (45.6 s
+total). The sequential parts, not the LZ parser, dominated at scale:
+formatting 1.35 M rows of exact decimal ratios was single-threaded.
+
+### A1. Parallel FASTA reading
+
+Same scheme as P3 on the align reader (`R.fs_byte`, line oriented): split
+points are '>' right after '\n'; there the reader is always in mode 0 with no
+pending '\r' and an empty header, so a fresh reader started there, with the
+previous piece closed by `R.fs_done`, yields the same records. Each piece is
+given the byte budget left before the file's last '\n' from its own start
+offset, so the rule "an unterminated last line is ignored" is kept.
+
+### A2. Parallel filter reading
+
+After every '\n' the filter row parser is in its initial per-line state;
+only the row counter and the pair list carry over. Chunks are cut after their
+first and last '\n'; each body is parsed from a fresh row state with rows
+counted from 0, and the stretches are merged in file order with their rows
+shifted by the rows before them, giving exactly the sequential pair list
+(same order). The first stretch, which holds the header line, goes through
+the initial (header) state; the open piece at the end goes through
+`R.fl_done` as before.
+
+### A3. Parallel row formatting
+
+The values of each pair are read from the result arrays in pair order
+(sequential and cheap), then chunks of 1024 pairs are formatted by fork-join,
+24 chunks per batch, and written in order. Every pair yields the same two
+rows through the same `row` function; only the evaluation order changes.
