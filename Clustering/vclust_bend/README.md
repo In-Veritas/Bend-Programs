@@ -246,29 +246,36 @@ parts with `--batch-size`), then `kmer-db distance ani-shorter -sparse -min T`.
 
 ### Algorithm (scalable, fork-join, no shared arrays)
 
-1. Read the FASTA (sequential IO, 1 MiB chunks) into one owned 2-bit packed
-   array per record, split into valid-base segments.
-2. Count pass (parallel over samples): extract every canonical k-mer, hash it
-   (32-bit mix), count it in its bucket; there are P x Q buckets
-   (P = passes = 2^ceil(log2(bases / 2^24)), Q = 64 groups).
-3. For each pass p (sequential, bounds memory): every sample re-extracts its
-   k-mers of pass p into Q exact-size arrays; the sample x group lists are
-   transposed by re-linking owned arrays; each group (parallel) gathers its
-   k-mers, counting-sorts them on more hash bits, insertion-sorts each small
-   sub-bucket on the full key (stable, so samples stay ascending), scans runs
-   of equal k-mers (deduplicating per sample, counting unique k-mers), and
-   for every k-mer shared by distinct samples a < b emits the code
-   T(b) + a (T(b) = b(b-1)/2), routed to the row block of b (R = 64 blocks of
-   equal triangle area); row blocks (parallel) add their codes into their
-   dense slab of the lower-triangular count matrix.
-4. Final (parallel over row blocks): filter and format the rows; with
-   `--max-seqs`, the kept pairs go through the per-row top-M selection.
+1. Read the FASTA in batches of 1 MiB chunks; the chunks of a batch are parsed
+   in parallel, cut at "\n>" split points (see `pf_fasta.bend` for why a
+   fresh parser state at a split point is equivalent). Every record becomes
+   one owned 2-bit packed array, split into valid-base segments.
+2. Samples sit in a balanced tree whose (at most 1024) leaves hold chunks of
+   consecutive samples. Count pass (parallel over leaves): extract every
+   canonical k-mer, hash it (32-bit mix), count it in its bucket; there are
+   P x Q buckets (P = passes = 2^ceil(log2(bases / 2^25)), Q = 128 groups).
+3. For each pass p (sequential, bounds memory): every leaf (in parallel)
+   extracts its k-mers of pass p into Q exact-size arrays of (hi, lo, sample)
+   records; the leaf x group lists are transposed by re-linking owned arrays;
+   each group (parallel) gathers its records in sample order, counting-sorts
+   them on more hash bits, insertion-sorts each small sub-bucket on the full
+   key (stable, so samples stay ascending), scans runs of equal k-mers
+   (deduplicating per sample, counting unique k-mers), and for every k-mer
+   shared by distinct samples a < b emits the block-local code
+   (b - r0) * n + a, routed to the row block of b (R = 2^lr blocks of equal
+   row count, lr >= 6 chosen so that codes fit a U32); row blocks (parallel)
+   add their codes into their own open-addressing hash table (code -> count).
+4. Final (parallel over row blocks): the table's records are radix-sorted by
+   code and walked from the end, giving each row's non-zero counts in
+   ascending a; filter and format the rows; with `--max-seqs`, the kept
+   pairs go through the per-row top-M selection.
 
 Work is linear in k-mers x passes plus the (k-mer, sample pair) incidences,
 like Kmer-db (no walk over non-sharing pairs). Memory: sequences (~0.4 B/base)
-+ the n(n-1)/2 U32 count matrix (or B x n per batch) + one pass of k-mers.
-Limits: n(n-1)/2 must fit in U32 per batch (n <= 92681 without
-`--batch-size`), directories and gzip input are not supported.
++ one pass of k-mers + the hash tables, which hold only pairs that share at
+least one k-mer (7.6 M pairs for the 323,556-contig set): no n^2 term.
+Limits: n up to about 16.7 M sequences (lr <= 16 keeps codes in a U32), directories and gzip input are not
+supported. Why each optimisation keeps the output: `OPTIMIZATIONS.md`.
 
 ### Equivalence (tests/test_prefilter.py)
 

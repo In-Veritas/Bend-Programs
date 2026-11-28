@@ -241,8 +241,8 @@ def raws_sum(xs: F.Raws, acc: F.Raws, +sum: U32) -> RSum:
       raws_sum(t, F.RawCon{F.Raw{len, codes, segs}, acc}, (sum + len : U32))
 
 def lp_of(+total: U32) -> U32:
-  # P = 2^lp passes with P * 2^24 >= total bases
-  U32.from_nat(F.depth(U32.max(1, U32.shrn((total + 16777215 : U32), 24n))))
+  # P = 2^lp passes with P * 2^25 >= total bases (Q = 2^7 groups per pass)
+  U32.from_nat(F.depth(U32.max(1, U32.shrn((total + 33554431 : U32), 25n))))
 
 # R = 2^lr row blocks, lr >= 6, with ceil(n / R) * n < 2^32 (block-local
 # pair codes fit a U32 and code + 1 is never 0).
@@ -328,7 +328,7 @@ def go_summed(+out: String, +k: U32, +n: U32, +mink: String, +mini: String, +bat
               names: List<&2, List<&2, U32>>, rs: RSum) -> IO(Unit):
   RSum{xs, +total} = rs
   +lp = lp_of(total)
-  +lq = {6 : U32}
+  +lq = {7 : U32}
   +lr = lr_of(n)
   +ly = {K.LY{lp, lq, lr, n} : K.LY}
   +c = cfg_bits(cfg_of(k, frac), (lp + lq : U32), lq)
@@ -349,7 +349,11 @@ def go_opts(+o: Opts) -> IO(Unit):
   Opts{+inp, +out, +ks, +mink, +mini, +batch, +frac, +maxs} = o
   +k = u32_or(ks, 25)
   do IO<Unit>:
+    +t0 : Nat <- IO.now()
     p : F.Parsed <- F.read_fasta(inp, k)
+    +t1 : Nat <- IO.now()
+    tv : Result<&1, &1, U32 & String, String> <- IO.get_env("PF_TIME")
+    log_if(is_done(tv), "read " ++ ms_since(t0, t1))
     go_parsed(o, k, p)
 
 def main() -> IO(Unit):

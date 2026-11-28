@@ -254,34 +254,6 @@ def chunk_go(xs: List<&2, U32>, st: PT) -> PT:
 # Reading
 # =======
 
-def read_got(r: File & Result<&1, &1, U32 & String, List<&2, U32>>, st: PT,
-             k: File -> PT -> IO(PT)) -> IO(PT):
-  (f, res) = r
-  match res:
-    case Fail{e}:
-      do IO<PT>:
-        File.close(f)
-        return st
-    case Done{xs}:
-      match xs:
-        case Nil{}:
-          do IO<PT>:
-            File.close(f)
-            return st
-        case Con{+h, t}:
-          k(f, chunk_go(Con{h, t}, st))
-
-def read_loop(fuel: Nat, f: File, st: PT) -> IO(PT):
-  match fuel:
-    case 0n:
-      do IO<PT>:
-        File.close(f)
-        return st
-    case 1n+p:
-      do IO<PT>:
-        r : File & Result<&1, &1, U32 & String, List<&2, U32>> <- File.read_bytes(f, 1048576)
-        read_got(r, st, g => s2 => read_loop(p, g, s2))
-
 def final_if(open: Bool, s: PS) -> PS:
   match open:
     case True{}:
@@ -311,18 +283,283 @@ def names_reverse(xs: List<&2, List<&2, U32>>, acc: List<&2, List<&2, U32>>) -> 
 type Parsed is Type:
   Parsed{raws: Raws, names: List<&2, List<&2, U32>>, +count: U32}
 
-def parsed_of(s: PS) -> Parsed:
-  PS{mode, name, buf, wpos, sn, cur, segs, len, k, raws, names, count} = s
-  Parsed{raws_reverse(raws, RawNil{}), names_reverse(names, Nil{}), count}
+# Parallel reading
+# ================
+#
+# The file is read in batches of 1 MiB chunks; the chunks of a batch are
+# parsed by fork-join. A split point is a '>' right after a '\n': there the
+# sequential parser is in mode 0 or 3 with no open record beyond the one the
+# '>' closes, so parsing from a split point with a fresh state, and closing
+# the last record (final_m) at the next split point, gives the records the
+# sequential parse gives (a fresh state and the state after `finish` differ
+# only in buffer words that are written before they are read). A chunk is
+# cut at its first and last split points (p >= 1, so the '\n' is inside the
+# chunk): its body [p, q) is parsed in parallel; head [0, p) and tail
+# [q, end) join the neighbouring chunks' pieces, parsed in order.
 
-def parsed_fin(st: PT) -> Parsed:
+def ps_fresh(+k: U32, +nbytes: U32) -> PT:
+  # words of a record: <= bytes / 16 + one partial word per kept segment
+  # (segments are separated by at least one byte): < bytes / 2 + 2
+  PT{PS{0, Nil{}, Array.new(U32, depth(U32.add(U32.shrn(nbytes, 1n), 64)), 0), 0, 0, 0, SegNil{}, 0, k,
+     RawNil{}, Nil{}, 0}, table()}
+
+# records of a piece, in reverse order (raws, names) and their count
+type Pc is Type:
+  Pc{raws: Raws, names: List<&2, List<&2, U32>>, +count: U32}
+
+def pc_of(s: PS) -> Pc:
+  PS{mode, name, buf, wpos, sn, cur, segs, len, k, raws, names, +count} = s
+  Pc{raws, names, count}
+
+def pc_fin(st: PT) -> Pc:
   PT{s, tbl} = st
-  parsed_of(final_m(get_mode(s)))
+  pc_of(final_m(get_mode(s)))
+
+# feed n bytes of xs
+def feed(n: Nat, xs: List<&2, U32>, st: PT) -> PT:
+  match n xs:
+    case 0n _:
+      st
+    case _ Nil{}:
+      st
+    case 1n+p Con{+b, rest}:
+      PT{s, tbl} = st
+      feed(p, rest, chunk_pair(step_at(b, get_mode(s), tbl[b])))
+
+def piece(+k: U32, +n: U32, xs: List<&2, U32>) -> Pc:
+  pc_fin(feed(U32.to_nat(n), xs, ps_fresh(k, n)))
+
+# first and last split points (0 when none) and the length
+type SP is Data:
+  SP{+first: U32, +last: U32, +len: U32}
+
+def splits(xs: List<&2, U32>, +prev: U32, +i: U32, +f: U32, +l: U32) -> SP:
+  match xs:
+    case Nil{}:
+      SP{f, l, i}
+    case Con{+b, t}:
+      +hit = U32.is_eq(b, 62) && U32.is_eq(prev, 10) && U32.is_gt(i, 0)
+      splits(t, b, (i + 1 : U32), sel(hit && U32.is_eq(f, 0), i, f), sel(hit, i, l))
+
+def take(n: Nat, xs: List<&2, U32>) -> List<&2, U32>:
+  match n xs:
+    case 0n _:
+      Nil{}
+    case _ Nil{}:
+      Nil{}
+    case 1n+p Con{+h, t}:
+      Con{h, take(p, t)}
+
+def drop(n: Nat, xs: List<&2, U32>) -> List<&2, U32>:
+  match n xs:
+    case 0n _:
+      xs
+    case _ Nil{}:
+      Nil{}
+    case 1n+p Con{h, t}:
+      drop(p, t)
+
+# A parsed chunk: has a split point, head bytes, tail bytes, body records.
+type CR is Type:
+  CR{+has: Bool, +head: List<&2, U32>, +tail: List<&2, U32>, body: Pc}
+
+def sel_list(c: Bool, +a: List<&2, U32>, +b: List<&2, U32>) -> List<&2, U32>:
+  match c:
+    case True{}:
+      a
+    case False{}:
+      b
+
+def chunk_sp(+k: U32, +xs: List<&2, U32>, +sp: SP) -> CR:
+  SP{+f, +l, +n} = sp
+  +rest = drop(U32.to_nat(f), xs)
+  CR{U32.is_gt(f, 0), sel_list(U32.is_gt(f, 0), take(U32.to_nat(f), xs), xs), drop(U32.to_nat((l - f : U32)), rest),
+     piece(k, (l - f : U32), rest)}
+
+def chunk_task(+k: U32, +xs: List<&2, U32>) -> CR:
+  chunk_sp(k, xs, splits(xs, 0, 0, 0, 0))
+
+type CT is Type:
+  CTNil{}
+  CTLeaf{xs: List<&2, U32>}
+  CTNode{l: CT, r: CT}
+
+type CO is Type:
+  CONil{}
+  COLeaf{r: CR}
+  CONode{l: CO, r: CO}
+
+def ap(-A: Type, -B: Type, body: A -> B, value: A) -> B:
+  body(value)
+
+def ct_tree(+d: Nat, xs: List<&2, List<&2, U32>>) -> CT & List<&2, List<&2, U32>>:
+  match d:
+    case 0n:
+      match xs:
+        case Nil{}:
+          (CTNil{}, Nil{})
+        case Con{h, t}:
+          (CTLeaf{h}, t)
+    case 1n+p:
+      ap(CT & List<&2, List<&2, U32>>, CT & List<&2, List<&2, U32>>, \{Tuple: l => rest => (
+        ap(CT & List<&2, List<&2, U32>>, CT & List<&2, List<&2, U32>>, \{Tuple: r => rest2 => (
+          (CTNode{l, r}, rest2)
+        )}, ct_tree(p, rest))
+      )}, ct_tree(p, xs))
+
+def co_join(a: CO, b: CO) -> CO:
+  CONode{a, b}
+
+def par_chunks(ct: CT, +k: U32) -> CO:
+  match ct:
+    case CTNil{}:
+      CONil{}
+    case CTLeaf{+xs}:
+      COLeaf{chunk_task(k, xs)}
+    case CTNode{l, r}:
+      a b = par_chunks(l, k) par_chunks(r, k)
+      co_join(a, b)
+
+# carry: the open piece (bytes in order); done: pieces in reverse order
+type FA is Type:
+  FA{+carry: List<&2, U32>, done: PL}
+
+type PL is Type:
+  PLNil{}
+  PLCon{h: Pc, t: PL}
+
+def app(xs: List<&2, U32>, +ys: List<&2, U32>) -> List<&2, U32>:
+  match xs:
+    case Nil{}:
+      ys
+    case Con{+h, t}:
+      Con{h, app(t, ys)}
+
+def blen(xs: List<&2, U32>, +n: U32) -> U32:
+  match xs:
+    case Nil{}:
+      n
+    case Con{h, t}:
+      blen(t, (n + 1 : U32))
+
+def piece_all(+k: U32, +xs: List<&2, U32>) -> Pc:
+  piece(k, blen(xs, 0), xs)
+
+def fa_has(has: Bool, +k: U32, +head: List<&2, U32>, +tail: List<&2, U32>, body: Pc, fa: FA) -> FA:
+  match has:
+    case True{}:
+      FA{+carry, done} = fa
+      FA{tail, PLCon{body, PLCon{piece_all(k, app(carry, head)), done}}}
+    case False{}:
+      FA{+carry, done} = fa
+      FA{app(carry, head), done}
+
+def fa_add(+k: U32, r: CR, fa: FA) -> FA:
+  CR{+has, +head, +tail, body} = r
+  fa_has(has, k, head, tail, body, fa)
+
+def co_fold(co: CO, +k: U32, fa: FA) -> FA:
+  match co:
+    case CONil{}:
+      fa
+    case COLeaf{r}:
+      fa_add(k, r, fa)
+    case CONode{l, r}:
+      co_fold(r, k, co_fold(l, k, fa))
+
+def cl_rev(xs: List<&2, List<&2, U32>>, acc: List<&2, List<&2, U32>>) -> List<&2, List<&2, U32>>:
+  match xs:
+    case Nil{}:
+      acc
+    case Con{h, t}:
+      cl_rev(t, Con{h, acc})
+
+def batch_tree(r: CT & List<&2, List<&2, U32>>, +k: U32, fa: FA) -> FA:
+  (ct, rest) = r
+  co_fold(par_chunks(ct, k), k, fa)
+
+# chunks in reverse order, at most 32
+def fa_batch(cs: List<&2, List<&2, U32>>, +k: U32, fa: FA) -> FA:
+  batch_tree(ct_tree(5n, cl_rev(cs, Nil{})), k, fa)
+
+type RB is Type:
+  RB{f: File, cs: List<&2, List<&2, U32>>, +eof: Bool}
+
+def rb_res(r: File & Result<&1, &1, U32 & String, List<&2, U32>>, cs: List<&2, List<&2, U32>>,
+           k: File -> List<&2, List<&2, U32>> -> IO(RB)) -> IO(RB):
+  (f, res) = r
+  match res:
+    case Fail{e}:
+      IO.pure(RB, RB{f, cs, True{}})
+    case Done{bs}:
+      match bs:
+        case Nil{}:
+          IO.pure(RB, RB{f, cs, True{}})
+        case Con{h, t}:
+          k(f, Con{Con{h, t}, cs})
+
+def rb_loop(n: Nat, f: File, cs: List<&2, List<&2, U32>>) -> IO(RB):
+  match n:
+    case 0n:
+      IO.pure(RB, RB{f, cs, False{}})
+    case 1n+p:
+      do IO<RB>:
+        r : File & Result<&1, &1, U32 & String, List<&2, U32>> <- File.read_bytes(f, 1048576)
+        rb_res(r, cs, g => c2 => rb_loop(p, g, c2))
+
+def fa_res(b: RB, +k: U32, fa: FA, kk: File -> FA -> IO(FA)) -> IO(FA):
+  RB{f, cs, eof} = b
+  match eof:
+    case True{}:
+      do IO<FA>:
+        File.close(f)
+        return fa_batch(cs, k, fa)
+    case False{}:
+      kk(f, fa_batch(cs, k, fa))
+
+def fa_loop(n: Nat, f: File, +k: U32, fa: FA) -> IO(FA):
+  match n:
+    case 0n:
+      do IO<FA>:
+        File.close(f)
+        return fa
+    case 1n+p:
+      do IO<FA>:
+        b : RB <- rb_loop(12n, f, Nil{})
+        fa_res(b, k, fa, g => a2 => fa_loop(p, g, k, a2))
+
+# done lists the pieces last first, and each piece's records last first:
+# reversing every piece onto the accumulator, from the last piece to the
+# first, gives the records in file order.
+def raws_onto(xs: Raws, acc: Raws) -> Raws:
+  match xs:
+    case RawNil{}:
+      acc
+    case RawCon{h, t}:
+      raws_onto(t, RawCon{h, acc})
+
+def names_onto(xs: List<&2, List<&2, U32>>, acc: List<&2, List<&2, U32>>) -> List<&2, List<&2, U32>>:
+  match xs:
+    case Nil{}:
+      acc
+    case Con{h, t}:
+      names_onto(t, Con{h, acc})
+
+def pl_go(xs: PL, rs: Raws, ns: List<&2, List<&2, U32>>, +n: U32) -> Parsed:
+  match xs:
+    case PLNil{}:
+      Parsed{rs, ns, n}
+    case PLCon{h, t}:
+      Pc{r, m, +c} = h
+      pl_go(t, raws_onto(r, rs), names_onto(m, ns), (n + c : U32))
+
+def fa_parsed(+k: U32, fa: FA) -> Parsed:
+  FA{+carry, done} = fa
+  pl_go(PLCon{piece_all(k, carry), done}, RawNil{}, Nil{}, 0)
 
 # Reads a FASTA file; k is the k-mer length (shorter segments are dropped).
 def read_fasta(path: String, +k: U32) -> IO(Parsed):
   do IO<Parsed>:
     f : File <- IO.try(File, File.open(path, "r"))
-    st : PT <- read_loop(U32.to_nat(4194304), f,
-      PT{PS{0, Nil{}, [0 : U32^22n], 0, 0, 0, SegNil{}, 0, k, RawNil{}, Nil{}, 0}, table()})
-    return parsed_fin(st)
+    fa : FA <- fa_loop(U32.to_nat(4194304), f, k, FA{Nil{}, PLNil{}})
+    return fa_parsed(k, fa)
