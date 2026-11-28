@@ -72,6 +72,12 @@ def random_cases(work, count):
                            '--leiden-resolution', str(rng.choice([0.1, 0.4, 0.7, 1.0])),
                            '--leiden-beta', str(rng.choice([0.01, 0.1, 0.5])),
                            '--leiden-iterations', str(iters)]))
+        # heavily tied distances: complete linkage's (d, row, column) key order,
+        # BFS order, seed choices
+        for algo in ('complete', 'single', 'uclust', 'cd-hit', 'set-cover'):
+            for t in ('0.5', '0.9'):
+                cases.append((f'random-{seed}-{algo}-{t}', ani, ids,
+                              ['--algorithm', algo, '--metric', 'ani', '--ani', t]))
     return cases
 
 

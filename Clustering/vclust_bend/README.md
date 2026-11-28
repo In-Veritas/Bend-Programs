@@ -162,9 +162,10 @@ What is reproduced (sources read: LZ-ANI v1.2.3 `src/`, vclust v1.3.1):
   Thresholds are compared exactly as rationals against ceil(t * 10^9), which
   equals the binary64 comparison for thresholds with <= 9 decimals.
 
-Parallelism and memory: each reference row is cut into work units (the
-reference plus a chunk of partners, about total/(16*threads) cost each); a
-balanced binary fork-join tree over the units runs them. A unit owns one
+Parallelism and memory: one work unit per reference row (LZ-ANI's task:
+the reference prepared once, then every partner of its filter row); a
+cost-balanced binary fork-join tree over the units runs them (LZ-ANI: an
+atomic row counter shared by the worker threads). A unit owns one
 `Array<U32>` with every region (reference + both k-mer tables + query +
 query k-mers + factor stack); only the references of running units are
 resident. Sequences are shared read-only as 2-bit packed Data (`Seq`,
@@ -191,114 +192,103 @@ mismatch, `--timing` under the bench lock).
 
 ## Stage prefilter (Kmer-db 2.3.1 as driven by `vclust prefilter`)
 
-Files: `prefilter.bend` (CLI, IO, batches), `pf_fasta.bend` (FASTA reader),
-`pf_core.bend` (k-mer extraction, partitioning, grouping, pair counting,
-filtering), `pf_sel.bend` (`--max-seqs`), `pf_num.bend` (64-bit and
-fixed-point integer arithmetic). All pass `bend --check-only` with ALL PROOFS
-CHECK; there is no `@unsafe` (no `Array.fork`/`Array.join`): parallel tasks
-only receive data they own.
+This branch (`vclust-faithful`) ports Kmer-db's own method: the same
+database, the same pattern bookkeeping, the same sparse all-to-all. The
+function-by-function map and every remaining difference are in
+`DEVIATIONS.md`.
+
+Files: `prefilter.bend` (CLI, output: `kmer-db distance` rows),
+`kdb_extract.bend` (KmerHelper::extract, MinHashFilter, sortAndUnique),
+`kdb_sort.bend` (the sort of 2-word records), `kdb_hash.bend`
+(hash_map_lp), `kdb_db.bend` (PrefixKmerDb::addKmers, pattern_t),
+`kdb_build.bend` (`kmer-db build -multisample-fasta`), `kdb_a2a.bend`
+(all2all_sp, SparseMatrix, CBubbleHelper, compact2 / add_to_sampler),
+`kdb_parts.bend` (all2all-parts, db2db_sp), `pf_fasta.bend` (FASTA reader),
+`pf_num.bend` (64-bit and fixed-point arithmetic), `pf_sel.bend` (Sampler,
+`-sample-rows`), `kdb_util.bend`.
 
 ```bash
-bend prefilter.bend -o prefilter
-./prefilter -i in.fasta -o fltr.txt [-k 25] [--min-kmers 20] [--min-ident 0.7] \
-  [--batch-size 0] [--kmers-fraction 1] [--max-seqs 0] +RTS --threads 12 -RTS
+prefilter -i in.fasta -o fltr.txt [-k 25] [--min-kmers 20] [--min-ident 0.7] \
+  [--batch-size 0] [--kmers-fraction 1] [--max-seqs 0] [-t 12] [--bubble-size 8000] \
+  +RTS --threads 12 -RTS
 ```
 
-`-t N` is accepted and ignored by the binary; threads are the runtime's
-`+RTS --threads N -RTS` (`run.py prefilter -t N` does that mapping).
+`-t` is Kmer-db's thread count as far as it shapes the method (all2all-sp
+workers own the rows with row_id mod 2t in {t', 2t-1-t'}); the machine
+threads are the runtime's `+RTS --threads`. `--bubble-size` is Kmer-db's
+`-bubble-size` (Vclust keeps the default 8000; the tests lower it to force
+the bubble path).
 
-### What is reproduced (from the Kmer-db 2.3.1 and vclust.py sources)
+### Method (Kmer-db 2.3.1, vclust.py 1.3.1)
 
-`vclust prefilter` runs `kmer-db build -multisample-fasta -k K -f F`,
+`vclust prefilter` runs `kmer-db build -multisample-fasta -k K -f F`, then
 `kmer-db all2all-sp -sparse -min num-kmers:N -min ani-shorter:T
-[-sample-rows ani-shorter:M]` (or `all2all-parts` over `mfasta-tool split`
-parts with `--batch-size`), then `kmer-db distance ani-shorter -sparse -min T`.
+[-sample-rows ani-shorter:M]` (with `--batch-size B < n`: `mfasta-tool
+split` into parts of B records, one `build` per part and `all2all-parts`),
+then `kmer-db distance ani-shorter -sparse -min T`.
 
-- Records: a record starts at every `>`; the name is the header up to the
-  first space (a `\r` before `\n` dropped); `\n`/`\r` are removed from the
-  sequence; A/C/G/T/U in either case are bases, every other byte breaks the
-  k-mers covering it (`KmerHelper::extract`).
-- k-mers: canonical = min(forward, reverse complement) as 2k-bit integers,
-  deduplicated per sample; the per-sample unique count is `total-kmers`.
-- `--kmers-fraction f < 1`: Kmer-db's `MinHashFilter` keeps a k-mer when
-  `hash(x) < (uint64)((double)UINT64_MAX * f)`, with x widened to an 8-bit
-  prefix for k < 20 (`(x << s) | (x & (2^s-1))`, s = 40 - 2k). The 64-bit
-  Murmur-style hash and the threshold (decimal -> nearest binary64, ties to
-  even -> times 2^64, truncated) are computed exactly on U32 words.
-- Pairs: for every a < b, c = shared unique k-mers; kept when c >= min-kmers
-  and ani-shorter >= T, ani-shorter = 1 + ln(2c / (c + m)) / k, m = the smaller
-  of the two counts. Row b lists `a+1:value,` for a < b (1-based, ascending);
-  the value is Kmer-db's `Double2PChar` (6 decimals, round half up).
-- `--max-seqs M`: Kmer-db's `Sampler` (strategy best). Every kept pair is
-  offered to both rows; each row keeps its M items of highest ani-shorter,
-  ties to the smaller index (the heap's order), printed by index (so rows
-  also contain a > b). The score is compared as the exact rational c/m.
-- `--batch-size B`: same output as without it (all2all-parts concatenates
-  part matrices); in Bend it bounds memory by processing rows in batches of
-  B (every batch re-runs the k-mer passes; the dense count slab is B x n).
-- Header: `kmer-length: K fraction: F ,name1,...,` with F printed as C++
-  `operator<<(double)` (`%g`, 6 significant digits).
-- Arithmetic: Bend has no F64. ln is computed with a 64-bit fixed-point
-  atanh series (error < 1e-17), so the printed value can differ from the
-  binary64 one only if the exact value is within ~1e-10 of a rounding
-  boundary of the 6th decimal; none occurred in the tests. The min-ident
-  comparison uses the decimal threshold floor(T * 2^64).
+1. **Load and extract** (loader_ex, kmer_extract.h, filter.h): every record
+   is a sample; its canonical k-mers (widened to an 8-bit prefix when
+   2k - 32 < 8), filtered by the MinHash hash when F < 1, sorted and
+   deduplicated. Samples are extracted in parallel chunks while the
+   previous chunk is added to the database (the loader threads feeding the
+   build loop).
+2. **Build** (PrefixKmerDb::addKmers, one sample after the other): the
+   database is one `hash_map_lp<suffix, pattern_id>` per k-mer prefix
+   (k-mer >> 32). For each prefix run of the sample: `reserve_for_additional`,
+   `find_item` per k-mer (new k-mers enter with pattern 0), samplePatterns =
+   (pattern id, slot). samplePatterns sorted by pattern id; for each run of
+   pattern p with c k-mers: if p is not a parent and holds exactly c
+   k-mers, p is extended with the sample; else a new pattern (parent p,
+   local sample s, c k-mers) is created, p loses c k-mers, and the run's
+   table entries get the new id.
+3. **all2all-sp**: patterns are decoded in id order through their parent
+   chains into 8 MB buffers (patterns of at least 8000 samples become
+   bubbles); while the next buffer is decoded, the workers process the
+   current one: worker t owns the rows with row_id mod 2T in {t, 2T-1-t}
+   and adds the pattern's k-mer count to `matrix[pat[j]][pat[k]]` for every
+   owned position j and k < j (rows are `hash_map_lp<uint32, uint32>`).
+   Then per row: bubble adders, the entries passing num-kmers >= N and
+   ani-shorter >= T, sorted by column.
+4. **all2all-parts** (--batch-size): every part has its own database; row
+   part i gets db2db_sp(i, j) for j < i (merge of the two prefix-sorted k-mer
+   lists into pattern-id pairs, sorted and counted, then the same decoded
+   buffer / worker scheme with pattern pairs) and all2all_sp(i).
+5. **Sampler** (`-sample-rows`, --max-seqs) and **distance**: the kept pairs
+   go to both rows' top-M (Sampler, strategy best); `distance` prints
+   `a+1:ani-shorter` with 6 decimals for the entries with a nonzero count.
 
-### Algorithm (scalable, fork-join, no shared arrays)
+Arithmetic (unchanged from the previous prefilter): ani-shorter =
+1 + ln(2c / (c + m)) / k (m = the smaller k-mer count) is computed with a
+64-bit fixed-point atanh series (error < 1e-17) instead of binary64 `log`;
+the printed value can differ from Kmer-db's only if the exact value is within
+~1e-10 of a rounding boundary of the 6th decimal (none in any test). The
+min-ident comparison uses floor(T * 2^64); the MinHash threshold and hash are
+exact 64-bit integer arithmetic; the `%g` header value is exact.
 
-1. Read the FASTA (sequential IO, 1 MiB chunks) into one owned 2-bit packed
-   array per record, split into valid-base segments.
-2. Count pass (parallel over samples): extract every canonical k-mer, hash it
-   (32-bit mix), count it in its bucket; there are P x Q buckets
-   (P = passes = 2^ceil(log2(bases / 2^24)), Q = 64 groups).
-3. For each pass p (sequential, bounds memory): every sample re-extracts its
-   k-mers of pass p into Q exact-size arrays; the sample x group lists are
-   transposed by re-linking owned arrays; each group (parallel) gathers its
-   k-mers, counting-sorts them on more hash bits, insertion-sorts each small
-   sub-bucket on the full key (stable, so samples stay ascending), scans runs
-   of equal k-mers (deduplicating per sample, counting unique k-mers), and
-   for every k-mer shared by distinct samples a < b emits the code
-   T(b) + a (T(b) = b(b-1)/2), routed to the row block of b (R = 64 blocks of
-   equal triangle area); row blocks (parallel) add their codes into their
-   dense slab of the lower-triangular count matrix.
-4. Final (parallel over row blocks): filter and format the rows; with
-   `--max-seqs`, the kept pairs go through the per-row top-M selection.
+### Why the output is the same
 
-Work is linear in k-mers x passes plus the (k-mer, sample pair) incidences,
-like Kmer-db (no walk over non-sharing pairs). Memory: sequences (~0.4 B/base)
-+ the n(n-1)/2 U32 count matrix (or B x n per batch) + one pass of k-mers.
-Limits: n(n-1)/2 must fit in U32 per batch (n <= 92681 without
-`--batch-size`), directories and gzip input are not supported.
+The database and the patterns are built by the same procedure, so the
+pattern of every k-mer (the set of samples holding it) and the k-mer count of
+every pattern are the same as Kmer-db's (the number of patterns matches
+Kmer-db's `Number of patterns` exactly, e.g. 7,841 on strat1000). all2all-sp
+sums, for each sample pair, the k-mer counts of the patterns containing both,
+which is the number of shared k-mers whatever the summation order, worker
+partition, buffer size or bubble split (a bubble's count is added to the same
+cells at the end). Row entries are sorted by column; filtering, sampling and
+formatting are per entry. all2all-parts computes the same counts cell by cell
+(a k-mer shared by a row-part sample and a column-part sample is in both
+part databases, matched once by the merge). Pattern ids differ from
+upstream's (they are assigned by a parallel atomic counter there) but no
+output depends on them.
 
-### Equivalence (tests/test_prefilter.py)
+### Equivalence
 
-`CAP=4G capped python3 tests/test_prefilter.py --full` compares the Bend
-output with Vclust 1.3.1 byte for byte: **42/42 identical** (so max |diff| = 0)
-on vclust_example, prefix1000, shortest1000 (each: defaults, `--max-seqs 50`,
-`--kmers-fraction 0.2`, `--max-seqs 1`, `--batch-size 300`,
-`--batch-size 300 --max-seqs 5`, `-k 15 --kmers-fraction 0.5`, `-k 16`,
-`-k 19 --kmers-fraction 0.3 --min-kmers 3`, `--min-kmers 1 --min-ident 0`,
-`--min-ident 0.95 --max-seqs 3`), stratified1000 (the first six) and the full
-EarlyVir (10,021 genomes: defaults, `--max-seqs 50`, `--kmers-fraction 0.2`).
-`-k 30` is excluded only because the reference Kmer-db did not finish on the
-example within the timeout (see above); the Bend binary completes it.
-
-### Performance (bench lock, this machine, 12 hw threads)
-
-TIMINGS
-
-Measured (2026-11-23, this desktop shared with other agents; single samples,
-bench lock held, load average in parentheses, so treat as indicative):
-
-| dataset | Bend t=1 | Vclust t=1 | Bend t=12 | Vclust t=12 |
-| --- | ---: | ---: | ---: | ---: |
-| stratified1000 (5,426 rows) | 17.2 s / 87 MB (12) | 9.7 s / 93 MB (11) | 8.8 s / 259 MB (10) | 4.2 s / 414 MB (10) |
-| shortest1000 (199,574 rows) | 55.1 s / 53 MB (26) | 13.8 s / 19 MB (17) | 9.7 s / 65 MB (15) | 3.6 s / 36 MB (14) |
-| full EarlyVir (570,306 rows) | not run | 361.5 s / 175 MB (ref. log) | 491.8 s / 567 MB (8-17) | 178.5 s / 680 MB (ref. log) |
-
-Earlier lower-load samples of the same binary: stratified1000 8.4 s (t=1) and
-3.0 s (t=12), shortest1000 22.4 s (t=1). Vclust stays faster on these inputs;
-the Bend run scales 2-6x from 1 to 12 threads.
+`~/vclust-work/check.sh` (byte comparison with Vclust 1.3.1 on all datasets,
+including acc100000 and the full acc323556) and
+`tests/test_prefilter.py` (option sets: max-seqs, kmers-fraction, k 15/16/19,
+batch-size, min-kmers 0, plus Bend-only `--bubble-size 2/3` and `-t 1/5`
+whose output must equal the plain Vclust run). Results: see `DEVIATIONS.md`.
 
 ## Stage cluster (Clusty 1.2.2 as driven by `vclust cluster`)
 
@@ -337,15 +327,21 @@ pin the semantics and as a debugging oracle).
   in first-appearance order of accepted rows (query column first); each row
   of the matrix sorted by (local id, d), duplicates keep the smallest d.
 - Objects = ids-file order (vclust sorts by decreasing length).
-- single: BFS components in object order. cd-hit: greedy in object order.
+- single: Clusty's SingleLinkageBFS — for each unassigned object in object
+  order, a BFS with a FIFO queue that pushes only unassigned neighbours
+  (`cl_graph.flood`). cd-hit: greedy in object order.
   set-cover: same, objects stable-sorted by decreasing degree. UCLUST: the
   first object is a seed; each next object joins the neighbouring seed with the
   strictly smallest distance (ties: lowest local id), else becomes a seed.
-- complete: linkage_heaptrix order — the live pair with the smallest key
-  (d, row, col) merges; merged groups get ids n, n+1, …; an edge survives only
-  if both parts had one (max distance). Keys are unique, so a lazy heap gives
-  the same merge sequence. Clusters = final trees numbered by decreasing root
-  id (Clusty's dendrogram walk).
+- complete: a port of `linkage_heaptrix` (`cl_heaptrix.bend`): element pool
+  with free stack, binary heap of elements ordered by (d, row, col) with
+  heap positions (`make_heap`, `insert`, `remove`, `replace`), one
+  `matrix_row_ht` per group (MurMur3 fmix64, linear probing, tombstones);
+  each step reads the top, builds the merged row (common neighbours, max
+  distance), replaces/removes the old elements and erases them from the
+  neighbours' rows, then inserts the remaining new elements. Group ids start
+  at n (Clusty: max row + 1; both order-preserving). Clusters = final trees
+  numbered by decreasing root id (Clusty's dendrogram walk).
 - Leiden: `igraph_community_leiden(g, w = 1 − d, NULL node weights = 1,
   resolution, beta, start = false, iterations)` — CPM; level 0 has two parallel
   igraph edges per pair (Clusty adds (i, j) for every matrix entry), incidence
