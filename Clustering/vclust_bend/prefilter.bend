@@ -178,22 +178,46 @@ def op_of(+mink: U32, +k: U32, t: N.Thr, +maxs: U32) -> A.OP:
   N.Thr{+one, +fx} = t
   A.OP{mink, k, one, fx, U32.is_ne(maxs, 0)}
 
+# PF_TIME=1: phase times (ms) on stderr
+def log_if(tm: Bool, msg: String) -> IO(Unit):
+  match tm:
+    case True{}:
+      IO.print_err(msg)
+    case False{}:
+      IO.pure(Unit, Unit{})
+
+def is_set(r: Result<&1, &1, U32 & String, String>) -> Bool:
+  match r:
+    case Fail{e}:
+      False{}
+    case Done{v}:
+      True{}
+
+def ms(+t0: Nat, +t1: Nat) -> String:
+  Nat.show(Nat.sub(t1, t0))
+
 # all2all-sp + distance on the built database
-def run_a2a(o: Opts, +n: U32, +k: U32, +names: List<&2, List<&2, U32>>, bs: B.BS) -> IO(Unit):
+def run_a2a(o: Opts, +n: U32, +k: U32, +names: List<&2, List<&2, U32>>, +tm: Bool, +t0: Nat, +t1: Nat, bs: B.BS) -> IO(Unit):
   Opts{+inp, +out, +ks, +mink, +mini, +batch, +frac, +maxs, +thr, +bub} = o
   B.BS{db, cnt, s} = bs
   D.DB{ht, pt, +pb} = db
   D.PS{pat, +np, +pcap, nod, +nn, +ncap} = pt
   +w = U32.max(1, u32_or(thr, 12))
-  +ms = u32_or(maxs, 0)
-  +op = op_of(u32_or(mink, 20), k, N.thr_of(N.dec_value(N.dec_parse(mini))), ms)
+  +ms0 = u32_or(maxs, 0)
+  +op = op_of(u32_or(mink, 20), k, N.thr_of(N.dec_value(N.dec_parse(mini))), ms0)
   +bsize = K.sel(U32.is_lt(2000000, n), U32.shln(n, 1n), 2000000)
-  ot = A.out_tree(n, A.all2all_sp(pat, nod, np, n, w, bsize, u32_or(bub, 8000)), cnt)
   do IO<Unit>:
+    +t2 : Nat <- IO.now()
+    ar : A.AR = A.all2all_sp(pat, nod, np, n, w, bsize, u32_or(bub, 8000))
+    +t3 : Nat <- IO.now()
+    ot : A.OT = A.out_tree(n, ar, cnt)
     f : File <- IO.try(File, File.open(out, "w"))
     g : File <- put(f, header(k, frac, names))
-    w2 : WF <- write_out(U32.is_ne(ms, 0), ot, n, U32.shln(w, 1n), ms, op, WF{g, names})
+    w2 : WF <- write_out(U32.is_ne(ms0, 0), ot, n, U32.shln(w, 1n), ms0, op, WF{g, names})
     close_wf(w2)
+    +t4 : Nat <- IO.now()
+    log_if(tm, "patterns " ++ U32.show(np) ++ " read " ++ ms(t0, t1) ++ " build " ++ ms(t1, t2) ++
+      " all2all-sp " ++ ms(t2, t3) ++ " compact+distance+write " ++ ms(t3, t4))
 
 # --batch-size: all2all-parts, row part by row part
 type PW is Type:
@@ -253,27 +277,32 @@ def run_parts(o: Opts, +n: U32, +k: U32, +bsz: U32, +names: List<&2, List<&2, U3
     w2 : WF <- parts_fin(U32.is_ne(ms, 0), n, ms, pw)
     close_wf(w2)
 
-def go_split(split: Bool, +o: Opts, +k: U32, +bsz: U32, +n: U32, +names: List<&2, List<&2, U32>>, raws: F.Raws) -> IO(Unit):
+def go_split(split: Bool, +t0: Nat, +o: Opts, +k: U32, +bsz: U32, +n: U32, +names: List<&2, List<&2, U32>>, raws: F.Raws) -> IO(Unit):
   match split:
     case True{}:
       Opts{+inp, +out, +ks, +mink, +mini, +batch, +frac, +maxs, +thr, +bub} = o
       run_parts(o, n, k, bsz, names, P.build_parts(n, bsz, X.cfg_of(k, frac), raws))
     case False{}:
       Opts{+inp, +out, +ks, +mink, +mini, +batch, +frac, +maxs, +thr, +bub} = o
-      run_a2a(o, n, k, names, B.build(n, X.cfg_of(k, frac), 64, raws))
+      do IO<Unit>:
+        tv : Result<&1, &1, U32 & String, String> <- IO.get_env("PF_TIME")
+        +t1 : Nat <- IO.now()
+        bs : B.BS = B.build(n, X.cfg_of(k, frac), 64, raws)
+        run_a2a(o, n, k, names, is_set(tv), t0, t1, bs)
 
-def go_parsed(+o: Opts, +k: U32, p: F.Parsed) -> IO(Unit):
+def go_parsed(+o: Opts, +k: U32, +t0: Nat, p: F.Parsed) -> IO(Unit):
   Opts{+inp, +out, +ks, +mink, +mini, +batch, +frac, +maxs, +thr, +bub} = o
   F.Parsed{raws, +names, +n} = p
   +bsz = u32_or(batch, 0)
-  go_split(U32.is_ne(bsz, 0) && U32.is_lt(bsz, n), o, k, bsz, n, names, raws)
+  go_split(U32.is_ne(bsz, 0) && U32.is_lt(bsz, n), t0, o, k, bsz, n, names, raws)
 
 def go_opts(+o: Opts) -> IO(Unit):
   Opts{+inp, +out, +ks, +mink, +mini, +batch, +frac, +maxs, +thr, +bub} = o
   +k = u32_or(ks, 25)
   do IO<Unit>:
+    +t0 : Nat <- IO.now()
     p : F.Parsed <- F.read_fasta(inp, k)
-    go_parsed(o, k, p)
+    go_parsed(o, k, t0, p)
 
 def main() -> IO(Unit):
   do IO<Unit>:
