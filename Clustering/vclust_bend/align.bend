@@ -171,28 +171,6 @@ def last_nl(+fuel: Nat, file: File, +end: U32) -> IO(File & U32):
         r : File & Result<&1, &1, U32 & String, List<&2, U32>> <- File.read_at(file, start, (end - start : U32))
         last_nl.k(start, r, h => e => last_nl(f, h, e))
 
-def fa_read.k(r: File & Result<&1, &1, U32 & String, List<&2, U32>>, +st: R.FS,
-              k: File -> R.FS -> IO(File & R.FS)) -> IO(File & R.FS):
-  (file, res) = r
-  match res:
-    case Fail{e}:
-      IO.pure(File & R.FS, (file, st))
-    case Done{bytes}:
-      match bytes:
-        case Nil{}:
-          IO.pure(File & R.FS, (file, st))
-        case Con{+h, +t}:
-          k(file)(R.fs_feed(Con{h, t}, st))
-
-def fa_read(+fuel: Nat, file: File, +st: R.FS) -> IO(File & R.FS):
-  match fuel:
-    case 0n:
-      IO.pure(File & R.FS, (file, st))
-    case 1n+f:
-      do IO<File & R.FS>:
-        r : File & Result<&1, &1, U32 & String, List<&2, U32>> <- File.read_bytes(file, 1048576)
-        fa_read.k(r, st, h => s => fa_read(f, h, s))
-
 def fl_read.k(r: File & Result<&1, &1, U32 & String, List<&2, U32>>, +st: R.FL,
               k: File -> R.FL -> IO(File & R.FL)) -> IO(File & R.FL):
   (file, res) = r
@@ -218,17 +196,249 @@ def fl_read(+fuel: Nat, file: File, +st: R.FL) -> IO(File & R.FL):
 def fuel_for(+size: U32) -> Nat:
   U32.to_nat((U32.shrn(size, 20n) + 3 : U32))
 
-def read_fasta.c(got: File & R.FS) -> IO(List<&2, R.Rec>):
-  (f3, +st) = got
-  do IO<List<&2, R.Rec>>:
-    File.close(f3)
-    return R.fs_done(st)
+# FASTA in parallel: 1 MiB chunks are read in batches of 12 and parsed by
+# fork-join. After every '\n' the reader is in mode 0 with no pending '\r'
+# and an empty header, so at a split point ('>' right after a '\n') a fresh
+# reader state is equivalent to the sequential one, provided the piece
+# before it closes its open record (R.fs_done). Each piece gets the bytes
+# left before the global limit (the last '\n' of the file) from its start
+# offset, so the unterminated last line is dropped as before. A chunk's
+# head [0, p) and tail [q, end) (p, q its first and last split points,
+# p >= 1) join the neighbouring pieces and are parsed in order.
+
+type SPt is Data:
+  SPt{first: U32, last: U32, len: U32}
+
+def fa_splits(xs: List<&2, U32>, +prev: U32, +i: U32, +f: U32, +l: U32) -> SPt:
+  match xs:
+    case Nil{}:
+      SPt{f, l, i}
+    case Con{+b, t}:
+      +hit = U32.is_eq(b, 62) && U32.is_eq(prev, 10) && U32.is_gt(i, 0)
+      fa_splits(t, b, (i + 1 : U32), N.u32_if(hit && U32.is_eq(f, 0), i, f), N.u32_if(hit, i, l))
+
+def fa_take(n: Nat, xs: List<&2, U32>) -> List<&2, U32>:
+  match n xs:
+    case 0n _:
+      Nil{}
+    case _ Nil{}:
+      Nil{}
+    case 1n+p Con{+h, t}:
+      h <> fa_take(p, t)
+
+def fa_drop(n: Nat, xs: List<&2, U32>) -> List<&2, U32>:
+  match n xs:
+    case 0n _:
+      xs
+    case _ Nil{}:
+      Nil{}
+    case 1n+p Con{h, t}:
+      fa_drop(p, t)
+
+def fa_feedn(n: Nat, xs: List<&2, U32>, +s: R.FS) -> R.FS:
+  match n xs:
+    case 0n _:
+      s
+    case _ Nil{}:
+      s
+    case 1n+p Con{+c, rest}:
+      fa_feedn(p, rest, R.fs_byte(c, s))
+
+# records of the n bytes of xs starting at file offset off (reversed)
+def fa_piece(+lim: U32, +off: U32, +n: U32, xs: List<&2, U32>) -> List<&2, R.Rec>:
+  R.recs_rev(R.fs_done(fa_feedn(U32.to_nat(n), xs, R.fs_new(N.u32_monus(lim, off)))), Nil{})
+
+def lsel(c: Bool, +a: List<&2, U32>, +b: List<&2, U32>) -> List<&2, U32>:
+  match c:
+    case True{}:
+      a
+    case False{}:
+      b
+
+# has split, head, tail, tail offset, chunk length, body records (reversed)
+type FC is Data:
+  FC{has: Bool, head: List<&2, U32>, tail: List<&2, U32>, toff: U32, len: U32, body: List<&2, R.Rec>}
+
+def fa_chunk_sp(+lim: U32, +off: U32, +xs: List<&2, U32>, +sp: SPt) -> FC:
+  match sp:
+    case SPt{+f, +l, +n}:
+      +rest = fa_drop(U32.to_nat(f), xs)
+      FC{U32.is_gt(f, 0), lsel(U32.is_gt(f, 0), fa_take(U32.to_nat(f), xs), xs),
+        fa_drop(U32.to_nat((l - f : U32)), rest), (off + l : U32), n,
+        fa_piece(lim, (off + f : U32), (l - f : U32), rest)}
+
+def fa_chunk(+lim: U32, +off: U32, +xs: List<&2, U32>) -> FC:
+  fa_chunk_sp(lim, off, xs, fa_splits(xs, 0, 0, 0, 0))
+
+type FT is Data:
+  FTNil{}
+  FTLeaf{off: U32, xs: List<&2, U32>}
+  FTNode{l: FT, r: FT}
+
+type FO is Data:
+  FONil{}
+  FOLeaf{r: FC}
+  FONode{l: FO, r: FO}
+
+# chunks (off, bytes) in order -> a tree of the first 2^d, and the rest
+type OB is Data:
+  OB{off: U32, xs: List<&2, U32>}
+
+def ft_ap(-A: Type, -B: Type, body: A -> B, value: A) -> B:
+  body(value)
+
+def ft_tree(+d: Nat, +xs: List<&2, OB>) -> FT & List<&2, OB>:
+  match d:
+    case 0n:
+      match xs:
+        case Nil{}:
+          (FTNil{}, Nil{})
+        case Con{OB{+o, +b}, +t}:
+          (FTLeaf{o, b}, t)
+    case 1n+p:
+      ft_ap(FT & List<&2, OB>, FT & List<&2, OB>, \{Tuple: l => rest => (
+        ft_ap(FT & List<&2, OB>, FT & List<&2, OB>, \{Tuple: r => rest2 => (
+          (FTNode{l, r}, rest2)
+        )}, ft_tree(p, rest))
+      )}, ft_tree(p, xs))
+
+def fo_join(+a: FO, +b: FO) -> FO:
+  FONode{a, b}
+
+def fa_par(+t: FT, +lim: U32) -> FO:
+  match t:
+    case FTNil{}:
+      FONil{}
+    case FTLeaf{+o, +xs}:
+      FOLeaf{fa_chunk(lim, o, xs)}
+    case FTNode{+l, +r}:
+      a b = fa_par(l, lim) fa_par(r, lim)
+      fo_join(a, b)
+
+def b_app(xs: List<&2, U32>, +ys: List<&2, U32>) -> List<&2, U32>:
+  match xs:
+    case Nil{}:
+      ys
+    case Con{+h, t}:
+      h <> b_app(t, ys)
+
+def b_len(xs: List<&2, U32>, +n: U32) -> U32:
+  match xs:
+    case Nil{}:
+      n
+    case Con{h, t}:
+      b_len(t, (n + 1 : U32))
+
+# carry (bytes from file offset coff), pieces' records (reversed, last
+# piece first: each piece reversed too)
+type FA is Data:
+  FA{carry: List<&2, U32>, coff: U32, done: List<&2, List<&2, R.Rec>>}
+
+def fa_whole(+lim: U32, +off: U32, +xs: List<&2, U32>) -> List<&2, R.Rec>:
+  fa_piece(lim, off, b_len(xs, 0), xs)
+
+def fa_add(+lim: U32, +c: FC, +fa: FA) -> FA:
+  match c fa:
+    case FC{+has, +head, +tail, +toff, +n, +body} FA{+carry, +coff, +done}:
+      when(FA, has, \{
+        True: FA{tail, toff, body <> (fa_whole(lim, coff, b_app(carry, head)) <> done)}
+        False: FA{b_app(carry, head), coff, done}
+      })
+
+def fo_fold(+o: FO, +lim: U32, +fa: FA) -> FA:
+  match o:
+    case FONil{}:
+      fa
+    case FOLeaf{+r}:
+      fa_add(lim, r, fa)
+    case FONode{+l, +r}:
+      fo_fold(r, lim, fo_fold(l, lim, fa))
+
+def ob_rev(xs: List<&2, OB>, acc: List<&2, OB>) -> List<&2, OB>:
+  match xs:
+    case Nil{}:
+      acc
+    case Con{+h, t}:
+      ob_rev(t, h <> acc)
+
+def fa_tree(+lim: U32, r: FT & List<&2, OB>, +fa: FA) -> FA:
+  (+t, +rest) = r
+  fo_fold(fa_par(t, lim), lim, fa)
+
+# a batch: chunks in reverse order
+def fa_batch(+lim: U32, +cs: List<&2, OB>, +fa: FA) -> FA:
+  fa_tree(lim, ft_tree(4n, ob_rev(cs, Nil{})), fa)
+
+type RBt is Type:
+  RBt{f: File, cs: List<&2, OB>, off: U32, eof: Bool}
+
+def rb_k(r: File & Result<&1, &1, U32 & String, List<&2, U32>>, +cs: List<&2, OB>, +off: U32,
+         k: File -> List<&2, OB> -> U32 -> IO(RBt)) -> IO(RBt):
+  (file, res) = r
+  match res:
+    case Fail{e}:
+      IO.pure(RBt, RBt{file, cs, off, True{}})
+    case Done{+bytes}:
+      match bytes:
+        case Nil{}:
+          IO.pure(RBt, RBt{file, cs, off, True{}})
+        case Con{+h, +t}:
+          k(file)(OB{off, h <> t} <> cs)((off + 1048576 : U32))
+
+def rb_go(+fuel: Nat, file: File, +cs: List<&2, OB>, +off: U32) -> IO(RBt):
+  match fuel:
+    case 0n:
+      IO.pure(RBt, RBt{file, cs, off, False{}})
+    case 1n+f:
+      do IO<RBt>:
+        r : File & Result<&1, &1, U32 & String, List<&2, U32>> <- File.read_bytes(file, 1048576)
+        rb_k(r, cs, off, h => c => o => rb_go(f, h, c, o))
+
+def fa_res(b: RBt, +lim: U32, +fa: FA, k: File -> U32 -> FA -> IO(File & FA)) -> IO(File & FA):
+  match b:
+    case RBt{file, +cs, +off, +eof}:
+      when(IO(File & FA), eof, \{
+        True: IO.pure(File & FA, (file, fa_batch(lim, cs, fa)))
+        False: k(file)(off)(fa_batch(lim, cs, fa))
+      })
+
+def fa_loop(+fuel: Nat, file: File, +lim: U32, +off: U32, +fa: FA) -> IO(File & FA):
+  match fuel:
+    case 0n:
+      IO.pure(File & FA, (file, fa))
+    case 1n+f:
+      do IO<File & FA>:
+        b : RBt <- rb_go(12n, file, Nil{}, off)
+        fa_res(b, lim, fa, h => o => a => fa_loop(f, h, lim, o, a))
+
+# pieces last first, each reversed: reversing each onto acc gives file order
+def recs_onto(xs: List<&2, R.Rec>, acc: List<&2, R.Rec>) -> List<&2, R.Rec>:
+  match xs:
+    case Nil{}:
+      acc
+    case Con{+x, rest}:
+      recs_onto(rest, x <> acc)
+
+def pieces_go(ps: List<&2, List<&2, R.Rec>>, acc: List<&2, R.Rec>) -> List<&2, R.Rec>:
+  match ps:
+    case Nil{}:
+      acc
+    case Con{+p, rest}:
+      pieces_go(rest, recs_onto(p, acc))
+
+def read_fasta.c(got: File & FA, +lim: U32) -> IO(List<&2, R.Rec>):
+  (f3, +fa) = got
+  match fa:
+    case FA{+carry, +coff, +done}:
+      do IO<List<&2, R.Rec>>:
+        File.close(f3)
+        return pieces_go(fa_whole(lim, coff, carry) <> done, Nil{})
 
 def read_fasta.b(r: File & U32) -> IO(List<&2, R.Rec>):
   (f2, +limit) = r
   do IO<List<&2, R.Rec>>:
-    got : File & R.FS <- fa_read(fuel_for(limit), f2, R.fs_new(limit))
-    read_fasta.c(got)
+    got : File & FA <- fa_loop(fuel_for(limit), f2, limit, 0, FA{Nil{}, 0, Nil{}})
+    read_fasta.c(got, limit)
 
 def file_size(r: File & Result<&1, &1, U32 & String, U32>) -> File & U32:
   (file, res) = r
@@ -934,10 +1144,31 @@ def finish(+c: Cfg, p: Plan) -> IO(Unit):
         False: IO.die(Unit, 1, err)
       })
 
+# ALIGN_TIMING=1: phase milliseconds on stderr
+def tlog.k(r: Result<&1, &1, U32 & String, String>, +msg: String) -> IO(Unit):
+  match r:
+    case Fail{e}:
+      IO.pure(Unit, Unit{})
+    case Done{v}:
+      IO.print_err(msg)
+
+def tlog(+msg: String) -> IO(Unit):
+  do IO<Unit>:
+    r : Result<&1, &1, U32 & String, String> <- IO.get_env("ALIGN_TIMING")
+    tlog.k(r, msg)
+
+def ms(+a: Nat, +b: Nat) -> String:
+  Nat.show(Nat.sub(b, a))
+
 def run.b(+c: Cfg, +recs: List<&2, R.Rec>, +hasf: Bool, fl: R.FL) -> IO(Unit):
   do IO<Unit>:
     t : U32 <- IO.thread_count()
-    finish(c, plan(c, recs, hasf, fl, t))
+    +t0 : Nat <- IO.now()
+    pl : Plan = plan(c, recs, hasf, fl, t)
+    +t1 : Nat <- IO.now()
+    finish(c, pl)
+    +t2 : Nat <- IO.now()
+    tlog("align timing ms: plan+align " ++ ms(t0, t1) ++ " write " ++ ms(t1, t2))
 
 def run.a(+c: Cfg, recs: List<&2, R.Rec>) -> IO(Unit):
   match c:
@@ -945,7 +1176,10 @@ def run.a(+c: Cfg, recs: List<&2, R.Rec>) -> IO(Unit):
       when(IO(Unit), String.is_empty(flt), \{
         True: run.b(c, recs, False{}, R.fl_new(0))
         False: do IO<Unit>:
+          +t0 : Nat <- IO.now()
           fl : R.FL <- read_filter(flt, fthr)
+          +t1 : Nat <- IO.now()
+          tlog("align timing ms: filter " ++ ms(t0, t1))
           run.b(c, recs, True{}, fl)
       })
 
@@ -955,7 +1189,10 @@ def run(+c: Cfg) -> IO(Unit):
       +msg = cfg_check(c)
       when(IO(Unit), String.is_empty(msg), \{
         True: do IO<Unit>:
+          +t0 : Nat <- IO.now()
           recs : List<&2, R.Rec> <- read_fasta(inp)
+          +t1 : Nat <- IO.now()
+          tlog("align timing ms: fasta " ++ ms(t0, t1))
           run.a(c, recs)
         False: IO.die(Unit, 1, msg)
       })
