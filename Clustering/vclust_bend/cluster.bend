@@ -833,194 +833,12 @@ def cat_bytes(xs: List<&2, U32>, acc: List<&2, U32>) -> List<&2, U32>:
 
 
 
-def cg_le(x: CG, y: CG) -> Bool:
-  match x y:
-    case CG{a, b} CG{c, d}:
-      Bool.or(U32.is_lt(a, c), Bool.and(U32.is_eq(a, c), U32.is_le(b, d)))
-
-
-
-
-def sz_le(x: SZ, y: SZ) -> Bool:
-  match x y:
-    case SZ{a, b} SZ{c, d}:
-      Bool.or(U32.is_gt(a, c), Bool.and(U32.is_eq(a, c), U32.is_le(b, d)))
-
-
-
-
-def count_inc(rs: Array<U32> & U32, asg: Array<U32>, +c: U32) -> Array<U32> & Array<U32>:
-  (sizes, +s) = rs
-  (asg, Array.set(U32, sizes, c, U32.inc(s)))
-
-
-
-
-def count_go(r: Array<U32> & U32, sizes: Array<U32>) -> Array<U32> & Array<U32>:
-  (asg, +c) = r
-  count_inc(Array.get(U32, sizes, c), asg, c)
-
-
-
-
-def count_sizes(n: Nat, +v: U32, st: Array<U32> & Array<U32>) -> Array<U32> & Array<U32>:
-  match n:
-    case 0n:
-      st
-    case 1n+p:
-      (asg, sizes) = st
-      count_sizes(p, U32.inc(v), count_go(Array.get(U32, asg, v), sizes))
-
-
-
-
-def sz_list(n: Nat, +c: U32, r: Array<U32> & U32) -> List<&2, SZ>:
-  match n:
-    case 0n:
-      Nil{}
-    case 1n+p:
-      (sizes, +s) = r
-      SZ{s, c} <> sz_list(p, U32.inc(c), Array.get(U32, sizes, U32.inc(c)))
-
-
-
-
-def old2new_go(xs: List<&2, SZ>, +i: U32, o2n: Array<U32>) -> Array<U32>:
-  match xs:
-    case Nil{}:
-      o2n
-    case Con{x, t}:
-      match x:
-        case SZ{s, c}:
-          old2new_go(t, U32.inc(i), Array.set(U32, o2n, c, i))
-
-
-
-
-def old2new(cs: Array<U32> & Array<U32>, +ncl: U32) -> Array<U32> & Array<U32>:
-  (asg, sizes) = cs
-  (asg, old2new_go(List.sort(~SZ, ~sz_le, sz_list(U32.to_nat(ncl), 0, Array.get(U32, sizes, 0))), 0,
-    G.u32_array(ncl, 0)))
-
-
-
-
-def ob_c(rc: Array<U32> & U32, g2l: Array<U32>, asg: Array<U32>, +ins: List<&2, CG>, +outs: List<&2, U32>, +gi: U32) -> OB:
-  (o2n, +c) = rc
-  OB{g2l, asg, o2n, CG{c, gi} <> ins, outs}
-
-
-
-
-def ob_a(ra: Array<U32> & U32, g2l: Array<U32>, o2n: Array<U32>, +ins: List<&2, CG>, +outs: List<&2, U32>, +gi: U32) -> OB:
-  (asg, +a) = ra
-  ob_c(Array.get(U32, o2n, a), g2l, asg, ins, outs, gi)
-
-
-
-
-def ob_in(out: Bool, g2l: Array<U32>, asg: Array<U32>, o2n: Array<U32>, +ins: List<&2, CG>, +outs: List<&2, U32>, +gi: U32, +l: U32) -> OB:
-  match out:
-    case True{}:
-      OB{g2l, asg, o2n, ins, gi <> outs}
-    case False{}:
-      ob_a(Array.get(U32, asg, l), g2l, o2n, ins, outs, gi)
-
-
-
-
-def ob_l(rl: Array<U32> & U32, asg: Array<U32>, o2n: Array<U32>, +ins: List<&2, CG>, +outs: List<&2, U32>, +gi: U32) -> OB:
-  (g2l, +l) = rl
-  ob_in(U32.is_eq(l, L.none()), g2l, asg, o2n, ins, outs, gi, l)
-
-
-
-
-def ob_loop(n: Nat, +gi: U32, ob: OB) -> OB:
-  match n:
-    case 0n:
-      ob
-    case 1n+p:
-      match ob:
-        case OB{g2l, asg, o2n, ins, outs}:
-          ob_loop(p, U32.inc(gi), ob_l(Array.get(U32, g2l, gi), asg, o2n, ins, outs, gi))
-
-
-
-
 def rev_u32(xs: List<&2, U32>, acc: List<&2, U32>) -> List<&2, U32>:
   match xs:
     case Nil{}:
       acc
     case Con{h, t}:
       rev_u32(t, h <> acc)
-
-
-
-
-def line_rev(+name: List<&2, U32>, +rest: List<&2, U32>, +acc: List<&2, U32>) -> List<&2, U32>:
-  10 <> cat_bytes(rest, 9 <> cat_bytes(name, acc))
-
-
-
-
-def ow_emit(repr: Bool, fresh: Bool, names: Array<List<&2, U32>>, +acc: List<&2, U32>, +nm: List<&2, U32>, +rep: List<&2, U32>, +c: U32) -> OW:
-  match repr:
-    case False{}:
-      OW{names, line_rev(nm, L.bytes_of(U32.show(c)), acc), c, rep}
-    case True{}:
-      match fresh:
-        case True{}:
-          OW{names, line_rev(nm, nm, acc), c, nm}
-        case False{}:
-          OW{names, line_rev(nm, rep, acc), c, rep}
-
-
-
-
-def ow_cg(rn: Array<List<&2, U32>> & List<&2, U32>, +acc: List<&2, U32>, +cur: U32, +rep: List<&2, U32>, +repr: Bool, +c: U32) -> OW:
-  (names, +nm) = rn
-  ow_emit(repr, U32.is_ne(c, cur), names, acc, nm, rep, c)
-
-
-
-
-def ow_ins(xs: List<&2, CG>, +repr: Bool, ow: OW) -> OW:
-  match xs:
-    case Nil{}:
-      ow
-    case Con{x, t}:
-      match x:
-        case CG{c, gi}:
-          match ow:
-            case OW{names, acc, cur, rep}:
-              ow_ins(t, repr, ow_cg(Array.get(List<&2, U32>, names, gi), acc, cur, rep, repr, c))
-
-
-
-
-def none_u32() -> U32:
-  4294967295
-
-
-
-
-def ow_outs(xs: List<&2, U32>, +repr: Bool, +c: U32, ow: OW) -> OW:
-  match xs:
-    case Nil{}:
-      ow
-    case Con{gi, t}:
-      match ow:
-        case OW{names, acc, cur, rep}:
-          ow_outs(t, repr, U32.inc(c), ow_cg(Array.get(List<&2, U32>, names, gi), acc, none_u32(), rep, repr, c))
-
-
-
-
-def ow_bytes(ow: OW) -> List<&2, U32>:
-  match ow:
-    case OW{names, acc, cur, rep}:
-      rev_u32(acc, Nil{})
 
 
 
@@ -1064,27 +882,318 @@ def header_bytes() -> List<&2, U32>:
 
 
 
-def ob_fin(ob: OB, names: Array<List<&2, U32>>, +repr: Bool, +ncl: U32) -> List<&2, U32>:
-  match ob:
-    case OB{g2l, asg, o2n, ins, outs}:
-      ow_bytes(ow_outs(rev_u32(outs, Nil{}), repr, ncl,
-        ow_ins(List.sort(~CG, ~cg_le, ins), repr, OW{names, cat_bytes(header_bytes(), Nil{}), none_u32(), Nil{}})))
+# Rendering (Clusty's output order)
+# =================================
+#
+# Clusters are renumbered by decreasing size, ties by old id (a stable
+# counting sort on the key nloc - size); in-matrix objects are listed by
+# (new cluster, ids position) (a counting sort by new cluster over the ids
+# positions in ascending order); then the objects absent from the graph as
+# singletons in ids order. The text is built from the last line backwards,
+# so the byte list comes out in order.
 
+def a_get(a: Array<U32>, +i: U32) -> Array<U32> & U32:
+  Array.get(U32, a, i)
 
+# sizes[c] = members of old cluster c
+type CZ is Type:
+  CZ{asg: Array<U32>, sz: Array<U32>, +i: U32}
 
+def cz_c(asg: Array<U32>, +i: U32, +c: U32, r: Array<U32> & U32) -> CZ:
+  (sz, +v) = r
+  CZ{asg, Array.set(U32, sz, c, U32.inc(v)), U32.inc(i)}
 
-def render_go(r: Array<U32> & Array<U32>, +ncl: U32, g2l: Array<U32>, names: Array<List<&2, U32>>, +nnames: U32, +repr: Bool) -> List<&2, U32>:
-  (asg, o2n) = r
-  ob_fin(ob_loop(U32.to_nat(nnames), 0, OB{g2l, asg, o2n, Nil{}, Nil{}}), names, repr, ncl)
+def cz_r(sz: Array<U32>, +i: U32, r: Array<U32> & U32) -> CZ:
+  (asg, +c) = r
+  cz_c(asg, i, c, a_get(sz, c))
 
+def cz_go(n: Nat, st: CZ) -> CZ:
+  match n st:
+    case 0n _:
+      st
+    case 1n+p CZ{asg, sz, +i}:
+      cz_go(p, cz_r(sz, i, a_get(asg, i)))
 
+# kc[k + 1] += 1 for key k = nloc - size of every cluster
+type KC is Type:
+  KC{sz: Array<U32>, kc: Array<U32>, +i: U32}
 
+def kc_w(sz: Array<U32>, +i: U32, +k: U32, r: Array<U32> & U32) -> KC:
+  (kc, +x) = r
+  KC{sz, Array.set(U32, kc, k, U32.inc(x)), U32.inc(i)}
+
+def kc_v(kc: Array<U32>, +i: U32, +nloc: U32, r: Array<U32> & U32) -> KC:
+  (sz, +v) = r
+  +k = U32.inc(U32.sub(nloc, v))
+  kc_w(sz, i, k, a_get(kc, k))
+
+def kc_go(n: Nat, +nloc: U32, st: KC) -> KC:
+  match n st:
+    case 0n _:
+      st
+    case 1n+p KC{sz, kc, +i}:
+      kc_go(p, nloc, kc_v(kc, i, nloc, a_get(sz, i)))
+
+# exclusive prefix sums in place over [0, n): a[i] = a[0] + .. + a[i-1] of
+# the input shifted by one (the counts sit at k + 1)
+type PX is Type:
+  PX{a: Array<U32>, +i: U32, +acc: U32}
+
+def px_r(+i: U32, +acc: U32, r: Array<U32> & U32) -> PX:
+  (a, +v) = r
+  +s2 = U32.add(acc, v)
+  PX{Array.set(U32, a, i, s2), U32.inc(i), s2}
+
+def px_go(n: Nat, st: PX) -> PX:
+  match n st:
+    case 0n _:
+      st
+    case 1n+p PX{a, +i, +acc}:
+      px_go(p, px_r(i, acc, a_get(a, i)))
+
+def px_arr(st: PX) -> Array<U32>:
+  match st:
+    case PX{a, i, acc}:
+      a
+
+def prefix_incl(+n: U32, a: Array<U32>) -> Array<U32>:
+  px_arr(px_go(U32.to_nat(n), PX{a, 0, 0}))
+
+# o2n[c] = kc[k]++ ; nsz[o2n[c]] = size
+type ON is Type:
+  ON{sz: Array<U32>, kc: Array<U32>, o2n: Array<U32>, nsz: Array<U32>, +i: U32}
+
+def on_p(sz: Array<U32>, o2n: Array<U32>, nsz: Array<U32>, +i: U32, +k: U32, +v: U32, r: Array<U32> & U32) -> ON:
+  (kc, +pos) = r
+  ON{sz, Array.set(U32, kc, k, U32.inc(pos)), Array.set(U32, o2n, i, pos), Array.set(U32, nsz, pos, v), U32.inc(i)}
+
+def on_v(kc: Array<U32>, o2n: Array<U32>, nsz: Array<U32>, +i: U32, +nloc: U32, r: Array<U32> & U32) -> ON:
+  (sz, +v) = r
+  +k = U32.sub(nloc, v)
+  on_p(sz, o2n, nsz, i, k, v, a_get(kc, k))
+
+def on_go(n: Nat, +nloc: U32, st: ON) -> ON:
+  match n st:
+    case 0n _:
+      st
+    case 1n+p ON{sz, kc, o2n, nsz, +i}:
+      on_go(p, nloc, on_v(kc, o2n, nsz, i, nloc, a_get(sz, i)))
+
+# placement of the in-matrix objects; outs = absent ones, descending
+type PL is Type:
+  PL{g2l: Array<U32>, asg: Array<U32>, o2n: Array<U32>, st: Array<U32>, order: Array<U32>, cl: Array<U32>,
+     repg: Array<U32>, +outs: List<&2, U32>, +gi: U32}
+
+def pl_rep(g2l: Array<U32>, asg: Array<U32>, o2n: Array<U32>, st: Array<U32>, order: Array<U32>, cl: Array<U32>,
+           +outs: List<&2, U32>, +gi: U32, +c: U32, r: Array<U32> & U32) -> PL:
+  (repg, +rp) = r
+  PL{g2l, asg, o2n, st, order, cl, Array.set(U32, repg, c, F.sel(U32.is_eq(rp, L.none()), gi, rp)), outs, U32.inc(gi)}
+
+def pl_pos(g2l: Array<U32>, asg: Array<U32>, o2n: Array<U32>, order: Array<U32>, cl: Array<U32>, repg: Array<U32>,
+           +outs: List<&2, U32>, +gi: U32, +c: U32, r: Array<U32> & U32) -> PL:
+  (st, +pos) = r
+  pl_rep(g2l, asg, o2n, Array.set(U32, st, c, U32.inc(pos)), Array.set(U32, order, pos, gi), Array.set(U32, cl, pos, c),
+    outs, gi, c, a_get(repg, c))
+
+def pl_c(g2l: Array<U32>, asg: Array<U32>, st: Array<U32>, order: Array<U32>, cl: Array<U32>, repg: Array<U32>,
+         +outs: List<&2, U32>, +gi: U32, r: Array<U32> & U32) -> PL:
+  (o2n, +c) = r
+  pl_pos(g2l, asg, o2n, order, cl, repg, outs, gi, c, a_get(st, c))
+
+def pl_a(g2l: Array<U32>, o2n: Array<U32>, st: Array<U32>, order: Array<U32>, cl: Array<U32>, repg: Array<U32>,
+         +outs: List<&2, U32>, +gi: U32, r: Array<U32> & U32) -> PL:
+  (asg, +a) = r
+  pl_c(g2l, asg, st, order, cl, repg, outs, gi, a_get(o2n, a))
+
+def pl_in(out: Bool, +l: U32, g2l: Array<U32>, asg: Array<U32>, o2n: Array<U32>, st: Array<U32>, order: Array<U32>,
+          cl: Array<U32>, repg: Array<U32>, +outs: List<&2, U32>, +gi: U32) -> PL:
+  match out:
+    case True{}:
+      PL{g2l, asg, o2n, st, order, cl, repg, gi <> outs, U32.inc(gi)}
+    case False{}:
+      pl_a(g2l, o2n, st, order, cl, repg, outs, gi, a_get(asg, l))
+
+def pl_l(asg: Array<U32>, o2n: Array<U32>, st: Array<U32>, order: Array<U32>, cl: Array<U32>, repg: Array<U32>,
+         +outs: List<&2, U32>, +gi: U32, r: Array<U32> & U32) -> PL:
+  (g2l, +l) = r
+  pl_in(U32.is_eq(l, L.none()), l, g2l, asg, o2n, st, order, cl, repg, outs, gi)
+
+def pl_go(n: Nat, s: PL) -> PL:
+  match n s:
+    case 0n _:
+      s
+    case 1n+p PL{g2l, asg, o2n, st, order, cl, repg, +outs, +gi}:
+      pl_go(p, pl_l(asg, o2n, st, order, cl, repg, outs, gi, a_get(g2l, gi)))
+
+# output text
+def app_bytes(xs: List<&2, U32>, ys: List<&2, U32>) -> List<&2, U32>:
+  match xs:
+    case Nil{}:
+      ys
+    case Con{+h, t}:
+      h <> app_bytes(t, ys)
+
+def dig_go(n: Nat, +v: U32, xs: List<&2, U32>) -> List<&2, U32>:
+  match n:
+    case 0n:
+      xs
+    case 1n+p:
+      dig_go(p, U32.div(v, 10), U32.add(U32.mod(v, 10), 48) <> xs)
+
+def ndig(+v: U32) -> U32:
+  U32.add(1, U32.add(F.b2u(U32.is_ge(v, 10)), U32.add(F.b2u(U32.is_ge(v, 100)), U32.add(F.b2u(U32.is_ge(v, 1000)),
+    U32.add(F.b2u(U32.is_ge(v, 10000)), U32.add(F.b2u(U32.is_ge(v, 100000)), U32.add(F.b2u(U32.is_ge(v, 1000000)),
+    U32.add(F.b2u(U32.is_ge(v, 10000000)), U32.add(F.b2u(U32.is_ge(v, 100000000)), F.b2u(U32.is_ge(v, 1000000000)))))))))))
+
+def num_bytes(+v: U32, xs: List<&2, U32>) -> List<&2, U32>:
+  dig_go(U32.to_nat(ndig(v)), v, xs)
+
+def name_of(names: Array<List<&2, U32>>, +gi: U32) -> Array<List<&2, U32>> & List<&2, U32>:
+  Array.get(List<&2, U32>, names, gi)
+
+type NA is Type:
+  NA{names: Array<List<&2, U32>>, +acc: List<&2, U32>}
+
+def na_line(+nm: List<&2, U32>, +second: List<&2, U32>, names: Array<List<&2, U32>>) -> NA:
+  NA{names, app_bytes(nm, 9 <> second)}
+
+def apply_na(r: Array<List<&2, U32>> & List<&2, U32>, +second: List<&2, U32>) -> NA:
+  (names, +nm) = r
+  na_line(nm, second, names)
+
+def na_rep(+gi: U32, r: Array<List<&2, U32>> & List<&2, U32>, +acc: List<&2, U32>) -> NA:
+  (names, +rn) = r
+  apply_na(name_of(names, gi), app_bytes(rn, 10 <> acc))
+
+# the line of object gi in cluster c (representative rg) before acc
+def na_obj(repr: Bool, names: Array<List<&2, U32>>, +gi: U32, +c: U32, +rg: U32, +acc: List<&2, U32>) -> NA:
+  match repr:
+    case True{}:
+      na_rep(gi, name_of(names, rg), acc)
+    case False{}:
+      apply_na(name_of(names, gi), num_bytes(c, 10 <> acc))
+
+type OS is Type:
+  OS{order: Array<U32>, cl: Array<U32>, repg: Array<U32>, names: Array<List<&2, U32>>, +acc: List<&2, U32>, +i: U32}
+
+def os_fin(order: Array<U32>, cl: Array<U32>, repg: Array<U32>, +i: U32, na: NA) -> OS:
+  match na:
+    case NA{names, +acc}:
+      OS{order, cl, repg, names, acc, i}
+
+def os_r(order: Array<U32>, cl: Array<U32>, names: Array<List<&2, U32>>, +acc: List<&2, U32>, +i: U32, +repr: Bool,
+         +gi: U32, +c: U32, r: Array<U32> & U32) -> OS:
+  (repg, +rg) = r
+  os_fin(order, cl, repg, i, na_obj(repr, names, gi, c, rg, acc))
+
+def os_c(order: Array<U32>, repg: Array<U32>, names: Array<List<&2, U32>>, +acc: List<&2, U32>, +i: U32, +repr: Bool,
+         +gi: U32, r: Array<U32> & U32) -> OS:
+  (cl, +c) = r
+  os_r(order, cl, names, acc, i, repr, gi, c, a_get(repg, c))
+
+def os_hole(hole: Bool, order: Array<U32>, cl: Array<U32>, repg: Array<U32>, names: Array<List<&2, U32>>,
+            +acc: List<&2, U32>, +i: U32, +repr: Bool, +gi: U32) -> OS:
+  match hole:
+    case True{}:
+      OS{order, cl, repg, names, acc, i}
+    case False{}:
+      os_c(order, repg, names, acc, i, repr, gi, a_get(cl, i))
+
+# a position stays empty only for a local id outside the ids file
+def os_g(cl: Array<U32>, repg: Array<U32>, names: Array<List<&2, U32>>, +acc: List<&2, U32>, +i: U32, +repr: Bool,
+         r: Array<U32> & U32) -> OS:
+  (order, +gi) = r
+  os_hole(U32.is_eq(gi, L.none()), order, cl, repg, names, acc, i, repr, gi)
+
+# positions i-1 .. 0
+def os_go(n: Nat, +repr: Bool, s: OS) -> OS:
+  match n s:
+    case 0n _:
+      s
+    case 1n+p OS{order, cl, repg, names, +acc, +i}:
+      +j = U32.sub(i, 1)
+      os_go(p, repr, os_g(cl, repg, names, acc, j, repr, a_get(order, j)))
+
+# the absent objects (descending ids), clusters c-1, c-2, ..
+def outs_go(xs: List<&2, U32>, +repr: Bool, +c: U32, na: NA) -> NA:
+  match xs na:
+    case Nil{} _:
+      na
+    case Con{+gi, t} NA{names, +acc}:
+      +c1 = U32.sub(c, 1)
+      outs_go(t, repr, c1, na_obj(repr, names, gi, c1, gi, acc))
+
+def os_names(s: OS) -> List<&2, U32>:
+  match s:
+    case OS{order, cl, repg, names, +acc, i}:
+      acc
+
+def len_u32(xs: List<&2, U32>, +n: U32) -> U32:
+  match xs:
+    case Nil{}:
+      n
+    case Con{h, t}:
+      len_u32(t, U32.inc(n))
+
+def os_after(na: NA, order: Array<U32>, cl: Array<U32>, repg: Array<U32>, +nloc: U32, +repr: Bool) -> List<&2, U32>:
+  match na:
+    case NA{names, +acc}:
+      app_bytes(header_bytes(), os_names(os_go(U32.to_nat(nloc), repr, OS{order, cl, repg, names, acc, nloc})))
+
+def os_start(pl: PL, names: Array<List<&2, U32>>, +ncl: U32, +nloc: U32, +repr: Bool) -> List<&2, U32>:
+  match pl:
+    case PL{g2l, asg, o2n, st, order, cl, repg, +outs, +gi}:
+      os_after(outs_go(outs, repr, U32.add(ncl, len_u32(outs, 0)), NA{names, Nil{}}), order, cl, repg, nloc, repr)
+
+type SH is Type:
+  SH{a: Array<U32>, b: Array<U32>, +i: U32}
+
+def sh_r(b: Array<U32>, +i: U32, r: Array<U32> & U32) -> SH:
+  (a, +v) = r
+  SH{a, Array.set(U32, b, U32.inc(i), v), U32.inc(i)}
+
+def sh_go(n: Nat, s: SH) -> SH:
+  match n s:
+    case 0n _:
+      s
+    case 1n+p SH{a, b, +i}:
+      sh_go(p, sh_r(b, i, a_get(a, i)))
+
+def sh_b(s: SH) -> Array<U32>:
+  match s:
+    case SH{a, b, i}:
+      b
+
+def shift_excl(+n: U32, a: Array<U32>) -> Array<U32>:
+  prefix_incl(n, sh_b(sh_go(U32.to_nat(n), SH{a, G.u32_array(U32.inc(n), 0), 0})))
+
+def render_pl(on: ON, g2l: Array<U32>, asg: Array<U32>, names: Array<List<&2, U32>>, +ncl: U32, +nloc: U32,
+              +nnames: U32, +repr: Bool) -> List<&2, U32>:
+  match on:
+    case ON{sz, kc, o2n, nsz, i}:
+      os_start(pl_go(U32.to_nat(nnames), PL{g2l, asg, o2n, shift_excl(ncl, nsz), G.u32_array(nloc, L.none()),
+          G.u32_array(nloc, 0), G.u32_array(ncl, L.none()), Nil{}, 0}),
+        names, ncl, nloc, repr)
+
+# exclusive prefix of a[0..n): via the inclusive prefix of the counts
+# shifted by one slot
+def render_kc(kc: KC, g2l: Array<U32>, asg: Array<U32>, names: Array<List<&2, U32>>, +ncl: U32, +nloc: U32,
+              +nnames: U32, +repr: Bool) -> List<&2, U32>:
+  match kc:
+    case KC{sz, kc, i}:
+      render_pl(on_go(U32.to_nat(ncl), nloc, ON{sz, prefix_incl(U32.add(nloc, 2), kc), G.u32_array(ncl, 0),
+          G.u32_array(ncl, 0), 0}), g2l, asg, names, ncl, nloc, nnames, repr)
+
+def render_cz(cz: CZ, g2l: Array<U32>, names: Array<List<&2, U32>>, +ncl: U32, +nloc: U32, +nnames: U32,
+              +repr: Bool) -> List<&2, U32>:
+  match cz:
+    case CZ{asg, sz, i}:
+      render_kc(kc_go(U32.to_nat(ncl), nloc, KC{sz, G.u32_array(U32.add(nloc, 2), 0), 0}), g2l, asg, names, ncl,
+        nloc, nnames, repr)
 
 # assignment over local ids (n of them) with ncl clusters -> output bytes
 def render(asg: Array<U32>, +ncl: U32, +nloc: U32, g2l: Array<U32>, names: Array<List<&2, U32>>, +nnames: U32, +repr: Bool) -> List<&2, U32>:
-  render_go(old2new(count_sizes(U32.to_nat(nloc), 0, (asg, G.u32_array(ncl, 0))), ncl), ncl, g2l, names, nnames, repr)
-
-
+  render_cz(cz_go(U32.to_nat(nloc), CZ{asg, G.u32_array(ncl, 0), 0}), g2l, names, ncl, nloc, nnames, repr)
 
 
 # ---------------------------------------------------------------------------
