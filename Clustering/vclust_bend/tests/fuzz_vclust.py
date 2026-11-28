@@ -129,7 +129,9 @@ def fuzz_prefilter(rng, seed, binp, bina=None):
 
 
 def fmt(x):
-    return f"{x:.6g}" if x != 1 else "1"
+    # the cluster stage supports plain decimals only (no exponent; see README)
+    t = f"{x:.6g}" if x != 1 else "1"
+    return f"{x:.6f}" if "e" in t else t
 
 
 def random_table(rng, base):
