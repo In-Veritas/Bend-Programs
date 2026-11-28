@@ -2,7 +2,7 @@
 
 Every stage keeps its CLI and its output: each change below is byte-identical
 to Vclust 1.3.1 on `~/vclust-work/check.sh` (all sets, including acc100000 and
-acc323556), the repo suites and the fuzzers in `tests/fuzz_*.py`. Each entry
+acc323556), the repo suites and the differential fuzzer `tests/fuzz_vclust.py`. Each entry
 says why the output cannot change and what it measured (wall time / max RSS,
 12 threads, same minute, bench lock held unless noted).
 

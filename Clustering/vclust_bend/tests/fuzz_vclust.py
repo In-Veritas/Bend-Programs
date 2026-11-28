@@ -112,6 +112,8 @@ def fuzz_prefilter(rng, seed, binp, bina=None):
                     print(f"DIFF align seed {seed} {fmt} {sfx} ({fa})", flush=True)
                     bad += 1
     for opts in PF_OPTS:
+        if big and "--batch-size" in opts:  # Kmer-db's all2all-parts is slow with hundreds of parts
+            opts = [("400" if o == "7" else o) for o in opts]
         ref, out = fa + ".ref", fa + ".bend"
         subprocess.run([VCLUST, "prefilter", "-i", fa, "-o", ref, "-t", "4", "-v", "0"] + opts, check=True,
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
