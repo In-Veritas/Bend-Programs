@@ -153,3 +153,32 @@ The values of each pair are read from the result arrays in pair order
 (sequential and cheap), then chunks of 1024 pairs are formatted by fork-join,
 24 chunks per batch, and written in order. Every pair yields the same two
 rows through the same `row` function; only the evaluation order changes.
+
+## Summary: same-minute A/B against the starting point
+
+Binaries: `bend-latest-port` @ 3526660 (before) and this branch (after), 12
+threads, `/usr/bin/time`, bench lock held, interleaved twice; the machine was
+shared (load 4-10 from other jobs), so absolute numbers are higher than on an
+idle machine, the ratios are the useful part. All outputs byte-identical.
+
+| set / stage | before | after | Vclust 1.3.1 (coordinator, idle) |
+|---|---|---|---|
+| acc30000 prefilter | 3.70 / 3.53 s, 2.59 GB | 2.43 / 2.21 s, 1.03 GB | 10.9 s, 535 MB |
+| acc100000 prefilter | OOM (> 9 GB) | 7.5-9.3 s, 0.8-1.3 GB | 26-66 s, 1.35 GB |
+| acc323556 prefilter | OOM (> 9 GB) | 20.6 s idle-ish / 37-47 s loaded, 1.9-2.25 GB | 31.5-56 s, 3.5 GB |
+| acc100000 align | 63.9 / 61.1 s, 522 MB | 23.3 / 22.1 s, 690 MB | 5.1 s |
+| acc323556 align | 115 s (coordinator) | 85-92 s, 1.68 GB | 12.4 s |
+| acc100000 cluster (leiden 0.95) | 11.5 / 11.6 s | 7.90 / 7.95 s | 0.42 s |
+| acc323556 cluster (leiden 0.95) | 41.5 / 39.0 s | 28.2 / 26.1 s | 1.18 s |
+
+Where the time goes now (ALIGN_TIMING / CLUSTER_TIMING, acc323556, loaded):
+align = FASTA 6.9 s + filter 4.2 s + plan and LZ parsing 38 s + formatting
+and writing 35 s; cluster = parse 9-10.6 s (about 4.4 s of it is reading
+320 MB as Bend byte lists, which is sequential IO) + build 2.3 s + Leiden
+10.5-11 s (sequential soft-binary64 kernel) + render 2.4 s + write 1 s.
+
+Not done (candidates): the LZ parser itself (per-thread speed vs LZ-ANI,
+dominated by per-step record rebuilding and reference-count traffic in the
+generated C), the per-byte record allocation of the align FASTA reader
+(25 s of CPU single-threaded at 100k), the sequential Leiden kernel, and
+the cluster row build (List.sort per vertex).
